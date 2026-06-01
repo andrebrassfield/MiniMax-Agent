@@ -13,7 +13,6 @@ Thumbs.db
 # --- Obsidian: personal UI state (regenerated per machine) ---
 .obsidian/workspace.json
 .obsidian/cache/
-.obsidian/plugins/*/data.json
 
 # --- Obsidian: plugin runtime / dependencies (regenerable) ---
 .obsidian/plugins/*/node_modules/

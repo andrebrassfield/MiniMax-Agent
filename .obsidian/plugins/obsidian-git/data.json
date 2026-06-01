@@ -1,0 +1,14 @@
+{
+  "commitMessage": "vault backup: {{date}}",
+  "autoCommitMessage": "vault backup: {{date}}",
+  "autoCommitDisabled": false,
+  "autoPush": true,
+  "autoPull": true,
+  "autoPullIntervalMinutes": 30,
+  "autoBackup": true,
+  "autoBackupInterval": 5,
+  "backupPath": "",
+  "dateFormat": "YYYY-MM-DD HH:mm:ss",
+  "showAuthorInHistory": false,
+  "showLineCountInHistory": false
+}

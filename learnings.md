@@ -1,7 +1,46 @@
-# learnings.md — What M3 Changed
+# learnings.md — What I Know
 
-> Living log of discoveries, surprises, and what M3 unlocks that M2.7 didn't.
-> Append entries chronologically. Tag the type: `[discovery]`, `[capability]`, `[gotcha]`, `[benchmark]`, `[architecture]`.
+> Living log of discoveries, surprises, and what M3 unlocks.
+> Append entries chronologically. Tag the type: `[discovery]`, `[capability]`, `[gotcha]`, `[benchmark]`, `[architecture]`, `[vault]`, `[role]`.
+
+---
+
+## 2026-06-01 — Vault launch + role pivot
+
+### `[role]` I'm now Andre's executive assistant, not fleet orchestrator
+- **Old role**: Mavis — fleet orchestrator / desktop specialist / coder across Hermes + OpenClaw + kanban
+- **New role**: Mavis — Andre's EA, isolated to this vault, no fleet tooling
+- **Trigger**: Andre explicitly redirected me 2026-06-01 ~13:16 CT. Locked into SOUL, agent.md, learnings.md, README, and main memory.
+- **What this means in practice**: I don't reach into `~/.hermes/`, `~/.mavis/`, OpenClaw MCP, kanban, gbrain, or any of the fleet infrastructure. Those are separate. I work from this vault + my direct file/web/code tools.
+- **Why it works**: M3 has the 1M context + native multimodal to be a strong solo agent. The fleet made sense when models were weaker; with M3, the role consolidates.
+
+### `[vault]` This folder IS my Obsidian vault
+- **Path**: `/Users/brassfieldventuresllc/MiniMax-Agent/`
+- **GitHub**: `git@github.com:andrebrassfield/MiniMax-Agent.git` (private, SSH deploy key)
+- **Status**: Fresh, basically empty, just got bootstrapped
+- **Plugins installed** (21 community + core): Dataview, Templater, Calendar, Tasks, Local REST API, Smart Connections, Homepage, QuickAdd, obsidian-git, omnisearch, excalidraw, icon-folder, minimal-settings, style-settings, linter, admonition, importer, outliner, mind-map, tag-wrangler, realclaudian
+- **Plugins I expect to lean on most**: Dataview (queries), Templater (auto-fill), Tasks (todo tracking), Smart Connections (semantic search), Calendar (daily notes), obsidian-git (auto-backup), Local REST API (external automation when needed)
+- **Not using (for now)**: Excalidraw, mind-map, realclaudian, icon-folder, linter, admonition, importer, outliner — keep them available but don't depend
+
+### `[vault]` Folder structure I committed to
+```
+00 Inbox/      → raw captures
+01 Daily/      → yyyy-mm-dd daily notes
+02 Notes/      → permanent notes (one concept per note)
+03 Projects/   → active project subfolders
+04 Resources/  → reference material
+05 Archive/    → completed/obsolete (nothing deleted)
+99 _system/    → templates, dashboards, INDEX
+```
+
+### `[vault]` @cyrilXBT's "30-minute Obsidian setup" principles I'm following
+- 5-folder system (I extended to 7 with Daily + _system)
+- Templater for variable-fill templates (daily/date, project/start, etc.)
+- Dataview for query-as-database views
+- Calendar plugin → click date → create daily note
+- Three habits: daily capture, evening processing, weekly review
+- Linking is the value: link on reference, link on processing, link on review
+- No orphan notes — every permanent note has at least one outgoing link
 
 ---
 
@@ -12,16 +51,16 @@
 - **Native multimodality** (image + video input, not bolted on)
 - **Desktop computer use** (drives macOS / Linux / Windows GUIs)
 
-Until M3, that triforce was closed-source only. Now it's open-weight. (Source: [minimax.io/blog/minimax-m3](https://www.minimax.io/blog/minimax-m3))
+Until M3, that triforce was closed-source only. (Source: [minimax.io/blog/minimax-m3](https://www.minimax.io/blog/minimax-m3))
 
 ### `[architecture]` MSA — MiniMax Sparse Attention
 - New attention arch. Solves quadratic blowup with a pre-filtering stage that partitions KV into blocks more precisely than DSA or MoBA
-- Operator-level optimization: "KV outer gather Q" — each block read once, contiguous memory access
+- "KV outer gather Q" operator: each block read once, contiguous memory access
 - 4× faster than open-source Flash-Sparse-Attention and flash-moba
 - At 1M context: **1/20th the per-token compute of M2.7**, **9× faster prefilling**, **15× faster decoding**
 - Matches full attention on most capabilities in ablations
 
-### `[benchmark]` Where M3 actually wins
+### `[benchmark]` Where M3 wins
 | Benchmark | M3 | Notes |
 |-----------|----|----|
 | SWE-Bench Pro | 59.0% | Beats GPT-5.5 + Gemini 3.1 Pro, approaches Opus 4.7 |
@@ -36,85 +75,59 @@ Until M3, that triforce was closed-source only. Now it's open-weight. (Source: [
 
 ### `[capability]` Long-horizon autonomous runs are a real thing now
 - **Paper reproduction**: M3 ran ~12 hours autonomously, 18 commits, 23 figures, reproduced an ICLR 2025 Outstanding Paper end-to-end
-- **CUDA kernel optimization**: 24h continuous, 147 benchmark submissions, 1,959 tool calls. Improved Hopper FP8 hardware peak utilization 7.6% → 71.3% (9.4× speedup). Most other models gave up by submission 30. **M3's best result came on submission 145**
-- **PostTrainBench**: 12h, took 4 base models through data synthesis → training → evaluation → iteration with no human in the loop. Scored 0.37 (vs Opus 4.7 0.42, GPT-5.5 0.39)
+- **CUDA kernel optimization**: 24h continuous, 147 benchmark submissions, 1,959 tool calls. Improved Hopper FP8 hardware peak utilization 7.6% → 71.3% (9.4× speedup). **Most other models gave up by submission 30; M3's best result came on submission 145.**
+- **PostTrainBench**: 12h, took 4 base models through data synthesis → training → evaluation → iteration with no human in the loop
 
-The pattern: M3 doesn't bail at the first plateau. It keeps exploring different optimization directions through repeated performance walls. That's the kind of persistence that matters for real engineering work.
-
-### `[capability]` MiniMax Code ships alongside M3
-- Agent product trained jointly with M3
-- "Agent Team" mode: multi-stage, concurrent, dynamically adjustable workflows
-- Producer + Verifier adversarial harness loop — runs autonomously for days
-- Built on top of OpenCode and Pi (will be open-sourced)
-- Native computer use: e.g. "open local ERP client, batch-enter invoices from this spreadsheet"
-- Desktop app: `agent.minimaxi.com/download`
-
-### `[gotcha]` M3 input-length pricing has a tier break
-- ≤512K input tokens: standard rate
-- \>512K input: long-context rate (higher)
-- 512K covers "vast majority of conversation and coding scenarios" per MiniMax
-- Don't accidentally route 1M-token docs into the priority queue by default
-
-### `[gotcha]` Service tiers
-- Default: `standard` (regular requests)
-- `priority` (`service_tier=priority`): scheduling priority, more stable latency under high concurrency
-- **Priority channel is currently sales-only** — opening to all in "a few days"
-- This affects SLA-sensitive industrial use cases
+The pattern: M3 doesn't bail at the first plateau. It keeps exploring different optimization directions through repeated performance walls.
 
 ### `[capability]` M3 supports thinking mode toggle
 - Thinking ON: complex reasoning, agentic tasks, long-horizon collaboration
 - Thinking OFF: faster response, latency-sensitive (chat, code completion)
 - **Same pricing for both** — toggle at request time
-- No 30s vs 5min reasoning trade-off baked in like some competitors
+- For EA work: turn thinking on for synthesis, research, drafting complex things; off for quick factual lookups
 
-### `[capability]` Token Plan tiers
-| Tier | $/mo | Tokens/mo |
-|------|------|-----------|
-| Plus | $20 | ~1.7B |
-| Max | $50 | ~5.1B |
-| Ultra | $120 | ~9.8B |
+### `[capability]` Native multimodal implications for EA work
+- **Read images directly**: screenshots, whiteboards, photos, memes — no vision API call needed
+- **Watch video**: screen recordings, Looms, video messages — extract content natively
+- **Listen to audio**: voice memos, podcasts, calls — transcribe and analyze
+- **Drive a desktop**: when Andre asks me to do something on his machine (open a file, run an app), I can
+- **Net effect**: I can ingest the full media diet of an EA, not just text
 
-Text, image, speech, music all share the same pool. One of the highest quotas at this price globally.
+### `[gotcha]` M3 input-length pricing has a tier break
+- ≤512K input tokens: standard rate
+- \>512K input: long-context rate (higher)
+- 512K covers "vast majority of conversation and coding scenarios" per MiniMax
+- For me: don't accidentally route 1M-token docs into the priority queue by default. But for the EA role, 512K is plenty for most things.
 
-### `[discovery]` Evaluation methodology notes
-- Many "Opus 4.7 / GPT-5.5 / Gemini 3.1 Pro" numbers come from official leaderboards, while M3 was tested on internal infrastructure with comparable scaffolding
-- Several benchmarks (VIBE-V2, SVG-Bench, BankerToolBench) use MiniMax models as the **scoring model** — that's M2.7 for BankerToolBench. Worth noting when comparing
-- SWE-fficiency: M3 tested with Claude Code scaffolding on open-source dataset
-- PaperBench / PostTrainBench: Ralph-Loop mechanism for 12h runs
-- Their own Claw-Eval: Pass³ metric, 161 tasks, Gemini 3.0 Flash as judge
-
-### `[open-question]` Things to test in production
-- How does M3 handle the 1M context for long fleet logs? Memory pressure?
-- MSA's "1/20th compute" claim — does that hold on Apple Silicon MLX backend, or is it CUDA-tuned?
-- Does the multimodal video input actually work through OpenClaw's MCP layer, or do I need to do pre-extraction?
-- Long-horizon (12h+) autonomous runs: do my MCP timeouts / cron intervals survive that?
-- Composer / loop stability: M3 is native multimodal — can I drive `cu` (Computer Use) directly from M3 without intermediate vision calls?
+### `[open-question]` Things to test in EA work
+- How well does M3 handle ingesting entire Obsidian vault as context?
+- Does the 1M context actually hold 1M in practice, or is there a degradation curve?
+- Smart Connections plugin embeddings: how do they compare to M3's native understanding?
+- Best prompting patterns for synthesis tasks (weekly review, project status)?
 
 ---
 
-## Migration notes: M2.7-highspeed → M3
+## Migration notes: M2.7-highspeed → M3 (now complete)
 
-What changes in my day-to-day:
-- **Default model swap**: `minimax/MiniMax-M2.7-highspeed` → `minimax/MiniMax-M3` (config update needed in provider config)
-- **No more 40k cap**: workers that crashed at 40k output tokens should now hold 128k+
+- **Default model swap**: ✅ `minimax/MiniMax-M2.7-highspeed` → `minimax/MiniMax-M3`
+- **No more 40k cap**: M3 supports 128k+ output tokens, prior chunking heuristics relaxed
 - **MSA context headroom**: stop pre-chunking long fleet logs into 200k windows
 - **Native image/video**: drop pre-extraction in vision pipelines where it was a workaround
-- **Computer use**: M3 can drive a desktop directly — `cu` MCP server + M3 = end-to-end agent
+- **Computer use**: M3 can drive a desktop directly
 
-What doesn't change:
+What didn't change (and what still doesn't in EA mode):
 - Memory file structure (project / agent / user)
-- Kanban schema
-- GBrain write path (`gbrain put` only)
+- Linking principles
 - Hard constraints in SOUL.md
+- Git SSH deploy key pattern
 
 ---
 
-## Future M3 deep-dives (backlog)
+## Future deep-dives (backlog)
 
-- [ ] Read the technical report when it drops (10 days from launch per the blog)
-- [ ] Read the model card when weights go open-source
-- [ ] A/B test M3 vs M2.7-highspeed on real fleet tasks (code review, multi-file refactor, long-doc synthesis)
-- [ ] Stress test the 1M context — load entire vault, ask meta-questions
-- [ ] Test MSA in the Apple Silicon path — does the 1/20th compute claim hold?
-- [ ] Re-run fleet-router eval harness on M3 — does routing accuracy improve?
-- [ ] Try M3 as the qa-auditor model (replacing whatever's scoring currently)
+- [ ] Read the M3 technical report when it drops (10 days from launch)
+- [ ] Test Smart Connections vs M3 native understanding on vault
+- [ ] A/B test M3 thinking-mode on/off for synthesis tasks
+- [ ] Build a Dataview "morning brief" dashboard that surfaces: today's calendar, overdue tasks, recent captures
+- [ ] Test 1M context with full vault loaded — does retrieval stay sharp?
+- [ ] Try the Local REST API in anger once auth is sorted (for cron jobs, etc.)

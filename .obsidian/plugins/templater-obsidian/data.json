@@ -1,0 +1,19 @@
+{
+  "template_folder": "99 _system/templates",
+  "trigger_on_file_creation": true,
+  "trigger_on_file_creation_regex": "",
+  "enable_folder_templates": true,
+  "folder_templates": {
+    "01 Daily": "daily.md",
+    "03 Projects": "project.md"
+  },
+  "auto_jump_to_next_cursor_pos": false,
+  "min_chars_to_trigger": 0,
+  "timeout": 0,
+  "syntax_highlighting": true,
+  "active_script": "",
+  "scripts_folder": "99 _system/templates/scripts",
+  "user_scripts_folder": "99 _system/templates/scripts",
+  "enable_system_commands": true,
+  "shell_path": ""
+}
