@@ -4,7 +4,7 @@
 
 ## 📍 You are here
 
-This is the entry point. Open this on Obsidian launch (Homepage plugin → `INDEX.md`).
+This is the entry point. Opens on Obsidian launch (Homepage plugin → `INDEX.md`).
 
 ## 🗺️ Quick navigation
 
@@ -25,7 +25,70 @@ This is the entry point. Open this on Obsidian launch (Homepage plugin → `INDE
 - **[[05 Archive/]]** — completed / obsolete
 - **[[99 _system/]]** — templates, dashboards, meta
 
-## 🔥 Right now
+## 🏗️ Architecture
+
+```mermaid
+graph TB
+    subgraph "Identity (root)"
+        SOUL[SOUL.md]
+        AGENT[agent.md]
+        LEARN[learnings.md]
+        README[README.md]
+        IDX[INDEX.md]
+    end
+
+    subgraph "Daily work"
+        INBOX[00 Inbox/]
+        DAILY[01 Daily/]
+        NOTES[02 Notes/]
+    end
+
+    subgraph "Long-term"
+        PROJ[03 Projects/]
+        RES[04 Resources/]
+        ARCH[05 Archive/]
+    end
+
+    subgraph "Meta"
+        SYS[99 _system/]
+        TEMP[templates/]
+        DASH[dashboards/]
+    end
+
+    SOUL -.defines.- AGENT
+    SOUL -.defines.- LEARN
+    README -.summarizes.- SOUL
+    IDX -.navigates.- README
+
+    INBOX -->|process| NOTES
+    INBOX -->|process| PROJ
+    INBOX -->|process| RES
+    DAILY -->|extract insights| NOTES
+    NOTES -->|when stale| ARCH
+    PROJ -->|when done| ARCH
+
+    SYS -.powers.- INBOX
+    SYS -.powers.- DAILY
+    SYS -.powers.- NOTES
+    SYS -.powers.- PROJ
+    TEMP -.template.- DAILY
+    TEMP -.template.- NOTES
+    DASH -.queries.- NOTES
+    DASH -.queries.- PROJ
+    DASH -.queries.- INBOX
+
+    classDef identity fill:#4a5568,stroke:#fff,color:#fff
+    classDef daily fill:#2d3748,stroke:#fff,color:#fff
+    classDef longterm fill:#1a202c,stroke:#fff,color:#fff
+    classDef meta fill:#553c9a,stroke:#fff,color:#fff
+
+    class SOUL,AGENT,LEARN,README,IDX identity
+    class INBOX,DAILY,NOTES daily
+    class PROJ,RES,ARCH longterm
+    class SYS,TEMP,DASH meta
+```
+
+## 🔥 Right now (today's captures)
 
 ```dataview
 LIST
@@ -43,7 +106,7 @@ WHERE status = "active"
 SORT priority DESC, started DESC
 ```
 
-## 📥 Inbox (count)
+## 📥 Inbox
 
 ```dataview
 LIST
@@ -70,6 +133,33 @@ SORT file.ctime DESC
 LIMIT 10
 ```
 
+## 🕸️ Hub notes (most-linked)
+
+```dataview
+LIST
+FROM "02 Notes"
+SORT length(file.inlinks) DESC
+LIMIT 10
+```
+
+## 🌐 Orphan notes (need linking)
+
+```dataview
+LIST
+FROM "02 Notes"
+WHERE length(file.outlinks) = 0
+```
+
+## ⏸️ Stale notes (not touched in 90+ days)
+
+```dataview
+LIST
+FROM "02 Notes"
+WHERE file.mtime < date(today) - dur(90 days)
+SORT file.mtime ASC
+LIMIT 10
+```
+
 ## ⏰ Overdue tasks
 
 ```dataview
@@ -77,6 +167,15 @@ TASK
 FROM ""
 WHERE !completed AND due < date(today)
 SORT due ASC
+```
+
+## 🎯 Tasks due today
+
+```dataview
+TASK
+FROM ""
+WHERE !completed AND due = date(today)
+SORT priority DESC
 ```
 
 ## 🏷️ Most-used tags
@@ -91,16 +190,22 @@ LIMIT 15
 
 ---
 
+## 📊 Dashboards
+
+Located in [[99 _system/dashboards/]]:
+
+- [[Morning Brief]] — what to read first thing
+- [[Weekly Review]] — Sunday 15-min cleanup
+- [[Reading Queue]] — books/articles/papers
+- [[Decision Log]] — one-way vs two-way door
+
 ## 🛠️ Templates
 
 Located in [[99 _system/templates/]]:
 
-- `daily.md` — daily note
-- `meeting.md` — meeting note
-- `note.md` — permanent concept note
-- `project.md` — project overview
-- `capture.md` — raw inbox capture
-- `resource.md` — reference material
+- `daily.md`, `meeting.md`, `note.md`, `project.md`, `capture.md`, `resource.md`
+- `weekly-review.md`, `monthly-review.md`, `book-digest.md`, `article-digest.md`
+- `decision-log.md`, `1-on-1.md`, `retro.md`, `trip-plan.md`, `idea-park.md`, `contact.md`
 
 ## 🔌 Plugins powering this vault
 
@@ -108,7 +213,7 @@ Dataview · Templater · Calendar · Tasks · obsidian-git · Smart Connections 
 
 ## 📦 Backup
 
-Backed up to `git@github.com:andrebrassfield/MiniMax-Agent.git` via `obsidian-git`.
+Backed up to `git@github.com:andrebrassfield/MiniMax-Agent.git` via `obsidian-git` (auto-commit every 5min, auto-push).
 
 ---
 
