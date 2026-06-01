@@ -18,7 +18,9 @@ Thumbs.db
 .obsidian/plugins/*/node_modules/
 
 # --- Auto-generated tool data (not source of truth) ---
-.claude/
+# Skills we explicitly install are tracked, but agents/commands subdirs are auto-generated
+.claude/agents/
+.claude/commands/
 .claudian/
 .smart-env/
 
