@@ -26,9 +26,11 @@ document.addEventListener("DOMContentLoaded", function() {
     <div class="glass-path">{{REL_PATH}}</div>
     <div class="glass-meta">
       <span class="glass-mtime">mtime: {{MTIME}}</span>
+      {{WHOLENESS_BADGE}}
     </div>
   </div>
 </header>
+{{WHOLENESS_SURGERY}}
 <main class="glass-main">
   <article class="glass-article">
     <h1 class="glass-title">{{TITLE}}</h1>
@@ -42,6 +44,7 @@ document.addEventListener("DOMContentLoaded", function() {
 <footer class="glass-footer">
   <span>Obsidian Glass · local viewing room · rendered {{MTIME}}</span>
   {{DATAVIEW_COUNT}} dataview blocks (placeholders)
+  {{WHOLENESS_FOOTER}}
 </footer>
 </body>
 </html>

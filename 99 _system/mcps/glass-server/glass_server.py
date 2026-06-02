@@ -163,6 +163,9 @@ class GlassHandler(BaseHTTPRequestHandler):
         html_404 = html_404.replace("{{REL_PATH}}", rel_path)
         html_404 = html_404.replace("{{MTIME}}", datetime.now().isoformat(timespec="seconds"))
         html_404 = html_404.replace("{{DATAVIEW_COUNT}}", "0")
+        html_404 = html_404.replace("{{WHOLENESS_BADGE}}", "")
+        html_404 = html_404.replace("{{WHOLENESS_SURGERY}}", "")
+        html_404 = html_404.replace("{{WHOLENESS_FOOTER}}", "")
         encoded = html_404.encode("utf-8")
         self.send_response(404)
         self.send_header("Content-Type", "text/html; charset=utf-8")
@@ -185,7 +188,67 @@ class GlassHandler(BaseHTTPRequestHandler):
             "{{MTIME}}", data["mtime"].isoformat(timespec="seconds")
         )
         page = page.replace("{{DATAVIEW_COUNT}}", str(len(data["dataview_count"])))
+
+        # Wholeness badge + surgery panel + footer
+        wholeness = data.get("wholeness")
+        if wholeness:
+            page = page.replace("{{WHOLENESS_BADGE}}", self._format_wholeness_badge(wholeness))
+            page = page.replace(
+                "{{WHOLENESS_SURGERY}}", self._format_wholeness_surgery(wholeness)
+            )
+            page = page.replace(
+                "{{WHOLENESS_FOOTER}}",
+                f' · wholeness {wholeness["total"]}/30 ({wholeness["verdict"]})',
+            )
+        else:
+            page = page.replace("{{WHOLENESS_BADGE}}", "")
+            page = page.replace("{{WHOLENESS_SURGERY}}", "")
+            page = page.replace("{{WHOLENESS_FOOTER}}", "")
+
         return page
+
+    @staticmethod
+    def _format_wholeness_badge(wholeness: dict) -> str:
+        """Format the wholeness score as a colored badge."""
+        total = wholeness["total"]
+        verdict = wholeness["verdict"]
+        # Color class based on verdict
+        if verdict == "exemplary":
+            cls = "wholeness-badge wholeness-exemplary"
+        elif verdict == "alive":
+            cls = "wholeness-badge wholeness-alive"
+        elif verdict == "working":
+            cls = "wholeness-badge wholeness-working"
+        else:
+            cls = "wholeness-badge wholeness-weak"
+        return (
+            f'<a class="{cls}" '
+            f'href="#wholeness" '
+            f'title="Wholeness-Engine score: {total}/30 ({verdict}). Click to view details.">'
+            f'Wholeness: {total}/30'
+            f'</a>'
+        )
+
+    @staticmethod
+    def _format_wholeness_surgery(wholeness: dict) -> str:
+        """Format the structure surgery panel (if total < 18)."""
+        total = wholeness["total"]
+        surgery = wholeness.get("surgery", [])
+        if total >= 18 or not surgery:
+            return ""
+        items = "".join(f"<li>{html.escape(s)}</li>" for s in surgery)
+        return (
+            f'<div class="wholeness-surgery" id="wholeness">'
+            f'<div class="wholeness-surgery-header">'
+            f'⚠️ Structure Surgery Required '
+            f'<span class="wholeness-surgery-score">({total}/30 — below 18 threshold)</span>'
+            f'</div>'
+            f'<ol class="wholeness-surgery-list">{items}</ol>'
+            f'<div class="wholeness-surgery-hint">'
+            f'Apply each repair, then re-run <code>mavis-vault wholeness &lt;path&gt;</code> to verify.'
+            f'</div>'
+            f'</div>'
+        )
 
 
 def _render_404_body(rel_path: str, vault_root: Path) -> str:

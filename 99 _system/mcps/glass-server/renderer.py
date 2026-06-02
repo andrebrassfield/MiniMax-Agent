@@ -21,6 +21,16 @@ MERMAID_FENCE_RE = re.compile(
     r"^```mermaid\s*\n(.*?)\n```\s*$", re.MULTILINE | re.DOTALL
 )
 
+# Atomic note directories (CHIEF convention) — only these get wholeness-scored
+ATOMIC_DIRS = (
+    "02 Notes/patterns/",
+    "02 Notes/ideas/",
+    "02 Notes/articles/",
+    "02 Notes/questions/",
+    "06 Connections/",
+    "00 Inbox/",
+)
+
 # Frontmatter regex (YAML between --- lines)
 FRONTMATTER_RE = re.compile(
     r"^---\s*\n(.*?)\n---\s*\n", re.DOTALL
@@ -219,7 +229,7 @@ def extract_callouts(body: str) -> str:
 class MarkdownRenderer:
     """Renders Obsidian-flavored Markdown to HTML."""
 
-    def __init__(self, vault_root: Path):
+    def __init__(self, vault_root: Path, enable_wholeness: bool = True):
         self.vault_root = vault_root.resolve()
         self.wikilink_resolver = WikilinkResolver(vault_root)
         # The markdown parser is reused across requests
@@ -234,6 +244,59 @@ class MarkdownRenderer:
             ],
             output_format="html5",
         )
+        # Wholeness scoring (optional — gracefully no-op if unavailable)
+        self.enable_wholeness = enable_wholeness
+        self._wholeness_engine = None
+        if enable_wholeness:
+            self._wholeness_engine = self._try_load_wholeness()
+
+    def _try_load_wholeness(self):
+        """Try to import the Wholeness-Engine. Return None if unavailable."""
+        try:
+            import sys
+            wholeness_path = self.vault_root / "99 _system" / "mcps" / "wholeness-engine"
+            if not wholeness_path.exists():
+                return None
+            if str(wholeness_path) not in sys.path:
+                sys.path.insert(0, str(wholeness_path))
+            from wholeness_engine import score_note
+            return score_note
+        except Exception as e:
+            # Graceful degradation
+            import sys as _sys
+            _sys.stderr.write(f"[glass] Wholeness-Engine unavailable: {e}\n")
+            return None
+
+    def _is_atomic(self, rel_path: str) -> bool:
+        """Check if a path is in an atomic note directory."""
+        return any(rel_path.startswith(d) for d in ATOMIC_DIRS)
+
+    def _wholeness_for(self, file_path: Path) -> dict | None:
+        """Get the wholeness score for a file, if available.
+
+        Returns dict with keys: total, verdict, model, scored_at, surgery
+        Returns None if the file is not atomic, the engine is unavailable,
+        or the call fails for any reason.
+        """
+        if not self._wholeness_engine or not self.enable_wholeness:
+            return None
+        rel_path = str(file_path.relative_to(self.vault_root))
+        if not self._is_atomic(rel_path):
+            return None
+        try:
+            result = self._wholeness_engine(file_path, self.vault_root, use_cache=True)
+            return {
+                "total": result.get("total", 0),
+                "verdict": result.get("verdict", "weak"),
+                "scored_at": result.get("scored_at", ""),
+                "model": result.get("model", ""),
+                "surgery": result.get("structure_surgery", []),
+            }
+        except Exception as e:
+            # Silent failure — the page renders, just without the score
+            import sys as _sys
+            _sys.stderr.write(f"[glass] wholeness lookup failed for {rel_path}: {e}\n")
+            return None
 
     def _format_mermaid(self, source: str, language: str, css_class: str, **options) -> str:
         """Format a mermaid code block — just wrap in a div for client-side rendering."""
@@ -283,4 +346,5 @@ class MarkdownRenderer:
             "rel_path": str(rel_path),
             "mtime": mtime,
             "dataview_count": dataview_count,
+            "wholeness": self._wholeness_for(file_path),
         }

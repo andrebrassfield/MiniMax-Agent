@@ -401,6 +401,117 @@ pre.mermaid {
   gap: 1rem;
 }
 
+/* Wholeness badge (in the header) */
+.wholeness-badge {
+  display: inline-block;
+  padding: 0.15rem 0.6rem;
+  border-radius: 12px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  font-family: var(--font-mono);
+  text-decoration: none;
+  letter-spacing: 0.02em;
+  border: 1px solid transparent;
+  transition: transform 0.1s ease, opacity 0.15s ease;
+}
+.wholeness-badge:hover {
+  transform: translateY(-1px);
+  opacity: 0.85;
+}
+.wholeness-exemplary {
+  background: rgba(74, 107, 58, 0.15);
+  color: #4a6b3a;
+  border-color: #4a6b3a;
+}
+.wholeness-alive {
+  background: rgba(74, 107, 58, 0.10);
+  color: #4a6b3a;
+  border-color: rgba(74, 107, 58, 0.4);
+}
+.wholeness-working {
+  background: rgba(192, 132, 87, 0.10);
+  color: #c08457;
+  border-color: rgba(192, 132, 87, 0.4);
+}
+.wholeness-weak {
+  background: rgba(192, 57, 43, 0.10);
+  color: #c0392b;
+  border-color: rgba(192, 57, 43, 0.4);
+}
+@media (prefers-color-scheme: dark) {
+  .wholeness-exemplary,
+  .wholeness-alive {
+    background: rgba(163, 197, 133, 0.15);
+    color: #a3c585;
+  }
+  .wholeness-working {
+    background: rgba(212, 165, 116, 0.15);
+    color: #d4a574;
+  }
+  .wholeness-weak {
+    background: rgba(229, 115, 115, 0.15);
+    color: #e57373;
+  }
+}
+
+/* Wholeness surgery panel (above the article body) */
+.wholeness-surgery {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 0.75rem 1.25rem 1rem;
+  background: rgba(192, 57, 43, 0.06);
+  border: 1px solid rgba(192, 57, 43, 0.3);
+  border-left: 4px solid #c0392b;
+  border-radius: var(--radius);
+  margin-top: 1rem;
+  margin-bottom: -0.5rem;
+}
+.wholeness-surgery-header {
+  font-weight: 600;
+  color: #c0392b;
+  font-size: 0.95rem;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.wholeness-surgery-score {
+  font-weight: 400;
+  color: var(--fg-muted);
+  font-size: 0.85rem;
+}
+.wholeness-surgery-list {
+  margin: 0.5rem 0;
+  padding-left: 1.5rem;
+  color: var(--fg);
+  font-size: 0.9rem;
+}
+.wholeness-surgery-list li {
+  margin: 0.4rem 0;
+  line-height: 1.5;
+}
+.wholeness-surgery-hint {
+  margin-top: 0.5rem;
+  font-size: 0.82rem;
+  color: var(--fg-muted);
+  font-style: italic;
+}
+.wholeness-surgery-hint code {
+  background: var(--bg-code);
+  padding: 0.05em 0.3em;
+  border-radius: 3px;
+  font-style: normal;
+}
+@media (prefers-color-scheme: dark) {
+  .wholeness-surgery {
+    background: rgba(229, 115, 115, 0.08);
+    border-color: rgba(229, 115, 115, 0.3);
+  }
+  .wholeness-surgery-header {
+    color: #e57373;
+  }
+}
+
 /* Selection */
 ::selection {
   background: rgba(192, 132, 87, 0.3);

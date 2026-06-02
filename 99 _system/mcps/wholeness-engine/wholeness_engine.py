@@ -121,7 +121,9 @@ def score_note(file_path: Path, vault_root: Path = None, use_cache: bool = True)
     # Read the note
     text = file_path.read_text(encoding="utf-8", errors="replace")
     rel_path = str(file_path.relative_to(vault_root)) if vault_root else str(file_path)
-    mtime = file_path.stat().st_mtime
+    # Use integer-second mtime for cache key (avoids sub-second precision mismatches
+    # between file systems and Python's stat() return)
+    mtime = int(file_path.stat().st_mtime)
 
     # Check cache
     cache = _load_cache(vault_root)
