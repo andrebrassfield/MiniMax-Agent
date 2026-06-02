@@ -14,7 +14,8 @@ This is the entry point. Opens on Obsidian launch (Homepage plugin → `INDEX.md
 | [[SOUL]] | Who Mavis is, hard constraints |
 | [[agent]] | Operating procedures, M3 cheat sheet |
 | [[learnings]] | Discoveries, M3 capabilities, role history |
-| [[MAVIS]] | **Intelligence layer context** (VELLUM.md equivalent, weekly-updated) |
+| [[MAVIS]] | **Weekly context** (VELLUM.md equivalent, updated Mondays) |
+| [[state-of-mavis]] | **Session-continuity MOC** (read FIRST on cold start, updated at session end) |
 
 ## 📂 Folder map
 

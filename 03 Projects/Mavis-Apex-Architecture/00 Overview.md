@@ -23,6 +23,8 @@ This project is the design space for what *I* would build on top of that, scoped
 | [[01 Capability Boundaries]] | What I can do natively without external state machines, and where the boundaries are |
 | [[02 Native Execution Layers]] | How to design safer, deeper OS execution using M3's native computer use — without relying on headless scripts as the only interface |
 | [[03 The Custom MCP Arsenal]] | Five new MCP servers designed specifically for M3 capabilities (1M context, native vision, persistent memory) |
+| [[04 Direct-Intake MCP]] | Design spec for passive multimodal capture (screenshots, voice memos, links) into the vault — design only, build pending |
+| [[05 self-model-card — Build]] | First MCP to cross from design to build — runtime self-awareness + pre-flight gate for irreversible actions |
 | [[Mavis-Apex-Map.canvas\|Mavis-Apex-Map]] | Visual map of the architecture: M3 Model Layer → Intelligence Layer → Execution Layer → Host OS Layer |
 
 ## What this is NOT
