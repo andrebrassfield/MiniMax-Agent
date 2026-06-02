@@ -1,6 +1,7 @@
 ---
 type: article-digest
 title: "Apple WWDC 2026: Siri Rebuilt on Gemini"
+aliases: ["Apple WWDC 2026 Siri Rebuilt on Gemini", "Apple WWDC 2026"]
 source: https://www.newsweek.com/wwdc-2026-everything-apple-is-expected-to-announce-on-june-8-12016937
 author: Alex Harrington (Newsweek, citing Bloomberg's Mark Gurman)
 published: 2026-06-01

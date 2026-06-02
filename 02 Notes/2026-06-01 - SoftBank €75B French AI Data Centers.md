@@ -1,6 +1,7 @@
 ---
 type: article-digest
 title: "SoftBank Pledges €75B for French AI Data Centers"
+aliases: ["SoftBank €75B French AI Data Centers"]
 source: https://www.cnbc.com/2026/05/31/softbank-to-build-up-ai-data-centers-in-france-with-major-investment.html
 author: Azhar Sukri (CNBC)
 published: 2026-05-31

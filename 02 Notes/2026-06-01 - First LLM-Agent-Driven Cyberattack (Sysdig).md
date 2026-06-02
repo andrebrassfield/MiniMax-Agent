@@ -1,6 +1,7 @@
 ---
 type: article-digest
 title: "First LLM-Agent-Driven Cyberattack (Sysdig)"
+aliases: ["Sysdig LLM Cyberattack"]
 source: https://www.sysdig.com/blog/ai-agent-at-the-wheel-how-an-attacker-used-llms-to-move-from-a-cve-to-an-internal-database-in-4-pivots
 author: Michael Clark, Sr. Director Threat Research (Sysdig)
 published: 2026-05-26
