@@ -217,6 +217,11 @@ class RankingRequest:
 
     Built by build_ranking_request(). M3 fills in `ranking` (top-K skills
     with confidence scores) and `reasoning` (1-2 sentence justification).
+
+    As of v0.2.0, also includes a `mycelial_context` field with the
+    flow-reinforcement state of the routing network. M3 sees this as
+    a structured hint (hot paths, decaying paths, fresh boosts), but
+    the final routing decision remains M3's.
     """
     request_id: str
     query: str
@@ -227,6 +232,7 @@ class RankingRequest:
     prompt_hint: str = ""
     ranking: list[dict] = field(default_factory=list)
     reasoning: str = ""
+    mycelial_context: dict = field(default_factory=dict)
 
     def to_dict(self) -> dict:
         return asdict(self)
@@ -237,10 +243,31 @@ def build_ranking_request(
     top_k: int = 2,
     include_vault_state: bool = True,
     prompt_hint: str = "",
+    include_mycelial: bool = True,
 ) -> RankingRequest:
-    """Build a RankingRequest. M3 fills in the `ranking` field."""
+    """Build a RankingRequest. M3 fills in the `ranking` field.
+
+    As of v0.2.0, the request includes a `mycelial_context` field with
+    per-skill confidence modifiers (flow / fresh / decay / success).
+    M3 sees this as a hint, not a hard rule. The Resurrection Rule says
+    cold skills with explicit query matches remain in the candidate set.
+    """
     skills = discover_skills()
     vault_state = get_vault_state(include_notes=False) if include_vault_state else {}
+
+    # Build the mycelial context (v0.2.0 — MycelialResolver integration)
+    mycelial_context = {}
+    if include_mycelial:
+        try:
+            from mycelial import MycelialResolver
+            mycelial_resolver = MycelialResolver(VAULT_ROOT)
+            mycelial_context = mycelial_resolver.build_ranking_context()
+        except (ImportError, FileNotFoundError, Exception) as e:
+            # Graceful degradation: no mycelial context if module unavailable
+            import sys as _sys
+            _sys.stderr.write(f"[resolver] mycelial context unavailable: {e}\n")
+            mycelial_context = {"unavailable_reason": str(e)}
+
     return RankingRequest(
         request_id=f"rank-{int(time.time())}-{uuid.uuid4().hex[:6]}",
         query=query,
@@ -249,6 +276,7 @@ def build_ranking_request(
         available_skills=[s.to_dict() for s in skills],
         vault_state=vault_state,
         prompt_hint=prompt_hint,
+        mycelial_context=mycelial_context,
     )
 
 
@@ -259,6 +287,33 @@ def render_ranking_prompt(req: RankingRequest) -> str:
         for s in req.available_skills
     )
     vault_state_str = json.dumps(req.vault_state, indent=2)
+
+    # Mycelial context (v0.2.0) — surface the flow-reinforcement state to M3
+    mycelial_section = ""
+    if req.mycelial_context and req.mycelial_context.get("skills"):
+        mc = req.mycelial_context
+        mycelial_lines = []
+        mycelial_lines.append("## Mycelial routing state (flow-reinforced network)")
+        mycelial_lines.append("")
+        mycelial_lines.append("The Python resolver has computed per-skill confidence modifiers from log ingestion.")
+        mycelial_lines.append("Treat these as *hints*; your routing decision is final.")
+        mycelial_lines.append("")
+        mycelial_lines.append(f"Totals: {mc.get('totals', {}).get('hot', 0)} hot, "
+                                f"{mc.get('totals', {}).get('cold', 0)} cold, "
+                                f"{mc.get('totals', {}).get('fresh', 0)} fresh.")
+        mycelial_lines.append("")
+        mycelial_lines.append("| Skill | Verdict | Confidence | Use 30d | Success | Last used |")
+        mycelial_lines.append("|-------|---------|------------|---------|---------|-----------|")
+        for v in mc.get("skills", [])[:15]:  # top 15 by confidence
+            mycelial_lines.append(
+                f"| `{v['name']}` | {v['verdict']} | {v['final_confidence']:.2f} | "
+                f"{v['use_count_30d']} | {int(v['success_rate']*100)}% | "
+                f"{int(v['days_since_used']) if v['days_since_used'] else '—'}d |"
+            )
+        if mc.get("routing_hints", {}).get("resurrection_rule"):
+            mycelial_lines.append("")
+            mycelial_lines.append(f"**Resurrection Rule:** {mc['routing_hints']['resurrection_rule']}")
+        mycelial_section = "\n".join(mycelial_lines)
 
     return f"""You are Mavis, the executive assistant. A user (Andre) just said:
 
@@ -272,6 +327,8 @@ you do, in your context window.**
 ## Available Skill Packs
 
 {skills_list}
+
+{mycelial_section}
 
 ## Current vault state
 

@@ -27,11 +27,14 @@ from pathlib import Path
 _HERE = Path(__file__).parent.resolve()
 _GLASS_SERVER = _HERE.parent / "mcps" / "glass-server"
 _WHOLENESS = _HERE.parent / "mcps" / "wholeness-engine"
+_MYCELIAL = _HERE.parent / "mcps" / "resolver"
 sys.path.insert(0, str(_GLASS_SERVER))
 sys.path.insert(0, str(_WHOLENESS))
+sys.path.insert(0, str(_MYCELIAL))
 
 from renderer import MarkdownRenderer, parse_frontmatter  # noqa: E402
 from wholeness_engine import score_note  # noqa: E402
+from mycelial import MycelialResolver  # noqa: E402
 
 DEFAULT_VAULT = _HERE.parent.parent
 DEFAULT_PORT = 8765
@@ -337,7 +340,7 @@ def cmd_tree(args):
 # ---------- Subcommand: stats ----------
 
 def cmd_stats(args):
-    """Quick vault statistics."""
+    """Quick vault statistics. Includes mycelial network summary."""
     vault = resolve_vault(args)
     md_files = list(vault.rglob("*.md"))
     md_files = [f for f in md_files if not any(p.startswith(".") for p in f.parts)]
@@ -388,25 +391,51 @@ def cmd_stats(args):
             "top_tags": tag_counts.most_common(15),
             "total_frontmatter_fields": frontmatter_field_count,
         }
+        # Embed mycelial state in JSON output
+        try:
+            mr = MycelialResolver(vault)
+            report["mycelial"] = mr.build_state()
+        except Exception as e:
+            report["mycelial_error"] = str(e)
         print(json.dumps(report, indent=2))
+        return
+
+    print(f"{C.BOLD}=== VAULT STATS — {datetime.now().isoformat(timespec='seconds')} ==={C.RESET}")
+    print(f"Vault: {vault}")
+    print()
+    print(f"  Total .md files: {C.BOLD}{len(md_files)}{C.RESET}")
+    print(f"  Total frontmatter fields: {frontmatter_field_count}")
+    print()
+    print(f"  {C.BOLD}By atomic type:{C.RESET}")
+    for type_name, count in sorted(type_counts.items(), key=lambda x: -x[1]):
+        print(f"    {type_name:20s}  {count}")
+    print()
+    print(f"  {C.BOLD}By top-level folder:{C.RESET}")
+    for folder, count in sorted(folder_counts.items(), key=lambda x: -x[1])[:10]:
+        print(f"    {folder:30s}  {count}")
+    print()
+    print(f"  {C.BOLD}Top tags:{C.RESET}")
+    for tag, count in tag_counts.most_common(15):
+        print(f"    {tag:35s}  {count}")
+    print()
+    # Embed the mycelial network summary
+    try:
+        mr = MycelialResolver(vault)
+        print(mr.render_cli_table())
+    except Exception as e:
+        print(f"  {C.DIM}Mycelial state unavailable: {e}{C.RESET}")
+
+
+def cmd_mycelial(args):
+    """Show the Mycelial network — the living routing state."""
+    vault = resolve_vault(args)
+    mr = MycelialResolver(vault)
+    if args.json:
+        print(json.dumps(mr.build_state(), indent=2))
+    elif args.ranking_context:
+        print(json.dumps(mr.build_ranking_context(), indent=2))
     else:
-        print(f"{C.BOLD}=== VAULT STATS — {datetime.now().isoformat(timespec='seconds')} ==={C.RESET}")
-        print(f"Vault: {vault}")
-        print()
-        print(f"  Total .md files: {C.BOLD}{len(md_files)}{C.RESET}")
-        print(f"  Total frontmatter fields: {frontmatter_field_count}")
-        print()
-        print(f"  {C.BOLD}By atomic type:{C.RESET}")
-        for type_name, count in sorted(type_counts.items(), key=lambda x: -x[1]):
-            print(f"    {type_name:20s}  {count}")
-        print()
-        print(f"  {C.BOLD}By top-level folder:{C.RESET}")
-        for folder, count in sorted(folder_counts.items(), key=lambda x: -x[1])[:10]:
-            print(f"    {folder:30s}  {count}")
-        print()
-        print(f"  {C.BOLD}Top tags:{C.RESET}")
-        for tag, count in tag_counts.most_common(15):
-            print(f"    {tag:35s}  {count}")
+        print(mr.render_cli_table())
 
 
 # ---------- Subcommand: wholeness (placeholder) ----------
@@ -589,9 +618,18 @@ def build_parser() -> argparse.ArgumentParser:
     sp.set_defaults(func=cmd_tree)
 
     # stats
-    sp = sub.add_parser("stats", help="Vault statistics")
+    sp = sub.add_parser("stats", help="Vault statistics (includes mycelial summary)")
     sp.add_argument("--json", action="store_true", help="Output as JSON")
     sp.set_defaults(func=cmd_stats)
+
+    # mycelial
+    sp = sub.add_parser("mycelial", help="Mycelial network — flow-reinforced skill routing state")
+    sp.add_argument("--json", action="store_true", help="Output as JSON (full state)")
+    sp.add_argument(
+        "--ranking-context", action="store_true",
+        help="Output the per-skill context for ranking requests (what M3 sees)",
+    )
+    sp.set_defaults(func=cmd_mycelial)
 
     # wholeness
     sp = sub.add_parser("wholeness", help="Score a note on Alexander's 15 properties (M3 LLM-as-judge)")
