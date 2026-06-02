@@ -5,6 +5,12 @@
   "enable_folder_templates": true,
   "folder_templates": {
     "01 Daily": "daily.md",
+    "02 Notes/_MOCs": "note.md",
+    "02 Notes/articles": "article-digest.md",
+    "02 Notes/ideas": "idea.md",
+    "02 Notes/patterns": "pattern.md",
+    "02 Notes/questions": "question.md",
+    "02 Notes/numbers": "number.md",
     "03 Projects": "project.md"
   },
   "auto_jump_to_next_cursor_pos": false,
