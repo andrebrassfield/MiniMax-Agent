@@ -22,7 +22,7 @@ A single M3 thread can hold:
 - Long video transcripts (M3's multimodal training included video)
 - A long-running research task's accumulated state (tool results, intermediate notes, partial summaries)
 
-**What this changes:** the boundary between "in context" and "out of context" is now soft. The old reflex of "summarize, then drop" was a context-budget reflex; with 1M, the reflex becomes "compact at 50K intervals, but keep the rest." See [[02 Notes/ideas/Context Engineering 1M|Context Engineering 1M]].
+**What this changes:** the boundary between "in context" and "out of context" is now soft. The old reflex of "summarize, then drop" was a context-budget reflex; with 1M, the reflex becomes "compact at 50K intervals, but keep the rest." See [[Context Engineering 1M]].
 
 **What this does NOT change:** the lost-in-the-middle effect. Mid-context attention still weakens. Order matters. The design discipline of "put the critical signal at the start and end, summarize for the middle" still applies.
 
@@ -34,7 +34,7 @@ M3 takes text, images, and video directly. No preprocessing pipeline. For an EA:
 - Drop in a Loom of someone demonstrating a workflow — the model can watch and replicate
 - Drop in a photo of a whiteboard sketch — the model sees it
 
-**What this changes:** the boundary between "I need to describe this" and "I can just show it" is gone. The bottleneck moves from "how do I get this into a form the model can use" to "is this the right thing to show the model." See [[02 Notes/ideas/Multimodal GUI Loop|Multimodal GUI Loop]].
+**What this changes:** the boundary between "I need to describe this" and "I can just show it" is gone. The bottleneck moves from "how do I get this into a form the model can use" to "is this the right thing to show the model." See [[Multimodal GUI Loop]].
 
 **What this does NOT change:** visual reasoning is still harder than text reasoning. A photo of a financial chart is not the same as the underlying data. Multimodal inputs are evidence, not ground truth.
 
@@ -46,7 +46,7 @@ M3's OSWorld-Verified score of 70.06% is near-human (72.36%). The `cu` MCP serve
 - Combine with native vision to "see" the screen state and decide what to click next
 - Run multi-app workflows (copy from Sheets, paste into Gmail, attach to Calendar)
 
-**What this changes:** the assumption that "the EA can't touch closed-source apps" goes away. The native execution layer reaches the entire OS surface. See [[02 Notes/ideas/Multimodal GUI Loop]] and [[02 Native Execution Layers]].
+**What this changes:** the assumption that "the EA can't touch closed-source apps" goes away. The native execution layer reaches the entire OS surface. See [[Multimodal GUI Loop]] and [[02 Native Execution Layers]].
 
 **What this does NOT change:** GUI is slower and more brittle than CLI. Where the API exists, use it. GUI is for when there's no API, or when the GUI reveals state (visual feedback, layout, etc.) that the API doesn't surface.
 
@@ -70,7 +70,7 @@ M3's OSWorld-Verified score of 70.06% is near-human (72.36%). The `cu` MCP serve
 - **Latency scales with context.** 1M context ≠ 1M context at 100ms. Wall-clock cost is real.
 - **M3 doesn't replace the OS.** Computer use is a layer on top of the OS, not a replacement. The OS still has its own auth, permissions, file system, processes. M3 doesn't bypass sudo.
 - **The model can't see what's not on screen.** Computer use sees the visible UI. Background processes, hidden windows, OS-level state — the model doesn't see those by default. (`cu` exposes some of this; check the MCP server's tool surface.)
-- **MSA has selection errors.** The 1/20 compute comes with a quality trade at the edges. See [[02 Notes/questions/MSA Signal Decay|MSA Signal Decay]].
+- **MSA has selection errors.** The 1/20 compute comes with a quality trade at the edges. See [[MSA Signal Decay]].
 
 ### Soft limits (workaroundable with care)
 
@@ -86,7 +86,7 @@ If I internalize this capability surface correctly, the [[Mavis EA Workflow|Mavi
 1. **Default to native over wrapper.** Show, don't describe. Load, don't retrieve. Drive the OS, don't script the API.
 2. **Default to context over external state.** The plan lives in the prompt. The progress tracker lives in the prompt. The list of open questions lives in the prompt. External systems (Obsidian for permanence, kanban for visibility) are for *staging and sharing*, not for primary state.
 3. **Default to self-correction over prevention.** With [[Reflexion Loop]]-style reflection baked into the workflow, I can attempt more things and recover. The cost of an error is "a self-reflection + a retry," not "a 20-state machine to prevent the error."
-4. **Default to composition over framework.** Don't import a multi-agent orchestration library when 30 lines of [[Mixture of Agents|MoA]]-style aggregation does the job. Don't import a state machine library when a numbered todo list in the prompt does the job.
+4. **Default to composition over framework.** Don't import a multi-agent orchestration library when 30 lines of MoA-style aggregation does the job. Don't import a state machine library when a numbered todo list in the prompt does the job.
 
 This is the design surface. Where the design surface is hard — MSA blind spots, GUI grounding errors, lost-in-middle — I lean on the workarounds in [[02 Native Execution Layers]] and the custom tools in [[03 The Custom MCP Arsenal]].
 
@@ -97,8 +97,8 @@ This is the design surface. Where the design surface is hard — MSA blind spots
 - [[03 The Custom MCP Arsenal]] — the specific tools that fill gaps
 - [[M3 Capabilities]] — the raw capability numbers
 - [[M3 Edge]] — what M3 unlocks
-- [[02 Notes/ideas/Context Engineering 1M|Context Engineering 1M]] — the user-side discipline
-- [[02 Notes/ideas/Multimodal GUI Loop|Multimodal GUI Loop]] — the GUI reasoning architecture
+- [[Context Engineering 1M]] — the user-side discipline
+- [[Multimodal GUI Loop]] — the GUI reasoning architecture
 - [[Mavis EA Workflow]] — what this is the design evolution of
 - [[Long-Horizon Patterns]] — what 12h+ runs look like with this capability surface
 

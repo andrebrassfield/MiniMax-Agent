@@ -29,7 +29,7 @@ Mavis should have a 3-tier execution model, used in order of preference:
 # Use the API for clean, deterministic operations
 calendar.events.list(timeMin=now, timeMax=now+7d)
 gmail.users.messages.send(to=..., subject=..., body=...)
-sheet.values.update(spreadsheetId=..., range=..., values=[[...]])
+sheet.values.update(spreadsheetId="...", range="...", values=[/* your 2D array of rows */])
 ```
 
 **When to use:** the operation has a stable API, the data is structured, the user doesn't need to see anything visual, and there's no benefit to "the model looking at the screen."
@@ -157,11 +157,11 @@ For Tier 3, the screenshot sequence is the audit. Each step is reproducible: re-
 ## Connections
 
 - [[00 Overview]] — the project hub
-- [[01 Capability Boundaries]] — what M3 unlocks for the visual layer
+- [[01 Capability Boundaries]] — the M3 capabilities these MCPs exploit
 - [[03 The Custom MCP Arsenal]] — the `macos-vision-anchor` MCP that makes this practical
 - [[M3 Edge]] — the OSWorld-Verified 70.06% is the headline number here
-- [[02 Notes/ideas/Multimodal GUI Loop]] — the deeper reasoning
-- [[02 Notes/questions/State Machine Failure Modes]] — when rigid scripting beats open-ended GUI
+- [[Multimodal GUI Loop]] — the deeper reasoning
+- [[State Machine Failure Modes]] — when rigid scripting beats open-ended GUI
 - [[Mavis EA Workflow]] — current execution patterns this is the design evolution of
 - [[Vault Conventions]] — the "1M context as working memory" pattern is what makes the screenshot-history auditable
 

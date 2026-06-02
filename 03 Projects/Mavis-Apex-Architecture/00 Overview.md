@@ -23,13 +23,13 @@ This project is the design space for what *I* would build on top of that, scoped
 | [[01 Capability Boundaries]] | What I can do natively without external state machines, and where the boundaries are |
 | [[02 Native Execution Layers]] | How to design safer, deeper OS execution using M3's native computer use — without relying on headless scripts as the only interface |
 | [[03 The Custom MCP Arsenal]] | Five new MCP servers designed specifically for M3 capabilities (1M context, native vision, persistent memory) |
-| [[Mavis-Apex-Map]] | Visual map of the architecture: M3 Model Layer → Intelligence Layer → Execution Layer → Host OS Layer |
+| [[Mavis-Apex-Map.canvas\|Mavis-Apex-Map]] | Visual map of the architecture: M3 Model Layer → Intelligence Layer → Execution Layer → Host OS Layer |
 
 ## What this is NOT
 
 - **Not a competitor to Hermes, OpenClaw, or any other fleet system.** The fleet runs separately and independently. This is a design document for my own EA-mode operations.
 - **Not a build directive.** These are design notes — actual implementation requires a separate "go" decision per project.
-- **Not a research artifact.** The research foundation is in [[02 Notes/]] under patterns/, ideas/, and questions/. This project hub applies that research to my specific operating envelope.
+- **Not a research artifact.** The research foundation is in `02 Notes/` under patterns/, ideas/, and questions/. This project hub applies that research to my specific operating envelope.
 - **Not a permanent fixture.** The frontier moves fast. This document should be re-read every 6 months and rewritten when M4 lands.
 
 ## The five design principles
@@ -46,7 +46,7 @@ Start with [[01 Capability Boundaries]] to understand what M3 actually unlocks. 
 
 ## Status
 
-- **Phase 1 (research seeding):** ✅ Done — 9 notes in [[02 Notes/]]
+- **Phase 1 (research seeding):** ✅ Done — 9 notes in `02 Notes/`
 - **Phase 2 (this hub):** 🚧 In progress — 4 docs, 1 canvas
 - **Phase 3 (visual map):** Pending — JSON Canvas
 
@@ -55,10 +55,10 @@ Start with [[01 Capability Boundaries]] to understand what M3 actually unlocks. 
 - [[M3 Capabilities]] — the raw model capability this architecture sits on top of
 - [[M3 Edge]] — what M3 unlocks that older models didn't
 - [[Mavis EA Workflow]] — current workflow this project is the design evolution of
-- [[Mavis EA Design]] — the broader design thinking that this project extends
-- [[02 Notes/patterns/Mixture of Agents]], [[Reflexion Loop]], [[Paged Memory Pattern]] — the foundational patterns
-- [[02 Notes/ideas/Context Engineering 1M]], [[Paged Attention Economics]], [[Multimodal GUI Loop]] — the design ideas
-- [[02 Notes/questions/State Machine Failure Modes]], [[MSA Signal Decay]], [[M3 Bypass Hypothesis]] — the open questions
+- [[Mavis EA Design/00 Overview]] — the broader design thinking that this project extends
+- [[Mixture of Agents]], [[Reflexion Loop]], [[Paged Memory Pattern]] — the foundational patterns
+- [[Context Engineering 1M]], [[Paged Attention Economics]], [[Multimodal GUI Loop]] — the design ideas
+- [[State Machine Failure Modes]], [[MSA Signal Decay]], [[M3 Bypass Hypothesis]] — the open questions
 - [[learnings]] — M3 launch data and architecture details
 - [[Long-Horizon Patterns]] — what 12h+ autonomy looks like with M3
 

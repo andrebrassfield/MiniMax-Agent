@@ -77,7 +77,7 @@ The Obsidian plugin `vault-brain` already exists (used in the existing `obsidian
 
 ### The implementation hint
 
-- Index = note embeddings (existing approach) + a small knowledge graph from `[[wikilinks]]`
+- Index = note embeddings (existing approach) + a small knowledge graph from inline `[[wikilinks]]`
 - Search = hybrid (semantic + graph-walk) for better precision
 - Token budget = explicit, not implicit; the caller controls the output size
 - Backlinks = pulled at index time, not computed per-query
@@ -365,10 +365,10 @@ Together they cover: **memory** (vault-brain, macos-vision-anchor), **attention*
 - [[01 Capability Boundaries]] — the M3 capabilities these MCPs exploit
 - [[02 Native Execution Layers]] — `macos-vision-anchor` is the implementation
 - [[M3 Edge]] — what M3 makes possible
-- [[02 Notes/patterns/Paged Memory Pattern|Paged Memory Pattern]] — vault-brain and macos-vision-anchor implement this at the EA level
-- [[02 Notes/patterns/Reflexion Loop|Reflexion Loop]] — tool-self-healer is the production-grade version
-- [[02 Notes/ideas/Context Engineering 1M|Context Engineering 1M]] — long-context-curator is the design discipline embodied
-- [[02 Notes/questions/M3 Bypass Hypothesis|M3 Bypass Hypothesis]] — these MCPs are the user-side bet on the answer being "yes, the capability shift is real"
+- [[Paged Memory Pattern]] — vault-brain and macos-vision-anchor implement this at the EA level
+- [[Reflexion Loop]] — tool-self-healer is the production-grade version
+- [[Context Engineering 1M]] — long-context-curator is the design discipline embodied
+- [[M3 Bypass Hypothesis]] — these MCPs are the user-side bet on the answer being "yes, the capability shift is real"
 - [[Mavis EA Workflow]] — current workflow that would consume these MCPs
 
 ---

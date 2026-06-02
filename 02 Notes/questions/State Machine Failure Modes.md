@@ -47,8 +47,8 @@ What I don't have a clear answer on: **how to decide where to put the joints.** 
 - [[Multimodal GUI Loop]] — GUI tasks are the case where agents clearly beat workflows
 - [[Reflexion Loop]] — self-correction inside an open-ended loop
 - [[Mavis EA Workflow]] — my own hybrid: rigid rules (no deploys without approval) + flexible execution
-- [[Anthropic Building Effective Agents]] — the source for the workflow/agent taxonomy
-- [[Mavis EA Design]] — broader design context for where I sit on this spectrum
+- [Anthropic's "Building Effective Agents"](https://www.anthropic.com/research/building-effective-agents) — the source for the workflow/agent taxonomy
+- [[Mavis EA Design/00 Overview]] — broader design context for where I sit on this spectrum
 
 ---
 *Question seeded 2026-06-01 from Operation Apex Phase 1. Likely re-visited in Q3 2026 when more production data on M3-class agents lands.*
