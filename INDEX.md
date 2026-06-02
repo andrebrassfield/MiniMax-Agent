@@ -14,16 +14,24 @@ This is the entry point. Opens on Obsidian launch (Homepage plugin → `INDEX.md
 | [[SOUL]] | Who Mavis is, hard constraints |
 | [[agent]] | Operating procedures, M3 cheat sheet |
 | [[learnings]] | Discoveries, M3 capabilities, role history |
+| [[MAVIS]] | **Intelligence layer context** (VELLUM.md equivalent, weekly-updated) |
 
 ## 📂 Folder map
 
 - **[[00 Inbox/]]** — raw captures, processed daily
-- **[[01 Daily/]]** — one note per day (`yyyy-mm-dd.md`)
-- **[[02 Notes/]]** — permanent notes, one concept each
+- **[[01 Daily/]]** — one note per day (`yyyy-mm-dd.md`). The capture hub.
+- **[[02 Notes/_MOCs/]]** — hub notes (sort to top)
+- **[[02 Notes/articles/]]** — external content digests
+- **[[02 Notes/ideas/]]** — my own observations and theses
+- **[[02 Notes/patterns/]]** — same principle across domains
+- **[[02 Notes/questions/]]** — open questions worth sitting with
+- **[[02 Notes/numbers/]]** — specific data points
 - **[[03 Projects/]]** — active project subfolders
 - **[[04 Resources/]]** — reference material by topic
-- **[[05 Archive/]]** — completed / obsolete
-- **[[99 _system/]]** — templates, dashboards, meta
+- **[[05 Archive/]]** — completed / obsolete (nothing deleted)
+- **[[06 Connections/]]** — synthesized insights from 2+ notes (populated by `weekly-connections` workflow)
+- **[[07 Vellum/]]** — intelligence layer: `workflows/`, `eval-logs/`, `weekly-context/`
+- **[[99 _system/]]** — templates, dashboards, scripts
 
 ## 🏗️ Architecture
 
@@ -35,57 +43,119 @@ graph TB
         LEARN[learnings.md]
         README[README.md]
         IDX[INDEX.md]
+        MAVIS[MAVIS.md<br/>weekly context]
     end
 
-    subgraph "Daily work"
+    subgraph "Capture layer"
         INBOX[00 Inbox/]
         DAILY[01 Daily/]
-        NOTES[02 Notes/]
+    end
+
+    subgraph "Permanent knowledge (02 Notes/)"
+        MOC[_MOCs/]
+        ART[articles/]
+        IDEA[ideas/]
+        PAT[patterns/]
+        Q[questions/]
+        NUM[numbers/]
+    end
+
+    subgraph "Synthesis & action"
+        CONN[06 Connections/]
+        PROJ[03 Projects/]
     end
 
     subgraph "Long-term"
-        PROJ[03 Projects/]
         RES[04 Resources/]
         ARCH[05 Archive/]
     end
 
-    subgraph "Meta"
-        SYS[99 _system/]
-        TEMP[templates/]
-        DASH[dashboards/]
+    subgraph "Intelligence layer (07 Vellum/)"
+        WF[workflows/]
+        EVL[eval-logs/]
+        WC[weekly-context/]
     end
 
+    subgraph "Meta (99 _system/)"
+        TEMP[templates/]
+        DASH[dashboards/]
+        SCR[scripts/]
+    end
+
+    %% Identity relationships
     SOUL -.defines.- AGENT
     SOUL -.defines.- LEARN
+    SOUL -.defines.- MAVIS
     README -.summarizes.- SOUL
     IDX -.navigates.- README
+    MAVIS -.orients on cold start.- AGENT
 
-    INBOX -->|process| NOTES
-    INBOX -->|process| PROJ
-    INBOX -->|process| RES
-    DAILY -->|extract insights| NOTES
-    NOTES -->|when stale| ARCH
+    %% Capture flow
+    INBOX -->|process-inbox| MOC
+    INBOX -->|process-inbox| ART
+    INBOX -->|process-inbox| IDEA
+    INBOX -->|process-inbox| PAT
+    INBOX -->|process-inbox| Q
+    INBOX -->|process-inbox| NUM
+    DAILY -->|extract insights| IDEA
+    DAILY -->|extract insights| PAT
+
+    %% Notes flow
+    MOC -->|weekly-connections| CONN
+    ART -->|weekly-connections| CONN
+    IDEA -->|weekly-connections| CONN
+    PAT -->|weekly-connections| CONN
+    Q -->|weekly-connections| CONN
+    NUM -->|weekly-connections| CONN
+    MOC -->|when active| PROJ
+    IDEA -->|when active| PROJ
+    PAT -->|when active| PROJ
+
+    %% Long-term flow
     PROJ -->|when done| ARCH
+    IDEA -->|when stale| ARCH
+    PAT -->|when mature| MOC
 
-    SYS -.powers.- INBOX
-    SYS -.powers.- DAILY
-    SYS -.powers.- NOTES
-    SYS -.powers.- PROJ
-    TEMP -.template.- DAILY
-    TEMP -.template.- NOTES
-    DASH -.queries.- NOTES
+    %% Intelligence layer (07 Vellum) wraps everything
+    WF -.reads.- MOC
+    WF -.reads.- ART
+    WF -.reads.- IDEA
+    WF -.reads.- PAT
+    WF -.writes.- CONN
+    WF -.writes.- INBOX
+    EVL -.logs.- CONN
+    WC -.updates.- MAVIS
+
+    %% Meta powers all
+    TEMP -.templates.- DAILY
+    TEMP -.templates.- MOC
+    TEMP -.templates.- ART
+    TEMP -.templates.- IDEA
+    TEMP -.templates.- PAT
+    TEMP -.templates.- Q
+    TEMP -.templates.- NUM
+    TEMP -.templates.- PROJ
+    DASH -.queries.- CONN
+    DASH -.queries.- MOC
     DASH -.queries.- PROJ
     DASH -.queries.- INBOX
+    SCR -.powers.- WF
 
     classDef identity fill:#4a5568,stroke:#fff,color:#fff
-    classDef daily fill:#2d3748,stroke:#fff,color:#fff
+    classDef capture fill:#2d3748,stroke:#fff,color:#fff
+    classDef notes fill:#744210,stroke:#fff,color:#fff
+    classDef action fill:#22543d,stroke:#fff,color:#fff
     classDef longterm fill:#1a202c,stroke:#fff,color:#fff
-    classDef meta fill:#553c9a,stroke:#fff,color:#fff
+    classDef ai fill:#553c9a,stroke:#fff,color:#fff
+    classDef meta fill:#322659,stroke:#fff,color:#fff
 
-    class SOUL,AGENT,LEARN,README,IDX identity
-    class INBOX,DAILY,NOTES daily
-    class PROJ,RES,ARCH longterm
-    class SYS,TEMP,DASH meta
+    class SOUL,AGENT,LEARN,README,IDX,MAVIS identity
+    class INBOX,DAILY capture
+    class MOC,ART,IDEA,PAT,Q,NUM notes
+    class CONN,PROJ action
+    class RES,ARCH longterm
+    class WF,EVL,WC ai
+    class TEMP,DASH,SCR meta
 ```
 
 ## 🔥 Right now (today's captures)
@@ -133,7 +203,25 @@ SORT file.ctime DESC
 LIMIT 10
 ```
 
-## 🕸️ Hub notes (most-linked)
+## 🕸️ Recent connections (06 Connections/)
+
+```dataview
+LIST
+FROM "06 Connections"
+SORT file.ctime DESC
+LIMIT 10
+```
+
+## 🧠 Most-active workflows (07 Vellum/)
+
+```dataview
+LIST
+FROM "07 Vellum"
+SORT file.ctime DESC
+LIMIT 10
+```
+
+## 🔗 Hub notes (most-linked)
 
 ```dataview
 LIST
@@ -203,9 +291,21 @@ Located in [[99 _system/dashboards/]]:
 
 Located in [[99 _system/templates/]]:
 
-- `daily.md`, `meeting.md`, `note.md`, `project.md`, `capture.md`, `resource.md`
-- `weekly-review.md`, `monthly-review.md`, `book-digest.md`, `article-digest.md`
-- `decision-log.md`, `1-on-1.md`, `retro.md`, `trip-plan.md`, `idea-park.md`, `contact.md`
+**Type-specific (auto-applied by folder via Templater):**
+- `article-digest.md` → `02 Notes/articles/`
+- `idea.md` → `02 Notes/ideas/`
+- `pattern.md` → `02 Notes/patterns/`
+- `question.md` → `02 Notes/questions/`
+- `number.md` → `02 Notes/numbers/`
+- `note.md` → `02 Notes/_MOCs/`
+
+**General-purpose:**
+- `daily.md` → `01 Daily/`
+- `project.md` → `03 Projects/`
+- `capture.md` → `00 Inbox/`
+- `meeting.md`, `decision-log.md`, `1-on-1.md`, `retro.md`, `trip-plan.md`
+- `book-digest.md`, `resource.md`, `idea-park.md`, `contact.md`
+- `weekly-review.md`, `monthly-review.md`
 
 ## 🔌 Plugins powering this vault
 
@@ -217,4 +317,4 @@ Backed up to `git@github.com:andrebrassfield/MiniMax-Agent.git` via `obsidian-gi
 
 ---
 
-*Last touched by Mavis: 2026-06-01*
+*Last touched by Mavis: 2026-06-01 (CHIEF + Vellum refactor, first `weekly-connections` execution)*
