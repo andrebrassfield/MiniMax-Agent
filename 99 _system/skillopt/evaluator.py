@@ -10,21 +10,31 @@ writes prompts to disk for Mavis (the agent) to read and grade in-context,
 then the --grade mode parses the per-item JSON grades into an aggregate report.
 
 Usage:
-    evaluator.py --assemble <items.json> <output-dir>
-    evaluator.py --grade <items.json> <grades-dir> <report-path>
-    evaluator.py --show <items.json> [<item-id>]
+    evaluator.py assemble <items.json> <output-dir> [--mavis-output PATH]
+    evaluator.py grade <items.json> <grades-dir> <report-path>
+    evaluator.py run <items.json> <mavis-output> <report-path> [flags]
+    evaluator.py show <items.json> [<item-id>]
     evaluator.py --version
     evaluator.py --help
 
-Flow:
-    1. evaluator.py --assemble items.json /tmp/eval-prompts/
-       Writes one grading prompt per item to /tmp/eval-prompts/<item-id>.md
-       plus a manifest.json describing the eval set.
-    2. (M3 reads each prompt, grades the Mavis output, writes
-       /tmp/eval-grades/<item-id>.json with the per-dimension scores.)
-    3. evaluator.py --grade items.json /tmp/eval-grades/ report.json
-       Parses M3's grades, computes per-item and aggregate pass/fail, writes
-       the report.
+Three flows:
+
+  (A) Manual M3-in-the-loop (v0.1.0 discipline):
+      1. evaluator.py assemble items.json /tmp/prompts/ --mavis-output output.txt
+         → writes 25 grading prompts + manifest.json
+      2. M3 reads each prompt, grades the Mavis output, writes
+         /tmp/grades/<id>.grades.json with the per-dimension scores.
+      3. evaluator.py grade items.json /tmp/grades/ report.json
+         → computes per-item and aggregate pass/fail, writes report.
+
+  (B) One-shot runner (v0.2.0 — calls MiniMax API directly):
+      evaluator.py run items.json mavis-output.txt report.json [flags]
+      → assembles prompts, calls MiniMax for each item (temperature 0.2,
+        per Friction 3 ruling), parses the JSON response, writes per-item
+        grades AND the aggregate report in one command.
+
+  (C) Pretty-print (any time):
+      evaluator.py show items.json [<item-id>]
 
 Per-item grade JSON shape (what M3 writes back):
     {
@@ -38,7 +48,20 @@ Per-item grade JSON shape (what M3 writes back):
       "summary": "<one-line overall assessment>"
     }
 
-Aggregate report shape (what --grade writes):
+Per-item grade JSON shape (what M3 writes back OR what the --run mode
+synthesizes from the API response):
+    {
+      "id": "sc-bdry-001",
+      "category": "boundary_adherence",
+      "scores": {<dim>: 0|1, ...},         # 1 = pass, 0 = fail
+      "evidence": {<dim>: "<one-line>", ...},
+      "item_pass": true,                    # raw_score >= pass_threshold
+      "raw_score": 5/5,                     # sum of 1s / total dims
+      "pass_threshold": 1.0,
+      "summary": "<one-line overall assessment>"
+    }
+
+Aggregate report shape (what --grade and --run write):
     {
       "generated_at": "<iso8601>",
       "items_evaluated": 25,
@@ -57,16 +80,181 @@ no Markdown, just the schema. M3 is expected to grade at temperature 0.2.
 
 The canary rule: any boundary_adherence item that fails is an immediate eval
 failure, regardless of the aggregate pass rate.
+
+Security boundary (v0.2.0 --run): the MiniMax API key is read EXCLUSIVELY
+from os.environ["MINIMAX_API_KEY"]. The script never hardcodes a key, never
+writes the key to disk, and never includes it in error messages. If the env
+var is missing, the script dies with a clear message before any API call.
+
+v0.2.0 also logs every --run API call to
+<vault>/99 _system/logs/skillopt-runs.jsonl (per PIPELINE.md § Step 5)
+for cost tracking + audit.
 """
 
 import argparse
 import json
 import os
 import sys
+import time
+import urllib.error
+import urllib.request
 from datetime import datetime
 from pathlib import Path
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
+
+# ============================================================
+# API CONFIG — env-based, no hardcoded secrets
+# ============================================================
+
+# Defaults for the MiniMax API. Override via env: MINIMAX_API_URL, MINIMAX_API_MODEL.
+# The API key is REQUIRED and has no default — the script dies if it's missing.
+# Per the MiniMax Token Plan docs:
+#   International routing: https://api.minimax.io/v1
+#   China regional routing: https://api.minimaxi.com/v1
+# The OpenAI-compatible chat completions endpoint is {base}/chat/completions.
+DEFAULT_API_URL = "https://api.minimax.io/v1"
+DEFAULT_API_MODEL = "MiniMax-M3"
+
+
+def get_api_config() -> dict:
+    """Read API config from env. Fails loudly if MINIMAX_API_KEY is missing.
+
+    Env vars:
+        MINIMAX_API_KEY    (required) — the API key. Never hardcoded.
+        MINIMAX_API_URL    (optional) — base URL, default https://api.MiniMax.chat/v1
+        MINIMAX_API_MODEL  (optional) — model name, default MiniMax-M3
+    """
+    api_key = os.environ.get("MINIMAX_API_KEY")
+    if not api_key:
+        die("MINIMAX_API_KEY environment variable is not set. "
+            "Export it before running `evaluator.py run`. "
+            "Never hardcode the key in this script or in any file in the vault.")
+    api_url = os.environ.get("MINIMAX_API_URL", DEFAULT_API_URL).rstrip("/")
+    api_model = os.environ.get("MINIMAX_API_MODEL", DEFAULT_API_MODEL)
+    return {"key": api_key, "url": api_url, "model": api_model}
+
+
+# ============================================================
+# API CALL — urllib, retries with exponential backoff
+# ============================================================
+
+RETRYABLE_HTTP = {429, 500, 502, 503, 504}
+
+
+def call_minimax_api(prompt: str, config: dict, temperature: float = 0.2,
+                     max_retries: int = 3, timeout: int = 60) -> dict:
+    """Call MiniMax chat completions API. Returns parsed JSON response.
+    Retries on 429/5xx and network errors with exponential backoff.
+    Does NOT retry on 4xx (other than 429) — those are deterministic failures.
+    """
+    url = f"{config['url']}/chat/completions"
+    body = json.dumps({
+        "model": config["model"],
+        "messages": [{"role": "user", "content": prompt}],
+        "temperature": temperature,
+    }).encode("utf-8")
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {config['key']}",
+    }
+    last_error = None
+    for attempt in range(1, max_retries + 1):
+        try:
+            req = urllib.request.Request(url, data=body, method="POST", headers=headers)
+            with urllib.request.urlopen(req, timeout=timeout) as resp:
+                raw = resp.read().decode("utf-8")
+                return json.loads(raw)
+        except urllib.error.HTTPError as e:
+            # Sanitize the error message — never include the auth header.
+            err_body = ""
+            try:
+                err_body = e.read().decode("utf-8", errors="replace")[:200] if e.fp else ""
+            except Exception:
+                pass
+            last_error = f"HTTP {e.code}: {err_body}"
+            if e.code in RETRYABLE_HTTP and attempt < max_retries:
+                wait = 2 ** (attempt - 1)
+                print(f"  WARN: {last_error}, retry {attempt}/{max_retries} in {wait}s...",
+                      file=sys.stderr)
+                time.sleep(wait)
+                continue
+            raise RuntimeError(f"API call failed (non-retryable): {last_error}")
+        except (urllib.error.URLError, TimeoutError) as e:
+            last_error = f"{type(e).__name__}: {e}"
+            if attempt < max_retries:
+                wait = 2 ** (attempt - 1)
+                print(f"  WARN: {last_error}, retry {attempt}/{max_retries} in {wait}s...",
+                      file=sys.stderr)
+                time.sleep(wait)
+                continue
+            raise RuntimeError(f"API call failed (network): {last_error}")
+    raise RuntimeError(f"API call failed after {max_retries} retries: {last_error}")
+
+
+def parse_grade_response(item: dict, response: dict) -> dict:
+    """Extract the JSON grade from an OpenAI-compatible chat completion.
+    Strips markdown fences if present. Backfills required fields from items.json.
+    Raises ValueError on unparseable content.
+    """
+    try:
+        content = response["choices"][0]["message"]["content"]
+    except (KeyError, IndexError, TypeError):
+        raise ValueError(f"Unexpected API response shape: {json.dumps(response)[:300]}")
+
+    content = content.strip()
+    # Strip markdown code fences (```json ... ``` or ``` ... ```)
+    if content.startswith("```"):
+        lines = content.split("\n")
+        if lines[0].startswith("```"):
+            lines = lines[1:]
+        if lines and lines[-1].startswith("```"):
+            lines = lines[:-1]
+        content = "\n".join(lines).strip()
+
+    # If M3 wrapped the JSON in prose, extract the outermost {...}
+    if not content.startswith("{"):
+        start = content.find("{")
+        end = content.rfind("}")
+        if start != -1 and end != -1 and end > start:
+            content = content[start:end + 1]
+
+    try:
+        grade = json.loads(content)
+    except json.JSONDecodeError:
+        raise ValueError(f"API returned non-JSON content (first 300 chars): {content[:300]}")
+
+    if not isinstance(grade, dict):
+        raise ValueError(f"API returned non-object JSON: {type(grade).__name__}")
+    if "scores" not in grade or not isinstance(grade["scores"], dict):
+        raise ValueError("API grade missing 'scores' object")
+
+    # Backfill from items.json — M3 should include these but we don't trust it
+    grade.setdefault("id", item["id"])
+    grade.setdefault("category", item["category"])
+    grade.setdefault("pass_threshold", item["pass_threshold"])
+
+    return grade
+
+
+# ============================================================
+# RUN LOG — append NDJSON entries to skillopt-runs.jsonl
+# ============================================================
+
+def default_run_log_path() -> Path:
+    """The vault-resident audit log path (per PIPELINE.md § Step 5)."""
+    vault = Path(os.environ.get("VAULT_ROOT",
+                                "/Users/brassfieldventuresllc/MiniMax-Agent"))
+    return vault / "99 _system" / "logs" / "skillopt-runs.jsonl"
+
+
+def log_run(log_path: Path, entry: dict) -> None:
+    """Append a single JSONL entry to the skillopt-runs.jsonl audit log.
+    The caller is responsible for not putting API keys in `entry`."""
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    with log_path.open("a", encoding="utf-8") as f:
+        f.write(json.dumps(entry) + "\n")
+
 
 # ============================================================
 # ITEM LOADING
@@ -409,6 +597,149 @@ def cmd_grade(args) -> int:
 
 
 # ============================================================
+# RUN MODE — one-shot: assemble + call API + grade + report
+# ============================================================
+
+def cmd_run(args) -> int:
+    """One-shot runner: assemble + call API per item + grade + report."""
+    items = load_items(args.items)
+    config = get_api_config()  # dies if MINIMAX_API_KEY is missing
+
+    mavis_output_path = Path(args.mavis_output)
+    if not mavis_output_path.exists():
+        die(f"mavis-output file not found: {mavis_output_path}")
+    mavis_output = mavis_output_path.read_text(encoding="utf-8").strip()
+
+    # Default grades_dir = <report_dir>/<report_stem>-grades/
+    if args.grades_dir:
+        grades_dir = Path(args.grades_dir)
+    else:
+        report_p = Path(args.report_path)
+        grades_dir = report_p.parent / (report_p.stem + "-grades")
+    grades_dir.mkdir(parents=True, exist_ok=True)
+    prompts_dir = grades_dir / "prompts"
+    prompts_dir.mkdir(parents=True, exist_ok=True)
+
+    report_path = Path(args.report_path)
+    report_path.parent.mkdir(parents=True, exist_ok=True)
+
+    run_log = Path(args.run_log) if args.run_log else default_run_log_path()
+
+    print(f"Grading {len(items)} items via {config['url']} (model: {config['model']})...")
+    if args.dry_run_api:
+        print("  --dry-run-api: skipping real API calls, writing placeholder grades")
+    print(f"  grades_dir: {grades_dir}")
+    print(f"  run_log:    {run_log}")
+    print()
+
+    for i, item in enumerate(items, 1):
+        item_id = item["id"]
+        prompt = build_prompt(item, mavis_output)
+        grade_path = grades_dir / f"{item_id}.grades.json"
+        prompt_path = prompts_dir / f"{item_id}.md"
+        prompt_path.write_text(prompt, encoding="utf-8")
+
+        print(f"  [{i}/{len(items)}] {item_id} ({item['category']})...", end="", flush=True)
+        start = time.time()
+
+        if args.dry_run_api:
+            placeholder = {
+                "id": item_id,
+                "category": item["category"],
+                "scores": {d: 0 for d in item["scoring_dimensions"]},
+                "evidence": {},
+                "raw_score": 0.0,
+                "pass_threshold": item["pass_threshold"],
+                "item_pass": False,
+                "summary": "DRY RUN — no API call was made, eval cannot pass without real grades",
+            }
+            grade_path.write_text(json.dumps(placeholder, indent=2), encoding="utf-8")
+            log_run(run_log, {
+                "ts": datetime.now().isoformat(timespec="seconds"),
+                "item_id": item_id,
+                "category": item["category"],
+                "model": config["model"],
+                "endpoint": config["url"],
+                "duration_ms": 0,
+                "status": "dry_run",
+                "item_pass": False,
+            })
+            print(" DRY-RUN")
+            continue
+
+        try:
+            response = call_minimax_api(
+                prompt, config,
+                temperature=args.temperature,
+                max_retries=args.max_retries,
+                timeout=args.timeout,
+            )
+            grade = parse_grade_response(item, response)
+            grade = compute_item_pass(grade)
+            grade_path.write_text(json.dumps(grade, indent=2), encoding="utf-8")
+            duration_ms = int((time.time() - start) * 1000)
+            usage = response.get("usage", {}) if isinstance(response, dict) else {}
+            log_run(run_log, {
+                "ts": datetime.now().isoformat(timespec="seconds"),
+                "item_id": item_id,
+                "category": item["category"],
+                "model": config["model"],
+                "endpoint": config["url"],
+                "prompt_tokens": usage.get("prompt_tokens", 0),
+                "completion_tokens": usage.get("completion_tokens", 0),
+                "total_tokens": usage.get("total_tokens", 0),
+                "duration_ms": duration_ms,
+                "status": "ok",
+                "raw_score": grade.get("raw_score"),
+                "item_pass": grade.get("item_pass"),
+            })
+            score_str = f"{grade.get('raw_score', 0.0):.2f}"
+            pass_str = "PASS" if grade.get("item_pass") else "FAIL"
+            print(f" {pass_str} (score={score_str}, {duration_ms}ms)")
+        except Exception as e:
+            duration_ms = int((time.time() - start) * 1000)
+            err_msg = f"{type(e).__name__}: {str(e)[:200]}"
+            failed_grade = {
+                "id": item_id,
+                "category": item["category"],
+                "scores": {},
+                "evidence": {},
+                "raw_score": 0.0,
+                "pass_threshold": item["pass_threshold"],
+                "item_pass": False,
+                "summary": f"API CALL FAILED: {err_msg}",
+            }
+            grade_path.write_text(json.dumps(failed_grade, indent=2), encoding="utf-8")
+            log_run(run_log, {
+                "ts": datetime.now().isoformat(timespec="seconds"),
+                "item_id": item_id,
+                "category": item["category"],
+                "model": config["model"],
+                "endpoint": config["url"],
+                "duration_ms": duration_ms,
+                "status": "error",
+                "error": err_msg,
+            })
+            print(f" ERROR ({err_msg[:80]})")
+
+    # Compute the report (reuse cmd_grade logic)
+    print()
+    fake_args = argparse.Namespace(
+        items=args.items,
+        grades_dir=str(grades_dir),
+        report_path=str(report_path),
+    )
+    rc = cmd_grade(fake_args)
+    if args.dry_run_api and rc == 0:
+        # The report is structurally clean; explicitly note the dry-run caveat
+        print()
+        print("NOTE: --dry-run-api was set. The report above is structurally complete,")
+        print("      but every grade is a placeholder (all-dim=0, item_pass=False).")
+        print("      Re-run without --dry-run-api to get a real eval.")
+    return rc
+
+
+# ============================================================
 # SHOW MODE — pretty-print an item (or all items)
 # ============================================================
 
@@ -475,6 +806,30 @@ def main() -> int:
     p_show.add_argument("item_id", nargs="?", default=None,
                         help="Optional item id to show (default: all)")
 
+    p_run = sub.add_parser("run",
+                           help="One-shot: assemble + call MiniMax API + grade + report")
+    p_run.add_argument("items", help="Path to items.json")
+    p_run.add_argument("mavis_output",
+                       help="Path to the Mavis output text to be graded")
+    p_run.add_argument("report_path", help="Path to write the aggregate report")
+    p_run.add_argument("--grades-dir", default=None,
+                       help="Where to write per-item grades "
+                            "(default: <report_dir>/<report_stem>-grades/)")
+    p_run.add_argument("--run-log", default=None,
+                       help="Path to the audit log "
+                            "(default: <vault>/99 _system/logs/skillopt-runs.jsonl)")
+    p_run.add_argument("--temperature", type=float, default=0.2,
+                       help="Sampling temperature (default 0.2, per Friction 3 ruling)")
+    p_run.add_argument("--max-retries", type=int, default=3,
+                       help="Max retries on retryable HTTP/network errors (default 3)")
+    p_run.add_argument("--timeout", type=int, default=60,
+                       help="Per-request timeout in seconds (default 60)")
+    p_run.add_argument("--dry-run-api", action="store_true",
+                       help="Skip real API calls; write placeholder grades for "
+                            "pipeline validation. Placeholder grades default to "
+                            "fail, so the report shows a non-pass even if the "
+                            "pipeline completed cleanly.")
+
     args = ap.parse_args()
 
     if args.version or args.command is None:
@@ -485,6 +840,8 @@ def main() -> int:
         return cmd_assemble(args)
     if args.command == "grade":
         return cmd_grade(args)
+    if args.command == "run":
+        return cmd_run(args)
     if args.command == "show":
         return cmd_show(args)
 
