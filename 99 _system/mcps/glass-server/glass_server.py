@@ -84,6 +84,11 @@ class GlassHandler(BaseHTTPRequestHandler):
             self._serve_file(_HERE / "theme" / "glass.css", "text/css")
             return
 
+        # Mycelial network page
+        if rel_path in ("_glass/mycelial", "mycelial"):
+            self._serve_mycelial()
+            return
+
         # Raw markdown (for debugging)
         if rel_path.startswith("_glass/raw/"):
             raw_path = rel_path[len("_glass/raw/"):]
@@ -122,6 +127,132 @@ class GlassHandler(BaseHTTPRequestHandler):
         self.send_header("Cache-Control", "no-store")
         self.end_headers()
         self.wfile.write(encoded)
+
+    def _serve_mycelial(self):
+        """Render the /mycelial page — the living routing network visualization."""
+        # Lazy-import MycelialResolver to avoid forcing the dependency
+        try:
+            import sys as _sys
+            resolver_dir = self.vault_root / "99 _system" / "mcps" / "resolver"
+            if str(resolver_dir) not in _sys.path:
+                _sys.path.insert(0, str(resolver_dir))
+            from mycelial import MycelialResolver
+            mr = MycelialResolver(self.vault_root)
+            state = mr.build_state()
+        except Exception as e:
+            self.send_error(503, f"MycelialResolver unavailable: {e}")
+            return
+
+        template = (_HERE / "templates" / "mycelial.html").read_text(encoding="utf-8")
+        page = template
+        page = page.replace("{{GENERATED_AT}}", html.escape(state["generated_at"]))
+        page = page.replace("{{TOTAL_SKILLS}}", str(state["totals"]["skills"]))
+        page = page.replace("{{TOTAL_HOT}}", str(state["totals"]["hot"]))
+        page = page.replace("{{TOTAL_COLD}}", str(state["totals"]["cold"]))
+        page = page.replace("{{TOTAL_FRESH}}", str(state["totals"]["fresh"]))
+        page = page.replace("{{LOG_RECORDS}}", str(state["totals"]["log_records_30d"]))
+        page = page.replace(
+            "{{RESURRECTION_RULE}}",
+            "Cold skills with explicit query matches remain in the candidate set. "
+            "The decay is a default, not a hard filter. M3 may still select a cold skill "
+            "if the query specifically targets it."
+        )
+        page = page.replace("{{HOT_SECTION}}", self._format_mycelial_table(state["hottest"], empty_msg="(no hot paths yet — system needs more invocations)"))
+        page = page.replace("{{COLD_SECTION}}", self._format_mycelial_table(state["decaying"], empty_msg="(no decaying paths — all skills are active)"))
+        page = page.replace("{{FRESH_SECTION}}", self._format_mycelial_table(state["boosted"], empty_msg="(no fresh boosts active)", fresh=True))
+        # Routing decisions: top 10 by use count
+        routing = [v for v in state["all_vines"] if v["use_count_30d"] > 0]
+        routing.sort(key=lambda v: -v["use_count_30d"])
+        routing = routing[:10]
+        page = page.replace("{{ROUTING_SECTION}}", self._format_routing_table(routing))
+
+        encoded = page.encode("utf-8")
+        self.send_response(200)
+        self.send_header("Content-Type", "text/html; charset=utf-8")
+        self.send_header("Content-Length", str(len(encoded)))
+        self.send_header("Cache-Control", "no-store")
+        self.end_headers()
+        self.wfile.write(encoded)
+
+    @staticmethod
+    def _format_mycelial_table(vines: list, empty_msg: str = "(empty)", fresh: bool = False) -> str:
+        """Render a mycelial state table for a list of vines."""
+        if not vines:
+            return f'<div class="empty-state">{empty_msg}</div>'
+        rows = []
+        for v in vines:
+            confidence = v["final_confidence"]
+            if confidence >= 0.7:
+                bar_cls = "hot"
+            elif confidence >= 0.4:
+                bar_cls = "warm"
+            else:
+                bar_cls = "cold"
+            verdict_cls = v["verdict"]
+            if fresh:
+                verdict_cls = "fresh"
+            days_ago = v.get("days_since_used")
+            days_ago_str = (
+                f"{int(days_ago)}d ago" if days_ago is not None else "—"
+            )
+            age_str = f"{int(v['age_days'])}d old" if v.get("age_days") else "—"
+            flow = v.get("flow_score", 0)
+            fresh_score = v.get("fresh_score", 0)
+            decay = v.get("decay_penalty", 0)
+            rows.append(
+                f'<tr>'
+                f'<td class="name-col">{html.escape(v["name"])}</td>'
+                f'<td><span class="verdict-tag {verdict_cls}">{v["verdict"]}</span></td>'
+                f'<td class="num-col">'
+                f'<span class="mycelial-bar"><span class="mycelial-bar-fill {bar_cls}" style="width:{int(confidence*100)}%"></span></span>'
+                f'{confidence:.2f}'
+                f'</td>'
+                f'<td class="num-col">{v["use_count_30d"]}</td>'
+                f'<td class="num-col">{int(v["success_rate"]*100)}%</td>'
+                f'<td>{days_ago_str if not fresh else age_str}</td>'
+                f'<td class="num-col" style="color:var(--fg-muted);font-size:0.78rem;">'
+                f'flow {flow:+.2f} / fresh {fresh_score:+.2f} / decay {decay:+.2f}'
+                f'</td>'
+                f'</tr>'
+            )
+        return (
+            '<table class="mycelial-table">'
+            '<thead><tr>'
+            '<th>Skill</th><th>Verdict</th><th class="num-col">Confidence</th>'
+            '<th class="num-col">Use 30d</th><th class="num-col">Success</th>'
+            f'<th>{"Last used" if not fresh else "Age"}</th>'
+            '<th>Modifiers</th>'
+            '</tr></thead>'
+            f'<tbody>{"".join(rows)}</tbody>'
+            '</table>'
+        )
+
+    @staticmethod
+    def _format_routing_table(vines: list) -> str:
+        """Render the routing decisions table."""
+        if not vines:
+            return '<div class="empty-state">(no routing decisions in the last 30 days)</div>'
+        rows = []
+        for v in vines:
+            rows.append(
+                f'<tr>'
+                f'<td class="name-col">{html.escape(v["name"])}</td>'
+                f'<td class="num-col">{v["use_count_30d"]}</td>'
+                f'<td class="num-col">{int(v["success_rate"]*100)}%</td>'
+                f'<td class="num-col">{v["final_confidence"]:.2f}</td>'
+                f'<td>{html.escape(v["source"])}</td>'
+                f'</tr>'
+            )
+        return (
+            '<table class="mycelial-table">'
+            '<thead><tr>'
+            '<th>Skill</th><th class="num-col">Selections (30d)</th>'
+            '<th class="num-col">Success rate</th><th class="num-col">Confidence</th>'
+            '<th>Source</th>'
+            '</tr></thead>'
+            f'<tbody>{"".join(rows)}</tbody>'
+            '</table>'
+        )
 
     def _resolve_safe(self, rel_path: str) -> Path | None:
         """Resolve a path relative to vault root, ensuring it stays inside.

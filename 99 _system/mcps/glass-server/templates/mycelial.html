@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Mycelial Network — Obsidian Glass</title>
+<link rel="stylesheet" href="/_glass/theme.css" />
+<style>
+/* Mycelial-specific styles (light/dark via prefers-color-scheme handled by theme.css) */
+.mycelial-summary {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+.mycelial-stat-card {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem;
+  text-align: center;
+}
+.mycelial-stat-card .num {
+  font-family: var(--font-mono);
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--accent);
+  display: block;
+  line-height: 1;
+}
+.mycelial-stat-card .label {
+  font-size: 0.75rem;
+  color: var(--fg-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 0.5rem;
+  display: block;
+}
+.mycelial-section {
+  margin: 2.5rem 0;
+}
+.mycelial-section h2 {
+  font-family: var(--font-serif);
+  font-size: 1.4rem;
+  margin: 0 0 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.mycelial-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+  margin: 0.5rem 0;
+}
+.mycelial-table th {
+  background: var(--bg-code);
+  text-align: left;
+  padding: 0.5rem 0.75rem;
+  font-weight: 600;
+  font-size: 0.78rem;
+  color: var(--fg-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-bottom: 1px solid var(--border);
+}
+.mycelial-table td {
+  padding: 0.6rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+}
+.mycelial-table tr:last-child td {
+  border-bottom: none;
+}
+.mycelial-table .num-col {
+  font-family: var(--font-mono);
+  text-align: right;
+  width: 6.5rem;
+}
+.mycelial-table .name-col {
+  font-weight: 600;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+}
+.mycelial-bar {
+  display: inline-block;
+  width: 60px;
+  height: 0.5rem;
+  background: var(--bg-code);
+  border-radius: 3px;
+  overflow: hidden;
+  vertical-align: middle;
+  margin-right: 0.5rem;
+}
+.mycelial-bar-fill {
+  display: block;
+  height: 100%;
+  border-radius: 3px;
+}
+.mycelial-bar-fill.hot { background: #4a6b3a; }
+.mycelial-bar-fill.warm { background: #c08457; }
+.mycelial-bar-fill.cold { background: #c0392b; }
+.mycelial-bar-fill.fresh { background: #2e86c1; }
+@media (prefers-color-scheme: dark) {
+  .mycelial-bar-fill.hot { background: #a3c585; }
+  .mycelial-bar-fill.warm { background: #d4a574; }
+  .mycelial-bar-fill.cold { background: #e57373; }
+  .mycelial-bar-fill.fresh { background: #64b5f6; }
+}
+.verdict-tag {
+  display: inline-block;
+  padding: 0.05rem 0.4rem;
+  border-radius: 3px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.verdict-tag.hot { background: rgba(74, 107, 58, 0.15); color: #4a6b3a; }
+.verdict-tag.cold { background: rgba(192, 57, 43, 0.15); color: #c0392b; }
+.verdict-tag.fresh { background: rgba(46, 134, 193, 0.15); color: #2e86c1; }
+.verdict-tag.neutral { background: rgba(155, 155, 150, 0.15); color: #888; }
+@media (prefers-color-scheme: dark) {
+  .verdict-tag.hot { background: rgba(163, 197, 133, 0.15); color: #a3c585; }
+  .verdict-tag.cold { background: rgba(229, 115, 115, 0.15); color: #e57373; }
+  .verdict-tag.fresh { background: rgba(100, 181, 246, 0.15); color: #64b5f6; }
+  .verdict-tag.neutral { background: rgba(155, 155, 150, 0.15); color: #aaa; }
+}
+.empty-state {
+  padding: 2rem;
+  text-align: center;
+  color: var(--fg-muted);
+  font-style: italic;
+  background: var(--bg-metadata);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
+}
+.resurrection-note {
+  background: var(--bg-metadata);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  padding: 0.75rem 1rem;
+  margin: 1.5rem 0;
+  font-size: 0.88rem;
+  color: var(--fg-muted);
+}
+.resurrection-note strong { color: var(--accent); }
+</style>
+</head>
+<body>
+<header class="glass-header">
+  <div class="glass-header-inner">
+    <a class="glass-brand" href="/">Obsidian Glass</a>
+    <div class="glass-path">Mycelial Network</div>
+    <div class="glass-meta">
+      <span class="glass-mtime">generated: {{GENERATED_AT}}</span>
+    </div>
+  </div>
+</header>
+<main class="glass-main">
+  <article class="glass-article">
+    <h1 class="glass-title">Mycelial Network</h1>
+    <blockquote class="lead-quote">The living routing state of the Omni-Operator. Skills are thickened by use, decay when cold, and get a 14-day fresh boost when new. The math is deterministic in Python; M3 makes the final routing call in its context window.</blockquote>
+
+    <div class="mycelial-summary">
+      <div class="mycelial-stat-card">
+        <span class="num">{{TOTAL_SKILLS}}</span>
+        <span class="label">Skills indexed</span>
+      </div>
+      <div class="mycelial-stat-card">
+        <span class="num" style="color:#4a6b3a;">{{TOTAL_HOT}}</span>
+        <span class="label">🔥 Hot paths</span>
+      </div>
+      <div class="mycelial-stat-card">
+        <span class="num" style="color:#c0392b;">{{TOTAL_COLD}}</span>
+        <span class="label">🧊 Decaying</span>
+      </div>
+      <div class="mycelial-stat-card">
+        <span class="num" style="color:#2e86c1;">{{TOTAL_FRESH}}</span>
+        <span class="label">✨ Fresh boost</span>
+      </div>
+    </div>
+
+    <div class="resurrection-note">
+      <strong>Resurrection Rule:</strong> {{RESURRECTION_RULE}}
+    </div>
+
+    <section class="mycelial-section">
+      <h2>🔥 Hottest pathways</h2>
+      {{HOT_SECTION}}
+    </section>
+
+    <section class="mycelial-section">
+      <h2>🧊 Decaying paths</h2>
+      {{COLD_SECTION}}
+    </section>
+
+    <section class="mycelial-section">
+      <h2>✨ Fresh-skill boosts</h2>
+      {{FRESH_SECTION}}
+    </section>
+
+    <section class="mycelial-section">
+      <h2>📊 Routing decisions (top 10)</h2>
+      {{ROUTING_SECTION}}
+    </section>
+  </article>
+</main>
+<footer class="glass-footer">
+  <span>Obsidian Glass · Mycelial Network · {{GENERATED_AT}}</span>
+  {{LOG_RECORDS}} log records (30d)
+</footer>
+</body>
+</html>
