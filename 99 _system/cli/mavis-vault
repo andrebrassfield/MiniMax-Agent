@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+# mavis-vault — Mavis vault CLI entry.
+# Thin wrapper that runs the Python implementation in the Glass Server's venv.
+set -e
+
+# Find our location (works whether invoked directly or symlinked)
+CLI_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+VAULT_ROOT="$(cd "$CLI_DIR/../.." && pwd)"
+
+# Use the Glass Server's venv (it has markdown + pygments)
+VENV_PY="$CLI_DIR/../mcps/glass-server/.venv/bin/python"
+if [ ! -x "$VENV_PY" ]; then
+    echo "mavis-vault: Glass Server venv not found at $VENV_PY" >&2
+    echo "Create it with:  $CLI_DIR/../mcps/glass-server/create_venv.sh" >&2
+    exit 1
+fi
+
+exec "$VENV_PY" "$CLI_DIR/mavis_vault.py" "$@"
