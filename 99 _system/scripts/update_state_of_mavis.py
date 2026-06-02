@@ -110,9 +110,15 @@ def get_today_daily_note() -> str | None:
     path = DAILY / f"{today}.md"
     return path.read_text(encoding="utf-8") if path.exists() else None
 
-def harvest() -> dict:
-    """Run all harvesters, return aggregated dict."""
-    since = get_last_state_commit()
+def harvest(since: str | None = None) -> dict:
+    """Run all harvesters, return aggregated dict.
+    `since`: commit hash to use as the "since" reference.
+            Default = the last commit that touched state-of-mavis.md.
+            Override with --since <commit> for the first run after a long gap,
+            or for any manual window. (Friction 7 ruling, 2026-06-02.)
+    """
+    if since is None:
+        since = get_last_state_commit()
     return {
         "generated_at": datetime.now().isoformat(timespec="seconds"),
         "vault_root": str(VAULT_ROOT),
@@ -284,38 +290,40 @@ def main() -> int:
     parser.add_argument("--assemble-prompt", action="store_true", help="Output M3 synthesis prompt")
     parser.add_argument("--apply", action="store_true", help="Write synthesized content from stdin to state-of-mavis.md")
     parser.add_argument("--dry-run", action="store_true", help="harvest + audit + prompt (no write)")
+    parser.add_argument("--since", metavar="COMMIT", help="Override the 'since commit' reference (default: last commit that touched state-of-mavis.md). Friction 7 ruling.")
     parser.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
     args = parser.parse_args()
 
     if args.harvest:
-        print(json.dumps(harvest(), indent=2))
+        print(json.dumps(harvest(args.since), indent=2))
         return 0
 
     if args.audit:
-        since = get_last_state_commit()
+        since = args.since if args.since else get_last_state_commit()
         verdicts = audit_session(get_commits_since(since))
         print(json.dumps({"since_commit": since, "verdicts": verdicts}, indent=2))
         return 0
 
     if args.assemble_prompt:
-        print(assemble_prompt(harvest()))
+        print(assemble_prompt(harvest(args.since)))
         return 0
 
     if args.apply:
         content = sys.stdin.read()
         # Audit gate: refuse if any prior session action is RED
-        verdicts = audit_session(get_commits_since(get_last_state_commit()))
+        since = args.since if args.since else get_last_state_commit()
+        verdicts = audit_session(get_commits_since(since))
         reds = [v for v in verdicts if not v["allowed"]]
         if reds:
             print("!!! AUDIT GATE FAILED: refuse to overwrite state-of-mavis.md", file=sys.stderr)
             print(json.dumps(reds, indent=2), file=sys.stderr)
             return 1
         apply(content)
-        print(f"Wrote {len(content)} chars to {STATE_FILE}", file=sys.stderr)
+        print(f"Wrote {len(content)} chars to {STATE_FILE} (since={since[:8]})", file=sys.stderr)
         return 0
 
     if args.dry_run:
-        h = harvest()
+        h = harvest(args.since)
         print("=== HARVESTED DATA ===")
         print(json.dumps(h, indent=2))
         print()
