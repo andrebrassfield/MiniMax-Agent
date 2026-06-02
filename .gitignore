@@ -30,3 +30,8 @@ Thumbs.db
 # --- Local agent runtime data ---
 *.log
 *.tmp
+
+# --- Python build artifacts (regenerated on every run) ---
+__pycache__/
+*.pyc
+*.pyo
