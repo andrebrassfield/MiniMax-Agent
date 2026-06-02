@@ -26,9 +26,12 @@ from pathlib import Path
 # Reuse the Glass Server's renderer module
 _HERE = Path(__file__).parent.resolve()
 _GLASS_SERVER = _HERE.parent / "mcps" / "glass-server"
+_WHOLENESS = _HERE.parent / "mcps" / "wholeness-engine"
 sys.path.insert(0, str(_GLASS_SERVER))
+sys.path.insert(0, str(_WHOLENESS))
 
 from renderer import MarkdownRenderer, parse_frontmatter  # noqa: E402
+from wholeness_engine import score_note  # noqa: E402
 
 DEFAULT_VAULT = _HERE.parent.parent
 DEFAULT_PORT = 8765
@@ -409,7 +412,13 @@ def cmd_stats(args):
 # ---------- Subcommand: wholeness (placeholder) ----------
 
 def cmd_wholeness(args):
-    """Score a single note on Alexander's 15 properties. Heuristic-only for now."""
+    """Score a single note on Alexander's 15 properties using M3-as-judge.
+
+    Phase 2 of Operation Architect's Forge: the Wholeness-Engine is
+    wired into the mavis-vault CLI. The engine calls M3 at temperature
+    0.0 for deterministic grading and emits a structure-surgery plan
+    for notes below 18/30.
+    """
     vault = resolve_vault(args)
     target = args.path
     file_path = (vault / target).resolve()
@@ -421,85 +430,125 @@ def cmd_wholeness(args):
     if not file_path.is_file():
         sys.stderr.write(f"Not found: {file_path}\n")
         sys.exit(1)
-    text = file_path.read_text(encoding="utf-8", errors="replace")
-    fm, body = parse_frontmatter(text)
 
-    # Heuristic scoring (full LLM-as-judge is Wholeness-Engine Pitch 2)
-    scores = {}
-    sections = re.findall(r"^##\s+(.+)$", body, re.MULTILINE)
-    wikilinks = WIKILINK_RE.findall(body)
-    has_lead_quote = bool(re.search(r"^>\s", body, re.MULTILINE))
-    has_metadata = bool(fm)
-    total_length = len(body)
-
-    # Levels of Scale: do sections have sub-sections?
-    subsections = len(re.findall(r"^###\s+", body, re.MULTILINE))
-    scores["Levels of Scale"] = 2 if subsections >= 3 else 1 if subsections >= 1 else 0
-    # Strong Centers: does it have a clear title + lead quote?
-    scores["Strong Centers"] = 2 if has_lead_quote else 1
-    # Thick Boundaries: rough proxy = sections that transition
-    scores["Thick Boundaries"] = 1 if len(sections) >= 3 else 0
-    # Alternating Repetition: examples + principles mixed?
-    has_examples = "## Example" in body or "For example" in body
-    has_principles = "## The principle" in body or "## Principle" in body
-    scores["Alternating Repetition"] = 2 if has_examples and has_principles else 1
-    # Positive Space: rough = uses tables / lists / structure
-    scores["Positive Space"] = 2 if "|" in body or "- " in body else 0
-    # Good Shape: sections present
-    scores["Good Shape"] = 2 if len(sections) >= 3 else 1 if sections else 0
-    # Local Symmetries: rough = parallel sections like "What this is NOT" + "What would falsify"
-    has_negation = "What this is NOT" in body or "## What" in body
-    has_falsify = "What would falsify" in body or "## What would" in body
-    scores["Local Symmetries"] = 2 if has_negation and has_falsify else 1
-    # Deep Interlock: outbound wikilinks
-    scores["Deep Interlock"] = 2 if len(wikilinks) >= 5 else 1 if wikilinks else 0
-    # Contrast: different section lengths
-    if len(sections) >= 3:
-        lens = [len(re.search(rf"## {re.escape(s)}.*?(?=^##|\Z)", body, re.MULTILINE | re.DOTALL).group(0)) for s in sections if re.search(rf"## {re.escape(s)}.*?(?=^##|\Z)", body, re.MULTILINE | re.DOTALL)]
-        scores["Contrast"] = 2 if (max(lens) if lens else 0) > 2 * (min(lens) if lens else 1) else 1
-    else:
-        scores["Contrast"] = 0
-    # Gradients: smooth energy — proxy = intro long, conclusion short or vice versa
-    scores["Gradients"] = 1
-    # Roughness: has honest aside?
-    has_aside = "honest" in body.lower() or "caveat" in body.lower() or "limitation" in body.lower()
-    scores["Roughness"] = 2 if has_aside else 0
-    # Echoes: key term appears 2-3+ times
-    words = re.findall(r"\b\w{6,}\b", body.lower())
-    word_counts = Counter(words)
-    has_echo = any(c >= 3 for c in word_counts.values())
-    scores["Echoes"] = 2 if has_echo else 1
-    # The Void: closing opens
-    last_para = body.strip().split("\n\n")[-1] if body.strip() else ""
-    has_void = any(phr in last_para.lower() for phr in ["open", "next", "see also", "anticipated", "future"])
-    scores["The Void"] = 2 if has_void else 1
-    # Simplicity: density
-    word_count = len(body.split())
-    scores["Simplicity"] = 2 if 200 <= word_count <= 3000 else 1
-    # Not Separateness: ends with connections
-    has_connections = "## Connections" in body or "## See also" in body or "[[" in body[-1000:]
-    scores["Not Separateness"] = 2 if has_connections else 0
-
-    total = sum(scores.values())
-    max_total = 30
+    result = score_note(file_path, vault, use_cache=not getattr(args, "no_cache", False))
 
     if args.json:
-        print(json.dumps({
-            "file": str(file_path.relative_to(vault)),
-            "score": total,
-            "max": max_total,
-            "properties": scores,
-        }, indent=2))
+        print(json.dumps(result, indent=2))
+        return
+
+    # Human-readable output (matches Wholeness-Engine's format)
+    total = result["total"]
+    verdict = result["verdict"]
+    if verdict == "exemplary":
+        v_color = C.GREEN + C.BOLD
+    elif verdict == "alive":
+        v_color = C.GREEN
+    elif verdict == "working":
+        v_color = C.YELLOW
+    elif verdict == "rough":
+        v_color = C.RED
     else:
-        print(f"{C.BOLD}=== WHOLENESS — {file_path.relative_to(vault)} ==={C.RESET}")
-        print(f"Score: {C.BOLD}{total}/{max_total}{C.RESET}  ({'alive' if total >= 24 else 'working' if total >= 18 else 'rough' if total >= 12 else 'weak'})")
+        v_color = C.RED + C.BOLD
+
+    print(f"{C.BOLD}=== WHOLENESS — {result['rel_path']} ==={C.RESET}")
+    print(f"Score: {v_color}{total}/30{C.RESET}  ({verdict})")
+    print(f"Model: {result['model']} (temperature {result['temperature']})")
+    print(f"Scored: {result['scored_at']}")
+    print()
+
+    # Import the property list from rubric
+    from rubric import PROPERTIES
+    for prop in PROPERTIES:
+        info = result["properties"].get(prop, {"score": 0, "rationale": "missing"})
+        score = info["score"]
+        bar = "●" * score + "○" * (2 - score)
+        bar_color = C.GREEN if score == 2 else C.YELLOW if score == 1 else C.RED
+        rationale = info.get("rationale", "")[:100]
+        print(f"  {bar_color}{bar}{C.RESET}  {prop:35s}  {rationale}")
+    print()
+
+    # Structure surgery
+    surgery = result.get("structure_surgery", [])
+    if total < 18 and surgery:
+        print(f"{C.RED + C.BOLD}⚠️  STRUCTURE SURGERY REQUIRED{C.RESET} (score: {total}/30, below 18 threshold)")
+        print("=" * 60)
+        for i, item in enumerate(surgery, 1):
+            print(f"  {i}. {item}")
         print()
-        for name, score in scores.items():
-            bar = "●" * score + "○" * (2 - score)
-            color = C.GREEN if score == 2 else C.YELLOW if score == 1 else C.RED
-            print(f"  {color}{bar}{C.RESET}  {name}")
-        print()
-        print(f"  {C.DIM}(Heuristic scorer — full LLM-as-judge is Wholeness-Engine Pitch 2){C.RESET}")
+        print(f"  {C.DIM}Apply each repair, then re-run `mavis-vault wholeness <path>` to verify.{C.RESET}")
+
+
+def cmd_wholeness_report(args):
+    """Run the Wholeness-Engine on every atomic note and produce a report."""
+    vault = resolve_vault(args)
+    atomic_dirs = [
+        vault / "02 Notes" / "patterns",
+        vault / "02 Notes" / "ideas",
+        vault / "02 Notes" / "articles",
+        vault / "02 Notes" / "questions",
+        vault / "06 Connections",
+        vault / "00 Inbox",
+    ]
+    atomic_files = []
+    for d in atomic_dirs:
+        if d.is_dir():
+            atomic_files.extend(d.rglob("*.md"))
+
+    if not atomic_files:
+        sys.stderr.write("No atomic notes found\n")
+        return
+
+    print(f"Scoring {len(atomic_files)} atomic notes...")
+    results = []
+    for f in atomic_files:
+        try:
+            r = score_note(f, vault, use_cache=not getattr(args, "no_cache", False))
+            results.append((f, r))
+        except Exception as e:
+            sys.stderr.write(f"Failed to score {f}: {e}\n")
+
+    results.sort(key=lambda x: x[1]["total"])
+
+    if args.json:
+        print(json.dumps(
+            [{"rel_path": str(f.relative_to(vault)), **r} for f, r in results],
+            indent=2,
+        ))
+        return
+
+    print()
+    print(f"{C.BOLD}=== WHOLENESS REPORT — {datetime.now().isoformat(timespec='seconds')} ==={C.RESET}")
+    print(f"Vault: {vault}")
+    print(f"Scored {len(results)} atomic notes")
+    print()
+
+    verdict_counts = {}
+    for _, r in results:
+        verdict_counts[r["verdict"]] = verdict_counts.get(r["verdict"], 0) + 1
+    print(f"  {C.BOLD}Distribution:{C.RESET}")
+    for v in ["exemplary", "alive", "working", "rough", "weak"]:
+        n = verdict_counts.get(v, 0)
+        if n > 0:
+            color = C.GREEN if v in ("exemplary", "alive") else C.YELLOW if v == "working" else C.RED
+            print(f"    {color}{v:12s}{C.RESET}  {n}")
+    print()
+
+    print(f"  {C.BOLD}Bottom 10 (need surgery):{C.RESET}")
+    for f, r in results[:10]:
+        print(f"    [{C.RED if r['total'] < 18 else C.YELLOW}{r['total']:2d}/30{C.RESET}]  {r['rel_path']}")
+    print()
+
+    print(f"  {C.BOLD}Top 10:{C.RESET}")
+    for f, r in results[-10:]:
+        print(f"    [{C.GREEN}{r['total']:2d}/30{C.RESET}]  {r['rel_path']}")
+    print()
+
+    if results:
+        mean = sum(r["total"] for _, r in results) / len(results)
+        print(f"  Mean score: {C.BOLD}{mean:.1f}/30{C.RESET}")
+    below = sum(1 for _, r in results if r["total"] < 18)
+    print(f"  Below 18 (need surgery): {C.RED if below > 0 else C.GREEN}{below}{C.RESET} ({100*below/len(results):.1f}%)")
 
 
 # ---------- Main ----------
@@ -545,10 +594,17 @@ def build_parser() -> argparse.ArgumentParser:
     sp.set_defaults(func=cmd_stats)
 
     # wholeness
-    sp = sub.add_parser("wholeness", help="Score a note on Alexander's 15 properties")
+    sp = sub.add_parser("wholeness", help="Score a note on Alexander's 15 properties (M3 LLM-as-judge)")
     sp.add_argument("path", help="Path to file (relative to vault root)")
     sp.add_argument("--json", action="store_true", help="Output as JSON")
+    sp.add_argument("--no-cache", action="store_true", help="Bypass cache")
     sp.set_defaults(func=cmd_wholeness)
+
+    # wholeness-report
+    sp = sub.add_parser("wholeness-report", help="Run Wholeness-Engine on all atomic notes")
+    sp.add_argument("--json", action="store_true", help="Output as JSON")
+    sp.add_argument("--no-cache", action="store_true", help="Bypass cache")
+    sp.set_defaults(func=cmd_wholeness_report)
 
     return p
 
