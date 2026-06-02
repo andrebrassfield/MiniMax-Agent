@@ -162,6 +162,11 @@ related: [[MAVIS]] (weekly context), [[SOUL]] (permanent identity), [[agent]] (p
 - **Unblock**: for routine regens (small diffs), use the script's --apply. For complex regens (large diffs, new sections), use Write + separate --audit. Document the choice in the script's README.
 - **Cost of not deciding**: the script's --apply path is the more disciplined discipline, but it's also the less-tested path. Future regens should pick one or the other consistently.
 
+**Friction 11: SOUL compliance eval was non-deterministic at temperature 0.2**
+- v0.2.0 (sequential) and v0.3.0 (concurrent) ran on the same Mavis output but produced different PASS/FAIL outcomes: 2/25 vs 1/25 respectively. The dimensions that flipped were on borderline scores (0.5, 0.67, 0.83) where M3's sampling noise could go either way.
+- **Unblock**: hardcode temperature=0.0 for all M3 grading calls. Done in v0.3.1 (`99 _system/skillopt/evaluator.py`). The `--temperature` flag is removed; future non-grading work that needs a different temperature should add a separate flag.
+- **Cost of not deciding**: a SOUL compliance regression could be masked by sampling noise (a 0.83 PASS one run, 0.79 FAIL the next), defeating the purpose of the eval set. The canary rule on boundary_adherence (100% pass required) is especially vulnerable — a single flipped dimension on a boundary item would falsely trigger the canary.
+
 ---
 
 *First written 2026-06-02 09:40 CT. End-of-session regeneration #2 at 11:08 CT, Mavis session `mvs_0b98832f7bc547659d8a10c4f59f9b85`. Update routine: v0.1.0 at `99 _system/scripts/update_state_of_mavis.py`, audit-gate approved (4 GREEN actions: --since flag, vault-brain, gitignore cleanup, process-inbox).*
