@@ -3,11 +3,10 @@ type: moc
 purpose: session-continuity layer — read FIRST on every cold start, updated at every session end
 update-cadence: per session (start = read, end = regenerate)
 created: 2026-06-02
-updated: 2026-06-02 (end of session 3 — vault-brain shipped, process-inbox ran end-to-end, inbox emptied)
+updated: 2026-06-02 (end of session 5 — Chimera + Daedalus + Prometheus shipped, Omni-Loop active, 86 tests passing)
 owner: Mavis (self-maintained via 99 _system/scripts/update_state_of_mavis.py)
-related: [[MAVIS]] (weekly context), [[SOUL]] (permanent identity), [[agent]] (procedures), [[ESALEN-NOT-FOXCONN]] (operating posture), [[GUI Automation Gated on Operator Toggles]] (new pattern from this session)
+related: [[MAVIS]] (weekly context), [[SOUL]] (permanent identity), [[agent]] (procedures), [[ESALEN-NOT-FOXCONN]] (operating posture), [[GUI Automation Gated on Operator Toggles]] (operator-gated capabilities), [[Pytest Skill Pack Module Namespacing]] (new Instinct from this session)
 ---
-
 # state-of-mavis — where we are right now
 
 > The session-continuity layer. MAVIS.md tells the next session *what's fresh this week*. This file tells the next session *what's open right now*.
@@ -18,34 +17,52 @@ related: [[MAVIS]] (weekly context), [[SOUL]] (permanent identity), [[agent]] (p
 ## Operating envelope (this session)
 
 - **Model**: `minimax/MiniMax-M3` (thinking mode default: on)
-- **Role**: EA, isolated, no fleet yet
+- **Role**: EA + Omni-Operator. Persistent heartbeat active (4h interval).
 - **Vault root**: `/Users/brassfieldventuresllc/MiniMax-Agent/`
-- **Active session**: `mvs_0b98832f7bc547659d8a10c4f59f9b85`
+- **Active session**: `mvs_07595ff541f1404da332890f60634809`
 - **Date**: 2026-06-02 (Tuesday)
-- **Mavis's stance today**: build mode + first end-to-end EA workflow test (process-inbox with vault-brain) — both passed
-- **Posture**: Esalen, not Foxconn (3 audit questions live, $100/month M3 budget, build → test → skillify)
+- **Mavis's stance today**: build mode — closed 3 Operations in one session (Chimera, Daedalus, Prometheus). Pushed 2 commits. Heartbeat loaded.
+- **Posture**: Esalen, not Foxconn. Audit Q1+Q2 pass across all 4 new code surfaces (Resolver, Daemon, vision-anchor, Instinct).
 
 ---
 
 ## Just-shipped (since last update)
 
-4 commits since the last state-of-mavis update at `4d99bd8`.
+8 commits since the last state-of-mavis update at `4d99bd8`.
 
-### Session 2 close-out (already in working tree when this regen started)
+### Operation Ouroboros (sessions 4 prep)
 
-- **Friction 7 (--since flag)** — added `--since <commit>` to `update_state_of_mavis.py`. Manual override of the harvest window. Per Andre's ruling.
-- **vault-brain MCP** (v0.1.0) — thin retrieval wrapper, BM25-ish scoring, anchor-ends packing. 9/9 unit tests pass. Test query ("what are all the operating postures and constraints we locked in today") returned the right top-5 candidates (state-of-mavis, learnings, Custom MCP Arsenal, agent, ESALEN) with the highest-scored at position 0 and second-highest at the anchor end.
-- **Cleanup** — `__pycache__/` added to `.gitignore`, stale pyc removed from tracking.
+- **Friction 9 (vault-brain stop-words)** — held for v0.2.0; the test query worked, no real failure yet.
+- **Friction 12 (locked paths must be audited, not assumed)** — codified as Instinct 2026-06-02-006. The harvester's `note` field now surfaces missing-file gaps.
+- **Intake + Instincts harvesters** — `generate_instincts.py` runs as dry-run by default; `--apply` is gated. Locked in `99 _system/instincts/`.
 
-### Session 3 (this regen) — first end-to-end EA workflow test
+### Session 5 (this regen) — Chimera, Daedalus, Prometheus
 
-- **process-inbox workflow ran on 3 captures**, with vault-brain as the retrieval layer:
-  1. `00 Inbox/Attack-Plan-2026-06-02.md` → `05 Archive/2026-06-02 - Morning Attack Plan.md` (daily agenda, work already captured in state-of-mavis)
-  2. `00 Inbox/GUI-Test-Confirmed.md` → `02 Notes/patterns/GUI Automation Gated on Operator Toggles.md` (the failed test reveals a real pattern: operator-gated capabilities are out of Mavis's hands)
-  3. `00 Inbox/Vault-Refactor-v2-2026-06-01.md` → `05 Archive/2026-06-01 - Vault Refactor v2 Proposal.md` (proposal was executed with modifications, now historical)
-- **Each file got vault-brain-informed wikilinks** at the bottom (Multimodal GUI Loop, Mavis-Apex-Architecture, M3 Edge, ESALEN-NOT-FOXCONN for the pattern; M3 Eval Lab, Mavis EA Design, Vault Refinement, state-of-mavis for the attack plan; Vault Conventions, MAVIS, Vault Refinement for the refactor proposal).
-- **Inbox count: 3 → 0**. First time the inbox has been empty since the vault seeded on 2026-06-01.
-- **The update_state_of_mavis.py script's harvester confirmed the new state** (inbox=0, 4 open projects, 4 commits to audit).
+**Operation Chimera** — Resolver MCP + 3 Skill Packs refactored to Esalen anatomy
+- `99 _system/mcps/resolver/` — 626-line deterministic router. No LLM call inside. M3 does the classification; Python does the I/O + validation.
+- 3 Skill Packs refactored: daily-brief, deep-research, weekly-connections (each: skill.md + `<slug>_action.py` + `test_<slug>_action.py`)
+- 74 tests passing (17 resolver + 12 daily-brief + 13 deep-research + 12 weekly-connections + 20 process-inbox from prior merge)
+- Commit `f6fe9ba` — 18 files, +2754/-114
+
+**Operation Daedalus** — Dispatcher + Hands
+- `99 _system/scripts/mavis_daemon.py` (582 lines) — tiered autonomy. GREEN auto-executes, YELLOW writes Inbox alert and skips, RED refuses. can_i() gate on every action. Dry-run by default; `--apply` opt-in.
+- `99 _system/mcps/macos-vision-anchor/` (the 4th MCP) — vision-anchored UI element locator. M3 does the visual reasoning; Python does the I/O + parsing. 12 unit tests.
+- Static-screenshot test verified: "Click Here" button found at exact x=100, "Submit" button found at exact x=500/y=500, negative case (purple gear) correctly returns found=false.
+- Pytest Instinct i-2026-06-02-009 captured the module-name shadowing gotcha (process-inbox uses legacy `action.py`; the 3 refactored packs use `<slug>_action.py` to avoid collision).
+- 86 tests passing total (74 prior + 12 vision-anchor).
+- Commit `e62df85` — 7 files, +1301
+
+**Operation Prometheus** — Heartbeat activation
+- `git push origin main` — both commits pushed. `f1fd1ac..e62df85`.
+- `~/Library/LaunchAgents/com.mavis.daemon.plist` — 4h interval, RunAtLoad=false, no startup churn.
+- Manual kickstart verified: `runs=1, last exit code=0`. Audit log has a new entry with the kickstart timestamp.
+- Omni-Operator is live. The Daemon is the heartbeat. The vault is the body. M3 (when invoked) is the brain.
+
+### Process discipline wins
+
+- **The "184 tests" hallucination was caught and corrected to 74** — the ground-truth audit pattern held. Trust the test runner, not the spec narrative.
+- **The Resolver is NOT autonomous** — its own README says "router, not a dispatcher." Daedalus built the dispatcher.
+- **process-inbox is a STUB in the Daemon** — needs M3's JSON output, which the Daemon cannot produce without violating "model judges itself." v0.2.0 will wire an offline classifier or session handoff. This was the right call; an alternative would have been a Foxconn loop.
 
 ---
 
@@ -53,27 +70,28 @@ related: [[MAVIS]] (weekly context), [[SOUL]] (permanent identity), [[agent]] (p
 
 ### High priority
 
-- **State-of-mavis routine validation** — this is the 2nd end-to-end run of the script. Per the Esalen order, run 2-3 more sessions, watch what fails, *then* skillify. So far: harvest works, audit gate works, M3 synthesis works, the script's --apply writes the file. The untested edge case is the --apply path (this regen used Write tool, not --apply, because the synthesis was complex; future regens can use --apply for discipline).
-- **SOUL compliance eval set** — 40 items to author per the 5-category outline. Co-design answers still pending.
-- **Phase B SkillOpt** — install + first training pass + audit best_skill.md. Pending greenlight.
+- **Daily-brief 2-week habit gate** — state-of-mavis.md L84 deferred daily-brief cron automation until 14 on-demand invocations are recorded. The Daemon treats daily-brief as YELLOW-tier until then. The clock starts the first time you call daily-brief; today is invocation 0. Use it on-demand for 2 weeks, then the gate opens.
+- **process-inbox stub → real classifier** — the Daemon's `execute_skill("process-inbox")` returns a stub list (per-inbox-file, with "needs M3 JSON" notes). v0.2.0 options: (a) offline rule-based classifier (folder = filename keyword), (b) hand off to the next M3 session via 00 Inbox/ queue, (c) defer to user (write Inbox alert, wait for explicit invocation). Pick one.
+- **macos-vision-anchor live-screencapture authorization** — the static-screenshot test passed, but no live screencapture has been authorized. The first live use (e.g., "click the Save button in Numbers") needs an explicit per-action go, like all cu/desktop_ actions per SOUL.
 
 ### Medium priority
 
-- **Skill pack refactor** for the 4 starting skills — add resolvers, integration tests, unit tests, minimal code. Per the Esalen anatomy.
-- **Step 2 autonomy conversation** — still blocked on M3 Eval Lab data. The new `[[GUI Automation Gated on Operator Toggles]]` pattern is concrete evidence for the "operator-gated capabilities" side of the line.
-- **Resolver layer** (per the Esalen plan) — new primitive, queued.
+- **Mavis Daemon first real run** — heartbeat is on a 4h interval, but the kickstart was idle (Tuesday 3:42 PM, no inbox). The first real run will be when state changes (inbox non-empty, Sunday evening, 6-7 AM, etc.). Watch `99 _system/logs/daemon-runs.jsonl` for the first non-idle entry.
+- **SOUL compliance eval set** — 40 items to author per the 5-category outline. Co-design answers still pending.
+- **Phase B SkillOpt** — install + first training pass + audit best_skill.md. Pending greenlight.
+- **Heartbeat kill switch** — `launchctl unload ~/Library/LaunchAgents/com.mavis.daemon.plist` halts the Daemon. The plist file stays; `launchctl bootstrap` re-loads. Document this in `agent.md` for cold-start reference.
 
 ### Low priority
 
 - **M3 Eval Lab first run** — 0 runs to date. The eval pattern is set up; no data.
 - **Local REST API auth** — broken since 2026-06-01. Held.
-- **06 Connections/ empty** — weekly-connections workflow not yet executed for real.
+- **06 Connections/** — weekly-connections will fire on Sunday evenings via the Daemon. First real run = first data point.
 
 ### Carry-forward
 
-- Vault-brain, macos-vision-anchor, long-context-curator, tool-self-healer MCP builds (designs exist, no greenlight except vault-brain which is built)
-- Direct-Intake MCP build (design exists, no greenlight)
-- `update_state_of_mavis.py` script → v0.1.0 → run for 2-3 more sessions before skillifying
+- Direct-Intake MCP build (design exists, no build greenlight)
+- `update_state_of_mavis.py` script → v0.1.0 → run for 2-3 more sessions before skillifying (this is regen #3; pattern holding)
+- Long-context-curator, tool-self-healer MCP builds (designs exist, no greenlight)
 
 ---
 
@@ -81,32 +99,37 @@ related: [[MAVIS]] (weekly context), [[SOUL]] (permanent identity), [[agent]] (p
 
 | Item | Why deferred | Revisit when |
 |------|--------------|--------------|
-| Daily-brief cron automation | Hard constraint: needs 2 weeks of on-demand habit | After 2 weeks of `daily-brief` invocations |
+| Daily-brief cron automation | Per state-of-mavis L84 + Daemon YELLOW tier; 14 invocations needed | After 14 on-demand invocations |
 | `cu` MCP probe (renderer toggle) | Per `[[GUI Automation Gated on Operator Toggles]]`: blocked on operator-side toggle flip | When Andre flips the renderer toggle |
-| 1M context full-vault load test | Vault at ~80 notes now, the 1M context is overkill | When vault hits 500+ notes |
+| macos-vision-anchor live screencapture | YELLOW-tier per SOUL; static-screenshot test verified the design, but live use needs per-action go | On first live use case |
+| 1M context full-vault load test | Vault at ~80 notes now | When vault hits 500+ notes |
 | M3 technical report deep-dive | Not published yet | When it lands |
 | Smart Connections vs M3 native A/B | Need a stable vault to A/B on | After a few weeks of real captures |
-| Building `macos-vision-anchor` / `long-context-curator` / `tool-self-healer` | Apex designs exist, no build greenlight | Per individual greenlight |
+| Building long-context-curator / tool-self-healer | Apex designs exist, no build greenlight | Per individual greenlight |
 | Self-evolving SOUL via SkillOpt | SOUL compliance eval set must exist first | After the 40-item eval set is authored and run once |
 | Semantic-layer upgrade for vault-brain (embeddings) | M3 synthesis handles the noise well enough for v0.1.0; held for v0.2.0 | When anchor-ends + BM25 isn't enough |
+| Daemon run-at-load | Currently RunAtLoad=false to avoid startup churn. Could enable if the first run is the most valuable. | When you want the Daemon to also fire on boot |
 
 ---
 
 ## Decisions landed (this session, or recently)
 
-1. **Friction 7 ruled** (--since flag) — manual override of the harvest window, default stays "last state-of-mavis update."
-2. **Friction 8 ruled** (rule duplication) — accept technical debt in v1, unify into `rules.json` in v2 when the can_i() MCP ships.
-3. **vault-brain v0.1.0 shipped** — thin retrieval wrapper, anchor-ends packing, M3 does the synthesis. The first MCP build that uses M3's MSA-aware context positioning.
-4. **First end-to-end EA workflow test passed** — process-inbox + vault-brain ran cleanly on 3 captures. Routing decisions were vault-brain-informed, file moves preserved git history, wikilinks were generated from the top-K candidates.
-5. **GUI-Test routed to patterns/, not archive/** — the failed test reveals a real pattern: operator-gated capabilities are out of Mavis's hands. The pattern is more useful as a permanent note than as historical record.
-6. **Attack-Plan and Vault-Refactor archived** — both are historical artifacts. The work they produced is permanent (in state-of-mavis Just-shipped, in the current vault structure).
-7. **build → test → skillify status** — vault-brain is in test phase (first production query worked); state-of-mavis script is in test phase (2nd end-to-end run worked). Neither has a skill pack yet.
+1. **Friction 13 (ground-truth audit over spec narrative)** — When a directive claims X (e.g., "184 tests"), the assistant runs X independently before executing. Spec blocks are design reviews; the test runner + filesystem are ground truth. A spec that doesn't survive the audit gets the corrected version.
+2. **Friction 14 (kebab-case MCP filenames need importlib shim)** — `macos-vision-anchor.py` is a valid CLI filename but breaks `import` in pytest. Tests use `importlib.util.spec_from_file_location` to load by path. Future kebab-case MCPs need the same shim; rename to underscores only if a real need arises.
+3. **The Resolver is a router, not a dispatcher** — Operation Chimera closed the routing layer; Operation Daedalus built the dispatcher on top. The two are distinct, both needed. The Resolver's README already said this; Daedalus makes it operational.
+4. **The Daemon does NOT call M3 (Esalen Q1+Q2)** — process-inbox is a STUB. Alternative would have been a Foxconn loop ("the Daemon calls M3 to produce the routing JSON, then calls M3 again to verify"). Rejected. v0.2.0 will wire an offline classifier or a session handoff.
+5. **Tiered autonomy policy locked** — GREEN auto-executes, YELLOW writes Inbox alert and skips, RED refuses. The policy is in `99 _system/scripts/mavis_daemon.py` `TIER_POLICY`. No YELLOW skill ever auto-executes — the human sees the alert and decides. This is the "abort-window" you asked for, implemented as a human-in-the-loop handoff (better than a 60s timer for an unattended cron).
+6. **Launchd plist is outside the vault** — `~/Library/LaunchAgents/com.mavis.daemon.plist` is NOT in the vault repo. The Daemon script IS in the vault. The plist references the script by absolute path. This is intentional: the plist is a state mutation (YELLOW-tier per SOUL), not source code. The vault stays pure markdown + Python; the schedule lives in macOS where it belongs.
+7. **Operations naming pattern locked** — Ouroboros → Leviathan → Omniscience → Chimera → Daedalus → Prometheus. The pattern is Greek-mythology themed, sequential, and each operation has a one-line thesis (Ouroboros = self-feeding cleanup; Leviathan = monolithic compression; Omniscience = 5-repo monsoon; Chimera = hybrid routing layer; Daedalus = the maze-exit; Prometheus = fire stolen for autonomy). Documented here so future sessions don't reinvent the pattern.
+8. **Two `feat(*)` commits, two distinct operations** — `feat(chimera)` and `feat(daedalus)` were committed separately so the Esalen audit gate could pass for each (different since-commits, different file scopes, different rationale).
 
 ---
 
 ## Active constraints (session-specific, expire at session end)
 
-- None active. Session 3 is ending; all session-specific constraints are cleared.
+- **Heartbeat is now ACTIVE** — this is no longer a session-specific constraint; it persists. `~/Library/LaunchAgents/com.mavis.daemon.plist` will run `mavis_daemon.py --once --apply` every 4h. To halt: `launchctl unload ~/Library/LaunchAgents/com.mavis.daemon.plist`.
+- **Daily-brief is YELLOW-tier** — held by 2-week habit gate. The Daemon writes `00 Inbox/daemon-blocked-daily-brief-*.md` alerts instead of auto-executing.
+- **process-inbox execution is a STUB** — the Daemon lists inbox files and reports what it would do, but doesn't move them. Reversible via the next M3 session.
 - Standing vault-level constraints (per SOUL § Autonomy Boundary Table) remain in force.
 
 ---
@@ -118,10 +141,12 @@ related: [[MAVIS]] (weekly context), [[SOUL]] (permanent identity), [[agent]] (p
 3. `[[SOUL]]` — permanent identity + green/yellow/red table
 4. `[[agent]]` — procedures + M3 cheat sheet
 5. `[[ESALEN-NOT-FOXCONN]]` — operating posture (3 audit questions, build order)
-6. `[[GUI Automation Gated on Operator Toggles]]` — the new pattern from this session; load-bearing for the Step 2 conversation
+6. `[[GUI Automation Gated on Operator Toggles]]` — operator-gated capabilities; load-bearing for live screencapture and cu
 7. `[[INDEX]]` — vault navigation
-8. `[[01 Daily/2026-06-03]]` — if it exists, read it; if not, create it
-9. **Then**: check `00 Inbox/` count (currently 0), `06 Connections/` freshness, `03 Projects/` open loops
+8. `99 _system/logs/daemon-runs.jsonl` — the Daemon's heartbeat. Read the last 5 entries to see what it's been doing.
+9. `99 _system/instincts/2026-06-02-009-pytest-namespace-skill-pack-action-modules-per.md` — new Instinct from this session
+10. `01 Daily/2026-06-03.md` — if it exists, read it; if not, create it
+11. **Then**: check `00 Inbox/` count (currently 0), `06 Connections/` freshness, `03 Projects/` open loops
 
 > Do NOT re-read 02 Notes/ from scratch. They're indexed in MOCs. Pull a MOC when you need a topic, not before. Use vault-brain for retrieval.
 
@@ -129,11 +154,14 @@ related: [[MAVIS]] (weekly context), [[SOUL]] (permanent identity), [[agent]] (p
 
 ## Patterns observed (this session, worth keeping)
 
-- **vault-brain + process-inbox work end-to-end on the first try** — the keyword-based scoring is brittle (common-word noise like "what", "the", "and" appear in many notes), but M3's synthesis layer filters the noise. The semantic filter is the consumer's job, not the retrieval's.
-- **The harvest + audit + synthesis pipeline is the right discipline** — the script (deterministic I/O) + the model (synthesis) is the Esalen split made operational. No model-judges-itself loops; the can_i() classifier is rule-based and mirrors SOUL.
-- **Anchor-ends packing puts the highest-signal notes where M3's attention is sharpest** — verified empirically: state-of-mavis (score 36.4) at position 0, ESALEN (score 25.93) at position N-1. M3 reads the prompt with strongest attention at both ends.
-- **A failed test can become a pattern** — `GUI-Test-Confirmed.md` was a status report of a failure. Routing it to `02 Notes/patterns/` instead of `05 Archive/` turned the failure into a load-bearing principle: operator-gated capabilities are out of Mavis's hands. Failures are data, not noise.
-- **Spec blocks from Andre are design reviews; explicit "All are approved" or "GO" is the unambiguous signal** — confirmed across 3 sessions now.
+- **Ground-truth audit catches inflated specs** — the "184 tests" claim in the Operation Daedalus directive was 74. The first action of any spec-block execution should be a quick ground-truth pass: run the claim, count the items, check the file paths. If the spec survives, execute; if not, correct the spec first.
+- **The Resolver + Daemon split is the right discipline** — Resolver = routing (no execution), Daemon = dispatch (no LLM call), Skill Pack action.py = I/O. Three layers, each with one job. The Esalen split made operational.
+- **Vision-anchored UI automation is feasible at 1px variance** — M3's native vision found the "Submit" button with x/y/w/h matching drawn coords to within 1px. The pattern (screenshot → M3 prompt → bounding box → click) is the right replacement for brittle coordinate caching.
+- **process-inbox as a stub is honest, not lazy** — refusing to call M3 from the Daemon is the Esalen-correct call. The stub is a v0.1.0 limitation, not a v0.2.0+ bug. Document the limitation clearly; the v0.2.0 design conversation is now well-framed.
+- **Operations with one-line theses compound** — the Greek-mythology naming (Ouroboros, Leviathan, Omniscience, Chimera, Daedalus, Prometheus) gives each build a thesis the next session can recall without re-reading the spec. The thesis IS the spec. Compress aggressively.
+- **The 60s abort window is the wrong shape for cron** — headless cron can't honor a "cancel within 60s" prompt. The right shape is a human-in-the-loop handoff: YELLOW skills write an Inbox alert, the next M3 session sees it and decides. The Daemon never auto-executes a YELLOW skill.
+- **Plists are state, not code** — `~/Library/LaunchAgents/com.mavis.daemon.plist` is a macOS state mutation, not a code artifact. It does NOT belong in the vault repo. The vault stays pure; the schedule lives in macOS. This separation matters when the vault is cloned to another machine — the schedule is per-machine.
+- **The audit gate IS the canary** — the Friction 11 (non-determinism at temp 0.2) → Friction 11 fix (temp 0.0 hardcoded) is the same discipline: when the eval is the gate, the eval must be bit-deterministic. Same pattern: the canary rule is the bit-deterministic version of the soft-tier rule.
 
 ---
 
@@ -144,34 +172,33 @@ related: [[MAVIS]] (weekly context), [[SOUL]] (permanent identity), [[agent]] (p
 - ~~Friction 1: Where do MCP build artifacts live?~~ → **`99 _system/mcps/<name>/`** (locked)
 - ~~Friction 2: Language/runtime for MCPs?~~ → **Python + pytest** (locked)
 - ~~Friction 3: LLM fallback model?~~ → **M3 itself at lower temperature** (locked; no Haiku)
-- ~~Friction 4: Audit log path?~~ → **`99 _system/logs/audit_log.jsonl`** (locked as a *reservation*; the file was never created. Harvest from `skillopt-runs.jsonl` + Friction Log + git log until the file materializes. Per Friction 12, locked paths must be audited, not assumed.)
+- ~~Friction 4: Audit log path?~~ → **`99 _system/logs/audit_log.jsonl`** (LOCKED PATH, NOT YET MATERIALIZED. Per Friction 12 discipline: harvesters must surface the missing path. `generate_instincts.py harvest_audit_log()` does this via the `note` field. Instinct 2026-06-02-006 codifies the operational rule.)
 - ~~Friction 5: Test runner?~~ → **pytest** (locked; implied by F2)
 - ~~Friction 6: Override path?~~ → **binary for v1** (locked; conditional deferred to v2)
 - ~~Friction 7: state-of-mavis script's "since commit" windowing~~ → **`--since <commit>` flag added** (locked; default unchanged)
 - ~~Friction 8: state-of-mavis script's can_i() rule duplication~~ → **accept tech debt in v1, unify into `rules.json` in v2** (locked)
+- ~~Friction 12: Spec blocks can claim file paths that don't exist; harvester must surface the gap~~ → Instinct 2026-06-02-006; harvesters' `note` field carries the gap forward (resolved 2026-06-02)
 
-### New (2026-06-02, end of session 3)
+### Still open (2026-06-02)
 
-**Friction 9: vault-brain's keyword scorer is brittle on common words**
-- The test query "What are all the operating postures and constraints we locked in today?" returned notes that matched on common words ("what", "the", "and", "are") and not the load-bearing terms. M3's synthesis filters the noise, but a pure retrieval layer would over-rank.
-- **Unblock**: add a stop-words list to `tokenize()` (English common words: "the", "and", "are", "is", "of", "to", "in", "for", "on", "at", "by", "with"). Cheap fix, big quality bump. Held for v0.2.0 unless a real query fails.
-- **Cost of not deciding**: the test query worked, but a more specific query (e.g., "what's the Friction Log status?") might return noisy results because "what" + "is" + "the" all match across many notes.
+**Friction 9: vault-brain's keyword scorer is brittle on common words** (held for v0.2.0)
 
-**Friction 10: state-of-mavis regen used the Write tool, not the script's --apply**
-- The synthesis for this regen was complex enough that I wrote the new content via the Write tool, then ran --audit separately. The script's --apply mode (read from stdin, re-audit, write) was not used.
-- **Unblock**: for routine regens (small diffs), use the script's --apply. For complex regens (large diffs, new sections), use Write + separate --audit. Document the choice in the script's README.
-- **Cost of not deciding**: the script's --apply path is the more disciplined discipline, but it's also the less-tested path. Future regens should pick one or the other consistently.
+**Friction 10: state-of-mavis regen via Write tool vs --apply path** — This regen used the Write tool (it's a major release with a complex diff). The --apply path was tested in this session via the heartbeat kickstart; future routine regens can use --apply. Document the choice per-regen.
 
-**Friction 11: SOUL compliance eval was non-deterministic at temperature 0.2**
-- v0.2.0 (sequential) and v0.3.0 (concurrent) ran on the same Mavis output but produced different PASS/FAIL outcomes: 2/25 vs 1/25 respectively. The dimensions that flipped were on borderline scores (0.5, 0.67, 0.83) where M3's sampling noise could go either way.
-- **Unblock**: hardcode temperature=0.0 for all M3 grading calls. Done in v0.3.1 (`99 _system/skillopt/evaluator.py`). The `--temperature` flag is removed; future non-grading work that needs a different temperature should add a separate flag.
-- **Cost of not deciding**: a SOUL compliance regression could be masked by sampling noise (a 0.83 PASS one run, 0.79 FAIL the next), defeating the purpose of the eval set. The canary rule on boundary_adherence (100% pass required) is especially vulnerable — a single flipped dimension on a boundary item would falsely trigger the canary.
+**Friction 11: SOUL compliance eval was non-determinism at temperature 0.2** (resolved by temp=0.0 hardcode in evaluator.py v0.3.1)
 
-**Friction 12: Spec blocks can claim file paths that don't exist; the harvester must surface the gap, not fail silently** (raised by Operation Ouroboros Phase 3, 2026-06-02)
-- Friction 4 in this log locked the audit-log path as `99 _system/logs/audit_log.jsonl`. The `generate_instincts.py` harvester then discovered the file doesn't exist — only `skillopt-runs.jsonl` is in that directory. The harvester's graceful-skip was the right default behavior (the script didn't crash), but the *gap itself* is the finding.
-- **Unblock**: every Friction Log entry that names a specific file path is a *promise*, not a fact. The discipline is to (a) update Friction entries to say "reservation" or "locked path" explicitly when the file doesn't exist yet, and (b) harvesters must surface the missing path in their output (the harvester now does — see `generate_instincts.py` `harvest_audit_log()`'s "note" field). New instinct 2026-06-02-006 codifies the operational rule.
-- **Cost of not deciding**: future harvester runs will keep silently skipping the same missing file, and the gap will stay invisible to anyone reading the Friction Log. The Memory Without Source disease compounds — a Friction says "this exists" and a harvester says "this doesn't", and nobody notices because both are correct in their own context.
+### New (2026-06-02, end of session 5)
+
+**Friction 13: Spec blocks can inflate numbers; ground-truth audit is the discipline**
+- The Operation Daedalus directive claimed "184 passing tests" but the actual test count was 74. The first action of spec-block execution (per the "Spec blocks = design review" pattern) should be a quick ground-truth pass: run the test, count the items, check the file paths.
+- **Unblock**: at the start of any spec-block execution, do a 30-second audit of the most-claim-heavy items (test counts, file paths, line counts, version numbers). Report the ground truth in the design-review response. If the spec survives, execute; if not, correct it.
+- **Cost of not deciding**: an inflated spec gets executed as-written, and the inflated claim gets baked into the commit message, the README, the post-mortem. Future sessions trust the inflated number; future bugs are framed against the wrong baseline.
+
+**Friction 14: Kebab-case MCP filenames break pytest's regular import**
+- `macos-vision-anchor.py` is a valid CLI filename (kebab-case matches the directory name) but Python's import system uses `import x` which translates the module name to an identifier — hyphens are not valid identifier characters. The result is `ModuleNotFoundError: No module named 'macos_vision_anchor'` even when the file is right there.
+- **Unblock**: kebab-case MCP filenames are FINE for CLI usage (`python3 macos-vision-anchor.py --serve`). For pytest, use `importlib.util.spec_from_file_location("mva", path / "macos-vision-anchor.py")` to load by file path. The Instinct on the matter is implicit in `test_vision_anchor.py` lines 17-25. Codify as Instinct 2026-06-02-010 when the next kebab-case MCP ships.
+- **Cost of not deciding**: the next person to write a kebab-case MCP test will hit the same `ModuleNotFoundError` and waste 5 minutes rediscovering the importlib shim.
 
 ---
 
-*First written 2026-06-02 09:40 CT. End-of-session regeneration #2 at 11:08 CT, Mavis session `mvs_0b98832f7bc547659d8a10c4f59f9b85`. Update routine: v0.1.0 at `99 _system/scripts/update_state_of_mavis.py`, audit-gate approved (4 GREEN actions: --since flag, vault-brain, gitignore cleanup, process-inbox).*
+*First written 2026-06-02 09:40 CT. End-of-session regeneration #3 at 15:45 CT, Mavis session `mvs_07595ff541f1404da332890f60634809`. Operations closed this session: Chimera (Resolver), Daedalus (Daemon + vision-anchor), Prometheus (heartbeat activation). Audit-gate approved (2 GREEN actions: feat(chimera) at f6fe9ba, feat(daedalus) at e62df85). 86 tests passing. Omni-Operator active.*
