@@ -1,6 +1,15 @@
 {
-  "openOnStartup": true,
-  "useDefault": false,
-  "hasMigrated": true,
-  "homepagePath": "INDEX.md"
+  "version": 4,
+  "homepages": {
+    "Main Homepage": {
+      "openOnStartup": true,
+      "useDefault": false,
+      "hasMigrated": true,
+      "homepagePath": "INDEX.md",
+      "value": "Home",
+      "kind": "File",
+      "commands": []
+    }
+  },
+  "separateMobile": false
 }

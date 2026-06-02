@@ -2,5 +2,6 @@
   "baseFontSize": 16,
   "translucency": false,
   "theme": "system",
-  "cssTheme": "Minimal"
+  "cssTheme": "Minimal",
+  "enabledCssSnippets": []
 }
