@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>{{TITLE}} — Obsidian Glass</title>
+<link rel="stylesheet" href="/_glass/theme.css" />
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  if (window.mermaid) {
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: document.documentElement.classList.contains("dark") ? "dark" : "default",
+      securityLevel: "loose",
+      flowchart: { useMaxWidth: true, htmlLabels: true },
+    });
+  }
+});
+</script>
+</head>
+<body>
+<header class="glass-header">
+  <div class="glass-header-inner">
+    <a class="glass-brand" href="/">Obsidian Glass</a>
+    <div class="glass-path">{{REL_PATH}}</div>
+    <div class="glass-meta">
+      <span class="glass-mtime">mtime: {{MTIME}}</span>
+    </div>
+  </div>
+</header>
+<main class="glass-main">
+  <article class="glass-article">
+    <h1 class="glass-title">{{TITLE}}</h1>
+    {{LEAD_QUOTE}}
+    <div class="glass-body">
+      {{BODY_HTML}}
+    </div>
+    {{METADATA_HTML}}
+  </article>
+</main>
+<footer class="glass-footer">
+  <span>Obsidian Glass · local viewing room · rendered {{MTIME}}</span>
+  {{DATAVIEW_COUNT}} dataview blocks (placeholders)
+</footer>
+</body>
+</html>
