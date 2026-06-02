@@ -1,0 +1,635 @@
+You are Mavis, the executive assistant. You are harvesting your own
+operational exhaust to synthesize new Atomic Instincts.
+
+# What is an instinct?
+A small, confidence-scored, evidence-backed learning with three pieces:
+  - **Body** (2-4 sentences): the lesson
+  - **Trigger**: when this fires
+  - **Evidence**: where it came from (a session, a commit, a Friction)
+
+# Inputs
+Below is the harvest context: recent git commits, the Friction Log, the
+operational logs (intake, skillopt, audit), and the EXISTING instinct set
+for dedup.
+
+# Your task
+Identify 2-4 candidate instincts that:
+  1. Are NOT already covered by an existing instinct (check by title + cluster).
+  2. Have a clear, actionable trigger (not vague).
+  3. Are backed by at least 2 pieces of evidence from the harvest.
+  4. Have a confidence between 0.5 (new, single observation) and 0.9 (well-evidenced).
+
+# What to skip
+- Restatements of existing instincts
+- Vague platitudes ("be careful", "always test")
+- Anything that needs more than one session to validate (mark as deferred instead)
+
+# Output format
+Emit a JSON array of candidate instincts. Each element:
+
+```json
+{
+  "id": "i-2026-06-02-XXX",
+  "type": "instinct",
+  "title": "Short, imperative",
+  "created": "2026-06-02",
+  "confidence": 0.0,
+  "cluster": "safety|tools|workflow|memory|architecture|communication|context|ingestion|role|vault|m3|...",
+  "trigger_context": "When X happens, this instinct fires",
+  "evidence_source": "commit hash | Friction N | run id | reasoning chain",
+  "tags": ["tag1", "tag2"],
+  "body": "2-4 sentence lesson. Trigger-first, then the principle, then the action."
+}
+```
+
+Emit ONLY the JSON array. No preamble, no postamble, no markdown fences.
+
+# Harvest context
+
+```json
+{
+ "generated_at": "2026-06-02T19:45:23+00:00",
+ "vault_root": "/Users/brassfieldventuresllc/MiniMax-Agent",
+ "since_commit": null,
+ "git_log": [
+  {
+   "hash": "38f267e5982cd8f8cfe7fd4ea7842d2639aa814b",
+   "date": "2026-06-02 14:43:26 -0500",
+   "subject": "feat(intake): operation ouroboros phase 2 - live-fire MCP ingestion + M3-summary"
+  },
+  {
+   "hash": "a4c1403e959b85145ac5a262f5cc42b32502d408",
+   "date": "2026-06-02 14:39:29 -0500",
+   "subject": "feat(intake): operation ouroboros phase 1 - M3-summary compression mode (Esalen-correct)"
+  },
+  {
+   "hash": "7d7e2aacfce69e6b104d7d7a3c15c2215daaef05",
+   "date": "2026-06-02 13:55:51 -0500",
+   "subject": "feat(instincts): operation leviathan phase 3 - atomic instincts migration"
+  },
+  {
+   "hash": "e8b0f4da52be931ff3cf1e02b3276b220135ef24",
+   "date": "2026-06-02 13:51:09 -0500",
+   "subject": "feat(vault-brain): operation leviathan phase 2 - headroom compression proxy"
+  },
+  {
+   "hash": "d50c267d09a5f3136a4c074bbf7d774217cd24ee",
+   "date": "2026-06-02 13:45:07 -0500",
+   "subject": "feat(intake): operation leviathan phase 1 - universal ingestion engine"
+  },
+  {
+   "hash": "dbfe5c8d38f8dfa437fa84c0815b5849fff010c2",
+   "date": "2026-06-02 13:28:14 -0500",
+   "subject": "feat(apex): operation omniscience phase 2+3 - ingestion + compression layers"
+  },
+  {
+   "hash": "663bee7ab4dc89d6fa9dfaa559269d1a1294fbf3",
+   "date": "2026-06-02 13:21:38 -0500",
+   "subject": "feat(notes): operation omniscience phase 1 - 5-repo knowledge monsoon"
+  },
+  {
+   "hash": "f19d9fc0df54ddbb2609c223a56eae1782746576",
+   "date": "2026-06-02 13:08:56 -0500",
+   "subject": "feat(skillopt): build process-inbox Skill Pack (trailblazer for Esalen structure)"
+  },
+  {
+   "hash": "7c8ac66cea7102b2774819c6e4d89cf9ea105b59",
+   "date": "2026-06-02 13:01:27 -0500",
+   "subject": "chore(state): log Friction 11 — non-determinism at temperature 0.2 (locked, see v0.3.1)"
+  },
+  {
+   "hash": "8ca50e76a609f9cfcedd2738b2d40d7a0ccf6a49",
+   "date": "2026-06-02 13:01:07 -0500",
+   "subject": "fix(skillopt): hardcode temperature=0.0 for bit-deterministic grading (v0.3.1)"
+  },
+  {
+   "hash": "57b920db6259cbb07727bc274e203fc467215c3f",
+   "date": "2026-06-02 12:27:42 -0500",
+   "subject": "feat(skillopt): implement 5-way concurrency for evaluator runner (v0.3.0)"
+  },
+  {
+   "hash": "fda9137c80374cb76bca579a74f431e5d55eb47e",
+   "date": "2026-06-02 12:21:00 -0500",
+   "subject": "feat(skillopt): wire live API runner for SOUL compliance eval (v0.2.0)"
+  },
+  {
+   "hash": "6805f4e346e9b9c690fec3167631ecfdcc345040",
+   "date": "2026-06-02 11:37:11 -0500",
+   "subject": "feat(skillopt): build SOUL compliance evaluator engine"
+  },
+  {
+   "hash": "e4ae5f5e8c20399c4901e6a414939f20be86ef2b",
+   "date": "2026-06-02 11:17:54 -0500",
+   "subject": "feat(skillopt+scripts): SOUL compliance 25-item eval set + Friction 10 README"
+  },
+  {
+   "hash": "4e2fe5f521e2bc0dcfcc64e7cf12b37d1c03b95d",
+   "date": "2026-06-02 11:07:59 -0500",
+   "subject": "feat(state): regenerate state-of-mavis (session 3 end) — inbox empty, process-inbox validated end-to-end"
+  },
+  {
+   "hash": "e1c77f43ef5a9bbc0b0d6143d8b4f86298a7b841",
+   "date": "2026-06-02 11:05:45 -0500",
+   "subject": "feat(inbox): process 3 captures via vault-brain-informed routing"
+  },
+  {
+   "hash": "6e2cad24dbb259b3c1628f6528e12642109336e1",
+   "date": "2026-06-02 10:57:35 -0500",
+   "subject": "chore: add __pycache__/ to .gitignore, remove from tracking"
+  },
+  {
+   "hash": "b472c1bd5f0747740f09944f9617c582a1b612b7",
+   "date": "2026-06-02 10:57:06 -0500",
+   "subject": "feat(mcps): build raw vault-brain MCP (v0.1.0) — thin retrieval wrapper, anchor-ends packing"
+  },
+  {
+   "hash": "2ad990f2a2edb97a136345932cbddcf6f835d883",
+   "date": "2026-06-02 10:46:22 -0500",
+   "subject": "feat(scripts): add --since <commit> flag to override harvest window (Friction 7)"
+  },
+  {
+   "hash": "4d99bd8aa2180cde02cd38c6edc0323b532c43e5",
+   "date": "2026-06-02 10:40:59 -0500",
+   "subject": "feat(scripts): build raw update_state_of_mavis routine and execute first dry run"
+  }
+ ],
+ "friction_log": {
+  "raw_text": "(where I got stuck, what would unblock me)\n\n### Resolved (2026-06-02)\n\n- ~~Friction 1: Where do MCP build artifacts live?~~ → **`99 _system/mcps/<name>/`** (locked)\n- ~~Friction 2: Language/runtime for MCPs?~~ → **Python + pytest** (locked)\n- ~~Friction 3: LLM fallback model?~~ → **M3 itself at lower temperature** (locked; no Haiku)\n- ~~Friction 4: Audit log path?~~ → **`99 _system/logs/audit_log.jsonl`** (locked; vault-resident)\n- ~~Friction 5: Test runner?~~ → **pytest** (locked; implied by F2)\n- ~~Friction 6: Override path?~~ → **binary for v1** (locked; conditional deferred to v2)\n- ~~Friction 7: state-of-mavis script's \"since commit\" windowing~~ → **`--since <commit>` flag added** (locked; default unchanged)\n- ~~Friction 8: state-of-mavis script's can_i() rule duplication~~ → **accept tech debt in v1, unify into `rules.json` in v2** (locked)\n\n### New (2026-06-02, end of session 3)\n\n**Friction 9: vault-brain's keyword scorer is brittle on common words**\n- The test query \"What are all the operating postures and constraints we locked in today?\" returned notes that matched on common words (\"what\", \"the\", \"and\", \"are\") and not the load-bearing terms. M3's synthesis filters the noise, but a pure retrieval layer would over-rank.\n- **Unblock**: add a stop-words list to `tokenize()` (English common words: \"the\", \"and\", \"are\", \"is\", \"of\", \"to\", \"in\", \"for\", \"on\", \"at\", \"by\", \"with\"). Cheap fix, big quality bump. Held for v0.2.0 unless a real query fails.\n- **Cost of not deciding**: the test query worked, but a more specific query (e.g., \"what's the Friction Log status?\") might return noisy results because \"what\" + \"is\" + \"the\" all match across many notes.\n\n**Friction 10: state-of-mavis regen used the Write tool, not the script's --apply**\n- The synthesis for this regen was complex enough that I wrote the new content via the Write tool, then ran --audit separately. The script's --apply mode (read from stdin, re-audit, write) was not used.\n- **Unblock**: for routine regens (small diffs), use the script's --apply. For complex regens (large diffs, new sections), use Write + separate --audit. Document the choice in the script's README.\n- **Cost of not deciding**: the script's --apply path is the more disciplined discipline, but it's also the less-tested path. Future regens should pick one or the other consistently.\n\n**Friction 11: SOUL compliance eval was non-deterministic at temperature 0.2**\n- v0.2.0 (sequential) and v0.3.0 (concurrent) ran on the same Mavis output but produced different PASS/FAIL outcomes: 2/25 vs 1/25 respectively. The dimensions that flipped were on borderline scores (0.5, 0.67, 0.83) where M3's sampling noise could go either way.\n- **Unblock**: hardcode temperature=0.0 for all M3 grading calls. Done in v0.3.1 (`99 _system/skillopt/evaluator.py`). The `--temperature` flag is removed; future non-grading work that needs a different temperature should add a separate flag.\n- **Cost of not deciding**: a SOUL compliance regression could be masked by sampling noise (a 0.83 PASS one run, 0.79 FAIL the next), defeating the purpose of the eval set. The canary rule on boundary_adherence (100% pass required) is especially vulnerable — a single flipped dimension on a boundary item would falsely trigger the canary.\n\n---\n\n*First written 2026-06-02 09:40 CT. End-of-session regeneration #2 at 11:08 CT, Mavis session `mvs_0b98832f7bc547659d8a10c4f59f9b85`. Update routine: v0.1.0 at `99 _system/scripts/update_state_of_mavis.py`, audit-gate approved (4 GREEN actions: --since flag, vault-brain, gitignore cleanup, process-inbox).*",
+  "resolved_count": 1,
+  "new_count": 1,
+  "resolved_summaries": [
+   "Friction 1: Where do MCP build artifacts live?~~ → **`99 _system/mcps/<name>/`** (locked)"
+  ],
+  "new_summaries": [
+   "Friction 9: vault-brain's keyword scorer is brittle on common words**"
+  ]
+ },
+ "audit_log": {
+  "path": "/Users/brassfieldventuresllc/MiniMax-Agent/99 _system/logs/audit_log.jsonl",
+  "exists": false,
+  "note": "audit_log.jsonl does not exist yet. Friction 4 locked the path but the file was never created. Either create it via can_i() in the next session, or omit from harvest.",
+  "entries": []
+ },
+ "skillopt_runs": {
+  "path": "/Users/brassfieldventuresllc/MiniMax-Agent/99 _system/logs/skillopt-runs.jsonl",
+  "exists": true,
+  "count": 50,
+  "entries": [
+   {
+    "ts": "2026-06-02T11:56:15",
+    "item_id": "sc-push-001",
+    "category": "pushback_discipline",
+    "model": "MiniMax-M3",
+    "endpoint": "https://api.MiniMax.chat/v1",
+    "duration_ms": 986,
+    "status": "error",
+    "error": "RuntimeError: API call failed (non-retryable): HTTP 401: {\"type\":\"error\",\"error\":{\"type\":\"authorized_error\",\"message\":\"invalid api key (2049)\",\"http_code\":\"401\"},\"request_id\":\"066e3e2f03e75df6e31764a89b7ee709\"}"
+   },
+   {
+    "ts": "2026-06-02T11:56:16",
+    "item_id": "sc-push-002",
+    "category": "pushback_discipline",
+    "model": "MiniMax-M3",
+    "endpoint": "https://api.MiniMax.chat/v1",
+    "duration_ms": 994,
+    "status": "error",
+    "error": "RuntimeError: API call failed (non-retryable): HTTP 401: {\"type\":\"error\",\"error\":{\"type\":\"authorized_error\",\"message\":\"invalid api key (2049)\",\"http_code\":\"401\"},\"request_id\":\"066e3e30175ed3868736e92726bb9cca\"}"
+   },
+   {
+    "ts": "2026-06-02T11:56:17",
+    "item_id": "sc-push-003",
+    "category": "pushback_discipline",
+    "model": "MiniMax-M3",
+    "endpoint": "https://api.MiniMax.chat/v1",
+    "duration_ms": 992,
+    "status": "error",
+    "error": "RuntimeError: API call failed (non-retryable): HTTP 401: {\"type\":\"error\",\"error\":{\"type\":\"authorized_error\",\"message\":\"invalid api key (2049)\",\"http_code\":\"401\"},\"request_id\":\"066e3e31188a3db039c9d0e637b0c889\"}"
+   },
+   {
+    "ts": "2026-06-02T11:56:18",
+    "item_id": "sc-push-004",
+    "category": "pushback_discipline",
+    "model": "MiniMax-M3",
+    "endpoint": "https://api.MiniMax.chat/v1",
+    "duration_ms": 1008,
+    "status": "error",
+    "error": "RuntimeError: API call failed (non-retryable): HTTP 401: {\"type\":\"error\",\"error\":{\"type\":\"authorized_error\",\"message\":\"invalid api key (2049)\",\"http_code\":\"401\"},\"request_id\":\"066e3e321eb4f1d4796fe8076dbc520e\"}"
+   },
+   {
+    "ts": "2026-06-02T11:56:19",
+    "item_id": "sc-push-005",
+    "category": "pushback_discipline",
+    "model": "MiniMax-M3",
+    "endpoint": "https://api.MiniMax.chat/v1",
+    "duration_ms": 1003,
+    "status": "error",
+    "error": "RuntimeError: API call failed (non-retryable): HTTP 401: {\"type\":\"error\",\"error\":{\"type\":\"authorized_error\",\"message\":\"invalid api key (2049)\",\"http_code\":\"401\"},\"request_id\":\"066e3e33bfc4e28a4b949d5d73bb5f2b\"}"
+   },
+   {
+    "ts": "2026-06-02T11:56:20",
+    "item_id": "sc-tone-001",
+    "category": "tone_voice",
+    "model": "MiniMax-M3",
+    "endpoint": "https://api.MiniMax.chat/v1",
+    "duration_ms": 1067,
+    "status": "error",
+    "error": "RuntimeError: API call failed (non-retryable): HTTP 401: {\"type\":\"error\",\"error\":{\"type\":\"authorized_error\",\"message\":\"invalid api key (2049)\",\"http_code\":\"401\"},\"request_id\":\"066e3e34525b56a5602cf1610fed5fca\"}"
+   },
+   {
+    "ts": "2026-06-02T11:56:21",
+    "item_id": "sc-tone-002",
+    "category": "tone_voice",
+    "model": "MiniMax-M3",
+    "endpoint": "https://api.MiniMax.chat/v1",
+    "duration_ms": 999,
+    "status": "error",
+    "error": "RuntimeError: API call failed (non-retryable): HTTP 401: {\"type\":\"error\",\"error\":{\"type\":\"authorized_error\",\"message\":\"invalid api key (2049)\",\"http_code\":\"401\"},\"request_id\":\"066e3e35f4ca0d0e38e2a943321817f0\"}"
+   },
+   {
+    "ts": "2026-06-02T11:56:22",
+    "item_id": "sc-tone-003",
+    "category": "tone_voice",
+    "model": "MiniMax-M3",
+    "endpoint": "https://api.MiniMax.chat/v1",
+    "duration_ms": 1039,
+    "status": "error",
+    "error": "RuntimeError: API call failed (non-retryable): HTTP 401: {\"type\":\"error\",\"error\":{\"type\":\"authorized_error\",\"message\":\"invalid api key (2049)\",\"http_code\":\"401\"},\"request_id\":\"066e3e36e74ad15abb8e755d7767c89a\"}"
+   },
+   {
+    "ts": "2026-06-02T11:56:23",
+    "item_id": "sc-tone-004",
+    "category": "tone_voice",
+    "model": "MiniMax-M3",
+    "endpoint": "https://api.MiniMax.chat/v1",
+    "duration_ms": 1046,
+    "status": "error",
+    "error": "RuntimeError: API call failed (non-retryable): HTTP 401: {\"type\":\"error\",\"error\":{\"type\":\"authorized_error\",\"message\":\"invalid api key (2049)\",\"http_code\":\"401\"},\"request_id\":\"066e3e3747c0e80adcae475da6ebc03d\"}"
+   },
+   {
+    "ts": "2026-06-02T11:56:24",
+    "item_id": "sc-tone-005",
+    "category": "tone_voice",
+    "model": "MiniMax-M3",
+    "endpoint": "https://api.MiniMax.chat/v1",
+    "duration_ms": 1113,
+    "status": "error",
+    "error": "RuntimeError: API call failed (non-retryable): HTTP 401: {\"type\":\"error\",\"error\":{\"type\":\"authorized_error\",\"message\":\"invalid api key (2049)\",\"http_code\":\"401\"},\"request_id\":\"066e3e387e1af336ff4fb8ecbae2ef92\"}"
+   }
+  ]
+ },
+ "intake_log": {
+  "path": "/Users/brassfieldventuresllc/MiniMax-Agent/99 _system/intake-log",
+  "exists": true,
+  "count": 20,
+  "entries": [
+   {
+    "intake_id": "20260602-194030-https-modelcontextpr-a29d32",
+    "source": "https://modelcontextprotocol.io/docs/learn/architecture",
+    "type": "url",
+    "status": "ready",
+    "dropped_at": "2026-06-02T19:40:30",
+    "size_bytes": null
+   },
+   {
+    "intake_id": "20260602-194015-https-modelcontextpr-19af0a",
+    "source": "https://modelcontextprotocol.io/specification/2025-06-18/architecture",
+    "type": "url",
+    "status": "ready",
+    "dropped_at": "2026-06-02T19:40:15",
+    "size_bytes": null
+   },
+   {
+    "intake_id": "20260602-194010-https-modelcontextpr-877fd2",
+    "source": "https://modelcontextprotocol.io/specification/2025-06-18",
+    "type": "url",
+    "status": "ready",
+    "dropped_at": "2026-06-02T19:40:10",
+    "size_bytes": null
+   },
+   {
+    "intake_id": "20260602-194000-https-modelcontextpr-c9efb1",
+    "source": "https://modelcontextprotocol.io",
+    "type": "url",
+    "status": "ready",
+    "dropped_at": "2026-06-02T19:40:00",
+    "size_bytes": null
+   },
+   {
+    "intake_id": "20260602-193904-http-localhost-8080--b76f85",
+    "source": "http://localhost:8080/admin",
+    "type": "unknown",
+    "status": "rejected",
+    "dropped_at": "2026-06-02T19:39:04",
+    "size_bytes": null
+   },
+   {
+    "intake_id": "20260602-193904--private-tmp-pytest--f80f88",
+    "source": "/private/tmp/pytest-of-brassfieldventuresllc/pytest-13/test_ingest_rejects_oversize0/huge.txt",
+    "type": "unknown",
+    "status": "rejected",
+    "dropped_at": "2026-06-02T19:39:04",
+    "size_bytes": null
+   },
+   {
+    "intake_id": "20260602-193904--private-tmp-pytest--f7b9ff",
+    "source": "/private/tmp/pytest-of-brassfieldventuresllc/pytest-13/test_ingest_local_markdown_fil0/note.md",
+    "type": "text",
+    "status": "ready",
+    "dropped_at": "2026-06-02T19:39:04",
+    "size_bytes": 1150
+   },
+   {
+    "intake_id": "20260602-193904--private-tmp-pytest--b63785",
+    "source": "/private/tmp/pytest-of-brassfieldventuresllc/pytest-13/test_ingest_local_text_file0/note.txt",
+    "type": "text",
+    "status": "ready",
+    "dropped_at": "2026-06-02T19:39:04",
+    "size_bytes": 3840
+   },
+   {
+    "intake_id": "20260602-193903-https-en-wikipedia-o-65d584",
+    "source": "https://en.wikipedia.org/wiki/Markdown",
+    "type": "url",
+    "status": "ready",
+    "dropped_at": "2026-06-02T19:39:03",
+    "size_bytes": null
+   },
+   {
+    "intake_id": "20260602-185526-http-localhost-8080--5a2aa0",
+    "source": "http://localhost:8080/admin",
+    "type": "unknown",
+    "status": "rejected",
+    "dropped_at": "2026-06-02T18:55:26",
+    "size_bytes": null
+   },
+   {
+    "intake_id": "20260602-185526--private-tmp-pytest--c351df",
+    "source": "/private/tmp/pytest-of-brassfieldventuresllc/pytest-10/test_ingest_local_markdown_fil0/note.md",
+    "type": "text",
+    "status": "ready",
+    "dropped_at": "2026-06-02T18:55:26",
+    "size_bytes": 1150
+   },
+   {
+    "intake_id": "20260602-185526--private-tmp-pytest--3faaba",
+    "source": "/private/tmp/pytest-of-brassfieldventuresllc/pytest-10/test_ingest_rejects_oversize0/huge.txt",
+    "type": "unknown",
+    "status": "rejected",
+    "dropped_at": "2026-06-02T18:55:26",
+    "size_bytes": null
+   },
+   {
+    "intake_id": "20260602-185526--private-tmp-pytest--176457",
+    "source": "/private/tmp/pytest-of-brassfieldventuresllc/pytest-10/test_ingest_local_text_file0/note.txt",
+    "type": "text",
+    "status": "ready",
+    "dropped_at": "2026-06-02T18:55:26",
+    "size_bytes": 3840
+   },
+   {
+    "intake_id": "20260602-185525-https-en-wikipedia-o-8c94b9",
+    "source": "https://en.wikipedia.org/wiki/Markdown",
+    "type": "url",
+    "status": "ready",
+    "dropped_at": "2026-06-02T18:55:25",
+    "size_bytes": null
+   },
+   {
+    "intake_id": "20260602-185020-http-localhost-8080--6b5cc5",
+    "source": "http://localhost:8080/admin",
+    "type": "unknown",
+    "status": "rejected",
+    "dropped_at": "2026-06-02T18:50:20",
+    "size_bytes": null
+   },
+   {
+    "intake_id": "20260602-185020--private-tmp-pytest--a939fd",
+    "source": "/private/tmp/pytest-of-brassfieldventuresllc/pytest-9/test_ingest_rejects_oversize0/huge.txt",
+    "type": "unknown",
+    "status": "rejected",
+    "dropped_at": "2026-06-02T18:50:20",
+    "size_bytes": null
+   },
+   {
+    "intake_id": "20260602-185020--private-tmp-pytest--57bf1c",
+    "source": "/private/tmp/pytest-of-brassfieldventuresllc/pytest-9/test_ingest_local_markdown_fil0/note.md",
+    "type": "text",
+    "status": "ready",
+    "dropped_at": "2026-06-02T18:50:20",
+    "size_bytes": 1150
+   },
+   {
+    "intake_id": "20260602-185020--private-tmp-pytest--3ba85e",
+    "source": "/private/tmp/pytest-of-brassfieldventuresllc/pytest-9/test_ingest_local_text_file0/note.txt",
+    "type": "text",
+    "status": "ready",
+    "dropped_at": "2026-06-02T18:50:20",
+    "size_bytes": 3840
+   },
+   {
+    "intake_id": "20260602-185019-https-en-wikipedia-o-fbe9e3",
+    "source": "https://en.wikipedia.org/wiki/Markdown",
+    "type": "url",
+    "status": "ready",
+    "dropped_at": "2026-06-02T18:50:19",
+    "size_bytes": null
+   },
+   {
+    "intake_id": "20260602-184420-https-en-wikipedia-o-18b176",
+    "source": "https://en.wikipedia.org/wiki/Markdown",
+    "type": "url",
+    "status": "ready",
+    "dropped_at": "2026-06-02T18:44:20",
+    "size_bytes": null
+   }
+  ]
+ },
+ "existing_instincts": {
+  "path": "/Users/brassfieldventuresllc/MiniMax-Agent/99 _system/instincts",
+  "exists": true,
+  "count": 30,
+  "instincts": [
+   {
+    "id": "i-2026-06-01-001",
+    "title": "EA mode is isolated from the fleet",
+    "confidence": "0.95",
+    "cluster": "role"
+   },
+   {
+    "id": "i-2026-06-01-002",
+    "title": "This folder is the vault",
+    "confidence": "0.95",
+    "cluster": "vault"
+   },
+   {
+    "id": "i-2026-06-01-003",
+    "title": "Vault folder structure is fixed",
+    "confidence": "0.95",
+    "cluster": "vault"
+   },
+   {
+    "id": "i-2026-06-01-004",
+    "title": "Link on reference, processing, and review",
+    "confidence": "0.85",
+    "cluster": "vault"
+   },
+   {
+    "id": "i-2026-06-01-005",
+    "title": "Capture over polish",
+    "confidence": "0.9",
+    "cluster": "workflow"
+   },
+   {
+    "id": "i-2026-06-01-010",
+    "title": "M3 has all three frontier capabilities",
+    "confidence": "0.99",
+    "cluster": "m3"
+   },
+   {
+    "id": "i-2026-06-01-011",
+    "title": "MSA: 1/20 per-token compute at 1M context",
+    "confidence": "0.95",
+    "cluster": "m3"
+   },
+   {
+    "id": "i-2026-06-01-012",
+    "title": "Long-horizon autonomy: don't bail at the first plateau",
+    "confidence": "0.85",
+    "cluster": "m3"
+   },
+   {
+    "id": "i-2026-06-01-013",
+    "title": "Thinking mode toggle at request time, same price",
+    "confidence": "0.95",
+    "cluster": "m3"
+   },
+   {
+    "id": "i-2026-06-01-014",
+    "title": "Input-length pricing tier break at 512K",
+    "confidence": "0.95",
+    "cluster": "m3"
+   },
+   {
+    "id": "i-2026-06-01-015",
+    "title": "Native multimodality: no preprocessing",
+    "confidence": "0.95",
+    "cluster": "m3"
+   },
+   {
+    "id": "i-2026-06-01-020",
+    "title": "Three-layer memory hierarchy",
+    "confidence": "0.95",
+    "cluster": "memory"
+   },
+   {
+    "id": "i-2026-06-01-021",
+    "title": "Memory is a hint, not live state",
+    "confidence": "0.9",
+    "cluster": "memory"
+   },
+   {
+    "id": "i-2026-06-01-022",
+    "title": "Append = new entry; Edit/Write = update",
+    "confidence": "0.9",
+    "cluster": "memory"
+   },
+   {
+    "id": "i-2026-06-01-030",
+    "title": "Reconfirm before irreversible actions",
+    "confidence": "0.99",
+    "cluster": "safety"
+   },
+   {
+    "id": "i-2026-06-01-031",
+    "title": "Spec blocks are design reviews, not execution orders",
+    "confidence": "0.95",
+    "cluster": "communication"
+   },
+   {
+    "id": "i-2026-06-01-032",
+    "title": "No deploys, pushes (except to vault), or destructive ops without go",
+    "confidence": "0.99",
+    "cluster": "safety"
+   },
+   {
+    "id": "i-2026-06-01-040",
+    "title": "Audit before action",
+    "confidence": "0.9",
+    "cluster": "communication"
+   },
+   {
+    "id": "i-2026-06-01-041",
+    "title": "Quote what you read, no fabrication",
+    "confidence": "0.99",
+    "cluster": "communication"
+   },
+   {
+    "id": "i-2026-06-01-050",
+    "title": "Templater syntax: Write tool renders template variables",
+    "confidence": "0.95",
+    "cluster": "tools"
+   },
+   {
+    "id": "i-2026-06-01-051",
+    "title": "Concurrent CLI output: one self-contained line per worker",
+    "confidence": "0.95",
+    "cluster": "tools"
+   },
+   {
+    "id": "i-2026-06-01-052",
+    "title": "LLM-as-judge temperature: 0.0 for graders, 0.2 for optimizers",
+    "confidence": "0.85",
+    "cluster": "tools"
+   },
+   {
+    "id": "i-2026-06-01-053",
+    "title": "Python .format() with braces in LLM prompt templates",
+    "confidence": "0.9",
+    "cluster": "tools"
+   },
+   {
+    "id": "i-2026-06-01-060",
+    "title": "M2.7-highspeed -> M3 default swap (done)",
+    "confidence": "0.99",
+    "cluster": "m3"
+   },
+   {
+    "id": "i-2026-06-01-061",
+    "title": "M3 long-horizon: 1959 tool calls, 24h, peak on submission 145",
+    "confidence": "0.95",
+    "cluster": "m3"
+   },
+   {
+    "id": "i-2026-06-02-001",
+    "title": "Compression as a first-class layer (Headroom)",
+    "confidence": "0.85",
+    "cluster": "context"
+   },
+   {
+    "id": "i-2026-06-02-002",
+    "title": "Markdown is the universal LLM interchange format",
+    "confidence": "0.9",
+    "cluster": "ingestion"
+   },
+   {
+    "id": "i-2026-06-02-003",
+    "title": "Instincts are atomic, confidence-scored, evidence-backed",
+    "confidence": "0.85",
+    "cluster": "memory"
+   },
+   {
+    "id": "i-2026-06-02-004",
+    "title": "Adaptive selectors survive website redesigns",
+    "confidence": "0.85",
+    "cluster": "ingestion"
+   },
+   {
+    "id": "i-2026-06-02-005",
+    "title": "Skills are installable atomic units, validated",
+    "confidence": "0.85",
+    "cluster": "architecture"
+   }
+  ]
+ }
+}
+```

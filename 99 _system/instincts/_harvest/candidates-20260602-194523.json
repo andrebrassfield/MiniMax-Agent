@@ -1,0 +1,38 @@
+[
+  {
+    "id": "i-2026-06-02-006",
+    "type": "instinct",
+    "title": "Verify locked paths exist before harvest",
+    "created": "2026-06-02",
+    "confidence": 0.85,
+    "cluster": "memory",
+    "trigger_context": "When a spec block, a memory entry, or a Friction Log says a file lives at a specific path, before any harvester reads it, verify the file exists.",
+    "evidence_source": "Operation Ouroboros Phase 3 (2026-06-02); Friction 4 in state-of-mavis.md; dry-run of generate_instincts.py",
+    "tags": ["audit", "harvester", "memory-hygiene", "ouroboros"],
+    "body": "A locked path in a Friction Log is a promise, not a fact. Today's harvest surfaced audit_log.jsonl as missing despite Friction 4 having locked the path on 2026-06-02. The harvester (generate_instincts.py) handles the gap gracefully (skips + notes) — but the gap shouldn't have been there. Before any harvester reads a 'locked' path, ls the file. If it's missing, that's a candidate Friction (path locked but file never created = Memory Without Source). This is a more operational version of the existing 2026-06-01-021 'Memory is a hint, not live state' instinct: the discipline is audit-first, not read-first, when the source is a memory lock rather than a live system signal."
+  },
+  {
+    "id": "i-2026-06-02-007",
+    "type": "instinct",
+    "title": "Headroom ratios are a chain, not a number",
+    "created": "2026-06-02",
+    "confidence": 0.85,
+    "cluster": "tools",
+    "trigger_context": "When reporting compression or token-savings results from a multi-stage pipeline, report each stage's contribution separately, never the final ratio alone.",
+    "evidence_source": "Operation Ouroboros Phase 2 (2026-06-02) - MCP architecture page: regex 0.6%, M3-summary 71.2%, end-to-end 71.2%",
+    "tags": ["compression", "headroom", "m3-summary", "reporting", "honest-metrics"],
+    "body": "On the MCP architecture page, the regex layer gave 0.6% (content is mostly code blocks, not prose); the M3-summary layer gave 71.2%. Reporting '71.2% compression' alone would have been misleading — it implies the regex layer did the work, when in fact it was the M3 call. The right report is the chain: original_tokens → regex_tokens (ratio X) → m3_summary_tokens (ratio Y) → end-to-end (ratio Z). This is the honest version of the existing 2026-06-02-001 'Compression as a first-class layer' instinct. The discipline applies to any multi-stage pipeline where one stage's contribution could be hidden by another's headline number."
+  },
+  {
+    "id": "i-2026-06-02-008",
+    "type": "instinct",
+    "title": "Audit spec content against operating posture, not just spec form",
+    "created": "2026-06-02",
+    "confidence": 0.80,
+    "cluster": "communication",
+    "trigger_context": "When a spec block arrives, audit the proposed actions against the operating posture (ESALEN-NOT-FOXCONN.md, role boundary, hard constraints) BEFORE auditing the form (is this a go signal or a design review?).",
+    "evidence_source": "Operation Ouroboros Phase 1 (2026-06-02) - ML compression proposal was caught as Foxconn (model-calling-a-model); bot-bypass framing was caught as TOS gray; user confirmed both pushbacks were correct",
+    "tags": ["spec-review", "esalen-audit", "foxconn-detection", "role-boundary"],
+    "body": "The existing 2026-06-01-031 instinct covers spec FORM (is this a go signal?). This instinct covers spec CONTENT: even when the form is unambiguous ('Initiate Operation X'), the proposed actions still need a posture audit. The Operation Ouroboros spec asked for (a) ML-in-the-layer compression — caught as Foxconn Q2 violation; (b) bot-protection bypass — caught as TOS gray outside EA role. Both were reframed into Esalen-correct alternatives. The discipline: treat every spec block as a 2-axis audit — form (design review vs execution) AND content (Esalen Q1/Q2/Q3 + role boundary + hard constraints). If either axis fails, surface the gap before executing."
+  }
+]
