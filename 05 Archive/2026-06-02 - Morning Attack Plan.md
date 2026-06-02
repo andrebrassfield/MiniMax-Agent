@@ -34,3 +34,14 @@ Three moves for tomorrow morning, in order of leverage. Anything else is noise.
 - New permanent notes that aren't required by moves 1–3
 - The `## Agentic Synthesis` aggregation in [[Weekly Review]] dashboard (test it after move 1)
 - Any launchd / Hermes / OpenClaw work (per SOUL boundary)
+
+---
+
+## Connections (per vault-brain retrieval, archived 2026-06-02)
+
+- [[M3 Eval Lab]] — Move 3 of this plan; first eval still pending
+- [[Mavis EA Design]] — Move 1 of this plan; the Step 2 conversation is the strategic gate
+- [[Vault Refinement]] — Move 2 of this plan; inbox processing is part of this project's "next-action list"
+- [[state-of-mavis]] — the work that resulted from this plan is captured in the Just-shipped section
+
+*Archived 2026-06-02 via the process-inbox workflow. The agenda itself was a daily ephemeral; the work it produced is permanent (see state-of-mavis Just-shipped).*

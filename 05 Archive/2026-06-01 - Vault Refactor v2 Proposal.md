@@ -201,3 +201,13 @@ Every move goes through `git mv` so history is clean. To rollback: `git revert` 
 - 0 root files moved, 0 wikilinks broken, 0 plugins added, 0 hard constraints crossed
 
 **Say "go" and I execute the migration in one git commit. Say "tweak X" and I revise the design.**
+
+---
+
+## Connections (per vault-brain retrieval, archived 2026-06-02)
+
+- [[Vault Conventions]] — the actual vault structure as it exists today; the proposal's proposed structure was adopted with modifications
+- [[MAVIS]] — the AI context file (proposed in this document) exists at the vault root
+- [[Vault Refinement]] — the project that executed the refactor this proposal described
+
+*Archived 2026-06-02 via the process-inbox workflow. The proposal was the design phase; the current vault structure (type-based sub-organization, MAVIS.md, 06 Connections/, 07 Vellum/) is the executed version with the additions made since (state-of-mavis.md, ESALEN-NOT-FOXCONN.md, the SkillOpt pipeline, the 5-MCP arsenal, the state-of-mavis routine script, the vault-brain MCP).*
