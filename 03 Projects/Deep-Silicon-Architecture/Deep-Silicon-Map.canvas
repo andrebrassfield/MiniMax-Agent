@@ -1,0 +1,515 @@
+{
+  "nodes": [
+    {
+      "id": "title",
+      "type": "text",
+      "text": "# Deep Silicon Architecture — Omni-Operator on Apple Silicon\n\nMaster map of the Mavis-Apex-Architecture ported to Apple Silicon native.\nGenerated 2026-06-02 from Operation Deep Silicon.\n\n**The thesis:** The Omni-Operator is a Mac. Zero latency = UMA. Infinite context = PagedEviction + Anchor-Ends + Ring Attention. Safety = microVM per task + Reflection layer. The model is the engine; the hardware is the thin deterministic I/O layer.",
+      "x": -2000,
+      "y": -2200,
+      "width": 4000,
+      "height": 200,
+      "color": "1"
+    },
+    {
+      "id": "group-hardware",
+      "type": "group",
+      "label": "Hardware Layer (Apple Silicon)",
+      "x": -2000,
+      "y": -1900,
+      "width": 4000,
+      "height": 700,
+      "color": "1",
+      "background": "1"
+    },
+    {
+      "id": "group-sandbox",
+      "type": "group",
+      "label": "Sandbox Layer (Safety)",
+      "x": -2000,
+      "y": -1180,
+      "width": 4000,
+      "height": 500,
+      "color": "3",
+      "background": "3"
+    },
+    {
+      "id": "group-software",
+      "type": "group",
+      "label": "Software Layer (Mavis EA + Esalen)",
+      "x": -2000,
+      "y": -660,
+      "width": 4000,
+      "height": 700,
+      "color": "4",
+      "background": "4"
+    },
+    {
+      "id": "group-context",
+      "type": "group",
+      "label": "Context Layer (Long-Context)",
+      "x": -2000,
+      "y": 60,
+      "width": 4000,
+      "height": 700,
+      "color": "5",
+      "background": "5"
+    },
+    {
+      "id": "group-agent",
+      "type": "group",
+      "label": "Agent Layer (Multi-Agent + Self-Healing)",
+      "x": -2000,
+      "y": 780,
+      "width": 4000,
+      "height": 700,
+      "color": "6",
+      "background": "6"
+    },
+    {
+      "id": "node-uma",
+      "type": "text",
+      "text": "## M-Series UMA\n\nUnified Memory Architecture\n192 GB on M3 Ultra\n800 GB/s bandwidth\n\n*No PCIe copy tax. CPU/GPU/ANE share one pool.*\n\n→ [[UMA as Killer Feature — The Local Agent Memory Ceiling]]",
+      "x": -1900,
+      "y": -1820,
+      "width": 700,
+      "height": 320,
+      "color": "1"
+    },
+    {
+      "id": "node-bandwidth",
+      "type": "text",
+      "text": "## Memory Bandwidth Ladder\n\n| Chip | GB/s |\n|---|---|\n| M5 base | 120 |\n| M4 Pro | 273 |\n| M2/M3 Max | 400 |\n| M4 Max | 546 |\n| M3 Ultra | 800 |\n\n*The throughput curve for memory-bound local inference.*\n\n→ [[Apple Silicon Memory Bandwidth Ladder]]",
+      "x": -1150,
+      "y": -1820,
+      "width": 700,
+      "height": 320,
+      "color": "1"
+    },
+    {
+      "id": "node-mlx",
+      "type": "text",
+      "text": "## MLX Framework\n\nApple's native ML framework (Python + C++ + Swift)\n\n**Design choices:**\n- Lazy computation graph (no eager overhead)\n- Zero-copy via UMA\n- Function transforms (grad, vmap, compile)\n- Metal 4 TensorOps (M5 Neural Accelerators)\n\n*30-40% faster than llama.cpp on M5.*",
+      "x": -400,
+      "y": -1820,
+      "width": 700,
+      "height": 320,
+      "color": "1"
+    },
+    {
+      "id": "node-metal",
+      "type": "text",
+      "text": "## Metal GPU (Primary Inference)\n\nThe workhorse. 525+ tok/s for 7B Q4.\n~28 tok/s for 70B Q4 on M4 Max.\n\n**M5 GPU Neural Accelerators** (per core matrix-mult units): 4x TTFT speedup.\n\n*This is the engine. Metal driver is the thin deterministic layer.*",
+      "x": 350,
+      "y": -1820,
+      "width": 700,
+      "height": 320,
+      "color": "1"
+    },
+    {
+      "id": "node-ane",
+      "type": "text",
+      "text": "## Apple Neural Engine (ANE)\n\n*Marketed:* 38 TOPS INT8\n*Actual:* ~19 TFLOPS FP16\n\n**Right shape for:**\n- Always-on, low-power (0W idle, 2.8W peak)\n- Operation-specific (33.8x softmax vs CPU)\n- Reflection layer appraisal\n- MoE expert dispatch (NPUMoE)\n\n**32 MB SRAM cliff, 119-compile limit.**\n\n→ [[ANE Actual Throughput — The 19 TFLOPS Reality]]",
+      "x": 1100,
+      "y": -1820,
+      "width": 800,
+      "height": 320,
+      "color": "1"
+    },
+    {
+      "id": "node-hvf",
+      "type": "text",
+      "text": "## Virtualization.framework\n\nApple's native hypervisor API.\n\n*MicroVMs (Debian nocloud):*\n- Slicer 200ms instant-clone\n- Vibe ~10s cold / 0.5-2s warm\n- OrbStack 2s (shared kernel)\n- 75-95% native FS via VirtioFS\n\n→ [[Native Hypervisor Sandbox as the Esalen Way to Agent Safety]]",
+      "x": -1900,
+      "y": -1100,
+      "width": 900,
+      "height": 380,
+      "color": "3"
+    },
+    {
+      "id": "node-vigil",
+      "type": "text",
+      "text": "## Reflection Layer (VIGIL)\n\n*Sibling runtime, not parent watchdog.*\n\n**Stage-gated pipeline:**\nstart → eb_updated → diagnosed → prompt_done → diff_done\n\n**On host ANE:** 33.8x softmax speedup, 0W idle, always-on.\n\n*Detects failures, proposes patches, never interrupts the agent.*\n\n→ [[Self-Healing via Reflection Layer]]",
+      "x": -950,
+      "y": -1100,
+      "width": 900,
+      "height": 380,
+      "color": "3"
+    },
+    {
+      "id": "node-sandbox-runtime",
+      "type": "text",
+      "text": "## Tool Execution Sandbox\n\n**Cross-platform:**\n- E2B (Firecracker) — 150ms\n- Daytona — 27-90ms (fastest)\n- Modal (gVisor) — sub-second, weaker isolation\n- Together.ai (full VM snapshot) — 500ms\n\n**On macOS:**\n- Vibe, Slicer, Lume — microVM per task\n- Anthropic Claude Code — Seatbelt (config-only, escape risk)\n\n→ [[MicroVM Cold Start Times]]",
+      "x": 0,
+      "y": -1100,
+      "width": 950,
+      "height": 380,
+      "color": "3"
+    },
+    {
+      "id": "node-esalen",
+      "type": "text",
+      "text": "## Esalen Posture\n\n*Model is the engine. Code is the thin deterministic layer. Markdown is the instruction.*\n\n**3 Audit Questions:**\n1. Is the test Foxconn?\n2. Is the code a model-judging-itself loop?\n3. Does the system trust the model to finish?\n\n→ [[Esalen, Not Foxconn]]",
+      "x": -1900,
+      "y": -580,
+      "width": 800,
+      "height": 380,
+      "color": "4"
+    },
+    {
+      "id": "node-resolver",
+      "type": "text",
+      "text": "## Resolver (Routing)\n\nFunctional-area dispatcher.\n\n*Routes incoming tasks to the right agent / skill / MCP. Model-agnostic. Substrate-agnostic.*\n\nThe Mavis-Apex-Architecture's [[functional-area-resolver]] skill is the right shape.",
+      "x": -1050,
+      "y": -580,
+      "width": 800,
+      "height": 380,
+      "color": "4"
+    },
+    {
+      "id": "node-mcps",
+      "type": "text",
+      "text": "## MCP Arsenal (I/O Layer)\n\n**Custom MCPs:**\n- Direct-Intake (URL → markdown)\n- Tool-self-healer\n- Vault-brain\n- Kanban\n- Computer Use (cu)\n\n**Apple Silicon native:**\n- mlx-mcp-server (inference)\n- ane-mcp (reflection)\n- vzn-mcp (microVM lifecycle)",
+      "x": -200,
+      "y": -580,
+      "width": 800,
+      "height": 380,
+      "color": "4"
+    },
+    {
+      "id": "node-skillpacks",
+      "type": "text",
+      "text": "## Skill Packs (Instruction Layer)\n\n*Markdown-first, capability-based, Esalen-composed.*\n\n**Top packs for Deep Silicon:**\n- omni-operator (the agent itself)\n- self-healing-runtime (VIGIL pattern)\n- microvm-orchestrator (Vibe/Slicer)\n- mlx-optimizer (quant + runtime)",
+      "x": 650,
+      "y": -580,
+      "width": 800,
+      "height": 380,
+      "color": "4"
+    },
+    {
+      "id": "node-mavisea",
+      "type": "text",
+      "text": "## Mavis EA (Orchestrator)\n\n*Mavis running natively on Apple Silicon.*\n\nDaily brief on host MLX.\nReflection layer on host ANE.\nTool execution in microVM.\n\n*The Mavis-Apex-Architecture ported to Apple Silicon native.*\n\n→ [[Mavis-Apex-Architecture]]",
+      "x": 1500,
+      "y": -580,
+      "width": 700,
+      "height": 380,
+      "color": "4"
+    },
+    {
+      "id": "node-anchor",
+      "type": "text",
+      "text": "## Anchor-Ends (Prompt Architecture)\n\n*Place high-signal at prefix (contract) AND suffix (task).*\n\n**Validated against 5 papers** (Liu 2023, Chroma 2025, MIT 2025, Salvatore 2025, MSR 2024):\n- U-curve is structural (causal masking + RoPE decay + attention sinks)\n- Middle 20-50% accuracy drop at 100K\n- 30%+ retrieval accuracy gain from anchoring\n\n*Works at the API layer. No model modification.*\n\n→ [[Anchor-Ends — Validated]]",
+      "x": -1900,
+      "y": 140,
+      "width": 900,
+      "height": 400,
+      "color": "5"
+    },
+    {
+      "id": "node-paged",
+      "type": "text",
+      "text": "## Blockwise Paging (Infrastructure)\n\n*Page the KV cache. Ring the compute.*\n\n**Stack:**\n- vLLM PagedAttention (KV cache, 60-80% waste → <4%)\n- Ring Attention (blockwise, sequence parallelism)\n- TokenRing (bidirectional, 2-3x comm reduction)\n- Context Parallelism (1M prefill in 77s on 128 H100s)\n- PagedEviction (IndexMem, SAGE-KV, H2O, SnapKV)\n\n→ [[Blockwise Paging for Long Context]]",
+      "x": -950,
+      "y": 140,
+      "width": 900,
+      "height": 400,
+      "color": "5"
+    },
+    {
+      "id": "node-longlingua",
+      "type": "text",
+      "text": "## LongLLMLingua (Compression)\n\n*Microsoft's prompt compression.*\n\n**4x compression → +21.4% accuracy.**\n\n*Eliminates the middle region by removing low-signal tokens. Morph Compact takes the deletion-based approach (no hallucination risk).*\n\nThe right shape when context is the bottleneck.",
+      "x": 0,
+      "y": 140,
+      "width": 950,
+      "height": 400,
+      "color": "5"
+    },
+    {
+      "id": "node-ucurve",
+      "type": "text",
+      "text": "## The U-Curve (Attention Sink)\n\n*Structural, not cognitive. Causal masking + RoPE decay + attention sinks.*\n\n**Mechanism (validated):**\n- Early tokens: visible to all later tokens (primacy)\n- RoPE: distance-decay in dot products\n- Specific heads: attention sinks on first token\n- Dropout on these heads → primacy flattens\n\n*Decoder-only property. T5/encoder-decoder show less bias.*\n\n→ [[Attention Sink as Architectural Bias]]",
+      "x": 1000,
+      "y": 140,
+      "width": 950,
+      "height": 400,
+      "color": "5"
+    },
+    {
+      "id": "node-multiagent",
+      "type": "text",
+      "text": "## Multi-Agent (CoA, MoA)\n\n*Long-context agent chains.*\n\n**Chain-of-Agents (Google 2024):**\n- N workers process chunks sequentially\n- Manager synthesizes\n- 10% over RAG, 100% over truncated\n- Complexity O(n·k), not O(n²)\n\n**Mixture-of-Agents (MoA):**\n- N agents propose, layers vote\n- Adversarial robustness\n\n→ [[Mixture of Agents]]",
+      "x": -1900,
+      "y": 860,
+      "width": 950,
+      "height": 380,
+      "color": "6"
+    },
+    {
+      "id": "node-judge",
+      "type": "text",
+      "text": "## LLM-as-Judge (2026 State of the Art)\n\n*Rubric-based, not scalar.*\n\n**Mitigations for known biases:**\n- Position bias: both-direction A/B/B/A\n- Verbosity bias: explicit length-normalize\n- Self-preference: cross-family judges\n- Authority bias: chain-of-thought required\n\n**Top 2026 systems:**\n- Sage (situational preference)\n- TrustJudge (ICLR 2026, probability-based)\n- IF-RewardBench (instruction-following)\n- Prometheus 2 (open evaluator)",
+      "x": -900,
+      "y": 860,
+      "width": 950,
+      "height": 380,
+      "color": "6"
+    },
+    {
+      "id": "node-selfheal",
+      "type": "text",
+      "text": "## Self-Healing (VIGIL/SEMAF)\n\n*Stage-gated, meta-procedural.*\n\n**VIGIL (arXiv 2512.07094):**\n- EmoBank with decay + appraisal\n- RBT (Roses/Buds/Thorns) diagnosis\n- Two artifact types: prompt updates + code diffs\n- Operator approves, never auto-applied\n- Meta-procedural resilience: can repair own diagnostic tools\n\n**SEMAF:** knowledge graph + multi-source feedback + Evolution Engine\n\n→ [[Self-Healing via Reflection Layer]]",
+      "x": 100,
+      "y": 860,
+      "width": 950,
+      "height": 380,
+      "color": "6"
+    },
+    {
+      "id": "node-multimac",
+      "type": "text",
+      "text": "## Multi-Mac JACCL Cluster\n\n*Scale-out via Thunderbolt 5.*\n\n**Capacity:**\n- 5 Mac Studios = ~1 TB pooled UMA\n- 120B+ models at 10-20 tok/s\n\n*Apple's answer to \"you need 128 H100s.\" The local agent's cluster is on your desk, not in a data center.*\n\n→ [[The Apple-NVIDIA Inversion]]",
+      "x": 1100,
+      "y": 860,
+      "width": 900,
+      "height": 380,
+      "color": "6"
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge-uma-bandwidth",
+      "type": "edge",
+      "fromNode": "node-uma",
+      "fromSide": "right",
+      "toNode": "node-bandwidth",
+      "toSide": "left",
+      "label": "bandwidth ladder lives on UMA"
+    },
+    {
+      "id": "edge-bandwidth-mlx",
+      "type": "edge",
+      "fromNode": "node-bandwidth",
+      "fromSide": "right",
+      "toNode": "node-mlx",
+      "toSide": "left",
+      "label": "MLX exploits via zero-copy"
+    },
+    {
+      "id": "edge-mlx-metal",
+      "type": "edge",
+      "fromNode": "node-mlx",
+      "fromSide": "right",
+      "toNode": "node-metal",
+      "toSide": "left",
+      "label": "compiles to Metal"
+    },
+    {
+      "id": "edge-metal-ane",
+      "type": "edge",
+      "fromNode": "node-metal",
+      "fromSide": "right",
+      "toNode": "node-ane",
+      "toSide": "left",
+      "label": "Metal + ANE share UMA"
+    },
+    {
+      "id": "edge-ane-vigil",
+      "type": "edge",
+      "fromNode": "node-ane",
+      "fromSide": "bottom",
+      "toNode": "node-vigil",
+      "toSide": "top",
+      "label": "ANE runs reflection appraisal (33.8x softmax, 0W idle)"
+    },
+    {
+      "id": "edge-uma-hvf",
+      "type": "edge",
+      "fromNode": "node-uma",
+      "fromSide": "bottom",
+      "toNode": "node-hvf",
+      "toSide": "top",
+      "label": "host model in UMA, microVM runs tools"
+    },
+    {
+      "id": "edge-hvf-sandbox",
+      "type": "edge",
+      "fromNode": "node-hvf",
+      "fromSide": "right",
+      "toNode": "node-sandbox-runtime",
+      "toSide": "left",
+      "label": "microVM lifecycle hosts tools"
+    },
+    {
+      "id": "edge-vigil-sandbox",
+      "type": "edge",
+      "fromNode": "node-vigil",
+      "fromSide": "bottom",
+      "toNode": "node-esalen",
+      "toSide": "top",
+      "label": "Esalen shape: watchdog for state, not cage for trust"
+    },
+    {
+      "id": "edge-esalen-resolver",
+      "type": "edge",
+      "fromNode": "node-esalen",
+      "fromSide": "right",
+      "toNode": "node-resolver",
+      "toSide": "left",
+      "label": "Esalen is the operating contract"
+    },
+    {
+      "id": "edge-resolver-mcps",
+      "type": "edge",
+      "fromNode": "node-resolver",
+      "fromSide": "right",
+      "toNode": "node-mcps",
+      "toSide": "left",
+      "label": "routes to MCPs"
+    },
+    {
+      "id": "edge-mcps-skillpacks",
+      "type": "edge",
+      "fromNode": "node-mcps",
+      "fromSide": "right",
+      "toNode": "node-skillpacks",
+      "toSide": "left",
+      "label": "MCPs are the I/O; skills are the instruction"
+    },
+    {
+      "id": "edge-skillpacks-mavisea",
+      "type": "edge",
+      "fromNode": "node-skillpacks",
+      "fromSide": "right",
+      "toNode": "node-mavisea",
+      "toSide": "left",
+      "label": "composed into the EA"
+    },
+    {
+      "id": "edge-mavisea-anchor",
+      "type": "edge",
+      "fromNode": "node-mavisea",
+      "fromSide": "bottom",
+      "toNode": "node-anchor",
+      "toSide": "top",
+      "label": "EA emits prompts; Anchor-Ends structures them"
+    },
+    {
+      "id": "edge-anchor-ucurve",
+      "type": "edge",
+      "fromNode": "node-anchor",
+      "fromSide": "right",
+      "toNode": "node-ucurve",
+      "toSide": "left",
+      "label": "mitigates the U-curve"
+    },
+    {
+      "id": "edge-paged-longlingua",
+      "type": "edge",
+      "fromNode": "node-paged",
+      "fromSide": "right",
+      "toNode": "node-longlingua",
+      "toSide": "left",
+      "label": "page first, compress second"
+    },
+    {
+      "id": "edge-longlingua-ucurve",
+      "type": "edge",
+      "fromNode": "node-longlingua",
+      "fromSide": "right",
+      "toNode": "node-ucurve",
+      "toSide": "left",
+      "label": "eliminates the middle"
+    },
+    {
+      "id": "edge-bandwidth-paged",
+      "type": "edge",
+      "fromNode": "node-bandwidth",
+      "fromSide": "bottom",
+      "toNode": "node-paged",
+      "toSide": "top",
+      "label": "in-memory paging is bandwidth-bound"
+    },
+    {
+      "id": "edge-mavisea-multiagent",
+      "type": "edge",
+      "fromNode": "node-mavisea",
+      "fromSide": "bottom",
+      "toNode": "node-multiagent",
+      "toSide": "top",
+      "label": "EA spawns multi-agent chains for long-context tasks"
+    },
+    {
+      "id": "edge-anchor-multiagent",
+      "type": "edge",
+      "fromNode": "node-anchor",
+      "fromSide": "bottom",
+      "toNode": "node-multiagent",
+      "toSide": "top",
+      "label": "Anchor-Ends + Chain-of-Agents"
+    },
+    {
+      "id": "edge-judge-selfheal",
+      "type": "edge",
+      "fromNode": "node-judge",
+      "fromSide": "right",
+      "toNode": "node-selfheal",
+      "toSide": "left",
+      "label": "LLM-as-judge feeds reflection layer"
+    },
+    {
+      "id": "edge-vigil-selfheal",
+      "type": "edge",
+      "fromNode": "node-vigil",
+      "fromSide": "bottom",
+      "toNode": "node-selfheal",
+      "toSide": "top",
+      "label": "Reflection layer is the self-healing engine"
+    },
+    {
+      "id": "edge-sandbox-selfheal",
+      "type": "edge",
+      "fromNode": "node-sandbox-runtime",
+      "fromSide": "bottom",
+      "toNode": "node-selfheal",
+      "toSide": "top",
+      "label": "sandbox failures → reflection events"
+    },
+    {
+      "id": "edge-uma-multimac",
+      "type": "edge",
+      "fromNode": "node-uma",
+      "fromSide": "bottom",
+      "toNode": "node-multimac",
+      "toSide": "top",
+      "label": "scale-out via pooled UMA over TB5"
+    },
+    {
+      "id": "edge-ane-mcps",
+      "type": "edge",
+      "fromNode": "node-ane",
+      "fromSide": "bottom",
+      "toNode": "node-mcps",
+      "toSide": "top",
+      "label": "ane-mcp exposes ANE to the agent"
+    },
+    {
+      "id": "edge-hvf-mcps",
+      "type": "edge",
+      "fromNode": "node-hvf",
+      "fromSide": "bottom",
+      "toNode": "node-mcps",
+      "toSide": "top",
+      "label": "vzn-mcp exposes microVM lifecycle"
+    },
+    {
+      "id": "edge-judge-multimac",
+      "type": "edge",
+      "fromNode": "node-judge",
+      "fromSide": "bottom",
+      "toNode": "node-multimac",
+      "toSide": "top",
+      "label": "judge farms out to multi-Mac for >120B"
+    }
+  ]
+}
