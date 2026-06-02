@@ -1,0 +1,138 @@
+[
+  {
+    "id": "pi-test-001",
+    "question": "Process this raw inbox capture. Output: destination, sharpened version, tag, primary link.",
+    "context": "File: 00 Inbox/2026-06-02 - softbank france.md\nContent: 'softbank commits up to 75B euros to build 5GW of AI data center capacity in France. largest AI infrastructure deal in EU history.'",
+    "reference_output": {
+      "destination": "02 Notes/articles",
+      "sharpened": "SoftBank commits up to €75B (~$87B) to build 5 GW of AI data center capacity in France — the largest AI infrastructure deal in EU history.",
+      "tag": "ai-landscape",
+      "primary_link": "AI Landscape 2026"
+    },
+    "scoring_dimensions": [
+      "destination_correct",
+      "sharpened_preserves_the_number",
+      "tag_matches_existing_taxonomy",
+      "primary_link_is_a_real_note"
+    ]
+  },
+  {
+    "id": "pi-test-002",
+    "question": "Process this raw inbox capture. Output: destination, sharpened version, tag, primary link.",
+    "context": "File: 00 Inbox/2026-06-02 - reflection loop pattern.md\nContent: 'pattern: when something goes wrong, dont just fix it. extract the lesson, write it down, link it. fixes are perishable, lessons compound. saw this in 12h paper repro work too — every failure got captured as a reflexion note.'",
+    "reference_output": {
+      "destination": "02 Notes/patterns",
+      "sharpened": "Reflexion loops — extract the lesson, write it down, link it — turn perishable fixes into compounding knowledge, and the pattern shows up in every M3 long-horizon run (paper reproduction, CUDA optimization) where every failure becomes a captured note.",
+      "tag": "learning-loop",
+      "primary_link": "Reflexion Loop"
+    },
+    "scoring_dimensions": [
+      "destination_correct",
+      "sharpened_generalizes_beyond_the_specific",
+      "tag_matches_existing_taxonomy",
+      "primary_link_is_a_real_note"
+    ]
+  },
+  {
+    "id": "pi-test-003",
+    "question": "Process this raw inbox capture. Output: destination, sharpened version, tag, primary link.",
+    "context": "File: 00 Inbox/2026-06-02 - msa signal decay.md\nContent: 'open: does MSAs block-level selection introduce silent signal decay at 1M context? need to design an eval that compares full attention vs MSA on long-context reasoning tasks.'",
+    "reference_output": {
+      "destination": "02 Notes/questions",
+      "sharpened": "Does MiniMax Sparse Attention's block-level selection introduce silent signal decay at 1M token context, and how would an eval distinguish it from full attention?",
+      "tag": "m3-capability-ceiling",
+      "primary_link": "MSA Signal Decay"
+    },
+    "scoring_dimensions": [
+      "destination_correct",
+      "sharpened_is_a_precise_question",
+      "tag_matches_existing_taxonomy",
+      "primary_link_is_a_real_note"
+    ]
+  },
+  {
+    "id": "pi-test-004",
+    "question": "Process this raw inbox capture. Output: destination, sharpened version, tag, primary link.",
+    "context": "File: 00 Inbox/2026-06-02 - swa bench pro 59.md\nContent: 'm3: 59% on SWE-bench Pro. beats gpt-5.5 and gemini 3.1 pro. approaches opus 4.7.'",
+    "reference_output": {
+      "destination": "02 Notes/numbers",
+      "sharpened": "M3 scores 59.0% on SWE-Bench Pro, beating GPT-5.5 and Gemini 3.1 Pro and approaching Opus 4.7.",
+      "tag": "m3-benchmark",
+      "primary_link": "M3 Capabilities"
+    },
+    "scoring_dimensions": [
+      "destination_correct",
+      "sharpened_preserves_the_number",
+      "tag_matches_existing_taxonomy",
+      "primary_link_is_a_real_note"
+    ]
+  },
+  {
+    "id": "pi-test-005",
+    "question": "Process this raw inbox capture. Output: destination, sharpened version, tag, primary link.",
+    "context": "File: 00 Inbox/2026-06-02 - m3 paper repro observation.md\nContent: 'observation: m3 ran 12h autonomously reproducing an ICLR outstanding paper, 18 commits, 23 figures, no human in loop. the post-trainbench run was 4 base models through data-train-eval-iterate. m3 does not bail at plateaus. this matters for EA work because EA tasks are usually long-tail with sparse signal.'",
+    "reference_output": {
+      "destination": "02 Notes/patterns",
+      "sharpened": "M3 completes 12+ hour autonomous tasks (paper reproduction, base-model training pipelines) without bailing at performance plateaus — a pattern that transfers to long-tail EA work where signal is sparse and most models give up early.",
+      "tag": "long-horizon",
+      "primary_link": "Long-Horizon Patterns"
+    },
+    "scoring_dimensions": [
+      "destination_correct",
+      "sharpened_generalizes_beyond_specifics",
+      "tag_matches_existing_taxonomy",
+      "primary_link_is_a_real_note"
+    ]
+  },
+  {
+    "id": "pi-test-006",
+    "question": "Process this raw inbox capture. Output: destination, sharpened version, tag, primary link.",
+    "context": "File: 00 Inbox/2026-06-02 - tldraw bridge idea.md\nContent: 'idea: a tldraw bridge that watches a macos window for canvas changes and writes them to 02 Notes/_MOCs/ as a structured m oc. solves the problem that Mavis-Apex-Map.canvas is a one-shot design artifact, not a living document.'",
+    "reference_output": {
+      "destination": "02 Notes/ideas",
+      "sharpened": "A tldraw-to-vault bridge that watches macOS canvas windows and writes changes to `02 Notes/_MOCs/` as structured MOCs would turn one-shot design canvases into living documents.",
+      "tag": "tooling-idea",
+      "primary_link": "Mavis-Apex-Architecture"
+    },
+    "scoring_dimensions": [
+      "destination_correct",
+      "sharpened_distills_the_problem_and_solution",
+      "tag_matches_existing_taxonomy",
+      "primary_link_is_a_real_note"
+    ]
+  },
+  {
+    "id": "pi-test-007",
+    "question": "Process this raw inbox capture. Output: destination, sharpened version, tag, primary link.",
+    "context": "File: 00 Inbox/2026-06-02 - linking principle reflection.md\nContent: 'synthesizing: linking principle says link on reference, link on processing, link on review. mavis-apex-map is missing backlinks to the 4 doc files it visualizes. going to fix that. also INDEX dataview block should pull from MOCs not the root.'",
+    "reference_output": {
+      "destination": "02 Notes/_MOCs",
+      "sharpened": "Linking Principle: wikilinks are added on three triggers (reference, processing, weekly review) — applying it to Mavis-Apex-Map surfaces missing backlinks to the 4 doc files and reveals INDEX dataview should pull from MOCs, not the root.",
+      "tag": "linking-principle",
+      "primary_link": "Linking Principle"
+    },
+    "scoring_dimensions": [
+      "destination_correct",
+      "sharpened_generalizes_from_specific_observation",
+      "tag_matches_existing_taxonomy",
+      "primary_link_is_a_real_note"
+    ]
+  },
+  {
+    "id": "pi-test-008",
+    "question": "Process this raw inbox capture. Output: destination, sharpened version, tag, primary link.",
+    "context": "File: 00 Inbox/2026-06-02 - state machine failure modes.md\nContent: 'failure: kanban fast-path bug produced ghost completions. dispatcher marked tasks done when workers were still running. disease pattern: action without fresh perception, anosognosia (wrong and unaware). kanban-health-check skill is the eval.'",
+    "reference_output": {
+      "destination": "02 Notes/questions",
+      "sharpened": "How do we prevent dispatcher state-machine failure modes (kanban fast-path bug produced ghost completions) by enforcing fresh-perception checks before marking tasks done?",
+      "tag": "agent-disease",
+      "primary_link": "State Machine Failure Modes"
+    },
+    "scoring_dimensions": [
+      "destination_correct",
+      "sharpened_is_a_real_question",
+      "tag_matches_existing_taxonomy",
+      "primary_link_is_a_real_note"
+    ]
+  }
+]

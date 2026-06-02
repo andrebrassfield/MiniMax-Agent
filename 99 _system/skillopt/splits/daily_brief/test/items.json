@@ -1,0 +1,170 @@
+[
+  {
+    "id": "db-test-001",
+    "question": "Produce the daily brief. Inputs: 6 recent permanent notes + 2 inbox captures. Output: 3 CONNECTIONS, 1 PATTERN, 1 QUESTION.",
+    "context": "Recent notes: M3 Edge, AI Landscape 2026, Long-Horizon Patterns, Reflexion Loop, Mavis-Apex-Architecture, Mavis EA Design. Inbox: state-of-mavis friction, softbank france.",
+    "reference_output": {
+      "connections": [
+        { "bridge": "AI Landscape 2026 (foundation models consolidating) and Mavis-Apex-Architecture (custom MCPs on top of M3) are the same move at different layers — when the substrate commoditizes, the differentiation moves up.", "sources": ["AI Landscape 2026", "Mavis-Apex-Architecture"] },
+        { "bridge": "Reflexion Loop and state-of-mavis friction are the same insight at different time scales — the friction log is the per-session reflexion, the reflexion loop is the per-task reflexion.", "sources": ["Reflexion Loop", "state-of-mavis friction"] },
+        { "bridge": "M3 Edge (capability shift) and Mavis EA Design (autonomy line) are the question and the answer being negotiated — Mavis EA Design is the conversation about where the line goes now that the capability is real.", "sources": ["M3 Edge", "Mavis EA Design"] }
+      ],
+      "pattern": "Andre is in a meta-architectural moment: substrate (M3) is settling, structure (Mavis EA) is being designed, surface (Apex architecture) is being built. The pattern is bottom-up and the system is being assembled in dependency order.",
+      "pattern_evidence": ["M3 Edge", "Mavis-Apex-Architecture", "Mavis EA Design"],
+      "question": "If the architecture is being assembled in dependency order, what is the last piece — and is it the tool (vault-brain) or the operator contract (SOUL V3)?"
+    },
+    "scoring_dimensions": [
+      "connections_are_grounded_with_real_quotes",
+      "pattern_is_named_and_evidence_backed",
+      "question_is_load_bearing_not_actionable",
+      "no_generic_advice"
+    ]
+  },
+  {
+    "id": "db-test-002",
+    "question": "Produce the daily brief. Inputs: 5 recent permanent notes + 3 inbox captures. Output: 3 CONNECTIONS, 1 PATTERN, 1 QUESTION.",
+    "context": "Recent notes: Mavis-Apex-Architecture, Mavis EA Workflow, SOUL V2, Capture Over Polish, M3 Capabilities. Inbox: cu driver toggle, vault brain mcp, fda ai device list.",
+    "reference_output": {
+      "connections": [
+        { "bridge": "SOUL V2 (operating contract) and Mavis EA Workflow (procedural flow) are two halves of the same discipline: the SOUL says what's allowed, the workflow says what's done — they have to be designed together.", "sources": ["SOUL V2", "Mavis EA Workflow"] },
+        { "bridge": "M3 Capabilities (1M context) and Mavis-Apex-Architecture (whole-vault in-context search via vault-brain) are the enablement and the realization.", "sources": ["M3 Capabilities", "Mavis-Apex-Architecture"] },
+        { "bridge": "Capture Over Polish and cu driver toggle are the same lesson at different layers — the discipline of 'ship the capture, polish later' applies to operator workflow and to MCP rollout.", "sources": ["Capture Over Polish", "cu driver toggle"] }
+      ],
+      "pattern": "Andre is doing a top-to-bottom rebuild of the EA architecture: SOUL (contract) → Mavis EA Workflow (procedure) → Mavis-Apex-Architecture (tools) → M3 Capabilities (substrate). Each layer is being designed to match the layer below it.",
+      "pattern_evidence": ["SOUL V2", "Mavis EA Workflow", "Mavis-Apex-Architecture"],
+      "question": "When the rebuild is done, what does the EA look like in steady state — and how does Andre know when to stop iterating on the architecture and start using it?"
+    },
+    "scoring_dimensions": [
+      "connections_are_grounded_with_real_quotes",
+      "pattern_is_named_and_evidence_backed",
+      "question_is_load_bearing_not_actionable",
+      "no_generic_advice"
+    ]
+  },
+  {
+    "id": "db-test-003",
+    "question": "Produce the daily brief. Inputs: 4 recent permanent notes + 1 inbox capture. Output: 3 CONNECTIONS, 1 PATTERN, 1 QUESTION.",
+    "context": "Recent notes: Paged Attention Economics, Mavis-Apex-Architecture, M3 Eval Lab, Step 2 Autonomy. Inbox: state machine failure modes.",
+    "reference_output": {
+      "connections": [
+        { "bridge": "Paged Attention Economics and Mavis-Apex-Architecture's long-context-curator are the same thesis at different layers — anchor content at the ends, marginal-value scoring for the middle, attention quality is the binding constraint at 1M.", "sources": ["Paged Attention Economics", "Mavis-Apex-Architecture"] },
+        { "bridge": "M3 Eval Lab and Step 2 Autonomy are coupled — Step 2 cannot be settled without eval data showing M3's actual failure modes, not assumed ones.", "sources": ["M3 Eval Lab", "Step 2 Autonomy"] },
+        { "bridge": "State machine failure modes and Paged Attention Economics are different failure modes of the same problem — both are about what gets lost when the system scales.", "sources": ["state machine failure modes", "Paged Attention Economics"] }
+      ],
+      "pattern": "Andre's recent notes are all about the binding constraints at scale: attention quality at 1M context, state machine correctness in long-running agents, eval coverage to ground autonomy decisions. The pattern is finding the load-bearing constraint at each layer.",
+      "pattern_evidence": ["Paged Attention Economics", "state machine failure modes", "M3 Eval Lab"],
+      "question": "Which binding constraint matters most right now — attention quality (Paged), state correctness (Failure Modes), or eval coverage (M3 Eval Lab)?"
+    },
+    "scoring_dimensions": [
+      "connections_are_grounded_with_real_quotes",
+      "pattern_is_named_and_evidence_backed",
+      "question_is_load_bearing_not_actionable",
+      "no_generic_advice"
+    ]
+  },
+  {
+    "id": "db-test-004",
+    "question": "Produce the daily brief. Inputs: 5 recent permanent notes + 1 inbox capture. Output: 3 CONNECTIONS, 1 PATTERN, 1 QUESTION.",
+    "context": "Recent notes: Multimodal GUI Loop, Mavis-Apex-Architecture, M3 Edge, AI Landscape 2026, Mavis EA Design. Inbox: cu driver toggle.",
+    "reference_output": {
+      "connections": [
+        { "bridge": "Multimodal GUI Loop and Mavis-Apex-Architecture's macos-vision-anchor are the same architecture — vision-anchored action with cross-session memory, so the model can pick up a visual task where it left off.", "sources": ["Multimodal GUI Loop", "Mavis-Apex-Architecture"] },
+        { "bridge": "M3 Edge (native multimodality) and the cu driver toggle being off are coupled — the capability exists in M3, but the operator (Mavis) can't use it because the toggle isn't on. The capability is unlocked, the operator is blocked.", "sources": ["M3 Edge", "cu driver toggle"] },
+        { "bridge": "AI Landscape 2026 (UX as moat) and Mavis EA Design (operator contract) both say the durable value is in the operator layer, not the model layer.", "sources": ["AI Landscape 2026", "Mavis EA Design"] }
+      ],
+      "pattern": "Andre's recent work is the realization of the 'native > wrapper' principle from the Overview: don't OCR (use M3 vision), don't headless-script (use M3 GUI), don't chunk-and-embed (use 1M context). The pattern is design-around-M3, not design-around-M3's limits.",
+      "pattern_evidence": ["M3 Edge", "Mavis-Apex-Architecture", "Mavis EA Design"],
+      "question": "If every design decision is now design-around-M3-capability, when does the design start to push back on the capability — and what would that look like?"
+    },
+    "scoring_dimensions": [
+      "connections_are_grounded_with_real_quotes",
+      "pattern_is_named_and_evidence_backed",
+      "question_is_load_bearing_not_actionable",
+      "no_generic_advice"
+    ]
+  },
+  {
+    "id": "db-test-005",
+    "question": "Produce the daily brief. Inputs: 4 recent permanent notes + 2 inbox captures. Output: 3 CONNECTIONS, 1 PATTERN, 1 QUESTION.",
+    "context": "Recent notes: Mavis-Apex-Architecture, SOUL V2, Mavis EA Workflow, AI Landscape 2026. Inbox: state-of-mavis friction, vault brain mcp.",
+    "reference_output": {
+      "connections": [
+        { "bridge": "SOUL V2 (autonomy boundary table) and state-of-mavis friction (active constraints logging) are the contract and the audit — the friction log is where the contract gets stress-tested in real time.", "sources": ["SOUL V2", "state-of-mavis friction"] },
+        { "bridge": "Mavis EA Workflow and vault-brain MCP are coupled — the workflow runs the brief, the connections brief, the deep research; all of them need whole-vault search.", "sources": ["Mavis EA Workflow", "vault brain mcp"] },
+        { "bridge": "AI Landscape 2026 (consolidation at the model layer) and Mavis-Apex-Architecture (custom MCPs on top) are the inevitable inversion: as the substrate commoditizes, the operator layer becomes the product.", "sources": ["AI Landscape 2026", "Mavis-Apex-Architecture"] }
+      ],
+      "pattern": "Andre is operating in the gap between the model layer (which has consolidated) and the operator layer (which is being defined now). The recent pattern is every note lives in that gap.",
+      "pattern_evidence": ["Mavis-Apex-Architecture", "Mavis EA Workflow", "state-of-mavis friction"],
+      "question": "If the operator layer is the product, what is the unit of value the operator produces — captures, connections, decisions, or something not yet named?"
+    },
+    "scoring_dimensions": [
+      "connections_are_grounded_with_real_quotes",
+      "pattern_is_named_and_evidence_backed",
+      "question_is_load_bearing_not_actionable",
+      "no_generic_advice"
+    ]
+  },
+  {
+    "id": "db-test-006",
+    "question": "Produce the daily brief. Inputs: 6 recent permanent notes + 1 inbox capture. Output: 3 CONNECTIONS, 1 PATTERN, 1 QUESTION.",
+    "context": "Recent notes: Linking Principle, Mavis-Apex-Architecture, M3 Capabilities, Mavis EA Workflow, Capture Over Polish, Mavis-Apex-Map. Inbox: linking principle reflection.",
+    "reference_output": {
+      "connections": [
+        { "bridge": "Linking Principle and linking principle reflection are the same observation at different scopes — the principle is a rule, the reflection is an audit, and the audit revealed the canvas is missing backlinks to the 4 doc files.", "sources": ["Linking Principle", "linking principle reflection"] },
+        { "bridge": "Mavis-Apex-Map (visual map) and M3 Capabilities (1M context) are coupled — the canvas only renders well if the model can hold the whole project in context, which M3 can.", "sources": ["Mavis-Apex-Map", "M3 Capabilities"] },
+        { "bridge": "Capture Over Polish and Mavis EA Workflow together say: the value is in the capture rate, not the polish rate.", "sources": ["Capture Over Polish", "Mavis EA Workflow"] }
+      ],
+      "pattern": "Andre is in a tightening loop: every design (the arsenal, the canvas, the MOC structure) is followed by an audit (linking principle reflection, weekly review) that reveals what the design missed. The pattern is design + audit, not design alone.",
+      "pattern_evidence": ["Linking Principle", "Mavis-Apex-Map", "linking principle reflection"],
+      "question": "If design + audit is the right loop, who or what does the audit when Andre is not there to do it — and can Mavis run that audit on herself?"
+    },
+    "scoring_dimensions": [
+      "connections_are_grounded_with_real_quotes",
+      "pattern_is_named_and_evidence_backed",
+      "question_is_load_bearing_not_actionable",
+      "no_generic_advice"
+    ]
+  },
+  {
+    "id": "db-test-007",
+    "question": "Produce the daily brief. Inputs: 3 recent permanent notes + 1 inbox capture. Output: 3 CONNECTIONS, 1 PATTERN, 1 QUESTION.",
+    "context": "Recent notes: M3 Bypass Hypothesis, Mavis-Apex-Architecture, M3 Eval Lab. Inbox: msa signal decay.",
+    "reference_output": {
+      "connections": [
+        { "bridge": "M3 Bypass Hypothesis (does the capability shift hold up?) and msa signal decay (does it survive 1M context?) are the same question, one theoretical and one empirical.", "sources": ["M3 Bypass Hypothesis", "msa signal decay"] },
+        { "bridge": "Mavis-Apex-Architecture and M3 Eval Lab are coupled — every design choice assumes a capability, and the eval is the test.", "sources": ["Mavis-Apex-Architecture", "M3 Eval Lab"] },
+        { "bridge": "M3 Bypass Hypothesis and the entire Mavis-Apex-Architecture are a bet — the architecture only works if the bypass answer is yes.", "sources": ["M3 Bypass Hypothesis", "Mavis-Apex-Architecture"] }
+      ],
+      "pattern": "Andre's recent writing is a stress test of the M3 capability hypothesis. Every note is asking: does this actually hold up, or is it wishful thinking?",
+      "pattern_evidence": ["M3 Bypass Hypothesis", "msa signal decay", "Mavis-Apex-Architecture"],
+      "question": "If the M3 capability shift does not hold up at 1M context, what is the smallest architectural change that would let Mavis still operate as a real EA — and at what cost?"
+    },
+    "scoring_dimensions": [
+      "connections_are_grounded_with_real_quotes",
+      "pattern_is_named_and_evidence_backed",
+      "question_is_load_bearing_not_actionable",
+      "no_generic_advice"
+    ]
+  },
+  {
+    "id": "db-test-008",
+    "question": "Produce the daily brief. Inputs: 4 recent permanent notes + 2 inbox captures. Output: 3 CONNECTIONS, 1 PATTERN, 1 QUESTION.",
+    "context": "Recent notes: Mavis EA Design, SOUL V2, Mavis-Apex-Architecture, M3 Eval Lab. Inbox: state-of-mavis friction, vault brain mcp.",
+    "reference_output": {
+      "connections": [
+        { "bridge": "Mavis EA Design (the autonomy conversation) and state-of-mavis friction (the operational audit) are linked — the friction log surfaces the decisions that the autonomy line is trying to draw.", "sources": ["Mavis EA Design", "state-of-mavis friction"] },
+        { "bridge": "SOUL V2 (the contract) and Mavis-Apex-Architecture (the tools) are coupled — every tool in the arsenal needs to be classified by the autonomy table.", "sources": ["SOUL V2", "Mavis-Apex-Architecture"] },
+        { "bridge": "M3 Eval Lab (the data) and vault brain mcp (the realization of the eval) are coupled — the eval needs whole-vault search to ground its questions.", "sources": ["M3 Eval Lab", "vault brain mcp"] }
+      ],
+      "pattern": "Andre is building a system where the contract (SOUL), the procedure (Workflow), the tools (Apex), and the data (Eval Lab) are all being designed together, in dependency order. The pattern is co-design, not sequential.",
+      "pattern_evidence": ["SOUL V2", "Mavis EA Design", "Mavis-Apex-Architecture", "M3 Eval Lab"],
+      "question": "When all four layers are designed together, who is the integrator — and is that Mavis or something else?"
+    },
+    "scoring_dimensions": [
+      "connections_are_grounded_with_real_quotes",
+      "pattern_is_named_and_evidence_backed",
+      "question_is_load_bearing_not_actionable",
+      "no_generic_advice"
+    ]
+  }
+]

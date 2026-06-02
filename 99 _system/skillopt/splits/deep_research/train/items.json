@@ -1,0 +1,116 @@
+[
+  {
+    "id": "dr-train-001",
+    "topic": "Mavis as a long-horizon chief of staff",
+    "vault_state_summary": "Andre has 8 notes on the topic across ideas/patterns/MOCs: Mavis EA Workflow, M3 EA Architecture, State of Mavis, Mavis-Apex-Architecture, Step 2 Autonomy, M3 Edge, Long-Horizon Patterns, Capture Over Polish. 3 questions (Where is the Autonomy Line, What Metrics Define EA Working, Does M3 Hold 1M Context). 1 connection (Composability wins on MCPs).",
+    "question": "Run deep research on the topic. Output the 4 sections: believes, contradicts, missing, unasked question.",
+    "reference_output": {
+      "believes": "Andre believes a long-horizon chief of staff is achievable on M3 — the 1M context + native multimodality + long-horizon autonomy are the substrate, and the operator layer (Mavis) compounds value by adding structure (MOCs, custom MCPs, SOUL) at the moment of capture. The position is most concentrated in [[M3 EA Architecture]] and [[Mavis EA Workflow]]: 'the system compounds only if it stays trusted' and 'the value is in the capture rate, not the polish rate'.",
+      "contradicts": "The position is challenged by [[Does M3 Hold 1M Context]] — if M3's 1M context degrades in the middle (MSA signal decay), the whole-vault-in-context design primitive fails, and the operator degrades to a search-and-summarize loop. [[Where is the Autonomy Line]] and [[What Metrics Define EA Working]] both implicitly assume the substrate holds; neither tests it.",
+      "missing": "Andre has 0 notes on what the operator should look like in steady state — what is the operator doing on day 100, day 500? The whole literature is build-phase; the steady-state operating model is unexamined. Also missing: any note on the cost of operator mistake (a misfiled note, a missed link) at scale.",
+      "unasked_question": "If the operator layer is the durable value, and the operator is Mavis, and Mavis is a model — what happens to the operator's identity when the model is replaced? Is the operator's value in the model, in the prompt, in the vault, or in the work?"
+    },
+    "scoring_dimensions": [
+      "believes_quotes_actual_notes",
+      "contradicts_is_a_real_tension_not_a_strawman",
+      "missing_is_a_real_gap_in_the_vault",
+      "unasked_question_is_load_bearing_and_unasked",
+      "every_claim_grounded"
+    ]
+  },
+  {
+    "id": "dr-train-002",
+    "topic": "AI consolidation thesis (model layer commoditizing)",
+    "vault_state_summary": "Andre has 5 notes on the topic: AI Landscape 2026 (MOC), Apple WWDC 2026 Siri Rebuilt, SoftBank France 75B, AI Infrastructure as Moat, M3 Bypass Hypothesis. 1 question (Does M3 Hold 1M Context). 1 pattern (Foundation Models Become Infrastructure).",
+    "question": "Run deep research on the topic. Output: believes, contradicts, missing, unasked question.",
+    "reference_output": {
+      "believes": "Andre believes the AI model layer is consolidating into commodity infrastructure — Apple's Siri rebuild on Gemini, SoftBank's €75B French data center build, and the M3 launch all point in the same direction: the model is the pick-and-shovel, not the product. The position is most concentrated in [[AI Landscape 2026]] (Build / Attack / Deploy framework) and [[AI Infrastructure as Moat]].",
+      "contradicts": "The position is challenged by [[M3 Bypass Hypothesis]] — if M3's capability shift is real (open-weight, frontier-coding, 1M context), then the model layer is not commoditizing; it is fragmenting by capability. Apple, SoftBank, and the open-weight community may all be on the same layer but the layer is not uniform. [[Apple WWDC 2026 Siri Rebuilt]] also implicitly contradicts: Apple did not build on commodity, they built on a custom 1.2T-param Gemini variant.",
+      "missing": "Andre has 0 notes on the consumer-side consolidation — what does the UX layer look like in steady state? Are there 3 winners (Apple, Google, Microsoft) or 30 (vertical UX specialists)? The thesis is supply-side; the demand side is unexamined. Also missing: any note on the regulatory environment (antitrust on AI, data residency, etc.).",
+      "unasked_question": "If the model layer consolidates and the UX layer fragments, who captures the margin — the model providers (commodity margins), the UX specialists (vertical margins), or the distribution layer (Apple, Microsoft, Google)?"
+    },
+    "scoring_dimensions": [
+      "believes_quotes_actual_notes",
+      "contradicts_is_a_real_tension_not_a_strawman",
+      "missing_is_a_real_gap_in_the_vault",
+      "unasked_question_is_load_bearing_and_unasked",
+      "every_claim_grounded"
+    ]
+  },
+  {
+    "id": "dr-train-003",
+    "topic": "M3 capability ceiling vs practical EA work",
+    "vault_state_summary": "Andre has 7 notes: M3 Capabilities, M3 Edge, Long-Horizon Patterns, MSA Signal Decay, M3 Bypass Hypothesis, M3 SWE-Bench Pro 59%, M3 OSWorld 70.06%. 2 questions (Does MSA Introduce Silent Decay, How to Eval M3 Long Horizon).",
+    "question": "Run deep research. Output: believes, contradicts, missing, unasked question.",
+    "reference_output": {
+      "believes": "Andre believes M3 is a real capability shift for EA work — the 1M context makes whole-vault-in-context possible, the native multimodality makes passive capture possible, and the long-horizon behavior (12h paper reproduction, 24h CUDA optimization) makes autonomous EA possible. The position is most concentrated in [[M3 Edge]] and [[M3 Capabilities]].",
+      "contradicts": "The position is challenged by [[MSA Signal Decay]] and [[Does MSA Introduce Silent Decay]] — if the 1M context degrades in the middle, the whole-vault primitive is compromised. [[M3 Bypass Hypothesis]] itself is framed as a question, not a conclusion. The 12h paper reproduction is impressive but is on a controlled task; how it transfers to open-ended EA work is unmeasured.",
+      "missing": "Andre has 0 notes on the failure modes of M3 in adversarial EA scenarios — what happens when the model is asked to do something it shouldn't, or when it gets stuck in a loop, or when it hallucinates a connection that isn't there. The M3 Eval Lab is the design for this but is 0 runs. Also missing: any cost analysis (per-task token spend, per-session cost, per-month cost for an EA workload).",
+      "unasked_question": "What is the smallest M3 Eval Lab run that would actually unblock the Step 2 autonomy conversation — and is it a one-session run, a one-week run, or a one-month run?"
+    },
+    "scoring_dimensions": [
+      "believes_quotes_actual_notes",
+      "contradicts_is_a_real_tension_not_a_strawman",
+      "missing_is_a_real_gap_in_the_vault",
+      "unasked_question_is_load_bearing_and_unasked",
+      "every_claim_grounded"
+    ]
+  },
+  {
+    "id": "dr-train-004",
+    "topic": "Operator autonomy and the SOUL contract",
+    "vault_state_summary": "Andre has 6 notes: SOUL V2, Mavis EA Workflow, Step 2 Autonomy, Mavis EA Design, State of Mavis, Friction Log. 2 questions (Where is the Autonomy Line, What Metrics Define EA Working).",
+    "question": "Run deep research. Output: believes, contradicts, missing, unasked question.",
+    "reference_output": {
+      "believes": "Andre believes the operator autonomy line is currently too conservative — there are actions Mavis could take that are currently yellow (require explicit report) that should be green (autonomous). The position is in [[Step 2 Autonomy]] and [[Mavis EA Design]]: 'useful beats agreeable, sharp beats polished' implies the operator should be useful, not safe-but-useless.",
+      "contradicts": "The position is challenged by [[Friction Log]] — the friction log surfaces 6 structural decisions in a single session, and every one of them is a place where Mavis could have made a mistake without explicit approval. The current autonomy line is conservative, but the cost of conservatism (Andre's time on routine decisions) is invisible in the log. [[State of Mavis]] also shows that the operator can already do a lot — the question is whether Andre notices.",
+      "missing": "Andre has 0 notes on the failure cost of a wrong green decision. The autonomy conversation is one-sided — it considers the cost of conservatism but not the cost of over-permission. The kanban fast-path bug (ghost completions) is exactly the failure mode that justifies the conservative line. Also missing: any metric for 'the autonomy line is calibrated' vs 'the autonomy line is too tight/loose'.",
+      "unasked_question": "What is the failure cost of a wrong green decision, and how would we measure it before the conversation, not after?"
+    },
+    "scoring_dimensions": [
+      "believes_quotes_actual_notes",
+      "contradicts_is_a_real_tension_not_a_strawman",
+      "missing_is_a_real_gap_in_the_vault",
+      "unasked_question_is_load_bearing_and_unasked",
+      "every_claim_grounded"
+    ]
+  },
+  {
+    "id": "dr-train-005",
+    "topic": "The custom MCP arsenal design pattern",
+    "vault_state_summary": "Andre has 4 notes: Mavis-Apex-Architecture, The Custom MCP Arsenal, Mavis-Apex-Map (canvas), 5 MCP design specs. 1 question (Which MCP to Build First). 1 pattern (Composition over Framework).",
+    "question": "Run deep research. Output: believes, contradicts, missing, unasked question.",
+    "reference_output": {
+      "believes": "Andre believes the custom MCP arsenal (5 tools) is the right design pattern for M3-native EA work — each MCP is small, focused, M3-specific (1M context, native vision, persistent memory), and they compose. The position is in [[Mavis-Apex-Architecture]] and [[The Custom MCP Arsenal]]: 'small, sharp, and earns its place by filling a gap the generic stack leaves open.'",
+      "contradicts": "The position is challenged by the 5 design specs themselves — every design is compelling, the total surface is small, but the actual cost of building 5 tools is 5x the cost of building 1, and the eval (does M3 actually need this) is unrun. [[Which MCP to Build First]] is still a question, not an answer. [[Composition over Framework]] is the principle, but composition requires the components to be tested individually before they compose.",
+      "missing": "Andre has 0 notes on the maintenance cost of 5 MCPs vs 1 — what is the time cost of keeping 5 custom tools healthy, versioned, and tested? The principle is 'composition over framework' but the operational answer is 'how much composition can one operator maintain'. Also missing: any cost analysis for the underlying API calls (M3 inference cost, embedding cost, storage cost).",
+      "unasked_question": "If the arsenal is the right design pattern, what is the smallest set of MCPs that would still let Mavis operate as a real chief of staff — and is it 5, or is it 2 plus 3 we can fake with generic tools?"
+    },
+    "scoring_dimensions": [
+      "believes_quotes_actual_notes",
+      "contradicts_is_a_real_tension_not_a_strawman",
+      "missing_is_a_real_gap_in_the_vault",
+      "unasked_question_is_load_bearing_and_unasked",
+      "every_claim_grounded"
+    ]
+  },
+  {
+    "id": "dr-train-006",
+    "topic": "SkillOpt and text-space optimization for agents",
+    "vault_state_summary": "Andre has 3 notes: Self-Evolving Skills, SkillOpt Loop, Microsoft SkillOpt Paper. 1 question (Which Skills to Train First). 1 number (SkillOpt 23.5 Point Gain). 1 pattern (Answer Key Discipline).",
+    "question": "Run deep research. Output: believes, contradicts, missing, unasked question.",
+    "reference_output": {
+      "believes": "Andre believes SkillOpt's text-space optimization is the right discipline for evolving agent skills — the model is frozen, the skill is the trainable artefact, the answer key is the eval, the validation gate is the safety. The position is in [[Self-Evolving Skills]] and [[SkillOpt Loop]]: 'skills stop being disposable prompts and become assets you train, validate, keep, and carry forward.'",
+      "contradicts": "The position is challenged by [[Answer Key Discipline]] itself — the answer key is the whole game, and the cost of authoring a good answer key is high. For subjective tasks (writing, design, judgment), the LLM-as-judge scorer is 'noisy' per the paper, and a noisy judge accepts bad edits. The 23.5 point gain is on benchmarks with known-correct answers; transferring to subjective EA skills is unproven.",
+      "missing": "Andre has 0 notes on the answer keys for the 4 EA workflows (process-inbox, daily-brief, weekly-connections, deep-research) — they don't exist yet. The principle is sound, the implementation is unstarted. Also missing: any plan for what to do when SkillOpt improves a skill in a way the operator disagrees with (the validation gate says yes, the operator says no).",
+      "unasked_question": "If the answer key is the game, and authoring good answer keys is the bottleneck, is there a meta-SkillOpt that optimizes the answer key itself — and what would that even look like?"
+    },
+    "scoring_dimensions": [
+      "believes_quotes_actual_notes",
+      "contradicts_is_a_real_tension_not_a_strawman",
+      "missing_is_a_real_gap_in_the_vault",
+      "unasked_question_is_load_bearing_and_unasked",
+      "every_claim_grounded"
+    ]
+  }
+]

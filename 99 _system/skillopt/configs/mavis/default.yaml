@@ -1,0 +1,68 @@
+# SkillOpt config for Mavis workflows
+# Path: 99 _system/skillopt/configs/mavis/default.yaml
+#
+# This config is the entry point for `python scripts/train.py`.
+# Override via CLI flags (--num_epochs, --batch_size, etc.) for cheap-first-run mode.
+
+# --- Borrowed benchmark shape ---
+# SearchQA gives us question/context/answers schema. We use LLM-as-judge for
+# procedural tasks where the output is a multi-section brief, not a short string.
+benchmark: searchqa
+
+# --- Model roles ---
+# Per the article's "use the same model for both" advice: cheap first run, no
+# distillation needed. Both target and optimizer are the same M3 instance.
+# When the answer-key quality is proven, we can swap optimizer to a stronger
+# model (M2.7-highspeed at lower temperature) without touching the rest.
+target_model: minimax/MiniMax-M3
+optimizer_model: minimax/MiniMax-M3
+
+# --- Training hyperparameters ---
+# Cheap-first-run: 2 epochs, 16 batch size. 80-100 examples is the target.
+num_epochs: 2
+batch_size: 16
+
+# Bounded edit budget ("textual learning rate"). Default per paper. Each
+# accepted step changes the skill by at most this many edits. Keeps
+# improvements gradual instead of rewriting the skill into something
+# unrecognizable.
+Lt: 4
+
+# --- Optimizer behavior ---
+# Lower temperature for the optimizer = more deterministic edit proposals.
+# Per Andre's ruling on Friction 3: M3 itself is the fallback; lower
+# temperature is the lever.
+optimizer_temperature: 0.2
+target_temperature: 0.7
+
+# --- LLM-as-judge (for procedural task scoring) ---
+# Per the article: exact-match only works for short canonical answers.
+# Our 4 workflow tasks produce multi-section output — LLM-as-judge is the
+# right path. The judge uses the per-skill rubric (rubrics/<skill>.md).
+judge:
+  enabled: true
+  model: minimax/MiniMax-M3
+  temperature: 0.1
+  rubric_dir: 99 _system/skillopt/rubrics
+
+# --- Output ---
+# Where SkillOpt writes best_skill.md and the per-step history.
+out_root: 99 _system/skillopt/outputs
+
+# --- Validation gate ---
+# Per the article: only accept edits that strictly improve the validation
+# score. Ties are rejected. This is the load-bearing component.
+validation:
+  strict_improvement: true
+  track_rejected_edits: true   # rejected-edit buffer — feed back to optimizer
+  slow_update_enabled: true    # "momentum" term — protect durably-working rules
+  meta_update_enabled: true    # optimizer-side notes (don't ship)
+
+# --- Split convention ---
+# The article's default 4:1:5 ratio. Per-skill splits live under
+# 99 _system/skillopt/splits/<skill>/{train,val,test}/items.json
+split:
+  ratio: "4:1:5"
+  train: 0.40
+  val: 0.10
+  test: 0.50

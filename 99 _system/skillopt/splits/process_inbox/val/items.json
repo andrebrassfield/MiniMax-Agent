@@ -1,0 +1,36 @@
+[
+  {
+    "id": "pi-val-001",
+    "question": "Process this raw inbox capture. Output: destination, sharpened version, tag, primary link.",
+    "context": "File: 00 Inbox/2026-06-02 - vault brain mcp.md\nContent: 'thought: vault brain is the most useful of the 5 MCPs. weekly-connections needs it, process-inbox needs it, state-of-mavis needs it. should be pick 2 in the next round.'",
+    "reference_output": {
+      "destination": "02 Notes/ideas",
+      "sharpened": "vault-brain (MCP #1 from the Apex arsenal) is the highest-leverage unbuilt MCP — every existing workflow consumes it (weekly-connections for synthesis, process-inbox for link suggestions, state-of-mavis for prior-session context).",
+      "tag": "mcp-priority",
+      "primary_link": "Mavis-Apex-Architecture"
+    },
+    "scoring_dimensions": [
+      "destination_correct",
+      "sharpened_distills_thesis_with_specific_evidence",
+      "tag_matches_existing_taxonomy",
+      "primary_link_is_a_real_note"
+    ]
+  },
+  {
+    "id": "pi-val-002",
+    "question": "Process this raw inbox capture. Output: destination, sharpened version, tag, primary link.",
+    "context": "File: 00 Inbox/2026-06-02 - sysdig attack timeline.md\nContent: 'sysdig observed llm-driven intrusion. marimo cve → aws pivot → postgres exfil in <1h. agent signatures in cmd stream.'",
+    "reference_output": {
+      "destination": "02 Notes/articles",
+      "sharpened": "Sysdig captured the first publicly observed LLM-driven cyberattack: a Marimo CVE exploit pivoted to AWS and exfiltrated PostgreSQL data in under one hour, with LLM-agent signatures visible in the command stream.",
+      "tag": "ai-security",
+      "primary_link": "AI Landscape 2026"
+    },
+    "scoring_dimensions": [
+      "destination_correct",
+      "sharpened_is_specific_with_evidence",
+      "tag_matches_existing_taxonomy",
+      "primary_link_is_a_real_note"
+    ]
+  }
+]

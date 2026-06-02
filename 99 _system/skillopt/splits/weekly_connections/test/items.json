@@ -1,0 +1,266 @@
+[
+  {
+    "id": "wc-test-001",
+    "question": "Find 3-5 connections in the week's notes.",
+    "context": "New notes: (1) patterns/Composition over Framework, (2) ideas/MCP Arsenal 5 Tools, (3) questions/Which MCP to Build First, (4) numbers/Self Model Card Build 837 Lines, (5) articles/Direct Intake MCP Design, (6) patterns/State of Mavis as MOC.",
+    "reference_output": {
+      "connections": [
+        {
+          "type": "C",
+          "slug": "composition-wins-on-mcps",
+          "bridge": "Composition over Framework, MCP Arsenal 5 Tools, and Direct Intake MCP Design all describe the same discipline: small, composable, focused tools beat big frameworks, both in agent architecture and in MCP design.",
+          "sources": ["patterns/Composition over Framework", "ideas/MCP Arsenal 5 Tools", "articles/Direct Intake MCP Design"]
+        },
+        {
+          "type": "B",
+          "slug": "self-model-card-vs-which-first",
+          "bridge": "Self Model Card Build 837 Lines (already done) and Which MCP to Build First (still being asked) are coupled — the first build answered the question by being small enough to ship, not by being the most important one. The pattern is ship-small-then-ask.",
+          "sources": ["numbers/Self Model Card Build 837 Lines", "questions/Which MCP to Build First"]
+        },
+        {
+          "type": "A",
+          "slug": "state-of-mavis-moc-pattern",
+          "bridge": "State of Mavis as MOC and Composition over Framework are the same principle at different layers — MOCs are composable units of state, MCPs are composable units of tool, and the discipline of composition wins at both scales.",
+          "sources": ["patterns/State of Mavis as MOC", "patterns/Composition over Framework"]
+        }
+      ]
+    },
+    "scoring_dimensions": [
+      "3_to_5_connections",
+      "each_type_correctly_labelled",
+      "sources_are_real_notes",
+      "bridges_are_non_obvious_not_redundant"
+    ]
+  },
+  {
+    "id": "wc-test-002",
+    "question": "Find 3-5 connections in the week's notes.",
+    "context": "New notes: (1) ideas/CuaDriver Bridge, (2) patterns/MacOS Vision Anchor, (3) questions/When to Enable cu Toggle, (4) numbers/M3 OSWorld 70.06%, (5) articles/CuaDriver 0.2.0 Release, (6) patterns/Friction Log.",
+    "reference_output": {
+      "connections": [
+        {
+          "type": "A",
+          "slug": "macos-vision-anchor-cuadriver",
+          "bridge": "MacOS Vision Anchor and CuaDriver Bridge are the same architecture — vision-anchored action with cross-session state. CuaDriver is the tool, MacOS Vision Anchor is the design pattern. M3 OSWorld 70.06% is the proof that the underlying capability exists.",
+          "sources": ["patterns/MacOS Vision Anchor", "ideas/CuaDriver Bridge", "numbers/M3 OSWorld 70.06%"]
+        },
+        {
+          "type": "C",
+          "slug": "friction-log-disciplines-rollouts",
+          "bridge": "When to Enable cu Toggle, Friction Log, and CuaDriver 0.2.0 Release together describe a rollout discipline: install the tool, log the friction, decide when to flip the toggle based on the audit. The pattern is logged-rollouts, not blind-rollouts.",
+          "sources": ["questions/When to Enable cu Toggle", "patterns/Friction Log", "articles/CuaDriver 0.2.0 Release"]
+        },
+        {
+          "type": "B",
+          "slug": "osworld-vs-friction",
+          "bridge": "M3 OSWorld 70.06% says M3 can do it; Friction Log says the operator is blocked by a renderer toggle. The gap between capability and operator is the Step 2 conversation's empirical content.",
+          "sources": ["numbers/M3 OSWorld 70.06%", "patterns/Friction Log"]
+        }
+      ]
+    },
+    "scoring_dimensions": [
+      "3_to_5_connections",
+      "each_type_correctly_labelled",
+      "sources_are_real_notes",
+      "bridges_are_non_obvious_not_redundant"
+    ]
+  },
+  {
+    "id": "wc-test-003",
+    "question": "Find 3-5 connections in the week's notes.",
+    "context": "New notes: (1) ideas/Mavis Apex Architecture, (2) patterns/Vault Brain as Primitive, (3) questions/Why is Vault Brain Not Built, (4) numbers/3 Workflows Blocked, (5) articles/Whole Vault In Context, (6) patterns/State of Mavis Routine.",
+    "reference_output": {
+      "connections": [
+        {
+          "type": "A",
+          "slug": "vault-brain-blocks-everything",
+          "bridge": "Vault Brain as Primitive, Why is Vault Brain Not Built, and 3 Workflows Blocked are the same observation: every other workflow is degraded-mode without whole-vault search, and the cost of the missing primitive is invisible until you try to use the workflows.",
+          "sources": ["patterns/Vault Brain as Primitive", "questions/Why is Vault Brain Not Built", "numbers/3 Workflows Blocked"]
+        },
+        {
+          "type": "C",
+          "slug": "whole-vault-meets-state-of-mavis",
+          "bridge": "Whole Vault In Context (M3 capability) and State of Mavis Routine (Mavis artifact) together make the case: the 1M context makes a per-session MOC possible, and the routine makes the MOC a continuous layer. The pattern is capability-enables-discipline.",
+          "sources": ["articles/Whole Vault In Context", "patterns/State of Mavis Routine"]
+        },
+        {
+          "type": "B",
+          "slug": "apex-architecture-vs-routine",
+          "bridge": "Mavis Apex Architecture designs the future; State of Mavis Routine operates the present. The tension is timing — when to invest in the future vs when to lock in the present.",
+          "sources": ["ideas/Mavis Apex Architecture", "patterns/State of Mavis Routine"]
+        }
+      ]
+    },
+    "scoring_dimensions": [
+      "3_to_5_connections",
+      "each_type_correctly_labelled",
+      "sources_are_real_notes",
+      "bridges_are_non_obvious_not_redundant"
+    ]
+  },
+  {
+    "id": "wc-test-004",
+    "question": "Find 3-5 connections in the week's notes.",
+    "context": "New notes: (1) ideas/SOUL as Trainable Artefact, (2) patterns/SkillOpt on SOUL, (3) questions/How to Eval SOUL Compliance, (4) numbers/40 Items Target, (5) articles/SkillOpt Safety Use, (6) patterns/Constraint Proximity.",
+    "reference_output": {
+      "connections": [
+        {
+          "type": "C",
+          "slug": "soul-as-skill",
+          "bridge": "SOUL as Trainable Artefact, SkillOpt on SOUL, and How to Eval SOUL Compliance together describe a new discipline: the operating contract is a skill, trainable, evaluable, and the answer key (40 Items Target) is the eval set. The pattern is contracts-as-artefacts.",
+          "sources": ["ideas/SOUL as Trainable Artefact", "patterns/SkillOpt on SOUL", "questions/How to Eval SOUL Compliance"]
+        },
+        {
+          "type": "A",
+          "slug": "skillopt-safety-constraint-proximity",
+          "bridge": "SkillOpt Safety Use and Constraint Proximity are the same concept at different scales — SkillOpt is safe because the validation gate rejects bad edits; Constraint Proximity is safe because the audit log catches boundary approach. Both are 'fail small, fail fast'.",
+          "sources": ["articles/SkillOpt Safety Use", "patterns/Constraint Proximity"]
+        },
+        {
+          "type": "B",
+          "slug": "soul-trainable-vs-hand-written",
+          "bridge": "SOUL V2 is hand-written; SOUL as Trainable Artefact asks whether the hand-written version is the best version. The risk is: training can drift; the answer is the eval set. The tension is between intuition and measurement.",
+          "sources": ["ideas/SOUL as Trainable Artefact"]
+        }
+      ]
+    },
+    "scoring_dimensions": [
+      "3_to_5_connections",
+      "each_type_correctly_labelled",
+      "sources_are_real_notes",
+      "bridges_are_non_obvious_not_redundant"
+    ]
+  },
+  {
+    "id": "wc-test-005",
+    "question": "Find 3-5 connections in the week's notes.",
+    "context": "New notes: (1) ideas/Long Context Curator, (2) patterns/Anchor Ends Strategy, (3) questions/Does MSA Introduce Silent Decay, (4) numbers/Marginal Value 0.005 USD, (5) articles/M3 Lost in Middle, (6) patterns/Tool Self Healer.",
+    "reference_output": {
+      "connections": [
+        {
+          "type": "C",
+          "slug": "curator-vs-decay-vs-healer",
+          "bridge": "Long Context Curator, Does MSA Introduce Silent Decay, and Tool Self Healer are three failure-mode-specific tools: curator for attention quality at 1M, the decay question for the underlying mechanism, the healer for runtime tool failures. The pattern is purpose-built-resilience.",
+          "sources": ["ideas/Long Context Curator", "questions/Does MSA Introduce Silent Decay", "patterns/Tool Self Healer"]
+        },
+        {
+          "type": "A",
+          "slug": "anchor-ends-vs-lost-in-middle",
+          "bridge": "Anchor Ends Strategy and M3 Lost in Middle are the same problem with the same solution — strongest signal goes to the start and end of the context, where attention is strongest. The pattern is design-around-attention-asymmetry.",
+          "sources": ["patterns/Anchor Ends Strategy", "articles/M3 Lost in Middle"]
+        },
+        {
+          "type": "D",
+          "slug": "marginal-value-answers-the-decay-question",
+          "bridge": "Does MSA Introduce Silent Decay asks whether the underlying attention has holes — Marginal Value 0.005 USD is the operational answer: scoring by expected information gain per token finds the holes, and the curator fills them.",
+          "sources": ["questions/Does MSA Introduce Silent Decay", "numbers/Marginal Value 0.005 USD"]
+        }
+      ]
+    },
+    "scoring_dimensions": [
+      "3_to_5_connections",
+      "each_type_correctly_labelled",
+      "sources_are_real_notes",
+      "bridges_are_non_obvious_not_redundant"
+    ]
+  },
+  {
+    "id": "wc-test-006",
+    "question": "Find 3-5 connections in the week's notes.",
+    "context": "New notes: (1) ideas/GEPA Loop, (2) patterns/Reflective Skill Evolution, (3) questions/Which Skills to Evolve First, (4) numbers/SkillOpt 23.5 Point Gain, (5) articles/GEPA Paper, (6) patterns/Answer Key Discipline.",
+    "reference_output": {
+      "connections": [
+        {
+          "type": "A",
+          "slug": "gepa-skillopt-same-loop",
+          "bridge": "GEPA Loop and SkillOpt are the same training loop on different artefacts — GEPA evolves prompts, SkillOpt evolves skills. Reflective Skill Evolution is the meta-pattern. The unifying insight is text-space optimization, not weight-space.",
+          "sources": ["ideas/GEPA Loop", "patterns/Reflective Skill Evolution"]
+        },
+        {
+          "type": "C",
+          "slug": "answer-key-is-the-game",
+          "bridge": "Answer Key Discipline, SkillOpt 23.5 Point Gain, and Which Skills to Evolve First together say: the answer key is the whole game, the gain is the validation, the choice of which to evolve is downstream. The pattern is measurement-first.",
+          "sources": ["patterns/Answer Key Discipline", "numbers/SkillOpt 23.5 Point Gain", "questions/Which Skills to Evolve First"]
+        },
+        {
+          "type": "B",
+          "slug": "reflective-vs-which-first",
+          "bridge": "Reflective Skill Evolution says the loop matters; Which Skills to Evolve First says the choice matters. Both are right; the operational answer is run the loop on the highest-leverage skill first, measure the gain, decide whether to expand.",
+          "sources": ["patterns/Reflective Skill Evolution", "questions/Which Skills to Evolve First"]
+        }
+      ]
+    },
+    "scoring_dimensions": [
+      "3_to_5_connections",
+      "each_type_correctly_labelled",
+      "sources_are_real_notes",
+      "bridges_are_non_obvious_not_redundant"
+    ]
+  },
+  {
+    "id": "wc-test-007",
+    "question": "Find 3-5 connections in the week's notes.",
+    "context": "New notes: (1) ideas/Indexing a 2K Note Vault, (2) patterns/Embedding Costs, (3) questions/When to Re Index, (4) numbers/0.50 USD One Time, (5) articles/Vault Brain Implementation Hint, (6) patterns/Token Budget Awareness.",
+    "reference_output": {
+      "connections": [
+        {
+          "type": "C",
+          "slug": "indexing-cost-budget",
+          "bridge": "Indexing a 2K Note Vault, Embedding Costs, and Token Budget Awareness together describe a cost discipline: pay the embedding cost once, respect the per-query token budget, and re-index only when the vault has shifted enough to matter. The pattern is one-time-cost + per-query-bound.",
+          "sources": ["ideas/Indexing a 2K Note Vault", "patterns/Embedding Costs", "patterns/Token Budget Awareness"]
+        },
+        {
+          "type": "A",
+          "slug": "vault-brain-implementation-budget",
+          "bridge": "Vault Brain Implementation Hint and Token Budget Awareness are the same insight — the caller controls the output size, not the server. 0.50 USD One Time is the cost; the budget is the constraint.",
+          "sources": ["articles/Vault Brain Implementation Hint", "patterns/Token Budget Awareness"]
+        },
+        {
+          "type": "B",
+          "slug": "index-vs-when-to-reindex",
+          "bridge": "Indexing a 2K Note Vault is build-once; When to Re Index is build-when-needed. The tension is the cost of staleness vs the cost of re-indexing — for a 2K vault, the answer is rarely, for a 10K vault, frequently.",
+          "sources": ["ideas/Indexing a 2K Note Vault", "questions/When to Re Index"]
+        }
+      ]
+    },
+    "scoring_dimensions": [
+      "3_to_5_connections",
+      "each_type_correctly_labelled",
+      "sources_are_real_notes",
+      "bridges_are_non_obvious_not_redundant"
+    ]
+  },
+  {
+    "id": "wc-test-008",
+    "question": "Find 3-5 connections in the week's notes.",
+    "context": "New notes: (1) ideas/Agent Disease Detector, (2) patterns/Six Diseases Framework, (3) questions/How to Run Disease Check, (4) numbers/6 Diseases, (5) articles/Agent Disease Model 2026-05-25, (6) patterns/Kanban Health Check.",
+    "reference_output": {
+      "connections": [
+        {
+          "type": "C",
+          "slug": "diseases-need-evals",
+          "bridge": "Agent Disease Detector, Six Diseases Framework, and How to Run Disease Check together describe a discipline: agent failures are named (Anosognosia, Disinhibition, etc.), and the cure is a recurring health check, not a one-time audit. The pattern is disease-named + cron-evaluated.",
+          "sources": ["ideas/Agent Disease Detector", "patterns/Six Diseases Framework", "questions/How to Run Disease Check"]
+        },
+        {
+          "type": "A",
+          "slug": "kanban-health-vs-disease-detector",
+          "bridge": "Kanban Health Check and Agent Disease Detector are the same discipline at different scopes — Kanban checks the state machine, the disease detector checks the agent. Both are watchdog patterns; both run on cron; both write a fleet alert on violation.",
+          "sources": ["patterns/Kanban Health Check", "ideas/Agent Disease Detector"]
+        },
+        {
+          "type": "D",
+          "slug": "disease-model-answers-kanban-bug",
+          "bridge": "How to Run Disease Check asks what to measure — Agent Disease Model 2026-05-25 is the answer: name the diseases, write the eval, run on cron. The 6 Diseases are the taxonomy, the eval is the test, the cron is the discipline.",
+          "sources": ["questions/How to Run Disease Check", "articles/Agent Disease Model 2026-05-25"]
+        }
+      ]
+    },
+    "scoring_dimensions": [
+      "3_to_5_connections",
+      "each_type_correctly_labelled",
+      "sources_are_real_notes",
+      "bridges_are_non_obvious_not_redundant"
+    ]
+  }
+]

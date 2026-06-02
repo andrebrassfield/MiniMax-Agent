@@ -1,0 +1,154 @@
+[
+  {
+    "id": "dr-test-001",
+    "topic": "Long-horizon autonomy and the M3 long-tail pattern",
+    "vault_state_summary": "Andre has 4 notes: Long-Horizon Patterns, M3 Capabilities, Mavis EA Workflow, M3 Bypass Hypothesis. 1 question (How to Eval M3 Long Horizon). 1 number (12h Paper Reproduction).",
+    "question": "Run deep research. Output: believes, contradicts, missing, unasked question.",
+    "reference_output": {
+      "believes": "Andre believes the M3 long-horizon pattern (12h paper reproduction, 24h CUDA optimization, doesn't bail at plateaus) transfers to EA work — long-tail tasks with sparse signal are the EA's natural habitat, and most models give up at submission 30, M3's best came at submission 145. The position is in [[Long-Horizon Patterns]] and [[M3 Capabilities]].",
+      "contradicts": "The position is challenged by the M3 Eval Lab status (0 runs) — the long-horizon capability is observed on paper reproduction and CUDA optimization, not on EA work. EA long-tail is a different distribution (sparse signal, subjective success criteria, multi-day timescales). [[Mavis EA Workflow]] also implicitly assumes long-horizon, but has no measurement of M3's actual behavior on EA long-tail.",
+      "missing": "Andre has 0 notes on the EA-specific long-tail characteristics — what does an EA task at hour 6 look like, what does success look like at hour 24, what are the failure modes? The M3 Eval Lab is the design for this. Also missing: any comparison to operator-led long-tail (Andre's own 12h deep-work sessions) — what does Mavis do that Andre cannot, and vice versa.",
+      "unasked_question": "If M3 can run 12h autonomously on a controlled task (paper reproduction), what is the analogous controlled task for EA work that would let us measure long-horizon behavior in a single session?"
+    },
+    "scoring_dimensions": [
+      "believes_quotes_actual_notes",
+      "contradicts_is_a_real_tension_not_a_strawman",
+      "missing_is_a_real_gap_in_the_vault",
+      "unasked_question_is_load_bearing_and_unasked",
+      "every_claim_grounded"
+    ]
+  },
+  {
+    "id": "dr-test-002",
+    "topic": "The vault as a knowledge graph and the linking discipline",
+    "vault_state_summary": "Andre has 5 notes: Linking Principle, CHIEF as Codebase Pattern, Mavis-Apex-Map, Vault Conventions, Linking Principle Reflection. 1 connection (Composability wins on MCPs).",
+    "question": "Run deep research. Output: believes, contradicts, missing, unasked question.",
+    "reference_output": {
+      "believes": "Andre believes the vault is a knowledge graph where the value is in the edges, not the nodes — link on reference, link on processing, link on review, no orphan notes, every permanent note connects to ≥1 other note. The position is in [[Linking Principle]] and [[Vault Conventions]]: 'the network is the value.'",
+      "contradicts": "The position is challenged by [[Linking Principle Reflection]] — the audit revealed the Mavis-Apex-Map canvas is missing backlinks to the 4 doc files, and the INDEX dataview block should pull from MOCs not the root. The principle is sound; the discipline of execution has gaps. [[Composability wins on MCPs]] also implicitly contradicts: a knowledge graph with a tool surface problem (vault-brain doesn't exist) is a degraded graph.",
+      "missing": "Andre has 0 notes on the linking quality itself — are all the existing links load-bearing, or are some decorative? The Linking Principle is 'link on reference' but doesn't distinguish a 1-line reference link from a 5-sentence bridging link. Also missing: any tooling for link audit (orphan detection, broken links, MOC freshness).",
+      "unasked_question": "If the value is in the edges, what is the right metric for edge quality — and is it link count, link density, link freshness, or something else?"
+    },
+    "scoring_dimensions": [
+      "believes_quotes_actual_notes",
+      "contradicts_is_a_real_tension_not_a_strawman",
+      "missing_is_a_real_gap_in_the_vault",
+      "unasked_question_is_load_bearing_and_unasked",
+      "every_claim_grounded"
+    ]
+  },
+  {
+    "id": "dr-test-003",
+    "topic": "Whole-vault in-context as the design primitive",
+    "vault_state_summary": "Andre has 4 notes: Paged Memory Pattern, Context Engineering 1M, Mavis-Apex-Architecture, M3 Capabilities. 1 question (Does M3 Hold 1M Context).",
+    "question": "Run deep research. Output: believes, contradicts, missing, unasked question.",
+    "reference_output": {
+      "believes": "Andre believes whole-vault-in-context is the right design primitive for M3 — load the whole vault, partition by relevance, never chunk-and-embed by default. The M3 1M context makes this possible; the 200K-token budget for retrieval respects the context window. The position is in [[Mavis-Apex-Architecture]] and [[Paged Memory Pattern]]: 'external state is for staging, not for truth.'",
+      "contradicts": "The position is challenged by [[Does M3 Hold 1M Context]] — if the 1M context degrades in the middle, whole-vault is a degraded primitive. [[MSA Signal Decay]] asks whether the architecture introduces silent signal decay that makes 'whole-vault' a misnomer. The position also assumes the operator can curate what 200K to load — the Long Context Curator is the design, but the build is unstarted.",
+      "missing": "Andre has 0 notes on what 'whole-vault' actually means at 2K notes — the vault is 2K notes, ~5M tokens, well over 1M. The primitive is 'whole-vault' but the budget is 200K. The actual primitive is 'top-20-full-notes' or 'top-200-chunks-aggregated', not 'whole-vault'. The naming is aspirational. Also missing: any benchmark comparing top-20-full-notes vs top-200-chunks on EA synthesis tasks.",
+      "unasked_question": "If 'whole-vault' is the aspiration but 'top-20-full-notes' is the reality, is the right primitive the budget-controlled retrieval or the curator that decides which 20?"
+    },
+    "scoring_dimensions": [
+      "believes_quotes_actual_notes",
+      "contradicts_is_a_real_tension_not_a_strawman",
+      "missing_is_a_real_gap_in_the_vault",
+      "unasked_question_is_load_bearing_and_unasked",
+      "every_claim_grounded"
+    ]
+  },
+  {
+    "id": "dr-test-004",
+    "topic": "Direct-Intake MCP and the passive capture problem",
+    "vault_state_summary": "Andre has 2 notes: Direct Intake MCP Design, M3 Edge. 1 question (How to Avoid Inbox Fill). 1 pattern (Show Don't Describe).",
+    "question": "Run deep research. Output: believes, contradicts, missing, unasked question.",
+    "reference_output": {
+      "believes": "Andre believes the Direct-Intake MCP is the right solution to the passive capture problem — screenshots, voice memos, bookmarked links currently miss the passive intelligence because the intake path is 'Andre tells Mavis, Mavis writes to vault.' The MCP watches a folder, processes whatever lands (M3-native vision, audio, link), and writes a processed note to 00 Inbox/ with pre-suggested tags and links. The position is in [[Direct Intake MCP Design]]: 'show, don't describe applied to my own intake.'",
+      "contradicts": "The position is challenged by [[How to Avoid Inbox Fill]] itself — every passive capture system dies of inbox fill, and the design has 6 defenses (hard confidence floor, dedup, batch processing, rate cap, tag garbage collection, dashboard) but none are battle-tested. [[M3 Edge]] makes the native multimodal primitive possible but doesn't guarantee the operator layer (Mavis) can handle the intake rate.",
+      "missing": "Andre has 0 notes on the operator cost of passive capture — what does Mavis do with 50 dropped files per day? The design is 0.85 confidence floor, but the operator is also reading daily briefs, processing inbox, surfacing connections. The passive capture adds to the operator's load. Also missing: any note on the privacy implication (M3 sees screenshots of Slack threads, voice memos that may contain PII).",
+      "unasked_question": "If the operator is the bottleneck on intake, what is the right rate cap — and is it '20 per hour' (technical) or '20 per session' (operator-aware)?"
+    },
+    "scoring_dimensions": [
+      "believes_quotes_actual_notes",
+      "contradicts_is_a_real_tension_not_a_strawman",
+      "missing_is_a_real_gap_in_the_vault",
+      "unasked_question_is_load_bearing_and_unasked",
+      "every_claim_grounded"
+    ]
+  },
+  {
+    "id": "dr-test-005",
+    "topic": "Self-auditing agents and the disease model",
+    "vault_state_summary": "Andre has 4 notes: Agent Disease Detector, Six Diseases Framework, State Machine Failure Modes, Kanban Health Check. 1 connection (Anosognosia vs Disinhibition).",
+    "question": "Run deep research. Output: believes, contradicts, missing, unasked question.",
+    "reference_output": {
+      "believes": "Andre believes the agent disease model (6 named diseases: Memory Without Source, Action Without Fresh Perception, Tool Poisoning, Prosopagnosia, Disinhibition, Anosognosia) is the right framework for thinking about agent failure modes — naming the diseases is the first step, recurring health checks are the cure, and the kanban-health-check skill is the prototype. The position is in [[Agent Disease Detector]] and [[Six Diseases Framework]].",
+      "contradicts": "The position is challenged by [[State Machine Failure Modes]] — the kanban fast-path bug (ghost completions) is exactly the Anosognosia + Disinhibition combination, and the eval was added after the bug shipped. The principle is sound; the practice is reactive, not proactive. The M3 Eval Lab is 0 runs; the disease checks are unstarted.",
+      "missing": "Andre has 0 notes on the disease model applied to Mavis — what does each of the 6 diseases look like in the Mavis operating envelope? Memory Without Source: the SOUL.md could be wrong but I follow it. Action Without Fresh Perception: I take action without re-reading the relevant notes. Prosopagnosia: I forget a note exists. The mapping is unstarted. Also missing: any tooling for the recurring health check.",
+      "unasked_question": "If the 6 diseases are the right taxonomy, which one is Mavis most at risk of in the next 30 days — and what is the leading indicator that would catch it before the failure?"
+    },
+    "scoring_dimensions": [
+      "believes_quotes_actual_notes",
+      "contradicts_is_a_real_tension_not_a_strawman",
+      "missing_is_a_real_gap_in_the_vault",
+      "unasked_question_is_load_bearing_and_unasked",
+      "every_claim_grounded"
+    ]
+  },
+  {
+    "id": "dr-test-006",
+    "topic": "Friction log and the structural-decisions audit",
+    "vault_state_summary": "Andre has 3 notes: State of Mavis (with Friction Log section), Reflexion Loop, Friction Log Discipline. 1 question (When to Update Friction Log).",
+    "question": "Run deep research. Output: believes, contradicts, missing, unasked question.",
+    "reference_output": {
+      "believes": "Andre believes the Friction Log is the right discipline for capturing where the system breaks — the friction I encountered in this session (6 structural decisions: where MCPs live, language, LLM fallback, log path, test runner, override shape) is the raw material for future architecture decisions. The position is in [[State of Mavis]] (Friction Log section) and [[Reflexion Loop]].",
+      "contradicts": "The position is challenged by the fact that the Friction Log is one session in — no longitudinal signal yet. A friction log with 6 entries is just a session log; a friction log with 60 entries over 10 sessions is a pattern. The principle is sound; the pattern is unobserved. Also, friction logged is not friction resolved — the 6 entries are still open.",
+      "missing": "Andre has 0 notes on the resolution path for friction items — when 6 structural decisions are open, who decides, and on what cadence? The state-of-mavis file surfaces them at the top of the next session, but the resolution is conversational, not systematic. Also missing: any way to distinguish 'friction that needs Andre' from 'friction I should figure out myself' from 'friction I should defer'.",
+      "unasked_question": "If the Friction Log is a session-level reflexion, what is the year-level pattern — and does the year-level pattern tell us when the architecture is stable vs still in flux?"
+    },
+    "scoring_dimensions": [
+      "believes_quotes_actual_notes",
+      "contradicts_is_a_real_tension_not_a_strawman",
+      "missing_is_a_real_gap_in_the_vault",
+      "unasked_question_is_load_bearing_and_unasked",
+      "every_claim_grounded"
+    ]
+  },
+  {
+    "id": "dr-test-007",
+    "topic": "Mavis Apex Architecture and the 5-MCP design",
+    "vault_state_summary": "Andre has 4 notes: Mavis-Apex-Architecture, The Custom MCP Arsenal, Mavis-Apex-Map, 05 self-model-card Build. 1 question (Which MCP to Build First). 1 number (837 Lines of Self Model Card Build).",
+    "question": "Run deep research. Output: believes, contradicts, missing, unasked question.",
+    "reference_output": {
+      "believes": "Andre believes the 5-MCP arsenal (vault-brain, macos-vision-anchor, long-context-curator, tool-self-healer, self-model-card) is the right custom tool surface for M3-native EA work — each is small, focused, M3-specific (1M context, native vision, persistent memory), and they compose. Self-model-card is the first to cross from design to build. The position is in [[Mavis-Apex-Architecture]] and [[The Custom MCP Arsenal]].",
+      "contradicts": "The position is challenged by [[Which MCP to Build First]] being still a question — the principle says 'design first, build per-decision', and the first build (self-model-card) was chosen for safety value, not for unblocking value. Vault-brain is the unblocking value (3 workflows blocked without it), but it's not the first build. The build order is sound but the principle is being applied serially, not in parallel.",
+      "missing": "Andre has 0 notes on the eval data for each MCP — does vault-brain actually deliver top-20-full-notes-with-backlinks as designed? Does self.can_i() actually catch the destructive cases? The builds are happening; the evals are deferred. Also missing: any timeline for the 4 remaining MCPs.",
+      "unasked_question": "If the 5 MCPs are the right design and the build order is right, what is the eval data we need before the second build — and is it one M3 Eval Lab run or a series of small evals per MCP?"
+    },
+    "scoring_dimensions": [
+      "believes_quotes_actual_notes",
+      "contradicts_is_a_real_tension_not_a_strawman",
+      "missing_is_a_real_gap_in_the_vault",
+      "unasked_question_is_load_bearing_and_unasked",
+      "every_claim_grounded"
+    ]
+  },
+  {
+    "id": "dr-test-008",
+    "topic": "Native multimodal capture and the show-don't-describe principle",
+    "vault_state_summary": "Andre has 4 notes: M3 Edge, Multimodal GUI Loop, Direct Intake MCP Design, AI Landscape 2026. 1 pattern (Native > Wrapper).",
+    "question": "Run deep research. Output: believes, contradicts, missing, unasked question.",
+    "reference_output": {
+      "believes": "Andre believes the native multimodal primitive (M3 reads images directly, watches video, listens to audio) is the right substrate for 'show, don't describe' intake — instead of OCR pipelines + Whisper + ffmpeg, drop a screenshot and M3 sees the Slack thread, drop a voice memo and M3 hears the tone. The position is in [[M3 Edge]] and [[Multimodal GUI Loop]].",
+      "contradicts": "The position is challenged by the operational reality — the Direct-Intake MCP design is at the 0.85 confidence floor and 20-per-hour rate cap. The native capability is unlimited; the operator layer is constrained. [[Native > Wrapper]] is the principle, but the principle doesn't address operator rate limits. Also, the privacy implications of M3 seeing all screenshots are unexamined.",
+      "missing": "Andre has 0 notes on the operator workflow when passive capture is live — what does a Mavis session look like when 20 files have dropped overnight? The design is for the intake path, not the consumption path. Also missing: any note on the failure mode of passive capture (a dropped screenshot that's actually a sensitive Slack thread, a voice memo that contains PII).",
+      "unasked_question": "If the native multimodal primitive is unlimited but the operator rate is capped, is the rate cap the right design — or should the rate cap be on the operator's consumption, not the system's intake?"
+    },
+    "scoring_dimensions": [
+      "believes_quotes_actual_notes",
+      "contradicts_is_a_real_tension_not_a_strawman",
+      "missing_is_a_real_gap_in_the_vault",
+      "unasked_question_is_load_bearing_and_unasked",
+      "every_claim_grounded"
+    ]
+  }
+]

@@ -1,0 +1,40 @@
+[
+  {
+    "id": "dr-val-001",
+    "topic": "M3 vs the open-weight frontier",
+    "vault_state_summary": "Andre has 4 notes: M3 Edge, M3 Bypass Hypothesis, M3 Capabilities, AI Landscape 2026. 1 question (Does M3 Hold 1M Context). 1 number (M3 SWE-Bench Pro 59%).",
+    "question": "Run deep research. Output: believes, contradicts, missing, unasked question.",
+    "reference_output": {
+      "believes": "Andre believes M3 is the first open-weight model to ship all three frontier capabilities together (1M context, native multimodality, computer use) — the M3 Edge thesis is that this triforce is the unlock, not any single capability. The position is in [[M3 Edge]] and [[M3 Bypass Hypothesis]]: 'until M3, that triforce was closed-source only.'",
+      "contradicts": "The position is challenged by [[Does M3 Hold 1M Context]] — the capability is shipped, but the eval (does it actually deliver under load) is unrun. [[M3 Bypass Hypothesis]] itself is framed as a hypothesis, not a conclusion. The 59% SWE-Bench Pro is impressive but is a single benchmark; the EA-relevant benchmark is the M3 Eval Lab, which is 0 runs.",
+      "missing": "Andre has 0 notes on M3's specific failure modes in long-running EA work — what does the model do at hour 6 of a research task, at hour 12? The 12h paper reproduction is impressive but the failure mode is unobserved. Also missing: any comparison to closed-source alternatives (GPT-5.5, Gemini 3.1 Pro, Opus 4.7) on EA-specific tasks.",
+      "unasked_question": "If M3 is the first open-weight model with the triforce, what is the closed-source equivalent doing differently — and is it the same architecture with more RLHF, or a fundamentally different approach?"
+    },
+    "scoring_dimensions": [
+      "believes_quotes_actual_notes",
+      "contradicts_is_a_real_tension_not_a_strawman",
+      "missing_is_a_real_gap_in_the_vault",
+      "unasked_question_is_load_bearing_and_unasked",
+      "every_claim_grounded"
+    ]
+  },
+  {
+    "id": "dr-val-002",
+    "topic": "The CHIEF pattern and structure-first design",
+    "vault_state_summary": "Andre has 5 notes: CHIEF as Codebase Pattern, Linking Principle, Capture Over Polish, Vault Conventions, Mavis-Apex-Architecture. 1 question (When Does Structure Become the Work). 1 pattern (Compounding via Capture).",
+    "question": "Run deep research. Output: believes, contradicts, missing, unasked question.",
+    "reference_output": {
+      "believes": "Andre believes the CHIEF pattern (notes-as-edges, MOCs as directories, types as routing rules) is the right design discipline for second-brain vaults — every artifact is a chance to add structure, the structure compounds, the cost of not adding it is invisible until the system breaks. The position is in [[Linking Principle]] and [[Compounding via Capture]]: 'link on reference, link on processing, link on review' and 'the value of the EA is the volume of clean captures.'",
+      "contradicts": "The position is challenged by [[When Does Structure Become the Work]] — at some point, the structure (MOCs, conventions, custom types, custom MCPs) becomes the work, and the operator is no longer making decisions but maintaining the system. [[Capture Over Polish]] also implicitly contradicts: the value is in the capture rate, not the polish rate, but polish is what adds structure. The tension is volume vs structure.",
+      "missing": "Andre has 0 notes on the cost of structure maintenance at scale — what happens to the CHIEF pattern at 10K notes, 50K notes? The pattern works for a 2K-note vault; the cost at 10K is unexamined. Also missing: any tool for measuring 'structure health' (orphan notes, broken links, MOC staleness, type drift).",
+      "unasked_question": "At what scale does the CHIEF pattern's maintenance cost exceed its compounding value — and is the answer 'when Andre notices' or something measurable?"
+    },
+    "scoring_dimensions": [
+      "believes_quotes_actual_notes",
+      "contradicts_is_a_real_tension_not_a_strawman",
+      "missing_is_a_real_gap_in_the_vault",
+      "unasked_question_is_load_bearing_and_unasked",
+      "every_claim_grounded"
+    ]
+  }
+]

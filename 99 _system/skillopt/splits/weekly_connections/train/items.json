@@ -1,0 +1,207 @@
+[
+  {
+    "id": "wc-train-001",
+    "question": "Given the week's new notes (8 across ideas/patterns/articles/questions), find 3-5 strong connections. Each connection must be one of Type A (same principle in different domains), Type B (interesting contradiction), Type C (3+ notes into one insight), Type D (question accidentally answered).",
+    "context": "New notes this week: (1) ideas/CHIEF as Codebase Pattern, (2) patterns/Reflexion Loop in EA Work, (3) articles/Apple WWDC 2026 Siri Rebuilt, (4) ideas/M3 Edge, (5) questions/Does MSA Signal Decay, (6) patterns/Long-Horizon Patterns, (7) numbers/M3 SWE-Bench Pro 59%, (8) ideas/AI Infrastructure as Moat.",
+    "reference_output": {
+      "connections": [
+        {
+          "type": "A",
+          "slug": "consolidation-moves-up-the-stack",
+          "bridge": "AI Infrastructure as Moat and Apple WWDC 2026 Siri Rebuilt are the same move — when the model layer commoditizes, the durable value migrates up the stack (compute infrastructure for SoftBank, UX layer for Apple).",
+          "sources": ["ideas/AI Infrastructure as Moat", "articles/Apple WWDC 2026 Siri Rebuilt"]
+        },
+        {
+          "type": "B",
+          "slug": "edge-vs-decay-tension",
+          "bridge": "M3 Edge claims the capability shift is real; Does MSA Signal Decay asks whether that capability survives at 1M context. Both are right; the tension is the operational constraint.",
+          "sources": ["ideas/M3 Edge", "questions/Does MSA Signal Decay"]
+        },
+        {
+          "type": "C",
+          "slug": "long-horizon-is-the-binding-constraint",
+          "bridge": "Long-Horizon Patterns, Reflexion Loop, and M3 SWE-Bench Pro 59% all point to the same insight: the binding constraint is no longer raw capability, it is the discipline of staying engaged across hours of work without bailing.",
+          "sources": ["patterns/Long-Horizon Patterns", "patterns/Reflexion Loop in EA Work", "numbers/M3 SWE-Bench Pro 59%"]
+        },
+        {
+          "type": "D",
+          "slug": "chief-as-codebase-answers-the-vault-question",
+          "bridge": "Does MSA Signal Decay asks whether long-context attention survives — and CHIEF as Codebase Pattern answers it from a different angle: if the structure is in the notes, the model doesn't have to hold it all in attention.",
+          "sources": ["questions/Does MSA Signal Decay", "ideas/CHIEF as Codebase Pattern"]
+        }
+      ]
+    },
+    "scoring_dimensions": [
+      "3_to_5_connections",
+      "each_type_correctly_labelled",
+      "sources_are_real_notes",
+      "bridges_are_non_obvious_not_redundant",
+      "no_two_connections_link_same_pair"
+    ]
+  },
+  {
+    "id": "wc-train-002",
+    "question": "Find 3-5 connections in the week's notes.",
+    "context": "New notes: (1) patterns/Compounding via Capture, (2) ideas/Tldraw as Vault Bridge, (3) articles/Sysdig LLM Attack, (4) questions/When Does Structure Become the Work, (5) ideas/Mavis Apex Architecture, (6) patterns/Native > Wrapper.",
+    "reference_output": {
+      "connections": [
+        {
+          "type": "A",
+          "slug": "native-wins-on-attack-and-defense",
+          "bridge": "Native > Wrapper (design principle) and Sysdig LLM Attack (capability proof) are the same insight on both sides — native access to the substrate (vision, GUI, shell) wins over wrapped abstractions, for both offense and defense.",
+          "sources": ["patterns/Native > Wrapper", "articles/Sysdig LLM Attack"]
+        },
+        {
+          "type": "C",
+          "slug": "structure-discipline-makes-the-system",
+          "bridge": "Compounding via Capture, When Does Structure Become the Work, and Tldraw as Vault Bridge together describe the same discipline: every artifact is a chance to add structure, and the cost of not adding it is invisible until the system breaks.",
+          "sources": ["patterns/Compounding via Capture", "questions/When Does Structure Become the Work", "ideas/Tldraw as Vault Bridge"]
+        },
+        {
+          "type": "B",
+          "slug": "mavis-apex-vs-structure-becomes-work",
+          "bridge": "Mavis Apex Architecture wants more structure (custom MCPs, MOCs, state-of-mavis); When Does Structure Become the Work asks if there is a point where the structure is the burden. The tension is real and unresolved.",
+          "sources": ["ideas/Mavis Apex Architecture", "questions/When Does Structure Become the Work"]
+        }
+      ]
+    },
+    "scoring_dimensions": [
+      "3_to_5_connections",
+      "each_type_correctly_labelled",
+      "sources_are_real_notes",
+      "bridges_are_non_obvious_not_redundant"
+    ]
+  },
+  {
+    "id": "wc-train-003",
+    "question": "Find 3-5 connections in the week's notes.",
+    "context": "New notes: (1) ideas/Step 2 Autonomy, (2) patterns/Action Without Fresh Perception, (3) questions/What Metrics Define EA Working, (4) numbers/950 FDA AI Devices, (5) articles/SoftBank France 75B, (6) patterns/Tool Surface = Audit Surface.",
+    "reference_output": {
+      "connections": [
+        {
+          "type": "B",
+          "slug": "step-2-vs-fresh-perception",
+          "bridge": "Step 2 Autonomy wants Mavis to take more action without asking; Action Without Fresh Perception is the disease that says action without fresh context is dangerous. The tension is the Step 2 conversation's core.",
+          "sources": ["ideas/Step 2 Autonomy", "patterns/Action Without Fresh Perception"]
+        },
+        {
+          "type": "C",
+          "slug": "boring-deployment-wins",
+          "bridge": "950 FDA AI Devices (75% radiology) and SoftBank France 75B (data center build) both say: the AI revolution is being deployed in the boring industries (medical imaging, infrastructure), not the flashy consumer ones. The companies that win are the ones building the picks-and-shovels.",
+          "sources": ["numbers/950 FDA AI Devices", "articles/SoftBank France 75B"]
+        },
+        {
+          "type": "A",
+          "slug": "audit-surface-vs-success-metric",
+          "bridge": "Tool Surface = Audit Surface and What Metrics Define EA Working are the same principle at different layers — what you expose (tool surface) and what you measure (success metric) are the same audit question, and getting either wrong corrupts the system.",
+          "sources": ["patterns/Tool Surface = Audit Surface", "questions/What Metrics Define EA Working"]
+        }
+      ]
+    },
+    "scoring_dimensions": [
+      "3_to_5_connections",
+      "each_type_correctly_labelled",
+      "sources_are_real_notes",
+      "bridges_are_non_obvious_not_redundant"
+    ]
+  },
+  {
+    "id": "wc-train-004",
+    "question": "Find 3-5 connections in the week's notes.",
+    "context": "New notes: (1) patterns/Reflexion Loop, (2) ideas/Paged Memory Pattern, (3) articles/M3 Launch Blog, (4) numbers/12h Paper Reproduction, (5) questions/Does M3 Hold 1M Context, (6) patterns/Mixture of Agents.",
+    "reference_output": {
+      "connections": [
+        {
+          "type": "C",
+          "slug": "m3-doubles-down-on-context",
+          "bridge": "M3 Launch Blog, 12h Paper Reproduction, and Does M3 Hold 1M Context together characterize M3's bet: 1M context + native multimodality + long-horizon, and the question is whether the context actually delivers or whether the architecture degrades in the middle.",
+          "sources": ["articles/M3 Launch Blog", "numbers/12h Paper Reproduction", "questions/Does M3 Hold 1M Context"]
+        },
+        {
+          "type": "A",
+          "slug": "reflexion-paged-memory",
+          "bridge": "Reflexion Loop and Paged Memory Pattern are two ways to handle the same problem: how to retain what matters across bounded attention. Reflexion is per-task, paged memory is per-context.",
+          "sources": ["patterns/Reflexion Loop", "ideas/Paged Memory Pattern"]
+        },
+        {
+          "type": "D",
+          "slug": "mixture-of-agents-answers-the-1m-question",
+          "bridge": "Does M3 Hold 1M Context asks whether the context actually holds — and Mixture of Agents answers it from a different angle: if you can't trust one 1M context, can you trust five 200K contexts?",
+          "sources": ["questions/Does M3 Hold 1M Context", "patterns/Mixture of Agents"]
+        }
+      ]
+    },
+    "scoring_dimensions": [
+      "3_to_5_connections",
+      "each_type_correctly_labelled",
+      "sources_are_real_notes",
+      "bridges_are_non_obvious_not_redundant"
+    ]
+  },
+  {
+    "id": "wc-train-005",
+    "question": "Find 3-5 connections in the week's notes.",
+    "context": "New notes: (1) ideas/Self-Evolving Skills, (2) patterns/SkillOpt Loop, (3) articles/Microsoft SkillOpt Paper, (4) questions/Which Skills to Train First, (5) numbers/SkillOpt 23.5 Point Gain, (6) ideas/Process Over Outcome.",
+    "reference_output": {
+      "connections": [
+        {
+          "type": "C",
+          "slug": "skillopt-is-the-meta-pattern",
+          "bridge": "Self-Evolving Skills, SkillOpt Loop, and Microsoft SkillOpt Paper together describe a new layer of agent design: optimize the skill text, not the model weights. This is the discipline that makes every other workflow compound.",
+          "sources": ["ideas/Self-Evolving Skills", "patterns/SkillOpt Loop", "articles/Microsoft SkillOpt Paper"]
+        },
+        {
+          "type": "B",
+          "slug": "process-vs-skillopt",
+          "bridge": "Process Over Outcome says the value is in the discipline; Which Skills to Train First says the value is in the choice. SkillOpt 23.5 Point Gain says the value is in the measurement. All three are right; the meta-rule is discipline of choice, measured.",
+          "sources": ["ideas/Process Over Outcome", "questions/Which Skills to Train First", "numbers/SkillOpt 23.5 Point Gain"]
+        },
+        {
+          "type": "A",
+          "slug": "skillopt-is-reflexion-for-skills",
+          "bridge": "Reflexion Loop and SkillOpt Loop are the same feedback loop at different layers — Reflexion extracts lessons per task, SkillOpt extracts rules per skill.",
+          "sources": ["patterns/Reflexion Loop", "patterns/SkillOpt Loop"]
+        }
+      ]
+    },
+    "scoring_dimensions": [
+      "3_to_5_connections",
+      "each_type_correctly_labelled",
+      "sources_are_real_notes",
+      "bridges_are_non_obvious_not_redundant"
+    ]
+  },
+  {
+    "id": "wc-train-006",
+    "question": "Find 3-5 connections in the week's notes.",
+    "context": "New notes: (1) ideas/CHIEF Pattern Generalizes, (2) patterns/Native > Wrapper, (3) articles/CuaDriver 0.2.0, (4) questions/Why is cu Toggle Off, (5) numbers/M3 OSWorld 70.06%, (6) ideas/Multimodal GUI Loop.",
+    "reference_output": {
+      "connections": [
+        {
+          "type": "A",
+          "slug": "native-gui-loops-on-both-sides",
+          "bridge": "Multimodal GUI Loop and Native > Wrapper are the same thesis — design-around-the-capability (M3 vision, M3 GUI), not design-around-the-limits. CuaDriver 0.2.0 is the tool, M3 OSWorld 70.06% is the benchmark proof.",
+          "sources": ["ideas/Multimodal GUI Loop", "patterns/Native > Wrapper", "numbers/M3 OSWorld 70.06%"]
+        },
+        {
+          "type": "C",
+          "slug": "chief-as-codebase-meets-native-gui",
+          "bridge": "CHIEF Pattern Generalizes (structure-in-the-notes) and Multimodal GUI Loop (structure-in-the-action) are two layers of the same principle: add structure at the moment of capture, never retrofit. The question is whether the operator can hold both layers in their head.",
+          "sources": ["ideas/CHIEF Pattern Generalizes", "ideas/Multimodal GUI Loop", "questions/Why is cu Toggle Off"]
+        },
+        {
+          "type": "D",
+          "slug": "cua-driver-answers-the-toggle-question",
+          "bridge": "Why is cu Toggle Off asks why the capability isn't usable — and CuaDriver 0.2.0 is the answer waiting in the queue (installed, disabled pending macOS accessibility grant). The answer is structural, not technical.",
+          "sources": ["questions/Why is cu Toggle Off", "articles/CuaDriver 0.2.0"]
+        }
+      ]
+    },
+    "scoring_dimensions": [
+      "3_to_5_connections",
+      "each_type_correctly_labelled",
+      "sources_are_real_notes",
+      "bridges_are_non_obvious_not_redundant"
+    ]
+  }
+]

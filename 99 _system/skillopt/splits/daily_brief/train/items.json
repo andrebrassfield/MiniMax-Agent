@@ -1,0 +1,129 @@
+[
+  {
+    "id": "db-train-001",
+    "question": "Produce the daily brief. Inputs are the 7 most recent permanent notes and 3 most recent inbox captures. Output: 3 CONNECTIONS (each with quote + wikilink), 1 PATTERN (named, 3+ evidence notes), 1 QUESTION (worth sitting with).",
+    "context": "Recent notes: 2026-06-01 - SoftBank France, 2026-06-01 - First LLM-Agent Cyberattack, 2026-06-01 - Apple WWDC 2026 Siri Rebuilt, AI Landscape 2026, M3 Edge, Long-Horizon Patterns, Linking Principle. Inbox: m3 paper repro observation, msa signal decay, cu driver toggle.",
+    "reference_output": {
+      "connections": [
+        { "bridge": "Apple, SoftBank, and the Sysdig attack are all proof that the model layer is consolidating into commodity infrastructure — what differentiates the winners is what they do on top.", "sources": ["2026-06-01 - Apple WWDC 2026 Siri Rebuilt", "AI Landscape 2026"] },
+        { "bridge": "The M3 paper reproduction run and the 12h autonomous PostTrainBench are the same pattern as the Sysdig LLM attack — long-horizon, adaptive tool use applied to a goal is now table stakes on both sides of the table.", "sources": ["Long-Horizon Patterns", "2026-06-01 - First LLM-Agent Cyberattack"] },
+        { "bridge": "MSA signal decay (an open question) and the cu MCP toggle (also blocked) are both instances of the same disease: tools that exist but cannot be safely used yet.", "sources": ["MSA Signal Decay", "cu driver toggle"] }
+      ],
+      "pattern": "Andre's brain is working on what the frontier capability shift actually unlocks (M3 long-horizon, multimodal, GUI) versus what it actually threatens (LLM-driven attack, signal decay in sparse attention).",
+      "pattern_evidence": ["M3 Edge", "2026-06-01 - First LLM-Agent Cyberattack", "MSA Signal Decay"],
+      "question": "If M3 can run 12h autonomously reproducing a paper, and the same architecture can run 1h autonomously exfiltrating a database, what does it look like to design an agent that can be both, but chooses the paper?"
+    },
+    "scoring_dimensions": [
+      "connections_are_grounded_with_real_quotes",
+      "pattern_is_named_and_evidence_backed",
+      "question_is_load_bearing_not_actionable",
+      "no_generic_advice",
+      "no_advice_that_could_apply_to_anyone"
+    ]
+  },
+  {
+    "id": "db-train-002",
+    "question": "Produce the daily brief. Inputs: 5 recent permanent notes + 2 inbox captures. Output: 3 CONNECTIONS, 1 PATTERN, 1 QUESTION.",
+    "context": "Recent notes: Mavis EA Workflow, Vault Conventions, Capture Over Polish, Reflexion Loop, M3 Capabilities. Inbox: cu driver toggle, fda ai device list.",
+    "reference_output": {
+      "connections": [
+        { "bridge": "Capture Over Polish and the cu driver toggle are the same lesson in different domains: ship the imperfect capture fast, polish later (or never).", "sources": ["Capture Over Polish", "cu driver toggle"] },
+        { "bridge": "Reflexion Loop and M3 Capabilities both say the same thing — the value is in the failure, not the success, because the successes saturate and the failures generalize.", "sources": ["Reflexion Loop", "M3 Capabilities"] },
+        { "bridge": "Mavis EA Workflow and Vault Conventions are two views of the same contract: what the operator does is constrained by what the vault can absorb.", "sources": ["Mavis EA Workflow", "Vault Conventions"] }
+      ],
+      "pattern": "Andre is converging on a discipline of structure-first execution — every recent note is about making the system more reliable by adding structure (links, conventions, contracts), not by adding more output.",
+      "pattern_evidence": ["Mavis EA Workflow", "Vault Conventions", "Reflexion Loop"],
+      "question": "At what point does the structure become the work — and the operator is no longer making decisions but just maintaining the system?"
+    },
+    "scoring_dimensions": [
+      "connections_are_grounded_with_real_quotes",
+      "pattern_is_named_and_evidence_backed",
+      "question_is_load_bearing_not_actionable",
+      "no_generic_advice"
+    ]
+  },
+  {
+    "id": "db-train-003",
+    "question": "Produce the daily brief. Inputs: 4 recent permanent notes + 3 inbox captures. Output: 3 CONNECTIONS, 1 PATTERN, 1 QUESTION.",
+    "context": "Recent notes: Paged Memory Pattern, Context Engineering 1M, Multimodal GUI Loop, M3 Bypass Hypothesis. Inbox: vault brain mcp, sysdig attack timeline, msa signal decay.",
+    "reference_output": {
+      "connections": [
+        { "bridge": "Paged Memory Pattern and vault-brain MCP are the same insight at different layers — load the whole context, partition by relevance, never chunk-and-embed by default.", "sources": ["Paged Memory Pattern", "vault brain mcp"] },
+        { "bridge": "Multimodal GUI Loop and the Sysdig attack both turn the same primitive (computer use) into either safety (vision-anchored action with confirmation) or threat (vision + LLM planning applied to a real attack).", "sources": ["Multimodal GUI Loop", "sysdig attack timeline"] },
+        { "bridge": "Context Engineering 1M and MSA Signal Decay share a tension — at 1M tokens, the question is no longer 'does it fit' but 'does it survive the middle of the context.'", "sources": ["Context Engineering 1M", "msa signal decay"] }
+      ],
+      "pattern": "Andre is oscillating between two questions: does M3 unlock new capability (yes, per M3 Bypass Hypothesis), and does that capability actually hold up under load (unclear, per MSA Signal Decay and the attack data).",
+      "pattern_evidence": ["M3 Bypass Hypothesis", "MSA Signal Decay", "sysdig attack timeline"],
+      "question": "If the same architecture that powers M3's 12h autonomous runs also powers the first LLM-driven cyberattack, is the eval question 'what can M3 do' or 'what should M3 be allowed to do without a human in the loop'?"
+    },
+    "scoring_dimensions": [
+      "connections_are_grounded_with_real_quotes",
+      "pattern_is_named_and_evidence_backed",
+      "question_is_load_bearing_not_actionable",
+      "no_generic_advice"
+    ]
+  },
+  {
+    "id": "db-train-004",
+    "question": "Produce the daily brief. Inputs: 6 recent permanent notes + 1 inbox capture. Output: 3 CONNECTIONS, 1 PATTERN, 1 QUESTION.",
+    "context": "Recent notes: Mixture of Agents, Reflexion Loop, M3 Edge, Long-Horizon Patterns, Step 2 Autonomy, Mavis EA Design. Inbox: state machine failure modes.",
+    "reference_output": {
+      "connections": [
+        { "bridge": "Mixture of Agents and Reflexion Loop are two ways to compound — the first by parallel runs, the second by sequential failure capture.", "sources": ["Mixture of Agents", "Reflexion Loop"] },
+        { "bridge": "M3 Edge and Step 2 Autonomy are linked: if the capability shift is real (M3 Edge), the autonomy line has to move (Step 2). The conversation is blocked on M3 Eval Lab data.", "sources": ["M3 Edge", "Step 2 Autonomy"] },
+        { "bridge": "Long-Horizon Patterns and state machine failure modes are the two failure modes of a long-running agent — the first fails by giving up, the second by lying about completion.", "sources": ["Long-Horizon Patterns", "state machine failure modes"] }
+      ],
+      "pattern": "Andre is building the safety discipline for an era of capable-and-unaligned long-horizon agents, and the pattern is everywhere in the recent notes (Reflexion, kanban-health-check, Mavis EA Design Step 2).",
+      "pattern_evidence": ["Reflexion Loop", "state machine failure modes", "Mavis EA Design"],
+      "question": "If Mavis is going to operate a long-horizon agent system, where does the constraint come from — the model (M3's alignment), the operator (Mavis's SOUL), or the architecture (the can_i() gate)?"
+    },
+    "scoring_dimensions": [
+      "connections_are_grounded_with_real_quotes",
+      "pattern_is_named_and_evidence_backed",
+      "question_is_load_bearing_not_actionable",
+      "no_generic_advice"
+    ]
+  },
+  {
+    "id": "db-train-005",
+    "question": "Produce the daily brief. Inputs: 5 recent permanent notes + 2 inbox captures. Output: 3 CONNECTIONS, 1 PATTERN, 1 QUESTION.",
+    "context": "Recent notes: Mavis-Apex-Architecture, M3 Eval Lab, Mavis EA Design, Vault Refinement, AI Landscape 2026. Inbox: vault brain mcp, fda ai device list.",
+    "reference_output": {
+      "connections": [
+        { "bridge": "Mavis-Apex-Architecture and M3 Eval Lab are coupled — every design decision in the arsenal needs eval data to ground it (does M3 actually hold 1M context? does self.can_i() actually catch the destructive cases?).", "sources": ["Mavis-Apex-Architecture", "M3 Eval Lab"] },
+        { "bridge": "Vault Refinement and Mavis EA Design both wrestle with the same problem: structure vs overhead. The CHIEF pattern adds structure, but each new structure is a new maintenance burden.", "sources": ["Vault Refinement", "Mavis EA Design"] },
+        { "bridge": "AI Landscape 2026 and the FDA AI device numbers (950 approved, 75% radiology) both say: the AI revolution is already deployed in the boring industries, not the flashy ones.", "sources": ["AI Landscape 2026", "fda ai device list"] }
+      ],
+      "pattern": "Andre is in a build-measure-build loop on the EA architecture itself, and the recent pattern is: design (Mavis-Apex-Architecture) → test (M3 Eval Lab) → refine (Vault Refinement) → expand scope (Mavis EA Design).",
+      "pattern_evidence": ["Mavis-Apex-Architecture", "M3 Eval Lab", "Vault Refinement"],
+      "question": "What does the M3 Eval Lab need to measure to actually move the Step 2 autonomy conversation — capability ceiling, failure mode coverage, or cost-per-task?"
+    },
+    "scoring_dimensions": [
+      "connections_are_grounded_with_real_quotes",
+      "pattern_is_named_and_evidence_backed",
+      "question_is_load_bearing_not_actionable",
+      "no_generic_advice"
+    ]
+  },
+  {
+    "id": "db-train-006",
+    "question": "Produce the daily brief. Inputs: 4 recent permanent notes + 1 inbox capture. Output: 3 CONNECTIONS, 1 PATTERN, 1 QUESTION.",
+    "context": "Recent notes: Linking Principle, Capture Over Polish, Mavis EA Workflow, M3 Capabilities. Inbox: linking principle reflection.",
+    "reference_output": {
+      "connections": [
+        { "bridge": "Linking Principle and the linking principle reflection note are the same observation at different layers — the principle needs a trigger, and the trigger needs an audit (weekly review).", "sources": ["Linking Principle", "linking principle reflection"] },
+        { "bridge": "Capture Over Polish and Mavis EA Workflow together say: the value of the EA is the volume of clean captures, not the rarity of perfect ones.", "sources": ["Capture Over Polish", "Mavis EA Workflow"] },
+        { "bridge": "M3 Capabilities (1M context) makes Linking Principle more valuable, not less — the bigger the vault, the more the linking structure matters, because no human can re-derive the structure from raw notes.", "sources": ["M3 Capabilities", "Linking Principle"] }
+      ],
+      "pattern": "Andre's recent writing is converging on a meta-rule: the system compounds only if structure is added at the moment of capture, not retrofitted in a weekly review.",
+      "pattern_evidence": ["Linking Principle", "Capture Over Polish", "linking principle reflection"],
+      "question": "If structure-at-capture is the right discipline, what is the cost of not having it — and is that cost visible enough to enforce the discipline day-to-day?"
+    },
+    "scoring_dimensions": [
+      "connections_are_grounded_with_real_quotes",
+      "pattern_is_named_and_evidence_backed",
+      "question_is_load_bearing_not_actionable",
+      "no_generic_advice"
+    ]
+  }
+]

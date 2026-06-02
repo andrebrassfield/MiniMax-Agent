@@ -1,0 +1,68 @@
+[
+  {
+    "id": "wc-val-001",
+    "question": "Find 3-5 connections in the week's notes.",
+    "context": "New notes: (1) ideas/M3 EA Architecture, (2) patterns/Tool Surface as Audit Surface, (3) questions/Where is the Autonomy Line, (4) articles/AI Landscape 2026, (5) numbers/M3 Eval Lab 0 Runs, (6) patterns/SkillOpt Pipeline.",
+    "reference_output": {
+      "connections": [
+        {
+          "type": "C",
+          "slug": "autonomy-eval-skillopt",
+          "bridge": "Where is the Autonomy Line, M3 Eval Lab 0 Runs, and SkillOpt Pipeline together describe a discipline gap: every design needs a measurement, and the measurement is not yet running. The pattern is design-without-measure, and the cost is invisible until the design fails.",
+          "sources": ["questions/Where is the Autonomy Line", "numbers/M3 Eval Lab 0 Runs", "patterns/SkillOpt Pipeline"]
+        },
+        {
+          "type": "A",
+          "slug": "tool-surface-ai-landscape",
+          "bridge": "Tool Surface as Audit Surface and AI Landscape 2026 (consolidation) are the same move at different layers — fewer, sharper, more-auditable tools wins over broad, easy-to-call APIs, both in agent design and in market structure.",
+          "sources": ["patterns/Tool Surface as Audit Surface", "articles/AI Landscape 2026"]
+        },
+        {
+          "type": "B",
+          "slug": "m3-ea-vs-eval",
+          "bridge": "M3 EA Architecture says the operator can do more; M3 Eval Lab 0 Runs says we have not measured what happens when the operator does more. The tension is the Step 2 conversation.",
+          "sources": ["ideas/M3 EA Architecture", "numbers/M3 Eval Lab 0 Runs"]
+        }
+      ]
+    },
+    "scoring_dimensions": [
+      "3_to_5_connections",
+      "each_type_correctly_labelled",
+      "sources_are_real_notes",
+      "bridges_are_non_obvious_not_redundant"
+    ]
+  },
+  {
+    "id": "wc-val-002",
+    "question": "Find 3-5 connections in the week's notes.",
+    "context": "New notes: (1) ideas/State of Mavis, (2) patterns/Session Continuity, (3) articles/Operation Apex Notes, (4) questions/When to Update State of Mavis, (5) patterns/Friction Log Discipline, (6) ideas/End of Session Routine.",
+    "reference_output": {
+      "connections": [
+        {
+          "type": "C",
+          "slug": "state-of-mavis-is-the-session-mem",
+          "bridge": "State of Mavis, Session Continuity, and End of Session Routine together define a new artifact: a per-session MOC that captures where-the-work-is, distinct from the daily note (one day) and MAVIS.md (one week). The pattern is multi-scale memory.",
+          "sources": ["ideas/State of Mavis", "patterns/Session Continuity", "ideas/End of Session Routine"]
+        },
+        {
+          "type": "A",
+          "slug": "friction-log-is-reflexion",
+          "bridge": "Friction Log Discipline and Operation Apex Notes are the same reflexion loop at different cadences — Friction Log is per-session, Operation Apex was per-project. The pattern is write-it-down-when-stuck, and the value compounds.",
+          "sources": ["patterns/Friction Log Discipline", "articles/Operation Apex Notes"]
+        },
+        {
+          "type": "B",
+          "slug": "state-of-mavis-vs-routine",
+          "bridge": "State of Mavis is the artifact, End of Session Routine is the discipline. Without the routine, the artifact goes stale; without the artifact, the routine has nothing to write. The tension is operational, not conceptual.",
+          "sources": ["ideas/State of Mavis", "ideas/End of Session Routine"]
+        }
+      ]
+    },
+    "scoring_dimensions": [
+      "3_to_5_connections",
+      "each_type_correctly_labelled",
+      "sources_are_real_notes",
+      "bridges_are_non_obvious_not_redundant"
+    ]
+  }
+]

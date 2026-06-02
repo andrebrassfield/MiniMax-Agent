@@ -17,7 +17,7 @@ related: [[MAVIS]] (weekly context), [[SOUL]] (permanent identity), [[agent]] (p
 ## Operating envelope (this session)
 
 - **Model**: `minimax/MiniMax-M3` (thinking mode default: on)
-- **Role**: EA, isolated, no fleet
+- **Role**: EA, isolated, no fleet yet
 - **Vault root**: `/Users/brassfieldventuresllc/MiniMax-Agent/`
 - **Active session**: `mvs_0b98832f7bc547659d8a10c4f59f9b85`
 - **Date**: 2026-06-02 (Tuesday)

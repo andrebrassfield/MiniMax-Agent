@@ -1,0 +1,104 @@
+[
+  {
+    "id": "pi-train-001",
+    "question": "Process this raw inbox capture. Output: destination subfolder, sharpened one-sentence version, primary tag, and the single most relevant wikilink target.",
+    "context": "File: 00 Inbox/2026-06-01 - apple siri gemini.md\nContent: 'apple siri gemini wwdc'",
+    "reference_output": {
+      "destination": "02 Notes/articles",
+      "sharpened": "Apple rebuilt Siri on a custom 1.2T-param Gemini model processed through Apple Private Cloud Compute, announced at WWDC 2026.",
+      "tag": "ai-landscape",
+      "primary_link": "AI Landscape 2026"
+    },
+    "scoring_dimensions": [
+      "destination_correct",
+      "sharpened_is_one_specific_sentence",
+      "tag_matches_existing_taxonomy",
+      "primary_link_is_a_real_note"
+    ]
+  },
+  {
+    "id": "pi-train-002",
+    "question": "Process this raw inbox capture. Output: destination, sharpened version, tag, primary link.",
+    "context": "File: 00 Inbox/2026-06-01 - m3 long horizons.md\nContent: 'm3 paper repro 12h autonomous 18 commits iclr outstanding. doesnt bail.'",
+    "reference_output": {
+      "destination": "02 Notes/patterns",
+      "sharpened": "M3 reproduces an ICLR 2025 Outstanding Paper end-to-end in ~12 hours of autonomous work, producing 18 commits and 23 figures without bailing at performance plateaus — the same pattern shows up in the CUDA kernel optimization (submission 145 was the best, not 30).",
+      "tag": "long-horizon",
+      "primary_link": "Long-Horizon Patterns"
+    },
+    "scoring_dimensions": [
+      "destination_correct",
+      "sharpened_uses_specific_numbers",
+      "tag_matches_existing_taxonomy",
+      "primary_link_is_a_real_note"
+    ]
+  },
+  {
+    "id": "pi-train-003",
+    "question": "Process this raw inbox capture. Output: destination, sharpened version, tag, primary link.",
+    "context": "File: 00 Inbox/2026-06-01 - cu driver toggle.md\nContent: 'tried to use cu mcp on textedit — renderer toggle is off. cant drive macos gui yet. annsays: flip the toggle in renderer.'",
+    "reference_output": {
+      "destination": "02 Notes/questions",
+      "sharpened": "How do I enable the cu MCP renderer toggle so I can drive macOS GUI tasks (open files in TextEdit, navigate Finder, click Save in Numbers)?",
+      "tag": "tooling-blocker",
+      "primary_link": "Mavis EA Workflow"
+    },
+    "scoring_dimensions": [
+      "destination_correct",
+      "sharpened_is_a_real_question",
+      "tag_matches_existing_taxonomy",
+      "primary_link_is_a_real_note"
+    ]
+  },
+  {
+    "id": "pi-train-004",
+    "question": "Process this raw inbox capture. Output: destination, sharpened version, tag, primary link.",
+    "context": "File: 00 Inbox/2026-06-01 - fda ai device list.md\nContent: 'fda approved 950 ai medical devices as of 2025. 75% radiology. year over year accelerating.'",
+    "reference_output": {
+      "destination": "02 Notes/numbers",
+      "sharpened": "The FDA has approved 950 AI-enabled medical devices as of 2025, with 75% in radiology and year-over-year approval volume accelerating.",
+      "tag": "ai-adoption",
+      "primary_link": "AI Landscape 2026"
+    },
+    "scoring_dimensions": [
+      "destination_correct",
+      "sharpened_preserves_the_number",
+      "tag_matches_existing_taxonomy",
+      "primary_link_is_a_real_note"
+    ]
+  },
+  {
+    "id": "pi-train-005",
+    "question": "Process this raw inbox capture. Output: destination, sharpened version, tag, primary link.",
+    "context": "File: 00 Inbox/2026-06-01 - chief vs codebase.md\nContent: 'chief pattern works for second brain. does it work for codebases? same idea: notes-as-edges, mocs as directories, types as routing rules. probably needs a separate layer for code-symbol edges.'",
+    "reference_output": {
+      "destination": "02 Notes/ideas",
+      "sharpened": "The CHIEF pattern (notes-as-edges, MOCs as directories, types as routing rules) might generalize from second-brain vaults to codebases — but code needs a separate edge layer for symbols, not just concepts.",
+      "tag": "chief-pattern",
+      "primary_link": "Linking Principle"
+    },
+    "scoring_dimensions": [
+      "destination_correct",
+      "sharpened_distills_the_thesis",
+      "tag_matches_existing_taxonomy",
+      "primary_link_is_a_real_note"
+    ]
+  },
+  {
+    "id": "pi-train-006",
+    "question": "Process this raw inbox capture. Output: destination, sharpened version, tag, primary link.",
+    "context": "File: 00 Inbox/2026-06-01 - ai infrastructure 2026 mocs.md\nContent: 'synthesizing: ai landscape 2026 has 3 axes (build/attack/deploy), foundation models consolidating, ux-distribution-trust is the moat. all backed by the 3 today articles. this should be a hub.'",
+    "reference_output": {
+      "destination": "02 Notes/_MOCs",
+      "sharpened": "AI Landscape 2026 is organized around three axes (Build / Attack / Deploy) with foundation models consolidating into commodity infrastructure and UX, distribution, and trust as the durable moats.",
+      "tag": "ai-landscape",
+      "primary_link": "AI Landscape 2026"
+    },
+    "scoring_dimensions": [
+      "destination_correct",
+      "sharpened_names_the_structure",
+      "tag_matches_existing_taxonomy",
+      "primary_link_is_a_real_note"
+    ]
+  }
+]

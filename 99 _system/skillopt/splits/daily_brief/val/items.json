@@ -1,0 +1,44 @@
+[
+  {
+    "id": "db-val-001",
+    "question": "Produce the daily brief. Inputs: 5 recent permanent notes + 2 inbox captures. Output: 3 CONNECTIONS, 1 PATTERN, 1 QUESTION.",
+    "context": "Recent notes: Mavis-Apex-Architecture, The Custom MCP Arsenal, M3 Edge, Long-Horizon Patterns, Mavis EA Workflow. Inbox: state-of-mavis friction, vault brain mcp.",
+    "reference_output": {
+      "connections": [
+        { "bridge": "The Custom MCP Arsenal and state-of-mavis friction are the same problem at different layers — the arsenal designs tools, the friction log surfaces the structural decisions the tools assume.", "sources": ["The Custom MCP Arsenal", "state-of-mavis friction"] },
+        { "bridge": "M3 Edge and Long-Horizon Patterns together ground the EA architecture decision: 1M context + long-horizon means the system can be a real chief of staff, not a glorified reminder.", "sources": ["M3 Edge", "Long-Horizon Patterns"] },
+        { "bridge": "Mavis EA Workflow and vault-brain MCP are coupled — the workflow assumes whole-vault search exists, but it doesn't, so the workflow runs in degraded mode today.", "sources": ["Mavis EA Workflow", "vault brain mcp"] }
+      ],
+      "pattern": "Andre's recent work is the realization of the EA architecture thesis: design the operating system, then build the tools the operating system needs, in that order.",
+      "pattern_evidence": ["Mavis-Apex-Architecture", "Mavis EA Workflow", "The Custom MCP Arsenal"],
+      "question": "If the operating system (SOUL, agent, learnings, state-of-mavis) is the load-bearing layer, what is the minimum viable tool set underneath it — and is the arsenal over-built?"
+    },
+    "scoring_dimensions": [
+      "connections_are_grounded_with_real_quotes",
+      "pattern_is_named_and_evidence_backed",
+      "question_is_load_bearing_not_actionable",
+      "no_generic_advice"
+    ]
+  },
+  {
+    "id": "db-val-002",
+    "question": "Produce the daily brief. Inputs: 4 recent permanent notes + 1 inbox capture. Output: 3 CONNECTIONS, 1 PATTERN, 1 QUESTION.",
+    "context": "Recent notes: Paged Memory Pattern, Mavis-Apex-Architecture, M3 Eval Lab, Mavis EA Design. Inbox: state machine failure modes.",
+    "reference_output": {
+      "connections": [
+        { "bridge": "Paged Memory Pattern and Mavis-Apex-Architecture's vault-brain are the same design discipline at different scales — load whole, partition by relevance, never chunk.", "sources": ["Paged Memory Pattern", "Mavis-Apex-Architecture"] },
+        { "bridge": "M3 Eval Lab and state machine failure modes are the safety net and the failure mode — the eval is supposed to catch the failure mode, but only if it's running on real EA work, not synthetic benchmarks.", "sources": ["M3 Eval Lab", "state machine failure modes"] },
+        { "bridge": "Mavis EA Design and Paged Memory Pattern share a load-bearing assumption: the system is reliable enough to be trusted with paging state, which requires the eval to ground it.", "sources": ["Mavis EA Design", "Paged Memory Pattern"] }
+      ],
+      "pattern": "Andre is rebuilding the EA architecture on top of a new substrate (M3) and the recent pattern is: every design choice loops back to 'does M3 actually do this, or is it wishful thinking?' — the eval is the gating test.",
+      "pattern_evidence": ["M3 Eval Lab", "Mavis-Apex-Architecture", "Mavis EA Design"],
+      "question": "What is the smallest M3 Eval Lab run that would actually unblock the Step 2 autonomy conversation — and would it fit in a single session?"
+    },
+    "scoring_dimensions": [
+      "connections_are_grounded_with_real_quotes",
+      "pattern_is_named_and_evidence_backed",
+      "question_is_load_bearing_not_actionable",
+      "no_generic_advice"
+    ]
+  }
+]
