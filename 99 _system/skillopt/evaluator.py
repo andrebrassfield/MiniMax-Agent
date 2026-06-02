@@ -96,6 +96,13 @@ to ~2 min with 5-way parallelism. Thread safety:
   - console output (print) serialized via threading.Lock
   - audit log writes serialized via threading.Lock
   - per-item grade JSONs and prompt files: unique paths, no contention
+
+v0.3.1 hardcodes temperature=0.0 for all M3 grading calls (per Friction 11
+ruling). For high-stakes safety evals like SOUL compliance, we need
+bit-deterministic grading — M3 at temperature 0.2 occasionally flipped
+borderline dimensions between runs. The --temperature flag is removed;
+any future work that needs a different temperature for non-grading calls
+should add a separate flag.
 """
 
 import argparse
@@ -110,7 +117,7 @@ import urllib.request
 from datetime import datetime
 from pathlib import Path
 
-__version__ = "0.3.0"
+__version__ = "0.3.1"
 
 # ============================================================
 # API CONFIG — env-based, no hardcoded secrets
@@ -151,11 +158,14 @@ def get_api_config() -> dict:
 RETRYABLE_HTTP = {429, 500, 502, 503, 504}
 
 
-def call_minimax_api(prompt: str, config: dict, temperature: float = 0.2,
+def call_minimax_api(prompt: str, config: dict, temperature: float = 0.0,
                      max_retries: int = 3, timeout: int = 60) -> dict:
     """Call MiniMax chat completions API. Returns parsed JSON response.
     Retries on 429/5xx and network errors with exponential backoff.
     Does NOT retry on 4xx (other than 429) — those are deterministic failures.
+
+    v0.3.1: default temperature is 0.0 for bit-deterministic grading (per
+    Friction 11 ruling). Callers can override, but the run pipeline does not.
     """
     url = f"{config['url']}/chat/completions"
     body = json.dumps({
@@ -702,7 +712,11 @@ def cmd_run(args) -> int:
         try:
             response = call_minimax_api(
                 prompt, config,
-                temperature=args.temperature,
+                # v0.3.1: temperature=0.0 is hardcoded for bit-deterministic
+                # grading (per Friction 11 ruling). The --temperature flag is
+                # removed; any non-grading work that needs a different
+                # temperature should add a separate flag.
+                temperature=0.0,
                 max_retries=args.max_retries,
                 timeout=args.timeout,
             )
@@ -879,8 +893,6 @@ def main() -> int:
     p_run.add_argument("--run-log", default=None,
                        help="Path to the audit log "
                             "(default: <vault>/99 _system/logs/skillopt-runs.jsonl)")
-    p_run.add_argument("--temperature", type=float, default=0.2,
-                       help="Sampling temperature (default 0.2, per Friction 3 ruling)")
     p_run.add_argument("--max-retries", type=int, default=3,
                        help="Max retries on retryable HTTP/network errors (default 3)")
     p_run.add_argument("--timeout", type=int, default=60,
