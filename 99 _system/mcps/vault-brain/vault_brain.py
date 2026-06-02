@@ -33,10 +33,76 @@ import time
 from collections import defaultdict
 from pathlib import Path
 
-__version__ = "0.1.0"
+__version__ = "1.0.0"  # v1: + Headroom-style compression + CCR
 
 VAULT_ROOT = Path(os.environ.get("VAULT_ROOT", "/Users/brassfieldventuresllc/MiniMax-Agent"))
 INDEX_PATH = Path(os.environ.get("VAULT_BRAIN_INDEX", str(Path(__file__).parent / "index.json")))
+
+# ============================================================
+# HEADROOM-STYLE COMPRESSION (imported from direct-intake)
+# ============================================================
+#
+# The deterministic compression primitive lives in the direct-intake package
+# (built 2026-06-02 in Phase 1 of Operation Leviathan). We import it here
+# so the same Headroom algorithm runs at every prompt boundary (vault-brain,
+# intake, long-context-curator, self-model-card).
+#
+# If the direct-intake package isn't installed (e.g., vault-brain is being
+# run standalone), we fall back to a no-op stub so the search still works.
+
+_INT_INTAKE_PATH = Path(__file__).resolve().parent.parent / "direct-intake"
+if str(_INT_INTAKE_PATH) not in sys.path:
+    sys.path.insert(0, str(_INT_INTAKE_PATH))
+
+try:
+    from intake import compress as _headroom
+    HEADROOM_AVAILABLE = True
+except ImportError as e:
+    print(
+        f"WARNING: direct-intake/ intake.compress not importable ({e}). "
+        f"vault-brain will run without the Headroom compression layer.",
+        file=sys.stderr,
+    )
+    HEADROOM_AVAILABLE = False
+
+    class _NoOpHeadroom:
+        """Fallback when direct-intake isn't on the path. Pure no-op — search
+        returns uncompressed content. CCR is unavailable."""
+
+        @staticmethod
+        def compress(text: str, **kwargs):
+            class _Block:
+                text = text
+                ccr_hash = _headroom_unavailable_hash()
+                original_tokens = len(text) // 4
+                compressed_tokens = len(text) // 4
+                compression_ratio = 1.0
+                algorithms_applied = []
+            return _Block()
+
+        @staticmethod
+        def sha256_hex(text: str) -> str:
+            return _headroom_unavailable_hash()
+
+        @staticmethod
+        def get_store():
+            return _NoOpCCRStore()
+
+    class _NoOpCCRStore:
+        def put(self, text): return "unavailable"
+        def get(self, h): return None
+        def has(self, h): return False
+        def size(self): return 0
+        def clear(self): pass
+
+    def _headroom_unavailable_hash() -> str:
+        return "0" * 64
+
+    _headroom = _NoOpHeadroom()  # type: ignore[assignment]
+
+
+# Module-level CCR store — process-local, but enough for a single session
+_ccr_store = _headroom.get_store()
 
 # Skip these directories when walking the vault
 SKIP_DIRS = {".obsidian", ".git", ".smart-env", ".claude", ".claudian", "node_modules"}
@@ -178,12 +244,22 @@ def estimate_tokens(text: str) -> int:
     """Rough token estimate: ~4 chars per token. Good enough for budgeting."""
     return len(text) // 4
 
-def pack_anchor_ends(ranked: list, max_total_tokens: int) -> list:
+def pack_anchor_ends(
+    ranked: list,
+    max_total_tokens: int,
+    compress: bool = True,
+) -> list:
     """Pack the ranked notes using anchor-ends strategy.
 
     Per the M3 MSA pattern: highest-signal content goes to positions 0 and
     (budget-1), where attention is strongest. We put the top-2 at the ends
     and the rest in the middle.
+
+    If compress=True (default), each rendered chunk is run through the
+    Headroom-style compression layer before being added to the pack. The
+    original is stored in the CCR store with its SHA-256 hash; the
+    compressed text + hash are returned to the model. The model can call
+    ccr_retrieve(hash) when it needs the original.
     """
     # Filter zero-score, sort by score desc
     ranked = [(n, s, sigs) for n, s, sigs in ranked if s > 0]
@@ -204,18 +280,43 @@ def pack_anchor_ends(ranked: list, max_total_tokens: int) -> list:
             f"{note['body_excerpt']}"
         )
         chunk_tokens = estimate_tokens(rendered)
-        if tokens_used + chunk_tokens > max_total_tokens and packed:
+
+        # Compress the chunk (Headroom). Token budget counts the *compressed*
+        # size — that's what crosses the prompt boundary.
+        if compress and HEADROOM_AVAILABLE and chunk_tokens >= 100:
+            c = _headroom.compress(rendered, aggressive=False, min_tokens_to_compress=100)
+            # Store the original in the CCR store (idempotent on hash)
+            _ccr_store.put(rendered)
+            rendered_to_pack = c.text
+            chunk_tokens_estimate = c.compressed_tokens
+            compression_info = {
+                "ccr_hash": c.ccr_hash,
+                "original_tokens": c.original_tokens,
+                "compressed_tokens": c.compressed_tokens,
+                "ratio": round(c.compression_ratio, 3),
+                "savings_pct": round((1.0 - c.compression_ratio) * 100, 1),
+                "algorithms": c.algorithms_applied,
+            }
+        else:
+            rendered_to_pack = rendered
+            chunk_tokens_estimate = chunk_tokens
+            compression_info = None
+
+        if tokens_used + chunk_tokens_estimate > max_total_tokens and packed:
             break
-        packed.append({
+        chunk = {
             "path": note["path"],
             "title": note["title"],
             "tags": note["tags"],
             "score": round(score, 2),
             "signals": signals[:5],
-            "rendered": rendered,
-            "tokens_estimate": chunk_tokens,
-        })
-        tokens_used += chunk_tokens
+            "rendered": rendered_to_pack,
+            "tokens_estimate": chunk_tokens_estimate,
+        }
+        if compression_info is not None:
+            chunk["compression"] = compression_info
+        packed.append(chunk)
+        tokens_used += chunk_tokens_estimate
 
     # Re-arrange anchor-ends: put [1st, 3rd, 5th, ..., 4th, 2nd] so 1st is at
     # position 0 and 2nd is at position N-1, the rest fan out from the ends.
@@ -233,8 +334,25 @@ def pack_anchor_ends(ranked: list, max_total_tokens: int) -> list:
     return packed
 
 def search(query: str, top_k: int = 20, max_total_tokens: int = 50_000,
-           include_backlinks: bool = True, index: dict | None = None) -> dict:
-    """Main search entry point. Returns packed notes ready for M3 to reason over."""
+           include_backlinks: bool = True, compress: bool = True,
+           index: dict | None = None) -> dict:
+    """Main search entry point. Returns packed notes ready for M3 to reason over.
+
+    Args:
+        query: The search query.
+        top_k: Maximum number of notes to return.
+        max_total_tokens: Token budget for the returned content.
+        include_backlinks: Whether to inject backlinks for each returned note.
+        compress: If True (default), run the Headroom compression layer over
+            each rendered chunk before returning. The original is held in the
+            CCR store; the model can call ccr_retrieve(hash) to get it back
+            if it detects signal decay in the compressed version.
+        index: Pre-loaded index (for testing). Default: load from disk.
+
+    Returns:
+        dict with packed notes, total_tokens_estimate, and a
+        compression_summary showing the overall ratio.
+    """
     if index is None:
         index = load_index()
     if not index:
@@ -255,8 +373,8 @@ def search(query: str, top_k: int = 20, max_total_tokens: int = 50_000,
     scored.sort(key=lambda x: -x[1])
     top = scored[:top_k]
 
-    # Pack anchor-ends within budget
-    packed = pack_anchor_ends(top, max_total_tokens)
+    # Pack anchor-ends within budget (with optional compression)
+    packed = pack_anchor_ends(top, max_total_tokens, compress=compress)
 
     # Optionally inject backlinks for each packed note
     if include_backlinks:
@@ -269,6 +387,30 @@ def search(query: str, top_k: int = 20, max_total_tokens: int = 50_000,
                     backlinks.append(n["title"])
             chunk["backlinks"] = backlinks[:5]
 
+    # Compression summary — surfaces the multiplier to the caller
+    total_tokens = sum(c["tokens_estimate"] for c in packed)
+    original_tokens = sum(
+        c.get("compression", {}).get("original_tokens", c["tokens_estimate"])
+        for c in packed
+    )
+    if original_tokens > 0 and total_tokens > 0 and compress:
+        compression_summary = {
+            "enabled": True,
+            "headroom_available": HEADROOM_AVAILABLE,
+            "chunks_compressed": sum(1 for c in packed if c.get("compression")),
+            "original_tokens_estimate": original_tokens,
+            "compressed_tokens_estimate": total_tokens,
+            "overall_ratio": round(total_tokens / original_tokens, 3) if original_tokens else 1.0,
+            "overall_savings_pct": round(
+                (1.0 - (total_tokens / original_tokens)) * 100, 1
+            ) if original_tokens else 0.0,
+        }
+    else:
+        compression_summary = {
+            "enabled": False,
+            "headroom_available": HEADROOM_AVAILABLE,
+        }
+
     return {
         "query": query,
         "vault_root": index.get("vault_root", str(VAULT_ROOT)),
@@ -276,7 +418,8 @@ def search(query: str, top_k: int = 20, max_total_tokens: int = 50_000,
         "note_count_in_index": index.get("note_count", 0),
         "candidates_scored": len(scored),
         "returned": len(packed),
-        "total_tokens_estimate": sum(c["tokens_estimate"] for c in packed),
+        "total_tokens_estimate": total_tokens,
+        "compression_summary": compression_summary,
         "notes": packed,
     }
 
@@ -304,7 +447,12 @@ def run_mcp_server():
                 description=(
                     "Whole-vault semantic search. Returns top-K most relevant notes "
                     "packed anchor-ends style within an explicit token budget. "
-                    "The model (M3) does the final ranking and synthesis over the returned notes."
+                    "The model (M3) does the final ranking and synthesis over the returned notes. "
+                    "By default, each chunk is compressed via the Headroom-style layer; "
+                    "set compress=false to get the raw rendered markdown (use this when you "
+                    "need exact content and are willing to spend the tokens). Use ccr_retrieve "
+                    "to get the original text of a specific compressed chunk when you detect "
+                    "signal decay in the compressed version."
                 ),
                 inputSchema={
                     "type": "object",
@@ -313,8 +461,37 @@ def run_mcp_server():
                         "top_k": {"type": "integer", "default": 20, "minimum": 1, "maximum": 100},
                         "max_total_tokens": {"type": "integer", "default": 50000, "minimum": 1000, "maximum": 200000},
                         "include_backlinks": {"type": "boolean", "default": True},
+                        "compress": {
+                            "type": "boolean",
+                            "default": True,
+                            "description": (
+                                "Run Headroom compression on each chunk before returning. "
+                                "Default True (recommended for budget). Set False to skip "
+                                "compression (e.g., for high-fidelity debug or short queries)."
+                            ),
+                        },
                     },
                     "required": ["query"],
+                },
+            ),
+            Tool(
+                name="ccr_retrieve",
+                description=(
+                    "Retrieve the original (uncompressed) text of a chunk by its CCR hash. "
+                    "CCR = Content-Addressable Compression with Retrieval. The hash is "
+                    "returned in the search() result's chunk['compression']['ccr_hash']. "
+                    "Use this when you detect signal decay in the compressed version and "
+                    "need the original to reason correctly. Returns the raw markdown text."
+                ),
+                inputSchema={
+                    "type": "object",
+                    "properties": {
+                        "ccr_hash": {
+                            "type": "string",
+                            "description": "SHA-256 hash returned by a search() result",
+                        },
+                    },
+                    "required": ["ccr_hash"],
                 },
             ),
         ]
@@ -324,6 +501,25 @@ def run_mcp_server():
         if name == "search":
             result = search(**arguments)
             return [TextContent(type="text", text=json.dumps(result, indent=2))]
+
+        if name == "ccr_retrieve":
+            if not HEADROOM_AVAILABLE:
+                return [TextContent(
+                    type="text",
+                    text=json.dumps({"error": "ccr_retrieve unavailable: Headroom compression not loaded"}, indent=2),
+                )]
+            ccr_hash = arguments.get("ccr_hash", "")
+            original = _ccr_store.get(ccr_hash)
+            if original is None:
+                return [TextContent(
+                    type="text",
+                    text=json.dumps({
+                        "error": f"ccr_hash not found in store: {ccr_hash[:16]}...",
+                        "hint": "Hashes are process-local; only chunks returned by search() in this session are retrievable.",
+                    }, indent=2),
+                )]
+            return [TextContent(type="text", text=original)]
+
         raise ValueError(f"Unknown tool: {name}")
 
     import asyncio
@@ -343,6 +539,10 @@ def main() -> int:
     parser.add_argument("--top-k", type=int, default=20, help="Top-K notes to return (default 20)")
     parser.add_argument("--max-tokens", type=int, default=50_000, help="Max total tokens to return (default 50000)")
     parser.add_argument("--no-backlinks", action="store_true", help="Skip backlink injection")
+    parser.add_argument("--no-compress", action="store_true",
+                        help="Disable Headroom compression (return raw rendered markdown)")
+    parser.add_argument("--ccr-retrieve", metavar="HASH",
+                        help="Retrieve the original text for a CCR hash and print it")
     parser.add_argument("--serve", action="store_true", help="Run as MCP server (stdio)")
     parser.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
     args = parser.parse_args()
@@ -351,6 +551,17 @@ def main() -> int:
         notes = build_index()
         save_index(notes)
         print(f"Indexed {len(notes)} notes → {INDEX_PATH}", file=sys.stderr)
+        return 0
+
+    if args.ccr_retrieve:
+        if not HEADROOM_AVAILABLE:
+            print("ERROR: Headroom compression not available.", file=sys.stderr)
+            return 1
+        original = _ccr_store.get(args.ccr_retrieve)
+        if original is None:
+            print(f"ccr_hash not found: {args.ccr_retrieve}", file=sys.stderr)
+            return 1
+        print(original)
         return 0
 
     if args.query:
@@ -363,6 +574,7 @@ def main() -> int:
             top_k=args.top_k,
             max_total_tokens=args.max_tokens,
             include_backlinks=not args.no_backlinks,
+            compress=not args.no_compress,
             index=index,
         )
         print(json.dumps(result, indent=2))

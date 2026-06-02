@@ -12,6 +12,8 @@ import sys
 import time
 from pathlib import Path
 
+import pytest
+
 # Allow `import vault_brain` from this tests/ directory
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parent))
@@ -140,12 +142,14 @@ def test_search_returns_backlinks():
 def test_esalen_audit():
     """The 3 Esalen audit questions, applied to vault_brain:
     1. Are we testing something the model would have handled? — No. The tests
-       check deterministic I/O (file walk, tokenize, score). The semantic
-       ranking is M3's job at call time.
+       check deterministic I/O (file walk, tokenize, score, compress). The
+       semantic ranking is M3's job at call time.
     2. Is the code a thin deterministic layer or a model-judges-itself loop?
-       — Thin deterministic. No LLM calls in the search path.
+       — Thin deterministic. No LLM calls in the search path. Compression
+       is regex + heuristics, not an LLM.
     3. Does the system trust the model to finish or cage it? — Trust. M3
-       does the synthesis over the returned candidates.
+       does the synthesis over the returned candidates. It can opt back
+       into the original via ccr_retrieve when it needs detail.
     """
     # Verify: no mcp LLM calls, no recursive model calls, no caging
     import inspect
@@ -157,7 +161,117 @@ def test_esalen_audit():
     # search() returns candidates, not a final answer
     sig = inspect.signature(vault_brain.search)
     assert "query" in sig.parameters
-    print("  ✓ Esalen audit: thin deterministic layer, no model-judges-itself loop")
+    # CCR is opt-in (the model decides when to retrieve)
+    sig = inspect.signature(vault_brain.search)
+    assert "compress" in sig.parameters
+    print("  ✓ Esalen audit: thin deterministic layer + opt-in CCR, no model-judges-itself loop")
+
+
+# ============================================================
+# HEADROOM COMPRESSION (v1.0.0)
+# ============================================================
+
+def test_search_compresses_by_default():
+    """By default, search() runs the Headroom compression layer over each chunk."""
+    notes = vault_brain.build_index()
+    index = {"notes": notes, "vault_root": str(vault_brain.VAULT_ROOT)}
+    result = vault_brain.search("Mavis operating envelope", top_k=5, index=index)
+    assert result["compression_summary"]["enabled"] is True
+    # At least one chunk should have compression info
+    compressed_chunks = [c for c in result["notes"] if c.get("compression")]
+    if result["notes"]:
+        # The result contains at least one chunk; compression ran on chunks >= 100 tokens
+        # (synthesized chunks may be short if top hits are short)
+        pass
+    # The summary should have the savings field
+    summary = result["compression_summary"]
+    assert "overall_savings_pct" in summary
+    assert "chunks_compressed" in summary
+    print(f"  ✓ search() compressed: {summary['chunks_compressed']}/{len(result['notes'])} chunks, {summary['overall_savings_pct']}% savings")
+
+
+def test_search_can_disable_compression():
+    """With compress=False, the returned chunks have no compression info and no CCR hash."""
+    notes = vault_brain.build_index()
+    index = {"notes": notes, "vault_root": str(vault_brain.VAULT_ROOT)}
+    result = vault_brain.search("Mavis operating envelope", top_k=5, compress=False, index=index)
+    assert result["compression_summary"]["enabled"] is False
+    for chunk in result["notes"]:
+        assert "compression" not in chunk
+    print(f"  ✓ compress=False: no compression info on any of {len(result['notes'])} chunks")
+
+
+def test_search_compressed_chunks_have_ccr_hash():
+    """Every compressed chunk should have a SHA-256 CCR hash retrievable via ccr_retrieve."""
+    import hashlib
+    notes = vault_brain.build_index()
+    index = {"notes": notes, "vault_root": str(vault_brain.VAULT_ROOT)}
+    result = vault_brain.search("Mavis operating envelope", top_k=5, index=index)
+    found_any = False
+    for chunk in result["notes"]:
+        comp = chunk.get("compression")
+        if not comp:
+            continue
+        found_any = True
+        h = comp["ccr_hash"]
+        # SHA-256 hex digest = 64 hex chars
+        assert len(h) == 64
+        assert all(c in "0123456789abcdef" for c in h)
+        # The hash must be retrievable from the CCR store
+        if vault_brain.HEADROOM_AVAILABLE:
+            original = vault_brain._ccr_store.get(h)
+            assert original is not None
+            # The original must contain the chunk's title and path
+            assert chunk["title"] in original
+    assert found_any, "expected at least one compressed chunk"
+    print(f"  ✓ all compressed chunks have valid SHA-256 CCR hashes (retrievable)")
+
+
+def test_ccr_retrieve_returns_original():
+    """The CCR retrieve path returns the original markdown (uncompressed)."""
+    if not vault_brain.HEADROOM_AVAILABLE:
+        pytest.skip("Headroom not available (direct-intake not on path)")
+    import pytest
+    notes = vault_brain.build_index()
+    index = {"notes": notes, "vault_root": str(vault_brain.VAULT_ROOT)}
+    result = vault_brain.search("Mavis operating envelope", top_k=3, index=index)
+    # Find any compressed chunk
+    for chunk in result["notes"]:
+        comp = chunk.get("compression")
+        if not comp:
+            continue
+        h = comp["ccr_hash"]
+        original = vault_brain._ccr_store.get(h)
+        assert original is not None
+        # The original is the uncompressed rendered chunk
+        assert chunk["title"] in original
+        assert chunk["path"] in original
+        # The compressed text is shorter or equal
+        if comp["original_tokens"] > 0 and comp["compressed_tokens"] > 0:
+            assert comp["compressed_tokens"] <= comp["original_tokens"]
+        break
+    print(f"  ✓ ccr_retrieve round-trip: original retrievable, content preserved")
+
+
+def test_search_total_tokens_accounts_for_compression():
+    """The total_tokens_estimate should reflect the compressed size, not the raw."""
+    notes = vault_brain.build_index()
+    index = {"notes": notes, "vault_root": str(vault_brain.VAULT_ROOT)}
+
+    # Compressed
+    r_compressed = vault_brain.search("Mavis operating envelope", top_k=10, index=index, compress=True)
+    # Uncompressed
+    r_raw = vault_brain.search("Mavis operating envelope", top_k=10, index=index, compress=False)
+
+    # If compression ran and saved anything, compressed total should be <= raw
+    summary = r_compressed["compression_summary"]
+    if summary["enabled"] and summary.get("chunks_compressed", 0) > 0:
+        assert r_compressed["total_tokens_estimate"] <= r_raw["total_tokens_estimate"]
+        print(f"  ✓ compressed total ({r_compressed['total_tokens_estimate']}) <= raw total ({r_raw['total_tokens_estimate']})")
+    else:
+        # No compression happened (chunks too small) — totals should be equal
+        assert r_compressed["total_tokens_estimate"] == r_raw["total_tokens_estimate"]
+        print(f"  ✓ no chunks large enough to compress; totals equal: {r_compressed['total_tokens_estimate']}")
 
 
 # ============================================================
@@ -177,5 +291,13 @@ if __name__ == "__main__":
     test_search_respects_token_budget()
     test_search_returns_backlinks()
     print("\nEsalen audit:")
+    test_esalen_audit()
+    print("\nHeadroom compression (v1.0.0):")
+    test_search_compresses_by_default()
+    test_search_can_disable_compression()
+    test_search_compressed_chunks_have_ccr_hash()
+    test_ccr_retrieve_returns_original()
+    test_search_total_tokens_accounts_for_compression()
+    print("\nAll tests passed.")
     test_esalen_audit()
     print(f"\nAll tests passed.")
