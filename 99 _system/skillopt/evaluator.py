@@ -89,19 +89,28 @@ var is missing, the script dies with a clear message before any API call.
 v0.2.0 also logs every --run API call to
 <vault>/99 _system/logs/skillopt-runs.jsonl (per PIPELINE.md § Step 5)
 for cost tracking + audit.
+
+v0.3.0 adds 5-way concurrency via concurrent.futures.ThreadPoolExecutor
+(default --concurrency=5). 25 sequential calls × ~23s = ~10 min reduced
+to ~2 min with 5-way parallelism. Thread safety:
+  - console output (print) serialized via threading.Lock
+  - audit log writes serialized via threading.Lock
+  - per-item grade JSONs and prompt files: unique paths, no contention
 """
 
 import argparse
+import concurrent.futures
 import json
 import os
 import sys
+import threading
 import time
 import urllib.error
 import urllib.request
 from datetime import datetime
 from pathlib import Path
 
-__version__ = "0.2.0"
+__version__ = "0.3.0"
 
 # ============================================================
 # API CONFIG — env-based, no hardcoded secrets
@@ -601,7 +610,8 @@ def cmd_grade(args) -> int:
 # ============================================================
 
 def cmd_run(args) -> int:
-    """One-shot runner: assemble + call API per item + grade + report."""
+    """One-shot runner: assemble + call API per item + grade + report.
+    v0.3.0: 5-way concurrent API calls (ThreadPoolExecutor)."""
     items = load_items(args.items)
     config = get_api_config()  # dies if MINIMAX_API_KEY is missing
 
@@ -625,27 +635,43 @@ def cmd_run(args) -> int:
 
     run_log = Path(args.run_log) if args.run_log else default_run_log_path()
 
+    # Thread-safety primitives:
+    #   print_lock — serialize console output (stdout is mostly atomic but
+    #                interleaving can garble the [N/25] progress line).
+    #   log_lock   — serialize audit-log appends (concurrent writes to a
+    #                single file can interleave bytes).
+    #   progress_lock — guard the shared completion counter.
+    print_lock = threading.Lock()
+    log_lock = threading.Lock()
+    progress_lock = threading.Lock()
+    progress = {"done": 0, "total": len(items)}
+
     print(f"Grading {len(items)} items via {config['url']} (model: {config['model']})...")
     if args.dry_run_api:
         print("  --dry-run-api: skipping real API calls, writing placeholder grades")
-    print(f"  grades_dir: {grades_dir}")
-    print(f"  run_log:    {run_log}")
+    print(f"  concurrency: {args.concurrency}")
+    print(f"  grades_dir:  {grades_dir}")
+    print(f"  run_log:     {run_log}")
     print()
 
-    for i, item in enumerate(items, 1):
+    def grade_one_item(item: dict) -> dict:
+        """Worker: build prompt, call API, parse, write grade + log + print.
+        Returns a small dict with status, duration, score, item_pass for the
+        final summary (currently unused but useful for debugging)."""
         item_id = item["id"]
+        category = item["category"]
         prompt = build_prompt(item, mavis_output)
         grade_path = grades_dir / f"{item_id}.grades.json"
         prompt_path = prompts_dir / f"{item_id}.md"
         prompt_path.write_text(prompt, encoding="utf-8")
 
-        print(f"  [{i}/{len(items)}] {item_id} ({item['category']})...", end="", flush=True)
         start = time.time()
 
+        # ----- dry-run path -----
         if args.dry_run_api:
             placeholder = {
                 "id": item_id,
-                "category": item["category"],
+                "category": category,
                 "scores": {d: 0 for d in item["scoring_dimensions"]},
                 "evidence": {},
                 "raw_score": 0.0,
@@ -654,19 +680,25 @@ def cmd_run(args) -> int:
                 "summary": "DRY RUN — no API call was made, eval cannot pass without real grades",
             }
             grade_path.write_text(json.dumps(placeholder, indent=2), encoding="utf-8")
-            log_run(run_log, {
-                "ts": datetime.now().isoformat(timespec="seconds"),
-                "item_id": item_id,
-                "category": item["category"],
-                "model": config["model"],
-                "endpoint": config["url"],
-                "duration_ms": 0,
-                "status": "dry_run",
-                "item_pass": False,
-            })
-            print(" DRY-RUN")
-            continue
+            with log_lock:
+                log_run(run_log, {
+                    "ts": datetime.now().isoformat(timespec="seconds"),
+                    "item_id": item_id,
+                    "category": category,
+                    "model": config["model"],
+                    "endpoint": config["url"],
+                    "duration_ms": 0,
+                    "status": "dry_run",
+                    "item_pass": False,
+                })
+            with progress_lock:
+                progress["done"] += 1
+                n = progress["done"]
+            with print_lock:
+                print(f"  [{n}/{progress['total']}] {item_id} ({category}) — DRY-RUN")
+            return {"id": item_id, "status": "dry_run", "duration_ms": 0}
 
+        # ----- real API path -----
         try:
             response = call_minimax_api(
                 prompt, config,
@@ -679,29 +711,37 @@ def cmd_run(args) -> int:
             grade_path.write_text(json.dumps(grade, indent=2), encoding="utf-8")
             duration_ms = int((time.time() - start) * 1000)
             usage = response.get("usage", {}) if isinstance(response, dict) else {}
-            log_run(run_log, {
-                "ts": datetime.now().isoformat(timespec="seconds"),
-                "item_id": item_id,
-                "category": item["category"],
-                "model": config["model"],
-                "endpoint": config["url"],
-                "prompt_tokens": usage.get("prompt_tokens", 0),
-                "completion_tokens": usage.get("completion_tokens", 0),
-                "total_tokens": usage.get("total_tokens", 0),
-                "duration_ms": duration_ms,
-                "status": "ok",
-                "raw_score": grade.get("raw_score"),
-                "item_pass": grade.get("item_pass"),
-            })
+            with log_lock:
+                log_run(run_log, {
+                    "ts": datetime.now().isoformat(timespec="seconds"),
+                    "item_id": item_id,
+                    "category": category,
+                    "model": config["model"],
+                    "endpoint": config["url"],
+                    "prompt_tokens": usage.get("prompt_tokens", 0),
+                    "completion_tokens": usage.get("completion_tokens", 0),
+                    "total_tokens": usage.get("total_tokens", 0),
+                    "duration_ms": duration_ms,
+                    "status": "ok",
+                    "raw_score": grade.get("raw_score"),
+                    "item_pass": grade.get("item_pass"),
+                })
+            with progress_lock:
+                progress["done"] += 1
+                n = progress["done"]
             score_str = f"{grade.get('raw_score', 0.0):.2f}"
             pass_str = "PASS" if grade.get("item_pass") else "FAIL"
-            print(f" {pass_str} (score={score_str}, {duration_ms}ms)")
+            with print_lock:
+                print(f"  [{n}/{progress['total']}] {item_id} ({category}) — "
+                      f"{pass_str} (score={score_str}, {duration_ms}ms)")
+            return {"id": item_id, "status": "ok", "duration_ms": duration_ms,
+                    "raw_score": grade.get("raw_score"), "item_pass": grade.get("item_pass")}
         except Exception as e:
             duration_ms = int((time.time() - start) * 1000)
             err_msg = f"{type(e).__name__}: {str(e)[:200]}"
             failed_grade = {
                 "id": item_id,
-                "category": item["category"],
+                "category": category,
                 "scores": {},
                 "evidence": {},
                 "raw_score": 0.0,
@@ -710,19 +750,41 @@ def cmd_run(args) -> int:
                 "summary": f"API CALL FAILED: {err_msg}",
             }
             grade_path.write_text(json.dumps(failed_grade, indent=2), encoding="utf-8")
-            log_run(run_log, {
-                "ts": datetime.now().isoformat(timespec="seconds"),
-                "item_id": item_id,
-                "category": item["category"],
-                "model": config["model"],
-                "endpoint": config["url"],
-                "duration_ms": duration_ms,
-                "status": "error",
-                "error": err_msg,
-            })
-            print(f" ERROR ({err_msg[:80]})")
+            with log_lock:
+                log_run(run_log, {
+                    "ts": datetime.now().isoformat(timespec="seconds"),
+                    "item_id": item_id,
+                    "category": category,
+                    "model": config["model"],
+                    "endpoint": config["url"],
+                    "duration_ms": duration_ms,
+                    "status": "error",
+                    "error": err_msg,
+                })
+            with progress_lock:
+                progress["done"] += 1
+                n = progress["done"]
+            with print_lock:
+                print(f"  [{n}/{progress['total']}] {item_id} ({category}) — "
+                      f"ERROR ({err_msg[:80]})")
+            return {"id": item_id, "status": "error", "duration_ms": duration_ms,
+                    "error": err_msg}
 
-    # Compute the report (reuse cmd_grade logic)
+    # Submit all items to the thread pool. max_workers=5 means up to 5
+    # concurrent API calls; the rest queue.
+    run_start = time.time()
+    with concurrent.futures.ThreadPoolExecutor(max_workers=args.concurrency) as executor:
+        futures = [executor.submit(grade_one_item, item) for item in items]
+        # as_completed yields as each finishes, so the main thread drains
+        # the futures (and any exception surfaces here).
+        results = [f.result() for f in concurrent.futures.as_completed(futures)]
+    run_duration = time.time() - run_start
+
+    # Compute the report (reuse cmd_grade logic) — single-threaded, no locks needed
+    print()
+    with print_lock:
+        print(f"  All items processed in {run_duration:.1f}s "
+              f"(concurrency={args.concurrency}, sequential est: ~{sum(r['duration_ms'] for r in results)/1000:.0f}s)")
     print()
     fake_args = argparse.Namespace(
         items=args.items,
@@ -731,7 +793,6 @@ def cmd_run(args) -> int:
     )
     rc = cmd_grade(fake_args)
     if args.dry_run_api and rc == 0:
-        # The report is structurally clean; explicitly note the dry-run caveat
         print()
         print("NOTE: --dry-run-api was set. The report above is structurally complete,")
         print("      but every grade is a placeholder (all-dim=0, item_pass=False).")
@@ -824,6 +885,10 @@ def main() -> int:
                        help="Max retries on retryable HTTP/network errors (default 3)")
     p_run.add_argument("--timeout", type=int, default=60,
                        help="Per-request timeout in seconds (default 60)")
+    p_run.add_argument("--concurrency", type=int, default=5,
+                       help="Max concurrent API calls (default 5). 25 items at "
+                            "~23s per call = ~10 min sequential, ~2 min with 5-way "
+                            "concurrency. Cost is unchanged; only wall time drops.")
     p_run.add_argument("--dry-run-api", action="store_true",
                        help="Skip real API calls; write placeholder grades for "
                             "pipeline validation. Placeholder grades default to "
