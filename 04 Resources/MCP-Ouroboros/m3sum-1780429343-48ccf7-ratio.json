@@ -1,0 +1,9 @@
+{
+  "original_tokens": 6404,
+  "regex_compressed_tokens": 6363,
+  "m3_summary_tokens": 1846,
+  "regex_ratio": 0.994,
+  "end_to_end_ratio": 0.288,
+  "end_to_end_savings_pct": 71.2,
+  "ccr_hash": "23de09b09eb17140905a4ef46c1550de0602c9ae784493e0f710cfdc867bb1a5"
+}
