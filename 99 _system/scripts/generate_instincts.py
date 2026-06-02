@@ -391,7 +391,12 @@ def check_for_duplicates(candidate: dict, existing: list) -> list:
 # ============================================================
 
 def render_instinct_file(c: dict) -> str:
-    """Render a candidate as a markdown file with frontmatter + body."""
+    """Render a candidate as a markdown file with frontmatter + H1 title + body.
+
+    Matches the existing instinct file pattern (frontmatter, blank line,
+    `# <title>`, blank line, body). The schema test (test_instincts.py)
+    requires an H1 heading after the frontmatter.
+    """
     fm_lines = ["---"]
     for key in REQUIRED_FIELDS:
         v = c[key]
@@ -403,7 +408,8 @@ def render_instinct_file(c: dict) -> str:
     fm_lines.append("---")
     fm_lines.append("")
     body = c["body"].strip()
-    return "\n".join(fm_lines) + "\n\n" + body + "\n"
+    title = c.get("title", "").strip()
+    return "\n".join(fm_lines) + f"\n\n# {title}\n\n" + body + "\n"
 
 
 def apply_candidates(
@@ -457,7 +463,12 @@ def apply_candidates(
         instincts_dir.mkdir(parents=True, exist_ok=True)
         written = []
         for c in valid:
-            fname = f"{c['id']}-{re.sub(r'[^a-z0-9]+', '-', c['title'].lower())[:60]}.md"
+            # Filename pattern matches existing instincts: YYYY-MM-DD-NNN-slug.md
+            # (strip the "i-" prefix from c['id'] since the prefix only appears
+            # in frontmatter, not the file system name)
+            id_for_filename = re.sub(r"^i-", "", c["id"])
+            slug = re.sub(r"[^a-z0-9]+", "-", c["title"].lower())[:60].strip("-")
+            fname = f"{id_for_filename}-{slug}.md"
             path = instincts_dir / fname
             path.write_text(render_instinct_file(c), encoding="utf-8")
             written.append(str(path))

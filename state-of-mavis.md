@@ -144,7 +144,7 @@ related: [[MAVIS]] (weekly context), [[SOUL]] (permanent identity), [[agent]] (p
 - ~~Friction 1: Where do MCP build artifacts live?~~ → **`99 _system/mcps/<name>/`** (locked)
 - ~~Friction 2: Language/runtime for MCPs?~~ → **Python + pytest** (locked)
 - ~~Friction 3: LLM fallback model?~~ → **M3 itself at lower temperature** (locked; no Haiku)
-- ~~Friction 4: Audit log path?~~ → **`99 _system/logs/audit_log.jsonl`** (locked; vault-resident)
+- ~~Friction 4: Audit log path?~~ → **`99 _system/logs/audit_log.jsonl`** (locked as a *reservation*; the file was never created. Harvest from `skillopt-runs.jsonl` + Friction Log + git log until the file materializes. Per Friction 12, locked paths must be audited, not assumed.)
 - ~~Friction 5: Test runner?~~ → **pytest** (locked; implied by F2)
 - ~~Friction 6: Override path?~~ → **binary for v1** (locked; conditional deferred to v2)
 - ~~Friction 7: state-of-mavis script's "since commit" windowing~~ → **`--since <commit>` flag added** (locked; default unchanged)
@@ -166,6 +166,11 @@ related: [[MAVIS]] (weekly context), [[SOUL]] (permanent identity), [[agent]] (p
 - v0.2.0 (sequential) and v0.3.0 (concurrent) ran on the same Mavis output but produced different PASS/FAIL outcomes: 2/25 vs 1/25 respectively. The dimensions that flipped were on borderline scores (0.5, 0.67, 0.83) where M3's sampling noise could go either way.
 - **Unblock**: hardcode temperature=0.0 for all M3 grading calls. Done in v0.3.1 (`99 _system/skillopt/evaluator.py`). The `--temperature` flag is removed; future non-grading work that needs a different temperature should add a separate flag.
 - **Cost of not deciding**: a SOUL compliance regression could be masked by sampling noise (a 0.83 PASS one run, 0.79 FAIL the next), defeating the purpose of the eval set. The canary rule on boundary_adherence (100% pass required) is especially vulnerable — a single flipped dimension on a boundary item would falsely trigger the canary.
+
+**Friction 12: Spec blocks can claim file paths that don't exist; the harvester must surface the gap, not fail silently** (raised by Operation Ouroboros Phase 3, 2026-06-02)
+- Friction 4 in this log locked the audit-log path as `99 _system/logs/audit_log.jsonl`. The `generate_instincts.py` harvester then discovered the file doesn't exist — only `skillopt-runs.jsonl` is in that directory. The harvester's graceful-skip was the right default behavior (the script didn't crash), but the *gap itself* is the finding.
+- **Unblock**: every Friction Log entry that names a specific file path is a *promise*, not a fact. The discipline is to (a) update Friction entries to say "reservation" or "locked path" explicitly when the file doesn't exist yet, and (b) harvesters must surface the missing path in their output (the harvester now does — see `generate_instincts.py` `harvest_audit_log()`'s "note" field). New instinct 2026-06-02-006 codifies the operational rule.
+- **Cost of not deciding**: future harvester runs will keep silently skipping the same missing file, and the gap will stay invisible to anyone reading the Friction Log. The Memory Without Source disease compounds — a Friction says "this exists" and a harvester says "this doesn't", and nobody notices because both are correct in their own context.
 
 ---
 

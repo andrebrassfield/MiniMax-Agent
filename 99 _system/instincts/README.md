@@ -23,7 +23,7 @@ Every session produces instincts. Three triggers:
 
 When 3+ related instincts reach confidence >= 0.7 in the same cluster, they cluster into a skill. The `evolve` step (TBD) automates this. Today it's manual — review the cluster, write the skill, reference the instinct IDs.
 
-## The current set (30 instincts, 2026-06-02)
+## The current set (33 instincts, 2026-06-02)
 
 | ID | Cluster | Title | Confidence |
 |---|---|---|---|
@@ -57,15 +57,18 @@ When 3+ related instincts reach confidence >= 0.7 in the same cluster, they clus
 | [[2026-06-02-003-instincts-are-atomic-confidence-scored-evidence-ba]] | memory | Instincts are atomic, confidence-scored, evidence-backed | 0.85 |
 | [[2026-06-02-004-adaptive-selectors-survive-website-redesigns]] | ingestion | Adaptive selectors survive website redesigns | 0.85 |
 | [[2026-06-02-005-skills-are-installable-atomic-units-validated]] | architecture | Skills are installable atomic units, validated | 0.85 |
+| [[2026-06-02-006-verify-locked-paths-exist-before-harvest]] | memory | Verify locked paths exist before harvest | 0.85 |
+| [[2026-06-02-007-headroom-ratios-are-a-chain-not-a-number]] | tools | Headroom ratios are a chain, not a number | 0.85 |
+| [[2026-06-02-008-audit-spec-content-against-operating-posture-not-just-spec-f]] | communication | Audit spec content against operating posture, not just spec form | 0.80 |
 
 ## Cluster distribution
 
 | Cluster | Count | Avg confidence |
 |---|---:|---:|
 | m3 | 8 | 0.95 |
-| memory | 4 | 0.90 |
-| tools | 4 | 0.91 |
-| communication | 3 | 0.95 |
+| memory | 5 | 0.88 |
+| tools | 5 | 0.89 |
+| communication | 4 | 0.91 |
 | safety | 2 | 0.99 |
 | vault | 3 | 0.92 |
 | workflow | 1 | 0.90 |
