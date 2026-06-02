@@ -5,20 +5,31 @@
       "type": "group",
       "label": "M3 Model Layer",
       "x": -1600,
-      "y": -1400,
+      "y": -1700,
       "width": 3200,
-      "height": 700,
+      "height": 500,
       "color": "1",
       "background": "1"
+    },
+    {
+      "id": "group-compression",
+      "type": "group",
+      "label": "Compression Layer (Headroom / CCR)",
+      "x": -1600,
+      "y": -1180,
+      "width": 3200,
+      "height": 400,
+      "color": "3",
+      "background": "3"
     },
     {
       "id": "group-intel",
       "type": "group",
       "label": "Intelligence Layer (Vellum / SOUL)",
       "x": -1600,
-      "y": -600,
+      "y": -760,
       "width": 3200,
-      "height": 700,
+      "height": 600,
       "color": "4",
       "background": "4"
     },
@@ -27,20 +38,31 @@
       "type": "group",
       "label": "Execution Layer (Custom MCPs)",
       "x": -1600,
-      "y": 200,
+      "y": -140,
       "width": 3200,
-      "height": 800,
+      "height": 600,
       "color": "5",
       "background": "5"
+    },
+    {
+      "id": "group-ingestion",
+      "type": "group",
+      "label": "Ingestion Layer (MarkItDown / Scrapling / Intake)",
+      "x": -1600,
+      "y": 480,
+      "width": 3200,
+      "height": 500,
+      "color": "2",
+      "background": "2"
     },
     {
       "id": "group-os",
       "type": "group",
       "label": "Host OS Layer",
       "x": -1600,
-      "y": 1100,
+      "y": 1000,
       "width": 3200,
-      "height": 700,
+      "height": 600,
       "color": "6",
       "background": "6"
     },
@@ -49,9 +71,9 @@
       "type": "text",
       "text": "# MiniMax M3\n\nOpen-weights frontier model (Jun 2026)\n1M context · multimodal · computer use\n\n59% SWE-Bench Pro\n70.06% OSWorld-Verified\n83.5 BrowseComp",
       "x": -1500,
-      "y": -1300,
+      "y": -1620,
       "width": 450,
-      "height": 280,
+      "height": 240,
       "color": "1"
     },
     {
@@ -59,9 +81,9 @@
       "type": "text",
       "text": "# MSA Sparse Attention\n\nKV-block selection\n1/20 per-token compute at 1M\n9.7× prefill · 15.6× decode\nKV-outer-gather-Q",
       "x": -1000,
-      "y": -1300,
+      "y": -1620,
       "width": 450,
-      "height": 280,
+      "height": 240,
       "color": "1"
     },
     {
@@ -69,9 +91,9 @@
       "type": "text",
       "text": "# 1M Context\n\nWhole-vault as working memory\nWhole-codebase in one thread\nCompaction at 50K intervals\n\nLost-in-middle still applies",
       "x": -500,
-      "y": -1300,
+      "y": -1620,
       "width": 450,
-      "height": 280,
+      "height": 240,
       "color": "1"
     },
     {
@@ -79,9 +101,9 @@
       "type": "text",
       "text": "# Native Multimodality\n\nText + image + video input\nNo OCR / Whisper pipeline\nScreenshot-as-input\nLoom-as-input",
       "x": 0,
-      "y": -1300,
+      "y": -1620,
       "width": 450,
-      "height": 280,
+      "height": 240,
       "color": "1"
     },
     {
@@ -89,19 +111,69 @@
       "type": "text",
       "text": "# Computer Use\n\n70.06% OSWorld-Verified\nScreenshot → action → screenshot\na11y tree + Set-of-Marks\nNative vision = no separate pipeline",
       "x": 500,
-      "y": -1300,
+      "y": -1620,
       "width": 450,
-      "height": 280,
+      "height": 240,
       "color": "1"
+    },
+    {
+      "id": "node-headroom-core",
+      "type": "text",
+      "text": "# Headroom (core)\n\nLocal compression proxy / library\nLibrary · Proxy · MCP · 4 modes\n\nCacheAligner → ContentRouter → CCR\n6 algorithms · reversible",
+      "x": -1500,
+      "y": -1100,
+      "width": 500,
+      "height": 240,
+      "color": "3"
+    },
+    {
+      "id": "node-headroom-algos",
+      "type": "text",
+      "text": "# Compression Algorithms\n\nSmartCrusher (JSON, 60-80%)\nCodeCompressor (AST, 70-90%)\nKompress-base (prose, 60-95%)\nImage ML router (40-90%)\nIntelligentContext (importance)",
+      "x": -950,
+      "y": -1100,
+      "width": 500,
+      "height": 240,
+      "color": "3"
+    },
+    {
+      "id": "node-ccr",
+      "type": "text",
+      "text": "# CCR (Reversible)\n\nOriginal stored with content hash\nheadroom_retrieve(hash) → original\n\nModel opts back into detail\nwhen reasoning requires it\n\n3× budget multiplier on $100/mo",
+      "x": -400,
+      "y": -1100,
+      "width": 500,
+      "height": 240,
+      "color": "3"
+    },
+    {
+      "id": "node-cache-aligner",
+      "type": "text",
+      "text": "# CacheAligner\n\nStabilizes prompt prefixes\nNormalizes whitespace, JSON keys,\n tool order, date formats\n\nProvider KV cache hits\n10× cheaper cached tokens",
+      "x": 150,
+      "y": -1100,
+      "width": 500,
+      "height": 240,
+      "color": "3"
+    },
+    {
+      "id": "node-headroom-stats",
+      "type": "text",
+      "text": "# headroom_stats (MCP)\n\nAvg compression ratio\nRetrieval count\nCache hit rate\n\nReal workloads:\n· Code search 92% savings\n· SRE incidents 92% savings\n· Issue triage 73% savings",
+      "x": 700,
+      "y": -1100,
+      "width": 450,
+      "height": 240,
+      "color": "3"
     },
     {
       "id": "node-soul",
       "type": "text",
-      "text": "# SOUL V2 (Operator Contract)\n\nEA mode · direct, no fluff\nReconfirm before irreversible\nQuote what you read\n\nHard constraints:\n• no deploys without approval\n• no push to non-vault\n• no destructive ops without go",
+      "text": "# SOUL V2 (Operator Contract)\n\nEA mode · direct, no fluff\nReconfirm before irreversible\nQuote what you read\nEsalen posture (audit-first)\n\nHard constraints:\n• no deploys without approval\n• no push to non-vault\n• no destructive ops without go",
       "x": -1500,
-      "y": -500,
+      "y": -680,
       "width": 500,
-      "height": 320,
+      "height": 280,
       "color": "4"
     },
     {
@@ -109,9 +181,9 @@
       "type": "text",
       "text": "# Vellum Architecture\n\nCHIEF templates (pattern/idea/question)\n + Vellum structural layer\n\nVault = primary memory\nContext-budget allocator\nNo chunking by default",
       "x": -950,
-      "y": -500,
+      "y": -680,
       "width": 450,
-      "height": 320,
+      "height": 280,
       "color": "4"
     },
     {
@@ -119,19 +191,19 @@
       "type": "text",
       "text": "# Mavis EA Workflow\n\nCapture over polish\nLink on reference, processing, review\nSpec-audit before execution\nReport gaps, wait for \"go\"",
       "x": -450,
-      "y": -500,
+      "y": -680,
       "width": 450,
-      "height": 320,
+      "height": 280,
       "color": "4"
     },
     {
       "id": "node-curator",
       "type": "text",
-      "text": "# long-context-curator\n\nMCP #3 — packs context for M3\nanchor-ends strategy\nmarginal-value scoring\nCompaction at 50K intervals",
+      "text": "# long-context-curator\n\nMCP #3 — packs context for M3\nanchor-ends strategy\nmarginal-value scoring\nCompaction at 50K intervals\n\nWires Headroom into the pack",
       "x": 50,
-      "y": -500,
+      "y": -680,
       "width": 450,
-      "height": 320,
+      "height": 280,
       "color": "4"
     },
     {
@@ -139,19 +211,19 @@
       "type": "text",
       "text": "# self-model-card\n\nMCP #5 — agent introspection\nWhat tools · what memory · what state\n\nself.can_i() = pre-flight check\nEnforces SOUL V2 at runtime",
       "x": 550,
-      "y": -500,
+      "y": -680,
       "width": 450,
-      "height": 320,
+      "height": 280,
       "color": "4"
     },
     {
       "id": "node-vault-brain",
       "type": "text",
-      "text": "# vault-brain\n\nMCP #1 — semantic vault search\nHybrid: embeddings + wikilink graph\nToken-budget controlled\nWhole-vault in-context mode",
+      "text": "# vault-brain\n\nMCP #1 — semantic vault search\nHybrid: embeddings + wikilink graph\nToken-budget controlled\n\nAll results compressed by Headroom\nbefore crossing the prompt boundary",
       "x": -1500,
-      "y": 300,
+      "y": -60,
       "width": 500,
-      "height": 320,
+      "height": 280,
       "color": "5"
     },
     {
@@ -159,9 +231,9 @@
       "type": "text",
       "text": "# macos-vision-anchor\n\nMCP #2 — persistent visual state\nCross-session anchors\na11y tree + Set-of-Marks\nvision_anchor.diff() for change tracking",
       "x": -950,
-      "y": 300,
+      "y": -60,
       "width": 500,
-      "height": 320,
+      "height": 280,
       "color": "5"
     },
     {
@@ -169,19 +241,19 @@
       "type": "text",
       "text": "# tool-self-healer\n\nMCP #4 — production reliability\nClassify error → apply recovery\nCache successful patterns\n<1ms on repeat, $0 LLM cost",
       "x": -400,
-      "y": 300,
+      "y": -60,
       "width": 500,
-      "height": 320,
+      "height": 280,
       "color": "5"
     },
     {
       "id": "node-cu-mcp",
       "type": "text",
-      "text": "# cu (Computer Use) MCP\n\nGeneric tier-3 execution\nscreenshot · click · type\nCurrently stateless\nmacos-vision-anchor adds memory",
+      "text": "# cu (Computer Use) MCP\n\nGeneric tier-3 execution\nscreenshot · click · type\nCurrently stateless\nmacos-vision-anchor adds memory\n\nFallback for sites that block scraping",
       "x": 150,
-      "y": 300,
+      "y": -60,
       "width": 450,
-      "height": 320,
+      "height": 280,
       "color": "5"
     },
     {
@@ -189,17 +261,47 @@
       "type": "text",
       "text": "# Generic MCP stack\n\nfilesystem · git · fetch · shell\nplaywright · obsidian · supabase\nkanban · matrix · playwright\n\nTier 1+2 of execution",
       "x": 650,
-      "y": 300,
+      "y": -60,
+      "width": 500,
+      "height": 280,
+      "color": "5"
+    },
+    {
+      "id": "node-markitdown",
+      "type": "text",
+      "text": "# MarkItDown\n\nPDF / PPTX / DOCX / XLSX\nImage (EXIF + LLM-vision OCR)\nAudio (EXIF + transcription)\nEPUB · ZIP · CSV · JSON · XML\nYouTube URLs · Outlook\n\nNarrow API: convert_local()\nMarkdown = LLM-native interchange",
+      "x": -1500,
+      "y": 540,
       "width": 500,
       "height": 320,
-      "color": "5"
+      "color": "2"
+    },
+    {
+      "id": "node-scrapling",
+      "type": "text",
+      "text": "# Scrapling\n\nAdaptive web scraper\n4 fetchers (Fetcher/Stealthy/Dynamic/Async)\nNative Cloudflare Turnstile bypass\nauto_save + adaptive selectors survive redesigns\n\nMCP server ships in-box\nPaired with MarkItDown HTML converter",
+      "x": -950,
+      "y": 540,
+      "width": 500,
+      "height": 320,
+      "color": "2"
+    },
+    {
+      "id": "node-intake-mcp",
+      "type": "text",
+      "text": "# direct-intake MCP\n\nDrop folder → vault note\n5 tools: drop / process / review / list / explain_links\n\nIngestion pipeline:\nSniff → MarkItDown/Scrapling\n→ Headroom compress (if > 5K)\n→ M3 classify + link + file",
+      "x": -400,
+      "y": 540,
+      "width": 500,
+      "height": 320,
+      "color": "2"
     },
     {
       "id": "node-macos",
       "type": "text",
       "text": "# macOS APIs\n\nAXUIElement (a11y tree)\nCGEvent (input)\nQuartz Display (capture)\nAppKit / Cocoa\n\nTouchID / sudo = real gates",
       "x": -1500,
-      "y": 1200,
+      "y": 1080,
       "width": 500,
       "height": 280,
       "color": "6"
@@ -209,7 +311,7 @@
       "type": "text",
       "text": "# Obsidian Vault\n\nThis vault (MiniMax-Agent/)\n00 Inbox → 01 Daily → 02 Notes\n03 Projects → 04 Resources → 99 _system\n\nFTS5 search · wikilinks · graph view\n~2-5K notes, 1-2M tokens",
       "x": -950,
-      "y": 1200,
+      "y": 1080,
       "width": 450,
       "height": 280,
       "color": "6"
@@ -219,7 +321,7 @@
       "type": "text",
       "text": "# Network APIs\n\nCalendar · Gmail · Drive\nSheets · Notion · Slack\nOpenAI-compat endpoints\nSupabase · HuggingFace · MiniMax API",
       "x": -450,
-      "y": 1200,
+      "y": 1080,
       "width": 450,
       "height": 280,
       "color": "6"
@@ -229,7 +331,7 @@
       "type": "text",
       "text": "# GUI Apps (Tier 3 territory)\n\nAnything with no API:\nLegacy enterprise software\nGovernment portals\nNiche SaaS · local desktop tools\n\nDriven via cu + macos-vision-anchor",
       "x": 50,
-      "y": 1200,
+      "y": 1080,
       "width": 450,
       "height": 280,
       "color": "6"
@@ -237,9 +339,9 @@
     {
       "id": "node-filesystem",
       "type": "text",
-      "text": "# Local Filesystem\n\nThe vault repo (git)\nLocal scripts + binaries\n\nTrash, not rm (recoverable)\nGit commits pre-Phase, push on GO",
+      "text": "# Local Filesystem\n\nThe vault repo (git)\nLocal scripts + binaries\nDrop folder: ~/Mavis-Inbox/\n\nTrash, not rm (recoverable)\nGit commits pre-Phase, push on GO",
       "x": 550,
-      "y": 1200,
+      "y": 1080,
       "width": 500,
       "height": 280,
       "color": "6"
@@ -247,11 +349,11 @@
     {
       "id": "node-m3-flow",
       "type": "text",
-      "text": "Data flows ↑↓\n1. Prompt → M3 (1M context + multimodal)\n2. M3 → Intelligence: tool calls + reasoning\n3. Intelligence → Execution: invoke MCP\n4. Execution → Host OS: API call / GUI action\n5. Host OS → Execution: state / response\n6. Execution → Intelligence: result + state\n7. Intelligence → M3: next prompt\n\nLoop time: 200ms (API) to 5s (visual)",
+      "text": "Data flows ↑↓\n1. Drop folder → Ingestion: file lands, sniff + convert\n2. Ingestion → Compression: markdown → dense (if > 5K tokens)\n3. Prompt assembly → M3: compressed prompt (1M context + multimodal)\n4. M3 → Intelligence: tool calls + reasoning\n5. Intelligence → Execution: invoke MCP\n6. Execution → Host OS: API call / GUI action / fetch\n7. Host OS → Ingestion: response (URL→HTML, file→bytes)\n8. Ingestion → Compression: convert + compress on the way back\n9. Compression → M3: dense result\n\nLoop time: 200ms (API) to 5s (visual) · Headroom cut: 50-90%",
       "x": -1500,
-      "y": -1500,
+      "y": -1800,
       "width": 3000,
-      "height": 60,
+      "height": 100,
       "color": "2"
     }
   ],
@@ -289,12 +391,68 @@
       "label": "drives"
     },
     {
-      "id": "edge-m3-intel",
+      "id": "edge-m3-compress",
       "fromNode": "node-m3-model",
+      "fromSide": "bottom",
+      "toNode": "node-headroom-core",
+      "toSide": "top",
+      "label": "consumes dense prompt"
+    },
+    {
+      "id": "edge-compress-intel",
+      "fromNode": "node-headroom-core",
       "fromSide": "bottom",
       "toNode": "node-soul",
       "toSide": "top",
-      "label": "inference"
+      "label": "feeds back into"
+    },
+    {
+      "id": "edge-compress-algos",
+      "fromNode": "node-headroom-core",
+      "fromSide": "right",
+      "toNode": "node-headroom-algos",
+      "toSide": "left",
+      "label": "dispatches"
+    },
+    {
+      "id": "edge-algos-ccr",
+      "fromNode": "node-headroom-algos",
+      "fromSide": "right",
+      "toNode": "node-ccr",
+      "toSide": "left",
+      "label": "store via"
+    },
+    {
+      "id": "edge-ccr-cache",
+      "fromNode": "node-ccr",
+      "fromSide": "right",
+      "toNode": "node-cache-aligner",
+      "toSide": "left",
+      "label": "retrieve for"
+    },
+    {
+      "id": "edge-cache-stats",
+      "fromNode": "node-cache-aligner",
+      "fromSide": "right",
+      "toNode": "node-headroom-stats",
+      "toSide": "left",
+      "label": "report via"
+    },
+    {
+      "id": "edge-compress-vault",
+      "fromNode": "node-vault-brain",
+      "fromSide": "top",
+      "toNode": "node-ccr",
+      "toSide": "bottom",
+      "label": "compressed by"
+    },
+    {
+      "id": "edge-compress-curator",
+      "fromNode": "node-curator",
+      "fromSide": "bottom",
+      "toNode": "node-headroom-algos",
+      "toSide": "top",
+      "label": "packs with"
     },
     {
       "id": "edge-soul-vellum",
@@ -425,11 +583,91 @@
       "label": "enforces"
     },
     {
-      "id": "edge-m3-loop",
+      "id": "edge-m3-flow",
       "fromNode": "node-m3-model",
       "fromSide": "right",
       "toNode": "node-m3-flow",
       "toSide": "left"
+    },
+    {
+      "id": "edge-ingest-markitdown",
+      "fromNode": "node-filesystem",
+      "fromSide": "top",
+      "toNode": "node-intake-mcp",
+      "toSide": "bottom",
+      "label": "drop folder"
+    },
+    {
+      "id": "edge-ingest-network",
+      "fromNode": "node-network",
+      "fromSide": "top",
+      "toNode": "node-intake-mcp",
+      "toSide": "bottom",
+      "label": "URL drops"
+    },
+    {
+      "id": "edge-markitdown-intake",
+      "fromNode": "node-markitdown",
+      "fromSide": "right",
+      "toNode": "node-intake-mcp",
+      "toSide": "left",
+      "label": "converts for"
+    },
+    {
+      "id": "edge-scrapling-intake",
+      "fromNode": "node-scrapling",
+      "fromSide": "right",
+      "toNode": "node-intake-mcp",
+      "toSide": "left",
+      "label": "fetches for"
+    },
+    {
+      "id": "edge-scrapling-network",
+      "fromNode": "node-scrapling",
+      "fromSide": "bottom",
+      "toNode": "node-network",
+      "toSide": "top",
+      "label": "scrapes"
+    },
+    {
+      "id": "edge-markitdown-filesystem",
+      "fromNode": "node-markitdown",
+      "fromSide": "bottom",
+      "toNode": "node-filesystem",
+      "toSide": "top",
+      "label": "reads"
+    },
+    {
+      "id": "edge-intake-vault",
+      "fromNode": "node-intake-mcp",
+      "fromSide": "top",
+      "toNode": "node-vault-brain",
+      "toSide": "bottom",
+      "label": "files to"
+    },
+    {
+      "id": "edge-intake-obsidian",
+      "fromNode": "node-intake-mcp",
+      "fromSide": "top",
+      "toNode": "node-obsidian",
+      "toSide": "bottom",
+      "label": "writes note"
+    },
+    {
+      "id": "edge-cu-fallback",
+      "fromNode": "node-cu-mcp",
+      "fromSide": "bottom",
+      "toNode": "node-scrapling",
+      "toSide": "top",
+      "label": "fallback for"
+    },
+    {
+      "id": "edge-compress-intake",
+      "fromNode": "node-headroom-stats",
+      "fromSide": "bottom",
+      "toNode": "node-intake-mcp",
+      "toSide": "top",
+      "label": "compresses for"
     }
   ]
 }
