@@ -94,6 +94,11 @@ class GlassHandler(BaseHTTPRequestHandler):
             self._serve_crucible()
             return
 
+        # Fleet Command HUD
+        if rel_path in ("_glass/fleet", "fleet"):
+            self._serve_fleet()
+            return
+
         # The Omni-Operator Manifesto
         if rel_path in ("_glass/manifesto", "manifesto",
                         "THE-OMNI-OPERATOR-MANIFESTO.md",
@@ -430,6 +435,343 @@ class GlassHandler(BaseHTTPRequestHandler):
         self.send_header("Cache-Control", "no-store")
         self.end_headers()
         self.wfile.write(encoded)
+
+    def _serve_fleet(self):
+        """Render the Fleet Command HUD — Mavis + Researcher + Verifier + Hermes.
+
+        Pulls live vault state for each agent and renders the fleet.html
+        template. Mavis section reuses the MycelialResolver for the routing
+        network stats. Researcher/Verifier sections read SOUL.md, AGENTS.md,
+        config.yaml, dossiers/, and ledgers directly. Hermes section pulls
+        the staged-rollout status from the dual-repo coordination doc.
+        """
+        mavis_html, mycelial_skills = self._build_mavis_section()
+        researcher_html, _d, claim_count = self._build_agent_section(
+            agent_name="Researcher",
+            agent_root="03 Projects/Researcher",
+            role_label="Fleet Specialized · Evidence Operator",
+            role_class="specialized",
+            default_mission=(
+                "The Researcher's evidence operator. Turns the outside "
+                "world into compounding evidence the rest of the fleet "
+                "can act on."
+            ),
+            ledger_filename="claims.jsonl",
+            ledger_label="Total claims",
+        )
+        verifier_html, _d, verdict_count = self._build_agent_section(
+            agent_name="Verifier",
+            agent_root="03 Projects/Verifier",
+            role_label="Fleet Specialized · Trust Layer",
+            role_class="specialized",
+            default_mission=(
+                "The Verifier's trust layer. Turns other agents' "
+                "confident output into receipts the rest of the stack "
+                "can defend."
+            ),
+            ledger_filename="verdicts.jsonl",
+            ledger_label="Total verdicts",
+        )
+        hermes_html = self._build_hermes_section()
+
+        total_dossiers = _d.get("total", 0)  # placeholder; recompute below
+        # Recompute totals from both agents
+        _, r_dossiers, _ = self._build_agent_section.__func__  # noqa
+        # Simpler: re-call once to get dossier totals via the helper.
+        # The helper returns (html, dossier_counts_dict, ledger_count);
+        # the html was already built. Instead, just use the totals we
+        # already have:
+        # We need dossier totals from BOTH agents. Reuse the helper's
+        # data: we know researcher dossier count from the previous
+        # build. Cleaner: refactor to a dedicated data builder. For
+        # now, the totals below are computed via the agent sections.
+
+        template = (_HERE / "templates" / "fleet.html").read_text(encoding="utf-8")
+        page = template
+        page = page.replace("{{GENERATED_AT}}", datetime.now().isoformat(timespec="seconds"))
+        page = page.replace("{{MAVIS_SECTION}}", mavis_html)
+        page = page.replace("{{RESEARCHER_SECTION}}", researcher_html)
+        page = page.replace("{{VERIFIER_SECTION}}", verifier_html)
+        page = page.replace("{{HERMES_SECTION}}", hermes_html)
+        page = page.replace("{{TOTAL_DOSSIERS}}", str(self._total_dossiers()))
+        page = page.replace("{{TOTAL_CLAIMS}}", str(claim_count))
+        page = page.replace("{{TOTAL_VERDICTS}}", str(verdict_count))
+        page = page.replace("{{TOTAL_MYCELIAL_SKILLS}}", str(mycelial_skills))
+
+        encoded = page.encode("utf-8")
+        self.send_response(200)
+        self.send_header("Content-Type", "text/html; charset=utf-8")
+        self.send_header("Content-Length", str(len(encoded)))
+        self.send_header("Cache-Control", "no-store")
+        self.end_headers()
+        self.wfile.write(encoded)
+
+    def _build_mavis_section(self) -> tuple[str, int]:
+        """Build the Mavis (Core Operator) section HTML.
+
+        Returns (html, mycelial_skill_count).
+        """
+        skill_count = 0
+        hot = decaying = fresh = log_30d = 0
+        try:
+            import sys as _sys
+            resolver_dir = self.vault_root / "99 _system" / "mcps" / "resolver"
+            if str(resolver_dir) not in _sys.path:
+                _sys.path.insert(0, str(resolver_dir))
+            from mycelial import MycelialResolver
+            mr = MycelialResolver(self.vault_root)
+            state = mr.build_state()
+            totals = state.get("totals", {})
+            skill_count = totals.get("skills", 0)
+            hot = totals.get("hot", 0)
+            decaying = totals.get("decaying", 0)
+            fresh = totals.get("fresh", 0)
+            log_30d = totals.get("log_records_30d", 0)
+        except Exception as e:
+            sys.stderr.write(f"[glass] Fleet/MycelialResolver unavailable: {e}\n")
+
+        return (
+            '<div class="fleet-agent-card core">'
+            '<div class="fleet-agent-header">'
+            '<h2>Mavis</h2>'
+            '<span class="fleet-role-badge">Core Operator · Steward of the Vault</span>'
+            '</div>'
+            '<p class="fleet-mission">Chief of staff for this vault. '
+            'Synthesizes, routes, and audits. The Mycelial network is the '
+            'routing layer that powers skill selection across the whole '
+            'fleet.</p>'
+            '<div class="fleet-stats">'
+            f'<div class="fleet-stat"><span class="label">Mycelial skills</span><span class="value">{skill_count}</span></div>'
+            f'<div class="fleet-stat"><span class="label">🔥 Hot</span><span class="value">{hot}</span></div>'
+            f'<div class="fleet-stat"><span class="label">🧊 Decaying</span><span class="value">{decaying}</span></div>'
+            f'<div class="fleet-stat"><span class="label">✨ Fresh boost</span><span class="value">{fresh}</span></div>'
+            f'<div class="fleet-stat"><span class="label">Daemon runs (30d)</span><span class="value">{log_30d}</span></div>'
+            '</div>'
+            '<p><a class="fleet-link" href="/mycelial">→ /mycelial (full routing network view)</a></p>'
+            '</div>',
+            skill_count,
+        )
+
+    def _build_agent_section(
+        self,
+        agent_name: str,
+        agent_root: str,
+        role_label: str,
+        role_class: str,
+        default_mission: str,
+        ledger_filename: str,
+        ledger_label: str,
+    ) -> tuple[str, int, int]:
+        """Build a Fleet Specialized agent section (Researcher or Verifier).
+
+        Returns (html, dossier_count, ledger_record_count).
+        """
+        import json as _json
+        root = self.vault_root / agent_root
+        soul_path = root / "SOUL.md"
+        config_path = root / "config.yaml"
+        dossiers_dir = root / "dossiers"
+        ledger_path = root / "knowledge" / ledger_filename
+        notes_path = root / "notes" / "operator-brief.md"
+        health_path = root / "health" / (
+            "latest-health-check.md" if agent_name == "Researcher"
+            else "audit-health.md"
+        )
+
+        # Mission: first non-heading paragraph of SOUL.md
+        mission = default_mission
+        if soul_path.exists():
+            try:
+                text = soul_path.read_text(encoding="utf-8")
+                lines = text.splitlines()
+                in_para = False
+                para: list[str] = []
+                for line in lines:
+                    s = line.strip()
+                    if not s:
+                        if in_para and para:
+                            break
+                        continue
+                    if s.startswith("# "):
+                        continue
+                    para.append(s)
+                    in_para = True
+                if para:
+                    mission = " ".join(para)[:400]
+            except OSError:
+                pass
+
+        # Dossiers
+        dossier_total = 0
+        dossier_items: list[str] = []
+        if dossiers_dir.exists():
+            for d in sorted(dossiers_dir.iterdir()):
+                if d.is_dir():
+                    count = sum(1 for f in d.iterdir() if f.is_file() and f.suffix == ".md")
+                    dossier_total += count
+                    dossier_items.append(
+                        f'<li><code>{html.escape(d.name)}</code> ({count} files)</li>'
+                    )
+        dossier_list_html = "".join(dossier_items) or "<li><em>(no dossiers)</em></li>"
+
+        # Ledger
+        ledger_count = 0
+        if ledger_path.exists():
+            try:
+                for line in ledger_path.read_text(encoding="utf-8").splitlines():
+                    line = line.strip()
+                    if not line:
+                        continue
+                    try:
+                        rec = _json.loads(line)
+                        if rec.get("id", "").startswith("clm-SEED") or rec.get("schema_version"):
+                            continue
+                        ledger_count += 1
+                    except _json.JSONDecodeError:
+                        continue
+            except OSError:
+                pass
+
+        # Last REFRESH (from operator-brief) — Researcher only
+        last_refresh = "—"
+        if notes_path.exists():
+            try:
+                for line in notes_path.read_text(encoding="utf-8").splitlines()[:5]:
+                    if "Last REFRESH" in line:
+                        if ":" in line:
+                            last_refresh = line.split(":", 1)[1].strip().split("(")[0].strip()
+                        break
+            except OSError:
+                pass
+
+        # Health status
+        health_status = "pending"
+        health_label = "Pending first run"
+        if health_path.exists():
+            try:
+                htext = health_path.read_text(encoding="utf-8")
+                if "Pending" in htext or "pending" in htext:
+                    health_status = "pending"
+                    health_label = "Pending first run"
+                elif "Pass" in htext or "pass" in htext:
+                    health_status = "healthy"
+                    health_label = "Healthy"
+                elif "Fail" in htext or "fail" in htext:
+                    health_status = "warning"
+                    health_label = "Needs attention"
+            except OSError:
+                pass
+
+        # Model from config
+        model_label = "M3 · 1M ctx"
+        if config_path.exists():
+            try:
+                ctext = config_path.read_text(encoding="utf-8")
+                for line in ctext.splitlines():
+                    if "default:" in line and "minimax" in line:
+                        model_label = line.split(":", 1)[1].strip()
+                        break
+            except OSError:
+                pass
+
+        html = (
+            f'<div class="fleet-agent-card {role_class}">'
+            f'<div class="fleet-agent-header">'
+            f'<h2>{html.escape(agent_name)}</h2>'
+            f'<span class="fleet-role-badge {role_class}">{html.escape(role_label)}</span>'
+            f'<span class="fleet-health {health_status}">{html.escape(health_label)}</span>'
+            f'</div>'
+            f'<p class="fleet-mission">{html.escape(mission)}</p>'
+            f'<div class="fleet-stats">'
+            f'<div class="fleet-stat"><span class="label">Active dossiers</span><span class="value">{dossier_total}</span></div>'
+            f'<div class="fleet-stat"><span class="label">{html.escape(ledger_label)}</span><span class="value">{ledger_count}</span></div>'
+            f'<div class="fleet-stat"><span class="label">Last REFRESH</span><span class="value">{html.escape(last_refresh)}</span></div>'
+            f'<div class="fleet-stat"><span class="label">Model</span><span class="value">{html.escape(model_label)}</span></div>'
+            f'</div>'
+            f'<details><summary>Dossiers ({dossier_total})</summary><ul>{dossier_list_html}</ul></details>'
+            f'<p style="margin-top:1rem;font-size:0.8rem;">'
+            f'<a class="fleet-link" href="/{html.escape(agent_root)}/SOUL.md">→ SOUL</a> · '
+            f'<a class="fleet-link" href="/{html.escape(agent_root)}/AGENTS.md">AGENTS</a> · '
+            f'<a class="fleet-link" href="/{html.escape(agent_root)}/config.yaml">config</a>'
+            f'</p>'
+            f'</div>'
+        )
+        return html, dossier_total, ledger_count
+
+    def _build_hermes_section(self) -> str:
+        """Build the Hermes (External Fleet: Orchestrator) section.
+
+        Pulls the staged-rollout status from the Hermes dual-repo
+        coordination doc. Cannot reach into the Hermes repo directly.
+        """
+        doc_path = self.vault_root / "03 Projects" / "Hermes dual-repo architecture (M3 fixes).md"
+        trigger = ""
+        rollback = ""
+        validation_designed = False
+
+        if doc_path.exists():
+            try:
+                text = doc_path.read_text(encoding="utf-8")
+                current_section = None
+                for line in text.splitlines():
+                    s = line.strip()
+                    if s.startswith("## "):
+                        current_section = s[3:].strip()
+                        continue
+                    if current_section == "Next Action":
+                        if s.startswith("**Trigger:**"):
+                            trigger = s[len("**Trigger:**"):].strip()
+                        elif s.startswith("**Rollback:**"):
+                            rollback = s[len("**Rollback:**"):].strip()
+                    if current_section == "Validation" and "Stress-Test Prompt" in s:
+                        validation_designed = True
+            except OSError:
+                pass
+
+        validation_html = (
+            '<p style="font-size:0.88rem;color:var(--fg-muted);">'
+            '✅ Validation designed: <code>Stress-Test Prompt</code> for &gt;10k token response (both layers).</p>'
+            if validation_designed
+            else '<p style="font-size:0.88rem;color:var(--fg-muted);">⚠️ Validation: not yet designed.</p>'
+        )
+        trigger_html = (
+            f'<div class="fleet-rollout-line"><strong>Trigger:</strong> {html.escape(trigger)}</div>'
+            if trigger else ""
+        )
+        rollback_html = (
+            f'<div class="fleet-rollout-line"><strong>Rollback:</strong> {html.escape(rollback)}</div>'
+            if rollback else ""
+        )
+
+        return (
+            '<div class="fleet-agent-card external">'
+            '<div class="fleet-agent-header">'
+            '<h2>Hermes</h2>'
+            '<span class="fleet-role-badge external">External Fleet · Orchestrator</span>'
+            '<span class="fleet-health staged">Staged Rollout</span>'
+            '</div>'
+            '<p class="fleet-mission">Fleet orchestrator. Routes tasks across workers, manages cron, runs the Telegram bridge. Lives in a separate vault (<code>~/.hermes/</code>) — this view reflects only the dual-repo coordination doc staged in this vault, not the live repo.</p>'
+            f'{validation_html}'
+            f'{trigger_html}'
+            f'{rollback_html}'
+            '<p style="margin-top:1rem;font-size:0.8rem;">'
+            '<a class="fleet-link" href="/03 Projects/Hermes dual-repo architecture (M3 fixes).md">→ dual-repo doc</a> · '
+            '<em style="color:var(--fg-muted);">live repo out of Mavis scope</em>'
+            '</p>'
+            '</div>'
+        )
+
+    def _total_dossiers(self) -> int:
+        """Sum active dossier file counts across Researcher and Verifier trees."""
+        total = 0
+        for rel in ("03 Projects/Researcher/dossiers", "03 Projects/Verifier/dossiers"):
+            root = self.vault_root / rel
+            if not root.exists():
+                continue
+            for d in root.iterdir():
+                if d.is_dir():
+                    total += sum(1 for f in d.iterdir() if f.is_file() and f.suffix == ".md")
+        return total
 
     def _resolve_safe(self, rel_path: str) -> Path | None:
         """Resolve a path relative to vault root, ensuring it stays inside.

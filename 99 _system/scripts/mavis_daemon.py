@@ -65,6 +65,12 @@ INBOX = VAULT_ROOT / "00 Inbox"
 LOGS_DIR = VAULT_ROOT / "99 _system" / "logs"
 DAEMON_LOG = LOGS_DIR / "daemon-runs.jsonl"
 APPROVALS_FILE = LOGS_DIR / "daemon-approvals.json"
+# Ledger state snapshot for trigger-on-change detection
+LEDGER_SNAPSHOT_FILE = LOGS_DIR / "ledger-snapshot.json"
+# Path to the Researcher's claims ledger (the trigger source)
+RESEARCHER_CLAIMS_PATH = (
+    VAULT_ROOT / "03 Projects" / "Researcher" / "knowledge" / "claims.jsonl"
+)
 
 # 2-week habit gate for daily-brief (state-of-mavis.md L84 deferred item).
 # The Daemon will treat daily-brief as YELLOW until this many invocations
@@ -102,6 +108,15 @@ TIER_POLICY: dict[str, dict] = {
         "rationale": "Overwrites 01 Daily/YYYY-MM-DD.md. Per state-of-mavis.md "
                      "L84: deferred until 2 weeks of on-demand invocations. "
                      "Daemon writes an Inbox alert instead of auto-executing.",
+    },
+    "ledger-instinct-audit": {
+        "tier": "green",
+        "auto_execute": True,
+        "rationale": "Trigger-on-change audit of instincts affected by new "
+                     "Researcher claims. Reads claims.jsonl since the last "
+                     "daemon run, identifies instincts that reference changed "
+                     "claims or dossiers, runs targeted re-verification. "
+                     "Reversible vault write to instincts/ + audit log.",
     },
 }
 
@@ -185,7 +200,86 @@ def harvest_state() -> dict:
     # Count daily-brief invocations in this log (for the habit gate)
     state["daily_brief_invocation_count"] = _count_skill_invocations("daily-brief")
 
+    # Ledger state — drives the trigger-on-change rule
+    state["ledger"] = _ledger_state_with_change()
+
     return state
+
+
+# ============================================================
+# LEDGER STATE — trigger-on-change detection
+# ============================================================
+
+def _ledger_state_with_change() -> dict:
+    """Snapshot the Researcher's claims ledger and detect if it has
+    changed since the last daemon run.
+
+    Returns a dict with:
+      - exists (bool): whether the claims.jsonl file is present
+      - record_count (int): number of non-empty lines
+      - last_id (str | None): id of the last record (or None)
+      - sha256 (str | None): short hash of the file contents
+      - mtime (float | None): mtime of the file
+      - ledger_changed (bool): True if sha/record_count differ from last run
+      - prev_record_count (int | None): what the prior run saw (for the log)
+    """
+    import hashlib
+
+    curr: dict = {"exists": False, "record_count": 0, "last_id": None,
+                  "sha256": None, "mtime": None}
+    if not RESEARCHER_CLAIMS_PATH.exists():
+        return {**curr, "ledger_changed": False, "prev_record_count": None}
+
+    try:
+        text = RESEARCHER_CLAIMS_PATH.read_text(encoding="utf-8")
+    except OSError:
+        return {**curr, "ledger_changed": False, "prev_record_count": None}
+
+    curr["exists"] = True
+    curr["mtime"] = RESEARCHER_CLAIMS_PATH.stat().st_mtime
+    curr["sha256"] = hashlib.sha256(text.encode("utf-8")).hexdigest()[:12]
+    curr["record_count"] = sum(
+        1 for line in text.splitlines() if line.strip()
+    )
+    for line in reversed(text.splitlines()):
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            curr["last_id"] = json.loads(line).get("id")
+            break
+        except json.JSONDecodeError:
+            continue
+
+    prev = _load_ledger_snapshot()
+    changed = bool(prev) and (
+        prev.get("sha256") != curr["sha256"]
+        or prev.get("record_count") != curr["record_count"]
+    )
+
+    return {
+        **curr,
+        "ledger_changed": changed,
+        "prev_record_count": prev.get("record_count") if prev else None,
+    }
+
+
+def _load_ledger_snapshot() -> dict:
+    """Load the previous ledger snapshot from disk. Empty dict if missing/corrupt."""
+    if not LEDGER_SNAPSHOT_FILE.exists():
+        return {}
+    try:
+        return json.loads(LEDGER_SNAPSHOT_FILE.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return {}
+
+
+def _save_ledger_snapshot(state: dict) -> None:
+    """Persist the current ledger snapshot for the next run to diff against."""
+    LOGS_DIR.mkdir(parents=True, exist_ok=True)
+    LEDGER_SNAPSHOT_FILE.write_text(
+        json.dumps(state, indent=2, sort_keys=True), encoding="utf-8"
+    )
 
 
 def _count_skill_invocations(skill_name: str) -> int:
@@ -227,6 +321,7 @@ def select_skill(state: dict) -> Selection:
     """Pick the right Skill Pack from vault state. Deterministic, rule-based.
 
     Priority order (highest first):
+      0. Researcher claims.jsonl changed since last run → ledger-instinct-audit
       1. inbox_count > 0                       → process-inbox
       2. Sunday AND hour ≥ 18                  → weekly-connections
       3. daily-brief hour (6-7) AND no daily   → daily-brief (yellow)
@@ -237,6 +332,21 @@ def select_skill(state: dict) -> Selection:
     today_daily = state.get("today_daily_exists", True)
     hour = state.get("hour_local", 12)
     dow = state.get("dow_local", "")
+    ledger = state.get("ledger", {})
+
+    # Priority 0: trigger-on-change audit when the Researcher's claims
+    # ledger has new entries since the last daemon run. Replaces the
+    # previous 4h full-audit cadence (per ruling 2026-06-03).
+    if ledger.get("ledger_changed"):
+        prev = ledger.get("prev_record_count", "?")
+        curr = ledger.get("record_count", "?")
+        return Selection(
+            skill="ledger-instinct-audit",
+            confidence=0.90,
+            reason=f"Researcher claims.jsonl changed "
+                   f"({prev} → {curr} records, sha={ledger.get('sha256')}); "
+                   f"trigger-on-change targeted instinct audit",
+        )
 
     if inbox > 0:
         return Selection(
@@ -525,6 +635,19 @@ def run_once(dry_run: bool) -> RunRecord:
         inbox_alert_path=str(inbox_alert.relative_to(VAULT_ROOT)) if inbox_alert else None,
     )
     append_log(record)
+    # Persist the ledger snapshot for the next run's trigger detection.
+    # Only save on real runs (not dry-run) so dry-runs don't reset the
+    # change-detection state.
+    if not dry_run:
+        ledger = state.get("ledger", {})
+        if ledger and ledger.get("exists"):
+            _save_ledger_snapshot({
+                "sha256": ledger.get("sha256"),
+                "record_count": ledger.get("record_count"),
+                "last_id": ledger.get("last_id"),
+                "mtime": ledger.get("mtime"),
+                "saved_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+            })
     return record
 
 
