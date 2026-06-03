@@ -123,6 +123,19 @@ html, body {
   background: var(--bg-code);
   text-decoration: none;
 }
+.glass-nav-permanent {
+  font-weight: 700;
+  background: var(--bg-code);
+  color: var(--accent);
+  border: 1px solid var(--accent-soft);
+  padding: 0.15rem 0.5rem;
+  border-radius: 3px;
+}
+.glass-nav-permanent:hover {
+  background: var(--accent-soft);
+  color: var(--bg);
+  border-color: var(--accent);
+}
 
 /* Main */
 .glass-main {

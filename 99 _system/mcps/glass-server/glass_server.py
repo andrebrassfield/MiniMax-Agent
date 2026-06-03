@@ -94,6 +94,13 @@ class GlassHandler(BaseHTTPRequestHandler):
             self._serve_crucible()
             return
 
+        # The Omni-Operator Manifesto
+        if rel_path in ("_glass/manifesto", "manifesto",
+                        "THE-OMNI-OPERATOR-MANIFESTO.md",
+                        "_glass/THE-OMNI-OPERATOR-MANIFESTO.md"):
+            self._serve_manifesto()
+            return
+
         # Raw markdown (for debugging)
         if rel_path.startswith("_glass/raw/"):
             raw_path = rel_path[len("_glass/raw/"):]
@@ -258,6 +265,27 @@ class GlassHandler(BaseHTTPRequestHandler):
             f'<tbody>{"".join(rows)}</tbody>'
             '</table>'
         )
+
+    def _serve_manifesto(self):
+        """Render the Omni-Operator Manifesto as a styled HTML page."""
+        manifesto_path = self.vault_root / "THE-OMNI-OPERATOR-MANIFESTO.md"
+        if not manifesto_path.is_file():
+            self.send_error(404, "Manifesto not found at vault root")
+            return
+        try:
+            data = self.renderer.render_file(manifesto_path)
+        except Exception as e:
+            self.send_error(500, f"Render error: {e}")
+            return
+
+        page = self._render_page(data)
+        encoded = page.encode("utf-8")
+        self.send_response(200)
+        self.send_header("Content-Type", "text/html; charset=utf-8")
+        self.send_header("Content-Length", str(len(encoded)))
+        self.send_header("Cache-Control", "no-store")
+        self.end_headers()
+        self.wfile.write(encoded)
 
     def _serve_crucible(self):
         """Render the M3 Eval Lab Crucible dashboard."""
