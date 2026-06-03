@@ -131,3 +131,22 @@ What didn't change (and what still doesn't in EA mode):
 - [ ] Build a Dataview "morning brief" dashboard that surfaces: today's calendar, overdue tasks, recent captures
 - [ ] Test 1M context with full vault loaded — does retrieval stay sharp?
 - [ ] Try the Local REST API in anger once auth is sorted (for cron jobs, etc.)
+
+---
+
+## 2026-06-02 — Hermes cleanup session: two new instincts captured
+
+### `[gotcha]` File mtime before chasing a missing artifact
+- **Source**: Hermes already saved this as a skill — I am **linking to it, not duplicating it**, per the no-fabrication / no-orphan-rules discipline.
+- **Where the skill lives**: `~/.hermes/skills/...` — out of bounds for EA mode, so I cannot quote the full heuristic. Refer to it by name from any future Hermes-side context.
+- **Why it matters here**: in the 2026-06-02 cleanup session, the instinct is what kept Andre from spending time hunting for a "missing" artifact when the artifact was right there and the *mtime* was the actual signal.
+- **Cross-link**: [[2026-06-02 - Hermes workspace cleanup session]] (the session that surfaced it); [[Hermes dual-repo architecture (M3 fixes)]] (related context for the same session).
+
+### `[discipline]` Audit before destructive action — extended for the "self-evolution scare"
+- **Existing instinct this extends**: [[2026-06-01-040-audit-before-action]] — "When the user says something that could trigger a major action, summarize what you understood, report gaps, wait for 'go'."
+- **New evidence (2026-06-02)**: in the Hermes cleanup session, uncommitted code in `self-evolution` was about to be treated as random skunkworks. It was not. It was real work — the M3 cap fix precursor, in fact.
+- **The scare pattern**: when you see uncommitted changes, the default read is "abandoned experiment, safe to discard." That is **often wrong**. Uncommitted code is a *signal*, not a verdict.
+- **What "audit before destructive action" means in this case**: before any `git clean`, `git stash drop`, `rm -rf` of a worktree, or branch delete — actually look at the diff. Read the files. Check the mtime. If the uncommitted changes are real, treat them as real work, not garbage.
+- **Failure mode this prevents**: silently destroying hours of real fix-work because it looked like noise.
+- **Related**: [[2026-06-01-030-reconfirm-before-irreversible-actions]] (the broader safety instinct); [[Reconfirm before irreversible actions]] (the SOUL-level constraint that sits above both).
+- **Cross-link**: [[2026-06-02 - Hermes workspace cleanup session]]; [[Hermes dual-repo architecture (M3 fixes)]].
