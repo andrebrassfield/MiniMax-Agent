@@ -1,0 +1,23 @@
+# Operator Cockpit
+
+> HTML scan surface. Rebuilt by MIDDAY_FOCUS mode from existing artifacts. No scraping.
+
+*Pending first MIDDAY_FOCUS run.*
+
+## Sections (template)
+
+- **Top:** last REFRESH timestamp, vault health status, source balance summary
+- **Dossiers:** last-update time, current signal count, social %, top 3 implications
+- **Handoffs:** queue size per lane, oldest item, "Mavis consumed last" timestamp
+- **Verification queue:** size, oldest item, top 3 reasons
+- **Watch list:** active items, last signal date
+- **Open contradictions:** claims flagged for cross-check
+- **Suggested next actions for Mavis**
+
+## Rebuild command
+
+```bash
+python3 scripts/research_agent_midday_focus.py
+```
+
+The cockpit is for scanning. The action ledger is for follow-through. The handoff queues are for routing. Three different surfaces, three different jobs.

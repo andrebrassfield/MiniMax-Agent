@@ -1,0 +1,12 @@
+{
+  "id": "src-2026-06-02-005",
+  "captured_at": "2026-06-02T21:48:00-05:00",
+  "source_lane": "frontier_ai",
+  "url": "https://blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-3-5/",
+  "type": "primary",
+  "fetch_method": "webfetch",
+  "raw_excerpt": "Today, we're introducing Gemini 3.5, our latest family of models combining frontier intelligence with action. We're kicking off the series by releasing 3.5 Flash. 3.5 Flash is available today to billions of people globally. We're also hard at work on 3.5 Pro. It's already being used internally. Gemini 3.5 Pro rollout: next month. Posted May 19, 2026 by Koray Kavukcuoglu (CTO, Google DeepMind), Jeff Dean (Chief Scientist, Google DeepMind), Ori Vinyals (VP, Google DeepMind), Noam Shazeer (VP, Google DeepMind).",
+  "raw_full_path": "raw/frontier_ai/2026-06-02/20260602-214800-src-005-google-gemini35.json",
+  "content_hash": "sha256:4a5cd0fd6894ffe59a83a16521a09fb43416478a3b209f65897583a64d6ccdaa",
+  "extracted_finding_ids": ["fnd-018", "fnd-019", "fnd-020"]
+}

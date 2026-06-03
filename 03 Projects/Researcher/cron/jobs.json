@@ -1,0 +1,65 @@
+{
+  "version": "0.1.0",
+  "owner": "Researcher",
+  "home": "/Users/brassfieldventuresllc/MiniMax-Agent/03 Projects/Researcher",
+  "jobs": [
+    {
+      "name": "researcher-refresh",
+      "mode": "REFRESH",
+      "schedule": {
+        "kind": "interval",
+        "every_minutes": 360
+      },
+      "timeout_seconds": 7200,
+      "command": "python3 scripts/research_agent_loop.py --mode refresh",
+      "owner": "researcher",
+      "failure_action": "write_to_health_and_skip_delivery"
+    },
+    {
+      "name": "researcher-daily-summary",
+      "mode": "DAILY_SUMMARY",
+      "schedule": {
+        "kind": "daily",
+        "at": "07:30",
+        "timezone": "America/Chicago"
+      },
+      "command": "python3 scripts/research_agent_daily_summary.py",
+      "depends_on": ["researcher-refresh"],
+      "owner": "researcher"
+    },
+    {
+      "name": "researcher-midday-focus",
+      "mode": "MIDDAY_FOCUS",
+      "schedule": {
+        "kind": "daily",
+        "at": "12:30",
+        "timezone": "America/Chicago"
+      },
+      "command": "python3 scripts/research_agent_midday_focus.py",
+      "owner": "researcher",
+      "no_scrape": true
+    },
+    {
+      "name": "researcher-backup",
+      "mode": "BACKUP",
+      "schedule": {
+        "kind": "weekly",
+        "day": "sunday",
+        "at": "03:00",
+        "timezone": "America/Chicago"
+      },
+      "command": "python3 scripts/backup_research_agent.py",
+      "owner": "researcher"
+    },
+    {
+      "name": "researcher-health-watchdog",
+      "mode": "HEALTH",
+      "schedule": {
+        "kind": "interval",
+        "every_minutes": 60
+      },
+      "command": "python3 scripts/research_agent_health_check.py",
+      "owner": "researcher"
+    }
+  ]
+}

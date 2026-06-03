@@ -1,0 +1,12 @@
+{
+  "id": "src-2026-06-02-008",
+  "captured_at": "2026-06-02T21:50:00-05:00",
+  "source_lane": "frontier_ai",
+  "url": "https://www.anthropic.com/news/dynamic-workflows-claude-code",
+  "type": "primary",
+  "fetch_method": "web_search_via_releasebot_releasebot_io",
+  "raw_excerpt": "Introducing dynamic workflows in Claude Code. Claude Code CLI/Desktop/VS Code/API/Bedrock/Vertex/Foundry. Available on Max/Team/Enterprise + API. Dynamic workflows dynamically write orchestration scripts that run tens to hundreds of parallel subagents in a single session, checking its work before anything reaches you. Trigger keyword 'ultracode' (renamed from 'workflow'). Effort menu: Low/Medium/High/Max (High default on Opus 4.8). Fast Mode: 2.5x output tokens/sec at 3x lower cost; up to 2x cost for 2.5x speed. Mid-conversation System Messages preserve prompt cache. May 28, 2026 (Claude Code 2.1.154).",
+  "raw_full_path": "raw/frontier_ai/2026-06-02/20260602-215000-src-008-anthropic-dynamic-workflows.json",
+  "content_hash": "sha256:b8e0a125754dcaa1a42b2b6db110472a7c5dd1aeb1d4cf95339721ddb5a0ae39",
+  "extracted_finding_ids": ["fnd-014"]
+}

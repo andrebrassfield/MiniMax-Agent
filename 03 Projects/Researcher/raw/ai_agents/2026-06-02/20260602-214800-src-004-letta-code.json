@@ -1,0 +1,12 @@
+{
+  "id": "src-2026-06-02-004",
+  "captured_at": "2026-06-02T21:48:00-05:00",
+  "source_lane": "ai_agents",
+  "url": "https://www.letta.com/blog/letta-code",
+  "type": "primary",
+  "fetch_method": "webfetch",
+  "raw_excerpt": "Letta Code is the memory-first coding agent. December 16, 2025. The #1 model-agnostic OSS harness on TerminalBench, comparable to provider-specific harnesses (Claude Code, Gemini CLI, Codex CLI). Memory initialization via /init. Skill Learning via /remember. Skills as .md files in git. Vector + FTS + hybrid search over messages. Conversations API (Jan 21, 2026) for shared agent memory across concurrent experiences. Letta Code app (Apr 6, 2026) for local-machine use. Context Repositories (Feb 12, 2026) — git-based memory.",
+  "raw_full_path": "raw/ai_agents/2026-06-02/20260602-214800-src-004-letta-code.json",
+  "content_hash": "sha256:60ad80dac0b5ae881caa87c0a10c9880386dadb57fd96ce6db424388302a5cba",
+  "extracted_finding_ids": ["fnd-006", "fnd-007"]
+}

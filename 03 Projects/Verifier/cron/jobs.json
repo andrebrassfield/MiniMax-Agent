@@ -1,0 +1,40 @@
+{
+  "jobs": [
+    {
+      "id": "verifier-audit",
+      "mode": "AUDIT",
+      "cron": "0 */6 * * *",
+      "description": "Full audit pass every 6 hours",
+      "command": "python3 scripts/verifier_loop.py",
+      "timeout_seconds": 5400,
+      "enabled": true
+    },
+    {
+      "id": "verifier-daily-brief",
+      "mode": "DAILY_BRIEF",
+      "cron": "0 17 * * *",
+      "description": "Human-facing audit digest, daily at 17:00 local",
+      "command": "python3 scripts/verifier_daily_brief.py",
+      "timeout_seconds": 600,
+      "enabled": true
+    },
+    {
+      "id": "verifier-health-check",
+      "mode": "HEALTH",
+      "cron": "*/30 * * * *",
+      "description": "Audit vault structural integrity check, every 30min",
+      "command": "python3 scripts/verifier_health_check.py",
+      "timeout_seconds": 300,
+      "enabled": true
+    },
+    {
+      "id": "verifier-backup",
+      "mode": "BACKUP",
+      "cron": "0 3 * * 0",
+      "description": "Weekly backup, Sunday 03:00 local",
+      "command": "python3 scripts/backup_verifier.py",
+      "timeout_seconds": 900,
+      "enabled": true
+    }
+  ]
+}

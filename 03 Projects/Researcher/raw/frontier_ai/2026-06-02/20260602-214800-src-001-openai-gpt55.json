@@ -1,0 +1,12 @@
+{
+  "id": "src-2026-06-02-001",
+  "captured_at": "2026-06-02T21:48:00-05:00",
+  "source_lane": "frontier_ai",
+  "url": "https://openai.com/index/introducing-gpt-5-5/",
+  "type": "primary",
+  "fetch_method": "webfetch",
+  "raw_excerpt": "We're releasing GPT-5.5, our smartest and most intuitive to use model yet... April 23, 2026. Update on April 24, 2026: GPT-5.5 and GPT-5.5 Pro are now available in the API. Terminal-Bench 2.0: 82.7% (vs GPT-5.4 75.1%). GDPval: 84.9%. SWE-Bench Pro: 58.6%. OSWorld-Verified: 78.7%. Tau2-bench Telecom: 98.0%. CyberGym: 81.8%. FrontierMath Tier 4: 35.4%. 1M context. $5/M input, $30/M output for gpt-5.5. Treated as High under Preparedness Framework for bio/cyber. GPT-Rosalind rolled out May 29, 2026 for biodefense.",
+  "raw_full_path": "raw/frontier_ai/2026-06-02/20260602-214800-src-001-openai-gpt55.html",
+  "content_hash": "sha256:69b629f5bb553ffc2621e77972a1e2952ca63e49b0ae361bbda0e763ab323715",
+  "extracted_finding_ids": ["fnd-009"]
+}

@@ -1,0 +1,160 @@
+# Researcher Profile Config
+# Path: ~/MiniMax-Agent/03 Projects/Researcher/config.yaml
+# Owner: Mavis (chief of staff) for runtime questions; Researcher self-loads at session start.
+
+profile:
+  name: Researcher
+  version: 0.1.0
+  operator: Andre Brassfield
+  home: /Users/brassfieldventuresllc/MiniMax-Agent/03 Projects/Researcher
+
+# Model selection. Researcher runs on M3 by default — long-horizon, 1M context, MSA.
+# Use cheaper models (M2.7) for routine refresh and repeated low-risk processing.
+# Use M3 for synthesis, judgment, handoff quality, and sensitive reasoning.
+model:
+  default: minimax/MiniMax-M3
+  fallbacks:
+    - minimax/MiniMax-M2.7-highspeed
+    - minimax/MiniMax-M2.7
+  temperature:
+    synthesis: 0.2
+    refresh: 0.1
+    eval: 0.0       # bit-deterministic for graders
+  max_output_tokens: 128000   # M3 cap; M2.7 was 40k and crashed workers
+  context_window: 1000000    # 1M via MSA sparse attention
+
+# Runtime
+runtime:
+  terminal: local
+  working_dir: /Users/brassfieldventuresllc/MiniMax-Agent/03 Projects/Researcher
+  refresh_timeout_seconds: 7200   # 2h ceiling; M3 is built to grind, not bail
+  collection_timeout_seconds: 1800
+  wiki_compile_timeout_seconds: 900
+  health_check_timeout_seconds: 300
+  max_concurrent_collectors: 4
+
+# Memory
+memory:
+  vault_root: /Users/brassfieldventuresllc/MiniMax-Agent/03 Projects/Researcher
+  raw_max_size_mb: 500
+  knowledge_max_size_mb: 50
+  raw_retention_days: 30
+  backup_retention_count: 8
+
+# Tool access
+tools:
+  - web_search
+  - webfetch
+  - file_read
+  - file_write
+  - file_edit
+  - bash
+  - cron
+  - matrix_web_search
+  - matrix_browser_enrichment   # optional, for primary-source verification
+
+# Compression
+compression:
+  enabled: true
+  threshold_tokens: 800000
+  strategy: msa_sparse_attention
+  preserve_recent_turns: 20
+
+# Browser behaviour
+browser:
+  enabled: true
+  profile: default
+  allow_javascript: true
+  headless: true
+  timeout_seconds: 60
+
+# Delivery
+delivery:
+  channels:
+    - name: operator_brief
+      type: file
+      path: notes/operator-brief.md
+    - name: daily_summary
+      type: file
+      path: notes/daily-summary.md
+    - name: mavis_handoff
+      type: file
+      path: queue/mavis-handoff.md
+    - name: hermes_handoff
+      type: file
+      path: queue/hermes-handoff.md
+  surprise_scrape: false   # delivery jobs never scrape inline
+  stale_data_policy: explicit_disclosure   # say so, do not pretend
+
+# Vault structure
+vault:
+  folders:
+    - context
+    - dossiers
+    - knowledge
+    - raw
+    - sources
+    - topics
+    - decisions
+    - runs
+    - indexes
+    - queue
+    - notes
+    - wiki/concepts
+    - wiki/articles
+    - health
+    - ops
+  ledgers:
+    - knowledge/claims.jsonl
+    - knowledge/findings.jsonl
+    - knowledge/sources.jsonl
+  dossiers_seed:
+    - ai_agents
+    - frontier_ai
+    - memory_orchestration
+
+# Handoff lanes (queue/ files)
+handoffs:
+  - mavis-handoff.md
+  - hermes-handoff.md
+  - build-handoff.md
+  - content-handoff.md
+  - watch-handoff.md
+  - verify-handoff.md
+
+# Cross-agent surface
+neighbors:
+  upstream:
+    - id: mavis
+      role: chief_of_staff
+      read: full_vault
+      write: queue/research-questions.md   # Mavis drops questions here
+  downstream:
+    - id: hermes
+      role: fleet_orchestrator
+      read: queue/hermes-handoff.md, queue/build-handoff.md, dossiers/
+      write: never
+    - id: mavis
+      role: chief_of_staff
+      read: notes/, queue/mavis-handoff.md, dossiers/, queue/research-questions.md
+      write: never
+
+# Guardrails
+guardrails:
+  hard_stops:
+    - no_trading_decisions
+    - no_publish_public_posts
+    - no_purchases
+    - no_partnerships
+    - no_secrets_or_auth_touch
+    - no_weak_signal_to_task_promotion
+    - no_stale_data_as_fresh
+    - no_collapse_findings_into_claims_without_evidence
+    - no_collapse_claims_into_tasks_without_verification
+    - no_write_into_other_agent_state
+  quality_floors:
+    - dossier_social_max_pct: 60
+    - verification_review_max_items: 50
+    - max_hours_between_refreshes: 12
+    - max_broken_links_in_dossiers: 5
+    - orphan_findings_allowed: 0

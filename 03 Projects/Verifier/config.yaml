@@ -1,0 +1,230 @@
+# Verifier Profile Config
+# Path: ~/MiniMax-Agent/03 Projects/Verifier/config.yaml
+# Owner: Mavis (chief of staff) for runtime questions; Verifier self-loads at session start.
+
+profile:
+  name: Verifier
+  version: 0.1.0
+  operator: Andre Brassfield
+  home: /Users/brassfieldventuresllc/MiniMax-Agent/03 Projects/Verifier
+
+# Model selection. Verifier runs on M3 by default — long-horizon, 1M context, MSA.
+# M3 is purpose-built for this role: a single audit pass holds the full dossier,
+# full source trail, full handoff history, and full claim ledger in one head.
+# Use M2.7 only for routine scans (e.g. broken-link health checks) where the
+# 1M context advantage is not needed.
+model:
+  default: minimax/MiniMax-M3
+  fallbacks:
+    - minimax/MiniMax-M2.7-highspeed
+    - minimax/MiniMax-M2.7
+  temperature:
+    synthesis: 0.2     # used for REPORT prose, NOT for verdict scoring
+    audit: 0.0         # bit-deterministic for sub-procedures that score
+    adjudicate: 0.0    # bit-deterministic for ADJUDICATE
+    eval: 0.0          # hardcoded; non-zero aborts the run
+  max_output_tokens: 128000   # M3 cap
+  context_window: 1000000    # 1M via MSA sparse attention
+
+# Runtime
+runtime:
+  terminal: local
+  working_dir: /Users/brassfieldventuresllc/MiniMax-Agent/03 Projects/Verifier
+  audit_timeout_seconds: 5400       # 90min ceiling for one full AUDIT cycle
+  cross_check_timeout_seconds: 1800  # 30min ceiling per target
+  audit_run_timeout_seconds: 900     # 15min ceiling per RUN check
+  audit_agent_timeout_seconds: 1200  # 20min ceiling per agent
+  adjudicate_timeout_seconds: 1800   # 30min ceiling per appeal
+  wiki_compile_timeout_seconds: 600
+  health_check_timeout_seconds: 300
+  max_concurrent_audit_targets: 4
+
+# Memory
+memory:
+  vault_root: /Users/brassfieldventuresllc/MiniMax-Agent/03 Projects/Verifier
+  raw_max_size_mb: 500
+  knowledge_max_size_mb: 50
+  raw_retention_days: 30
+  backup_retention_count: 8
+
+# Tool access. The Verifier is read-only across other agents' state.
+# web_search and webfetch are allowed ONLY to chase down a primary source
+# during a CROSS_CHECK, not for original research.
+tools:
+  - web_search             # chase primary sources during CROSS_CHECK
+  - webfetch               # pull primary source content
+  - file_read              # read other agents' state (read-only)
+  - file_write             # write inside own vault
+  - file_edit              # edit inside own vault
+  - bash                   # run scripts in scripts/
+  - cron
+  - matrix_web_search      # bulk web search during CROSS_CHECK
+  - matrix_browser_enrichment  # primary-source verification (optional)
+
+# Compression
+compression:
+  enabled: true
+  threshold_tokens: 800000
+  strategy: msa_sparse_attention
+  preserve_recent_turns: 20
+
+# Browser behaviour
+browser:
+  enabled: true
+  profile: default
+  allow_javascript: true
+  headless: true
+  timeout_seconds: 60
+
+# Delivery
+delivery:
+  channels:
+    - name: auditor_brief
+      type: file
+      path: notes/auditor-brief.md
+    - name: audit_summary
+      type: file
+      path: notes/audit-summary.md
+    - name: researcher_verify_handoff
+      type: file
+      path: queue/researcher-verify-handoff.md
+    - name: mavis_audit_handoff
+      type: file
+      path: queue/mavis-audit-handoff.md
+    - name: hermes_audit_handoff
+      type: file
+      path: queue/hermes-audit-handoff.md
+    - name: andre_appeal
+      type: file
+      path: queue/andre-appeal.md
+  surprise_scrape: false   # delivery jobs never scrape inline
+  stale_data_policy: explicit_disclosure   # say so, do not pretend
+  verdict_temperature_check: hardcoded_at_zero
+
+# Vault structure
+vault:
+  folders:
+    - context
+    - dossiers
+    - knowledge
+    - raw
+    - sources
+    - topics
+    - decisions
+    - runs
+    - indexes
+    - queue
+    - notes
+    - wiki/concepts
+    - wiki/articles
+    - health
+    - ops
+  ledgers:
+    - knowledge/verdicts.jsonl
+    - knowledge/audit-log.jsonl
+    - knowledge/findings.jsonl
+  per_agent_audit_dossiers:
+    - researcher
+    - mavis
+    - hermes
+
+# Handoff lanes (queue/ files)
+handoffs:
+  intake:
+    - audit-requests.md          # Mavis/Hermes/cron write here
+  outbound:
+    - researcher-verify-handoff.md
+    - mavis-audit-handoff.md
+    - hermes-audit-handoff.md
+    - andre-appeal.md
+
+# Cross-agent surface — read-only by default, write-only inside own vault
+neighbors:
+  upstream:
+    - id: researcher
+      role: evidence_operator
+      read: knowledge/claims.jsonl, knowledge/findings.jsonl, knowledge/sources.jsonl, dossiers/, queue/verification-review.md, runs/, notes/operator-brief.md
+      write: never
+    - id: mavis
+      role: chief_of_staff
+      read: 06 Connections/, 02 Notes/, queue/, state-of-mavis.md, notes/
+      write: never
+    - id: hermes
+      role: fleet_orchestrator
+      read: kanban (read-only), gbrain (read-only), OpenClaw bridge (read-only)
+      write: never
+  downstream:
+    - id: researcher
+      role: evidence_operator
+      read: queue/researcher-verify-handoff.md, dossiers/researcher-audit.md
+      write: never   # Verifier writes, Researcher reads
+    - id: mavis
+      role: chief_of_staff
+      read: notes/auditor-brief.md, notes/audit-summary.md, queue/mavis-audit-handoff.md, dossiers/mavis-audit.md, queue/audit-requests.md
+      write: never
+    - id: hermes
+      role: fleet_orchestrator
+      read: queue/hermes-audit-handoff.md, dossiers/hermes-audit.md
+      write: never
+    - id: andre
+      role: operator
+      read: notes/, queue/andre-appeal.md, dossiers/, knowledge/verdicts.jsonl
+      write: never
+
+# Audit policy (mirrors context/audit-policy.md; this is the runtime gate)
+audit_policy:
+  source_trail_required: true
+  trail_min_length_for_high_weight: 1   # primary source required for any weight >= 0.6
+  verdict_temperature: 0.0             # hardcoded; non-zero aborts run
+  per_agent_cadence_days: 7            # each agent audited at least once per 7 days
+  audit_debt_max: 25                   # NEEDS-MORE-EVIDENCE cap
+  orphan_verdicts_allowed: 0
+  fail_routing_sla_hours: 24
+  appeal_response_sla_hours: 48
+  max_hours_between_audits: 18
+
+# Audit rubric (mirrors context/audit-rubric.md; this is the runtime gate)
+audit_rubric:
+  version: v1
+  criteria:
+    - id: source_quality
+      weight: 0.25
+    - id: cross_source_agreement
+      weight: 0.20
+    - id: stage_discipline
+      weight: 0.20
+    - id: freshness
+      weight: 0.10
+    - id: process_compliance
+      weight: 0.15
+    - id: handoff_hygiene
+      weight: 0.10
+  verdict_bands:
+    PASS: 0.80
+    NEEDS_WORK: 0.60
+    NEEDS_MORE_EVIDENCE: 0.40
+    # anything below NEEDS_MORE_EVIDENCE is FAIL
+
+# Guardrails
+guardrails:
+  hard_stops:
+    - no_trading_decisions
+    - no_publish_public_posts
+    - no_purchases
+    - no_partnerships
+    - no_secrets_or_auth_touch
+    - no_verdict_without_source_trail
+    - no_pass_without_actually_checking
+    - no_verdict_above_temperature_zero
+    - no_edit_other_agents_artifacts
+    - no_ad_hominem_verdicts
+    - no_override_appeal_without_re_check
+    - no_write_into_other_agent_state
+  quality_floors:
+    - audit_debt_max_items: 25
+    - max_hours_between_audits: 18
+    - appeal_response_sla_hours: 48
+    - fail_routing_sla_hours: 24
+    - per_agent_cadence_days: 7
+    - max_orphan_verdicts: 0
+    - max_stale_appeals: 3

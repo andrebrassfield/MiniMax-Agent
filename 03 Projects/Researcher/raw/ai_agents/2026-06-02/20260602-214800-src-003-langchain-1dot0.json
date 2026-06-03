@@ -1,0 +1,12 @@
+{
+  "id": "src-2026-06-02-003",
+  "captured_at": "2026-06-02T21:48:00-05:00",
+  "source_lane": "ai_agents",
+  "url": "https://www.langchain.com/blog/langchain-langgraph-1dot0",
+  "type": "primary",
+  "fetch_method": "webfetch",
+  "raw_excerpt": "We're releasing LangChain 1.0 and LangGraph 1.0 — our first major versions of our open source frameworks! October 22, 2025. create_agent is the new abstraction. Built on LangGraph runtime. Middleware hooks (Human-in-the-loop, Summarization, PII redaction). langchain-core promoted to 1.0 with standardized content blocks. Python 3.9 dropped (EOL Oct 2025), requires 3.10+. Legacy code moves to langchain-classic. LangGraph 1.0 has durable state, built-in persistence, first-class HITL. Used by Uber, LinkedIn, Klarna, Rippling, JP Morgan, Blackrock, Cisco. 90M monthly downloads.",
+  "raw_full_path": "raw/ai_agents/2026-06-02/20260602-214800-src-003-langchain-1dot0.json",
+  "content_hash": "sha256:9966396c91c021d2142ba5aed304899770ac4d46265425e3649df9b8ea3ce21e",
+  "extracted_finding_ids": ["fnd-001", "fnd-002", "fnd-003"]
+}

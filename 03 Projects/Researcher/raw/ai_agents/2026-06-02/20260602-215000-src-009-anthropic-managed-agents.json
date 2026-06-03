@@ -1,0 +1,12 @@
+{
+  "id": "src-2026-06-02-009",
+  "captured_at": "2026-06-02T21:50:00-05:00",
+  "source_lane": "ai_agents",
+  "url": "https://www.anthropic.com/news/code-with-claude-sf-2026-recap",
+  "type": "primary",
+  "fetch_method": "web_search_via_releasebot_releasebot_io",
+  "raw_excerpt": "Claude Managed Agents at Code w/ Claude SF 2026 (May 12, 2026). Four new features: Dreaming (scheduled process reviews past sessions, surfaces patterns, curates memory); Multiagent orchestration (lead agent delegates to specialist subagents working in parallel on shared filesystem, each with own model/prompt/tools, traceable in Claude Console); Outcomes (developer-defined rubric, separate grader evaluates result in own context window, +10pt task success on hardest problems); Webhooks (notify when outcome is met). Claude Code rate limits doubled; Claude Opus API limits raised. Self-hosted sandboxes (Cloudflare/Daytona/Modal/Vercel) public beta; MCP tunnels research preview. Used by Spotify, Base44, Legora, Amplitude, Clay, Rogo.",
+  "raw_full_path": "raw/ai_agents/2026-06-02/20260602-215000-src-009-anthropic-managed-agents.json",
+  "content_hash": "sha256:7caffc0062bdaf87ec7ce1bab67b76298e662df26621506f65d88058e863d7fc",
+  "extracted_finding_ids": ["fnd-015", "fnd-016", "fnd-017"]
+}

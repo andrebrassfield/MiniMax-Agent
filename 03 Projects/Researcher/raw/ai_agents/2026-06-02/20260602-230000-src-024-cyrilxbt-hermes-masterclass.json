@@ -1,0 +1,14 @@
+{
+  "id": "src-2026-06-02-024",
+  "captured_at": "2026-06-02T23:00:00-05:00",
+  "source_lane": "ai_agents",
+  "url": "https://x.com/cyrilXBT/status/2060914969605189808",
+  "url_alternate": "https://www.dailydoseofds.com/p/hermes-agent-masterclass/",
+  "type": "social",
+  "fetch_method": "user_paste_plus_websearch",
+  "raw_excerpt": "Hermes Agent Masterclass by CyrilXBT (@cyrilXBT), May 30 2026. Long-form X thread / masterclass covering Sections 1-7+: What Hermes Agent Actually Is (open source autonomous agent framework by Nous Research, MIT license, Feb 2026; four properties — persistent memory, skill system, scheduled automation, MCP integration); Installation (Node 18+, .env config, MODEL_PROVIDER/ANTHROPIC_API_KEY/MEMORY_BACKEND/SCHEDULER_TIMEZONE/LOG_PATH); File Architecture (~/.hermes/ tree: config.yaml, .env, SOUL.md, memories/MEMORY.md+USER.md, skills/, sessions/, state.db with FTS5, cron/jobs.json, plugins/, hooks/, logs/); Skills (SKILL.md with YAML frontmatter — name, description, version, author, platforms; skill_manage tool with create/patch/edit/delete actions; progressive disclosure for token cost; 30-day stale, 90-day archived); Memory (state.db SQLite with FTS5, Honcho user modeling); Profiles (each profile = isolated Hermes instance with own config/memory/skills/sessions/SOUL.md, share nothing by default); Multi-platform gateways (Telegram/Discord/Slack/15+); Cron (cronjob tool, can chain via context_from); Self-evolution repo (NousResearch/hermes-agent-self-evolution, offline optimization pipeline, GEPA scoring, constraint gates 100% test pass + skills <15KB); 90-turn cap per task; SOUL.md is slot #1 in system prompt; learning loop = agent encounters problem → solves → saves as SKILL.md → next time loads it. Documented onboarding gap: 'Most people who discover Hermes Agent spend the first week confused.' Republished to dailydoseofds.com as long-form article.",
+  "raw_full_path": "raw/ai_agents/2026-06-02/20260602-230000-src-024-cyrilxbt-hermes-masterclass.json",
+  "content_hash": "sha256:834cd9f1fa5d5e9ef3cbf2250346b402c0aacff5584ca83a587c16636bc50cb9",
+  "extracted_finding_ids": ["fnd-2026-06-02-030", "fnd-2026-06-02-031"],
+  "trust_notes": "Single-source. Social (X post by @cyrilXBT). Republished to dailydoseofds.com as long-form article. CyrilXBT is a third-party X user (handle context, not Hermes project staff). Notre Research's own docs (hermes-agent.nousresearch.com/docs/) cover the same content. Trust: 0.5 secondary, 0.6 if treated as a long-form newsletter rather than a tweet."
+}
