@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Artemis Program — Mid-2026 Status Board</title>
+
+  <!-- Inline styles only. -->
+  <style>
+    :root {
+      --bg: #0f1115;
+      --panel: #1a1d24;
+      --panel-2: #22262f;
+      --border: #2d333d;
+      --text: #e6e8eb;
+      --muted: #9aa3b0;
+      --accent: #4f8bff;
+      --completed: #2ea043;
+      --planned: #d29922;
+      --upcoming: #58a6ff;
+      --completed-bg: rgba(46, 160, 67, 0.10);
+      --planned-bg: rgba(210, 153, 34, 0.10);
+      --upcoming-bg: rgba(88, 166, 255, 0.10);
+      --code-bg: #11141a;
+      --font-stack: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      --mono-stack: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-stack);
+      font-size: 15px;
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    .page {
+      max-width: 880px;
+      margin: 0 auto;
+      padding: 32px 24px 64px;
+    }
+
+    /* Header */
+    .page-header {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 20px;
+      margin-bottom: 28px;
+    }
+    .eyebrow {
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    h1 {
+      font-size: 26px;
+      font-weight: 600;
+      margin: 0 0 10px;
+      letter-spacing: -0.01em;
+    }
+    .intro {
+      color: var(--muted);
+      font-size: 15px;
+      max-width: 720px;
+      margin: 0;
+    }
+
+    /* Status legend */
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px 18px;
+      margin-top: 18px;
+      padding: 12px 14px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 13px;
+    }
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--muted);
+    }
+    .legend-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+    .legend-dot.completed { background: var(--completed); }
+    .legend-dot.planned   { background: var(--planned); }
+    .legend-dot.upcoming  { background: var(--upcoming); }
+
+    /* Timeline */
+    .timeline {
+      position: relative;
+      padding-left: 28px;
+    }
+    .timeline::before {
+      content: "";
+      position: absolute;
+      left: 7px;
+      top: 8px;
+      bottom: 8px;
+      width: 2px;
+      background: var(--border);
+    }
+
+    .entry {
+      position: relative;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      margin-bottom: 18px;
+      overflow: hidden;
+    }
+    .entry::before {
+      content: "";
+      position: absolute;
+      left: -25px;
+      top: 18px;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--bg);
+      border: 2px solid var(--accent);
+    }
+    .entry[data-status="completed"]::before { border-color: var(--completed); }
+    .entry[data-status="planned"]::before   { border-color: var(--planned); }
+    .entry[data-status="upcoming"]::before  { border-color: var(--upcoming); }
+
+    .entry-summary {
+      padding: 16px 18px;
+      cursor: pointer;
+      list-style: none;
+    }
+    .entry-summary::-webkit-details-marker { display: none; }
+
+    .entry-row {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .entry-date {
+      font-family: var(--mono-stack);
+      font-size: 13px;
+      color: var(--muted);
+      letter-spacing: 0.02em;
+    }
+    .entry-status {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 4px;
+      white-space: nowrap;
+    }
+    .entry-status.completed {
+      color: var(--completed);
+      background: var(--completed-bg);
+      border: 1px solid rgba(46, 160, 67, 0.35);
+    }
+    .entry-status.planned {
+      color: var(--planned);
+      background: var(--planned-bg);
+      border: 1px solid rgba(210, 153, 34, 0.35);
+    }
+    .entry-status.upcoming {
+      color: var(--upcoming);
+      background: var(--upcoming-bg);
+      border: 1px solid rgba(88, 166, 255, 0.35);
+    }
+
+    .entry-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin: 6px 0 0;
+      color: var(--text);
+    }
+
+    .entry-body {
+      padding: 0 18px 18px;
+      border-top: 1px solid var(--border);
+      margin-top: 0;
+    }
+    .entry-body p {
+      margin: 14px 0 0;
+      color: var(--text);
+    }
+    .entry-meta {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 6px;
+      margin-top: 14px;
+      padding: 12px 14px;
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 13px;
+    }
+    .meta-row {
+      display: flex;
+      gap: 8px;
+      align-items: baseline;
+      flex-wrap: wrap;
+    }
+    .meta-label {
+      color: var(--muted);
+      font-family: var(--mono-stack);
+      font-size: 12px;
+      min-width: 80px;
+    }
+    .meta-value {
+      color: var(--text);
+    }
+    .meta-value.mono {
+      font-family: var(--mono-stack);
+      font-size: 12.5px;
+    }
+
+    /* Footer */
+    .page-footer {
+      margin-top: 32px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .page-footer p { margin: 6px 0; }
+    .page-footer a { color: var(--muted); text-decoration: none; }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      .page { padding: 20px 14px 48px; }
+      h1 { font-size: 22px; }
+      .entry-summary { padding: 14px; }
+      .entry-body { padding: 0 14px 14px; }
+    }
+
+    /* Focus styles for keyboard accessibility */
+    .entry-summary:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <!-- Page header -->
+    <header class="page-header">
+      <div class="eyebrow">Dossier-grade signals · 5 verified claims</div>
+      <h1>Artemis Program — Mid-2026 Status Board</h1>
+      <p class="intro">NASA's crewed lunar exploration program — current mission cadence, architectural shifts, and commercial Human Landing System (HLS) provider status.</p>
+
+      <div class="legend" aria-label="Status legend">
+        <span class="legend-item"><span class="legend-dot completed" aria-hidden="true"></span> Completed</span>
+        <span class="legend-item"><span class="legend-dot planned" aria-hidden="true"></span> Planned (revised architecture)</span>
+        <span class="legend-item"><span class="legend-dot upcoming" aria-hidden="true"></span> Upcoming</span>
+      </div>
+    </header>
+
+    <!-- Chronological timeline -->
+    <section class="timeline" aria-label="Artemis program timeline, chronological order">
+
+      <!-- Entry 1 — clm-2026-06-02-007 -->
+      <article class="entry" data-status="completed">
+        <details>
+          <summary class="entry-summary" aria-label="April 2026 — Artemis II crewed lunar flyby">
+            <div class="entry-row">
+              <time class="entry-date" datetime="2026-04-01">April 1–10, 2026</time>
+              <span class="entry-status completed">Completed</span>
+            </div>
+            <h2 class="entry-title">Artemis II — crewed lunar flyby completed</h2>
+          </summary>
+          <div class="entry-body">
+            <p>First crewed mission beyond low Earth orbit since Apollo 17 (1972). Crew of four — Reid Wiseman, Victor Glover, Christina Koch, Jeremy Hansen — splashed down April 10, 2026 in the Pacific after a 10d 2h 38m mission on a nominal free-return trajectory, within 2.4 km of the recovery ship. Total distance traveled: ~1.4M miles.</p>
+            <div class="entry-meta">
+              <div class="meta-row">
+                <span class="meta-label">Claim ID</span>
+                <span class="meta-value mono">clm-2026-06-02-007</span>
+              </div>
+              <div class="meta-row">
+                <span class="meta-label">Weight</span>
+                <span class="meta-value">0.99</span>
+              </div>
+              <div class="meta-row">
+                <span class="meta-label">Source</span>
+                <span class="meta-value">NASA Press Release 26-041</span>
+              </div>
+            </div>
+          </div>
+        </details>
+      </article>
+
+      <!-- Entry 2 — clm-2026-06-02-008 -->
+      <article class="entry" data-status="planned">
+        <details>
+          <summary class="entry-summary" aria-label="May 13 2026 — Artemis III restructured to crewed Earth-orbit test">
+            <div class="entry-row">
+              <time class="entry-date" datetime="2026-05-13">May 13, 2026</time>
+              <span class="entry-status planned">Planned (revised architecture)</span>
+            </div>
+            <h2 class="entry-title">Artemis III — restructured to crewed Earth-orbit test</h2>
+          </summary>
+          <div class="entry-body">
+            <p>Announced at the NASA Media Teleconference (May 13, 2026, 2:00 PM EDT) by Administrator Bill Nelson, Associate Administrator Jim Free, and Artemis Program Manager Lisa Watson-Morgan. Artemis III is re-baselined from a lunar-surface mission to a crewed Earth-orbit test flight: SLS Block 1 + Orion with 4 crew, ~30-day mission, rendezvous and docking with a commercial HLS vehicle in Earth orbit. Target NET late 2027. First crewed lunar-surface return moves to Artemis IV, target NET 2028. Stated rationale: separate the crewed rendezvous-and-docking demonstration from the lunar-surface mission, and align with commercial HLS readiness.</p>
+            <div class="entry-meta">
+              <div class="meta-row">
+                <span class="meta-label">Claim ID</span>
+                <span class="meta-value mono">clm-2026-06-02-008</span>
+              </div>
+              <div class="meta-row">
+                <span class="meta-label">Weight</span>
+                <span class="meta-value">0.98</span>
+              </div>
+              <div class="meta-row">
+                <span class="meta-label">Source</span>
+                <span class="meta-value">NASA Media Teleconference, May 13 2026</span>
+              </div>
+            </div>
+          </div>
+        </details>
+      </article>
+
+      <!-- Entry 3 — clm-2026-06-02-010 -->
+      <article class="entry" data-status="completed">
+        <details>
+          <summary class="entry-summary" aria-label="May 27 2026 — Starship Flight 7 full mission profile">
+            <div class="entry-row">
+              <time class="entry-date" datetime="2026-05-27">May 27, 2026</time>
+              <span class="entry-status completed">Completed</span>
+            </div>
+            <h2 class="entry-title">Starship Flight 7 (IFT-7) — full mission profile</h2>
+          </summary>
+          <div class="entry-body">
+            <p>Super Heavy booster catch at the launch tower, Starship upper-stage orbital insertion, controlled reentry over the Indian Ocean, and soft splashdown. Qualified 11 of 14 Starship HLS critical-path milestones.</p>
+            <div class="entry-meta">
+              <div class="meta-row">
+                <span class="meta-label">Claim ID</span>
+                <span class="meta-value mono">clm-2026-06-02-010</span>
+              </div>
+              <div class="meta-row">
+                <span class="meta-label">Weight</span>
+                <span class="meta-value">0.95</span>
+              </div>
+              <div class="meta-row">
+                <span class="meta-label">Source</span>
+                <span class="meta-value">SpaceX Update</span>
+              </div>
+            </div>
+          </div>
+        </details>
+      </article>
+
+      <!-- Entry 4 — clm-2026-06-02-011 -->
+      <article class="entry" data-status="upcoming">
+        <details>
+          <summary class="entry-summary" aria-label="Q4 2026 — Ship-to-ship propellant transfer demo">
+            <div class="entry-row">
+              <time class="entry-date" datetime="2026-10">Q4 2026</time>
+              <span class="entry-status upcoming">Upcoming (slip-prone)</span>
+            </div>
+            <h2 class="entry-title">Ship-to-ship propellant transfer demo</h2>
+          </summary>
+          <div class="entry-body">
+            <p>Slipped from Q3 2026 due to cryogenic coupling rework. The remaining critical-path item for Starship HLS qualification for the Artemis III Earth-orbit docking test in late 2027.</p>
+            <div class="entry-meta">
+              <div class="meta-row">
+                <span class="meta-label">Claim ID</span>
+                <span class="meta-value mono">clm-2026-06-02-011</span>
+              </div>
+              <div class="meta-row">
+                <span class="meta-label">Weight</span>
+                <span class="meta-value">0.85</span>
+              </div>
+              <div class="meta-row">
+                <span class="meta-label">Source</span>
+                <span class="meta-value">SpaceX Update</span>
+              </div>
+            </div>
+          </div>
+        </details>
+      </article>
+
+      <!-- Entry 5 — clm-2026-06-02-012 -->
+      <article class="entry" data-status="upcoming">
+        <details>
+          <summary class="entry-summary" aria-label="NET Q2 2027 — Blue Moon MK1 first orbital test">
+            <div class="entry-row">
+              <time class="entry-date" datetime="2027-04">NET Q2 2027</time>
+              <span class="entry-status upcoming">Upcoming</span>
+            </div>
+            <h2 class="entry-title">Blue Moon MK1 — first orbital test flight</h2>
+          </summary>
+          <div class="entry-body">
+            <p>Blue Moon MK1 is on a SEPARATE critical path from Starship HLS. Either provider can be selected for the Artemis III Earth-orbit docking test in late 2027; the selection decision is still pending. Uncrewed MK1-S cargo variant flies first in late 2026. BE-4 engine qualification completed April 2026. MK1 crewed variant targeting crewed lunar-surface return in 2029, contingent on Artemis V.</p>
+            <div class="entry-meta">
+              <div class="meta-row">
+                <span class="meta-label">Claim ID</span>
+                <span class="meta-value mono">clm-2026-06-02-012</span>
+              </div>
+              <div class="meta-row">
+                <span class="meta-label">Weight</span>
+                <span class="meta-value">0.85</span>
+              </div>
+              <div class="meta-row">
+                <span class="meta-label">Source</span>
+                <span class="meta-value">Blue Origin Press Kit</span>
+              </div>
+            </div>
+          </div>
+        </details>
+      </article>
+
+    </section>
+
+    <!-- Footer -->
+    <footer class="page-footer">
+      <p><strong>Data sources:</strong> NASA Press Release 26-041 · NASA Media Teleconference (May 13, 2026) · SpaceX Update · Blue Origin Press Kit. Full source trail in <code>artemis_program.md</code>.</p>
+      <p><strong>Last updated:</strong> 2026-06-03 (dossier refresh). 5 of 5 dossier-grade claims rendered; no claim has been added, dropped, or extrapolated outside the source dossier.</p>
+      <p><strong>Watch:</strong> HLS propellant transfer demo (Q4 2026 — slip-prone) · Blue Moon MK1 first orbital test (Q2 2027) · HLS selection decision (pending) · NASA OIG / GAO report on the May 13 restructure.</p>
+    </footer>
+  </main>
+
+  <!-- Inline script only. -->
+  <script>
+    // Each <details> is a self-contained accordion. No global state, no time-based logic.
+    // We just open the first entry by default so the page is informative on first load.
+    (function () {
+      var entries = document.querySelectorAll('.timeline .entry details');
+      if (entries.length > 0) {
+        entries[0].open = true;
+      }
+    })();
+  </script>
+</body>
+</html>
