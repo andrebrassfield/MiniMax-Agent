@@ -102,3 +102,118 @@
 - Do not pre-write the consumption action for the Researcher. They own their ledger.
 - A FAIL verdict is not a "stop work" signal. It is a "down-weight or freeze" signal.
 - A PASS verdict is a "this is solid; route it" signal.
+
+---
+
+- id: vrf-handoff-2026-06-03-002
+  audit_log_id: aud-2026-06-03-002
+  target: "clm-2026-06-02-007"
+  dossier: "artemis_program"
+  verdict: NEEDS-MORE-EVIDENCE
+  weighted_score: 0.475
+  rubric_criteria:
+    source_quality: 0.30
+    cross_source_agreement: 0.50
+    stage_discipline: 0.50
+    freshness: 0.70
+    process_compliance: 0.40
+    handoff_hygiene: 0.70
+  trail:
+    - src-2026-06-03-001
+    - fnd-2026-06-03-001
+    - clm-2026-06-02-007
+    - reports/artemis_status_mid2026.md
+    - dossiers/artemis_program.md
+  issue: "Claim clm-2026-06-02-007 (Artemis II crewed lunar flyby, Apr 1, 2026, 10-day mission, first crewed beyond LEO since Apollo) is asserted at weight 0.99 from a single secondary synthesis (src-2026-06-03-001, trust 0.7) with zero primary sources captured. Audit policy hard rule violated: weight >= 0.6 requires >= 1 primary source. The underlying event is high-confidence and publicly announced, but dossier-grade promotion needs the primary capture."
+  recommended_action: require_primary_source
+  specific_actions:
+    - "Capture the NASA Artemis II success press release / post-mission summary as a new primary source (e.g. src-2026-06-03-NNN, type=primary, source_lane=aerospace, trust >= 0.9). Re-anchor src-2026-06-03-001's trust_notes once the primary is in the trail."
+    - "On the same pass, separate the 4 collapsed facts inside fnd-2026-06-03-001 (Artemis II success, Artemis III restructure, Artemis IV push, HLS progress) into 4 distinct findings. One finding per factual claim is the stage-discipline norm (see how clm-2026-06-02-003, 004, 005, 006 each have their own finding in the ai_agents dossier)."
+    - "Fix the dossier internal inconsistency: line 20 of dossiers/artemis_program.md references 'fnd-artemis-2026-06-03-001' (wrong ID) and claims the finding is 'not yet present in knowledge/findings.jsonl' (it is — line 33 of findings.jsonl is fnd-2026-06-03-001). Both lines should be corrected, ideally before the next REFRESH so the next Verifier audit does not see the same confusion."
+    - "After primary source is captured, re-issue this verdict via Verifier ADJUDICATE (Mode 3) — the underlying event is real and verifiable, so the post-capture verdict should be a clean PASS at 0.85+ once the trail satisfies policy."
+  cross_cutting_findings:
+    - "Dossier 'Contradictions and open questions' section (dossiers/artemis_program.md lines 22-28) raises 5 honest open questions (firmness of 2027/2028 dates, propellant transfer demo status, Blue Moon critical-path status, political-economy rationale, China lunar timeline). These are correctly surfaced, not papered over — good discipline. They should each be addressed in the next REFRESH, not just the primary-source check."
+  snapshot_as_of: "2026-06-03T20:50:00-05:00"
+  issued_at: "2026-06-03T20:55:00-05:00"
+  temperature: 0.0
+
+- id: vrf-handoff-2026-06-03-003
+  audit_log_id: aud-2026-06-03-002
+  target: "clm-2026-06-02-008"
+  dossier: "artemis_program"
+  verdict: NEEDS-MORE-EVIDENCE
+  weighted_score: 0.475
+  rubric_criteria:
+    source_quality: 0.30
+    cross_source_agreement: 0.50
+    stage_discipline: 0.50
+    freshness: 0.70
+    process_compliance: 0.40
+    handoff_hygiene: 0.70
+  trail:
+    - src-2026-06-03-001
+    - fnd-2026-06-03-001
+    - clm-2026-06-02-008
+    - reports/artemis_status_mid2026.md
+    - dossiers/artemis_program.md
+  issue: "Claim clm-2026-06-02-008 (Artemis III restructured May 13, 2026, from lunar landing to crewed Earth-orbit docking test with commercial HLS, targeted late 2027; first crewed lunar landing pushed to Artemis IV in 2028) is asserted at weight 0.98 from the same single secondary synthesis with zero primary captures. Same policy violation as 007. Claim is structurally complex: announcement (verifiable) + new target (forward-looking) + knock-on to Artemis IV (separate schedule item). Dossier's own open-question section identifies the most important re-verification: 'Are the late-2027 orbital test and 2028 landing dates firm, or aspirational? Apollo-era schedule history suggests the latter.'"
+  recommended_action: require_primary_source
+  specific_actions:
+    - "Capture NASA's May 13, 2026 Artemis III restructuring announcement as a new primary source. This is the obvious primary target — NASA's own statement, agency budget documents, or OIG/GAO follow-up reports. Target: src-2026-06-03-NNN, type=primary, source_lane=aerospace, trust >= 0.95."
+    - "Optionally split this claim into two sub-claims once primary sources are captured: (a) 'NASA restructured Artemis III on May 13, 2026' (historical, verifiable) and (b) 'Artemis III docking test is targeted for late 2027; Artemis IV for 2028' (forward-looking, schedule-risk). The verifiable half promotes cleanly; the schedule half should remain at lower weight (Apollo-era schedule slippage is the historical norm)."
+    - "Capture NASA's FY27 budget request or program-of-record update for the 2027/2028 target dates — those are the schedule-grounding documents, separate from the May 13 announcement."
+  cross_cutting_findings:
+    - "The dossier implies the restructure was driven by 'schedule realism, budget caps, or both' (line 27). This is a worthwhile research question but currently unevidenced; route to research-questions.md and resolve on next REFRESH, not on this audit pass."
+  snapshot_as_of: "2026-06-03T20:50:00-05:00"
+  issued_at: "2026-06-03T20:55:00-05:00"
+  temperature: 0.0
+
+- id: vrf-handoff-2026-06-03-004
+  audit_log_id: aud-2026-06-03-002
+  target: "clm-2026-06-02-009"
+  dossier: "artemis_program"
+  verdict: NEEDS-MORE-EVIDENCE
+  weighted_score: 0.455
+  rubric_criteria:
+    source_quality: 0.30
+    cross_source_agreement: 0.40
+    stage_discipline: 0.50
+    freshness: 0.70
+    process_compliance: 0.40
+    handoff_hygiene: 0.70
+  trail:
+    - src-2026-06-03-001
+    - fnd-2026-06-03-001
+    - clm-2026-06-02-009
+    - reports/artemis_status_mid2026.md
+    - dossiers/artemis_program.md
+  issue: "Claim clm-2026-06-02-009 (HLS providers racing 2027 deadline; SpaceX completed Starship flight test late May 2026; ship-to-ship propellant transfer tests later 2026; Blue Origin Blue Moon on parallel track) is asserted at weight 0.85 — already 0.13 below 007/008 — but aggregates three different factual claims (SpaceX test, SpaceX propellant transfer demo, Blue Origin status) into one dossier claim, and the underlying trail is a single secondary synthesis. The dossier's own 'Contradictions and open questions' section (line 25) flags Blue Moon: 'Blue Moon status is described at the same level as Starship HLS, but the public cadence is much quieter. Is Blue Moon on a parallel critical path or a backup?' That open question is unresolved by the trail. This is the loosest of the three claims (cross_source_agreement scored 0.40 vs 0.50 for 007/008)."
+  recommended_action: split_claim
+  specific_actions:
+    - "Split clm-2026-06-02-009 into 3 sub-claims before re-audit: (a) 'SpaceX completed a Starship flight test in late May 2026' (specific event, verifiable via SpaceX press release / NASASpaceflight coverage); (b) 'SpaceX is targeting ship-to-ship propellant transfer tests later in 2026 to qualify Starship HLS' (forward-looking, schedule); (c) 'Blue Origin Blue Moon is on a parallel track for the 2027 orbital test' (vague, dossier itself questions). Each needs its own primary source."
+    - "For (a), capture the SpaceX Starship test flight press release / X post / NASASpaceflight coverage. For (b), capture SpaceX's HLS propellant transfer schedule statement. For (c), capture Blue Origin's own Blue Moon schedule statement or a NASA HLS program update that names both providers' status."
+    - "Consider demoting the Blue Origin 'parallel track' component to weight <= 0.6 if no clear primary surfaces by the next REFRESH — at that weight, the policy threshold lowers to '>= 2 independent secondary sources suffice', which is more realistic for the Blue Moon signal."
+    - "Re-issue this verdict via Verifier ADJUDICATE after the split and primary-source pass. The SpaceX test sub-claim should pass cleanly once its primary source is captured; the propellant transfer and Blue Moon sub-claims will likely stay in NEEDS-MORE-EVIDENCE or NEEDS-WORK."
+  cross_cutting_findings:
+    - "This claim is a useful case study in why claim-splitting matters: aggregating 3 distinct factual claims at one weight obscures the fact that one is verifiable, one is forward-looking, and one is under-evidenced. The dossier's 'Implications' section (line 33) lumps them under 'Watch: HLS propellant transfer demo, Blue Moon schedule slips' — the dossier author clearly distinguished them, but the claim structure did not."
+  snapshot_as_of: "2026-06-03T20:50:00-05:00"
+  issued_at: "2026-06-03T20:55:00-05:00"
+  temperature: 0.0
+
+## Process-level findings (apply to dossier-level verdict, not any single claim)
+
+- "No raw capture was written for src-2026-06-03-001 (no raw/aerospace/ folder exists). REFRESH step 8 is documented as 'Write raw captures to raw/<source>/<timestamp>-<id>.json'. This step was skipped for the artemis pass."
+- "No run receipt was written for the 2026-06-03 artemis pass. The last receipt in runs/ is RUN-20260602-2143-REFRESH.md (ai_agents/frontier_ai pass). REFRESH step 20 is 'Write run receipt'. This step was skipped for the artemis pass."
+- "The 'aerospace' source lane is not in the Researcher's documented source plan (default plan has ai_agents, frontier_ai, memory_orchestration, dev_tooling, research_method, builder_patterns). For the next REFRESH, either add 'aerospace' to context/source-plan.md or fold the artemis dossier into an existing lane. A new lane without documentation is a process gap."
+- "No wiki compilation for the artemis dossier was produced. ai_agents.md and frontier_ai.md both link to wiki/articles/2026-agentic-frontier.md; artemis has no equivalent article. This is consistent with the deferred wiki work from RUN-20260602-2143-REFRESH, but it remains a gap. For dossier-grade signal, a wiki article helps downstream consumers (Mavis, Build, Content) consume without re-reading the dossier."
+- "Dossier prose contains 2 factual errors: (1) line 20 references 'fnd-artemis-2026-06-03-001' which is not the actual finding ID (actual is 'fnd-2026-06-03-001'); (2) line 20 claims the finding is 'not yet present in knowledge/findings.jsonl' when it is (line 33 of findings.jsonl). These were probably introduced when the dossier prose was drafted before the ledger write, and the prose was not reconciled with the ledger. The Researcher should treat 'dossier prose must match ledger IDs' as a hard rule for the next REFRESH."
+- "Researcher's own report claimed 'all 4 actions succeeded with one flagged anomaly' (dossier populated vs empty stub). Actual check: dossier populated, but the 4 named actions did not include raw capture, run receipt, wiki compile, or source-plan update — all of which the AGENTS.md requires for a full REFRESH. The 'success' framing was not quite right; the next REFRESH should not treat this as a clean pass."
+
+## Snapshot of audit state after this run
+
+- verdicts.jsonl: 4 total (1 from prior calibration on ai_agents, 3 new on artemis)
+- audit-log.jsonl: 2 total (prior calibration, this artemis run)
+- audit debt (NEEDS-MORE-EVIDENCE items): 3 (under the 25-item floor; no AUDIT block)
+- FAIL verdicts issued this run: 0
+- Handoff lane (this file): 3 new pending items, 1 recently-consumed
+- Temperature: 0.0 throughout (config.yaml enforcement, also applied to my reasoning)

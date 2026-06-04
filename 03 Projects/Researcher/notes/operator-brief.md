@@ -14,6 +14,14 @@
 
 3. **Persistent agent memory is the active research frontier with no clear winner.** Letta (MemGPT-derived, OS-inspired, #1 model-agnostic OSS on Terminal-Bench), Mem0 (extractive facts, 91% p95 latency reduction on LoCoMo), Zep (temporal knowledge graph), Cognee (knowledge graph). arXiv surveys confirm no canonical solution. MemoryArena exposes a deep gap: models near-perfect on LoCoMo plummet to 40-60% on multi-session decision tasks. **Andre's stack runs gbrain, Honcho, OpenClaw** — directly relevant. (clm-2026-06-02-005, weight 0.7, unverified)
 
+### Addendum — Artemis program (2026-06-03, targeted update)
+
+3 new claims registered from a Google search pass on NASA Artemis status. Dossier: `artemis_program`. Source: `reports/artemis_status_mid2026.md`. **Unverified — primary-source check needed on next REFRESH.**
+
+- **Artemis II flew.** Crewed lunar flyby launched Apr 1, 2026, 10-day mission, four astronauts, first crewed mission beyond LEO since Apollo. (clm-2026-06-02-007, weight 0.99)
+- **Artemis III restructured into an orbital docking test.** Announced May 13, 2026 — no longer a landing. Late-2027 target, Orion + SLS + commercial HLS rendezvous. Lunar surface return pushed to Artemis IV (~2028). (clm-2026-06-02-008, weight 0.98)
+- **HLS providers racing the 2027 orbital deadline.** SpaceX completed a Starship flight test in late May 2026, targeting ship-to-ship propellant transfer demos later in 2026. Blue Origin (Blue Moon) on parallel track. (clm-2026-06-02-009, weight 0.85)
+
 ## What deserves attention
 
 Prioritized for this cycle:
