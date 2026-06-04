@@ -47,6 +47,7 @@ REQUIREMENTS = SCRIPT_DIR / "requirements.txt"
 # Add routes here as the Glass server gains new pages.
 DEFAULT_ROUTES = [
     ("/", 200, "Fleet Command HUD"),
+    ("/", 200, "Active Ledger Claims"),     # ledger telemetry bar
     ("/fleet", 200, "Fleet Command HUD"),
     ("/mycelial", 200, "Mycelial"),
     ("/crucible", 200, "Crucible"),

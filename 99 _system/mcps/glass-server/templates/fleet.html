@@ -158,6 +158,45 @@
   font-family: var(--font-mono);
 }
 .fleet-link:hover { text-decoration: underline; }
+/* Ledger Telemetry — live read of 99 _system/logs/ledger-snapshot.json */
+.fleet-ledger-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  align-items: baseline;
+  margin: 0.5rem 0 1.5rem;
+  padding: 0.75rem 1rem;
+  background: var(--bg-metadata);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius);
+  font-size: 0.9rem;
+}
+.fleet-ledger-bar .ledger-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 8rem;
+}
+.fleet-ledger-bar .ledger-label {
+  color: var(--fg-muted);
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+  font-weight: 600;
+}
+.fleet-ledger-bar .ledger-value {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  color: var(--fg);
+  font-size: 1.1rem;
+}
+.fleet-ledger-bar .ledger-meta {
+  color: var(--fg-muted);
+  font-size: 0.78rem;
+  font-style: italic;
+  margin-left: auto;
+}
 </style>
 </head>
 <body>
@@ -178,6 +217,20 @@
   <article class="glass-article">
     <h1 class="glass-title">Fleet Command HUD</h1>
     <blockquote class="lead-quote">The whole fleet, in one view. Mavis is the Steward of the Vault. The Researcher and Verifier are specialized fleet workers, ingested and live. Hermes is the orchestrator — external to this vault, status reflected from the dual-repo coordination doc.</blockquote>
+
+    <div class="fleet-ledger-bar" title="Live read of 99 _system/logs/ledger-snapshot.json (Researcher claims ledger)">
+      <div class="ledger-stat">
+        <span class="ledger-label">Active Ledger Claims</span>
+        <span class="ledger-value" id="ledger-record-count">{{LEDGER_RECORD_COUNT}}</span>
+      </div>
+      <div class="ledger-stat">
+        <span class="ledger-label">Latest Claim ID</span>
+        <span class="ledger-value" id="ledger-last-id">{{LEDGER_LAST_ID}}</span>
+      </div>
+      <div class="ledger-stat ledger-meta" id="ledger-snapshot-time">
+        Snapshot: {{LEDGER_SNAPSHOT_TIME}}
+      </div>
+    </div>
 
     <div class="fleet-summary">
       <div class="fleet-stat-card">

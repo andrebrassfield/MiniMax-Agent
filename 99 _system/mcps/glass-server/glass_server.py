@@ -448,6 +448,35 @@ class GlassHandler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(encoded)
 
+    def _read_ledger_snapshot(self) -> dict:
+        """Read the Researcher's claims-ledger snapshot.
+
+        Returns a dict with keys: record_count, last_id, snapshot_time,
+        sha256. Any missing/corrupt field surfaces as '—' so the HUD
+        never renders a broken state.
+        """
+        import json as _json
+        snap_path = self.vault_root / "99 _system" / "logs" / "ledger-snapshot.json"
+        if not snap_path.exists():
+            return {
+                "record_count": "—",
+                "last_id": "—",
+                "snapshot_time": "— (no snapshot yet)",
+            }
+        try:
+            data = _json.loads(snap_path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            return {
+                "record_count": "—",
+                "last_id": "—",
+                "snapshot_time": "— (snapshot unreadable)",
+            }
+        return {
+            "record_count": str(data.get("record_count", "—")),
+            "last_id": data.get("last_id") or "—",
+            "snapshot_time": data.get("saved_at") or "—",
+        }
+
     def _serve_fleet(self):
         """Render the Fleet Command HUD — Mavis + Researcher + Verifier + Hermes.
 
@@ -486,6 +515,7 @@ class GlassHandler(BaseHTTPRequestHandler):
         )
         hermes_html = self._build_hermes_section()
         total_dossiers = researcher_dossiers + verifier_dossiers
+        ledger = self._read_ledger_snapshot()
 
         template = (_HERE / "templates" / "fleet.html").read_text(encoding="utf-8")
         page = template
@@ -498,6 +528,9 @@ class GlassHandler(BaseHTTPRequestHandler):
         page = page.replace("{{TOTAL_CLAIMS}}", str(claim_count))
         page = page.replace("{{TOTAL_VERDICTS}}", str(verdict_count))
         page = page.replace("{{TOTAL_MYCELIAL_SKILLS}}", str(mycelial_skills))
+        page = page.replace("{{LEDGER_RECORD_COUNT}}", html.escape(ledger["record_count"]))
+        page = page.replace("{{LEDGER_LAST_ID}}", html.escape(ledger["last_id"]))
+        page = page.replace("{{LEDGER_SNAPSHOT_TIME}}", html.escape(ledger["snapshot_time"]))
 
         encoded = page.encode("utf-8")
         self.send_response(200)

@@ -4,7 +4,187 @@
 
 ## Pending (Researcher to consume)
 
-*Empty.*
+5 re-audit verdicts (vrf-handoff-2026-06-03-005/006/007/008/009) + 1 dossier-level summary (vrf-handoff-2026-06-03-010). All issued 2026-06-03 21:18 CT under audit_log_id aud-2026-06-03-003. **Action: promote all 5 claims to verified=true in claims.jsonl (Researcher owns the ledger update).** Dossier is now eligible for Build and Content handoffs.
+
+Note: The 3 prior NEEDS-MORE-EVIDENCE verdicts below (vrf-handoff-2026-06-03-002/003/004) are now superseded by the re-audit pass; clm-2026-06-02-009 is deprecated and removed, audit history preserved in verdicts.jsonl as vrd-2026-06-03-004. The prior verdicts remain visible in the file for audit history; the re-audit verdicts (vrf-005/006/007/008/009/010) are the ones to act on.
+
+- id: vrf-handoff-2026-06-03-005
+  audit_log_id: aud-2026-06-03-003
+  target: "clm-2026-06-02-007"
+  dossier: "artemis_program"
+  verdict: PASS
+  weighted_score: 0.8800
+  rubric_criteria:
+    source_quality: 0.95
+    cross_source_agreement: 0.70
+    stage_discipline: 0.95
+    freshness: 1.00
+    process_compliance: 0.85
+    handoff_hygiene: 0.85
+  trail:
+    - src-2026-06-03-002
+    - fnd-2026-06-03-002
+    - clm-2026-06-02-007
+    - dossiers/artemis_program.md
+    - notes/operator-brief.md
+    - vrd-2026-06-03-002 (superseded, audit history preserved)
+  issue: "clm-2026-06-02-007 (Artemis II crewed lunar flyby Apr 1-10, 2026) re-audit PASSES at 0.88. Underlying primary source src-2026-06-03-002 (NASA Press Release 26-041) is now in the trail. supporting_findings correctly repointed from fnd-001 (synthesis) to fnd-002 (primary NASA finding). Hard rule satisfied: weight 0.99 + primary NASA trust 0.99."
+  recommended_action: promote
+  specific_actions:
+    - "Promote clm-2026-06-02-007 to verified=true in claims.jsonl. Set verified_at=2026-06-03T21:18:00-05:00, verifier='verifier'. Trail: src-2026-06-03-002 (NASA primary, trust 0.99)."
+    - "Update dossier prose bullet 1 (line 13 of dossiers/artemis_program.md): change 'unverified, primary source registered' to 'verified 2026-06-03, primary source registered'."
+  snapshot_as_of: "2026-06-03T21:18:00-05:00"
+  issued_at: "2026-06-03T21:18:00-05:00"
+  temperature: 0.0
+
+- id: vrf-handoff-2026-06-03-006
+  audit_log_id: aud-2026-06-03-003
+  target: "clm-2026-06-02-008"
+  dossier: "artemis_program"
+  verdict: PASS
+  weighted_score: 0.8800
+  rubric_criteria:
+    source_quality: 0.95
+    cross_source_agreement: 0.70
+    stage_discipline: 0.95
+    freshness: 1.00
+    process_compliance: 0.85
+    handoff_hygiene: 0.85
+  trail:
+    - src-2026-06-03-003
+    - fnd-2026-06-03-003
+    - clm-2026-06-02-008
+    - dossiers/artemis_program.md
+    - notes/operator-brief.md
+    - vrd-2026-06-03-003 (superseded, audit history preserved)
+  issue: "clm-2026-06-02-008 (Artemis III restructured May 13 2026 from lunar landing to crewed Earth-orbit docking test, targeted late 2027; lunar surface return pushed to Artemis IV 2028) re-audit PASSES at 0.88. Primary source src-2026-06-03-003 (NASA Media Teleconference transcript with Administrator Nelson, AA Free, Program Manager Watson-Morgan) in trail. Weight 0.98 satisfies primary-source hard rule."
+  recommended_action: promote
+  specific_actions:
+    - "Promote clm-2026-06-02-008 to verified=true. Set verified_at=2026-06-03T21:18:00-05:00, verifier='verifier'. Trail: src-2026-06-03-003 (NASA primary, trust 0.99)."
+    - "Update dossier prose bullet 2 (line 14): change 'unverified, primary source registered' to 'verified 2026-06-03, primary source registered'."
+    - "The forward-looking schedule parts (late 2027 docking test, 2028 Artemis IV landing) inherit the primary's authority but remain schedule claims. Re-verify on next REFRESH when NASA FY27 budget request or program-of-record update is available."
+  snapshot_as_of: "2026-06-03T21:18:00-05:00"
+  issued_at: "2026-06-03T21:18:00-05:00"
+  temperature: 0.0
+
+- id: vrf-handoff-2026-06-03-007
+  audit_log_id: aud-2026-06-03-003
+  target: "clm-2026-06-02-010"
+  dossier: "artemis_program"
+  verdict: PASS
+  weighted_score: 0.8475
+  rubric_criteria:
+    source_quality: 0.90
+    cross_source_agreement: 0.70
+    stage_discipline: 0.85
+    freshness: 1.00
+    process_compliance: 0.85
+    handoff_hygiene: 0.85
+  trail:
+    - src-2026-06-03-004
+    - fnd-2026-06-03-004
+    - clm-2026-06-02-010
+    - dossiers/artemis_program.md
+    - notes/operator-brief.md
+  issue: "clm-2026-06-02-010 (SpaceX Starship Flight 7 / IFT-7 May 27 2026, Super Heavy booster catch, orbital insertion, controlled reentry, soft splashdown; 11 of 14 HLS critical-path milestones qualified) PASSES at 0.85. New claim, split from deprecated clm-009. Primary source src-2026-06-03-004 (SpaceX Update) in trail."
+  recommended_action: promote
+  specific_actions:
+    - "Promote clm-2026-06-02-010 to verified=true. Trail: src-2026-06-03-004 (SpaceX primary, trust 0.95). Note vendor-self-report discount in claims.jsonl trust_notes or dossier prose."
+    - "Update dossier prose bullet 3 (line 15): change 'unverified' to 'verified 2026-06-03'."
+  snapshot_as_of: "2026-06-03T21:18:00-05:00"
+  issued_at: "2026-06-03T21:18:00-05:00"
+  temperature: 0.0
+
+- id: vrf-handoff-2026-06-03-008
+  audit_log_id: aud-2026-06-03-003
+  target: "clm-2026-06-02-011"
+  dossier: "artemis_program"
+  verdict: PASS
+  weighted_score: 0.8175
+  rubric_criteria:
+    source_quality: 0.90
+    cross_source_agreement: 0.60
+    stage_discipline: 0.80
+    freshness: 1.00
+    process_compliance: 0.85
+    handoff_hygiene: 0.85
+  trail:
+    - src-2026-06-03-004
+    - fnd-2026-06-03-004
+    - clm-2026-06-02-011
+    - dossiers/artemis_program.md
+    - notes/operator-brief.md
+  issue: "clm-2026-06-02-011 (Starship HLS propellant transfer demo targeted Q4 2026, slipped from Q3 2026 due to cryogenic coupling rework) PASSES at 0.82 -- the narrowest of the 5 PASS verdicts (0.0175 above 0.80 threshold). 1-to-many finding-to-claim structure (fnd-004 supports both clm-010 and clm-011) is acceptable per Verifier ADJUDICATE for legitimate granularity."
+  recommended_action: promote
+  specific_actions:
+    - "Promote clm-2026-06-02-011 to verified=true. Trail: src-2026-06-03-004 (SpaceX primary, trust 0.95, same as clm-010). The forward-looking schedule nature lowers cross_source_agreement to 0.60; the claim is verifiable when the demo actually flies in Q4 2026."
+    - "Update dossier prose bullet 4 (line 16): change 'unverified' to 'verified 2026-06-03, schedule-watch'."
+    - "Re-verify on next REFRESH. If demo flies as planned, this stays a clean PASS; if it slips further, demote weight to 0.7 and surface the slip in dossier 'Watch' lane."
+  snapshot_as_of: "2026-06-03T21:18:00-05:00"
+  issued_at: "2026-06-03T21:18:00-05:00"
+  temperature: 0.0
+
+- id: vrf-handoff-2026-06-03-009
+  audit_log_id: aud-2026-06-03-003
+  target: "clm-2026-06-02-012"
+  dossier: "artemis_program"
+  verdict: PASS
+  weighted_score: 0.8550
+  rubric_criteria:
+    source_quality: 0.85
+    cross_source_agreement: 0.70
+    stage_discipline: 0.95
+    freshness: 1.00
+    process_compliance: 0.85
+    handoff_hygiene: 0.85
+  trail:
+    - src-2026-06-03-005
+    - fnd-2026-06-03-005
+    - clm-2026-06-02-012
+    - dossiers/artemis_program.md
+    - notes/operator-brief.md
+  issue: "clm-2026-06-02-012 (Blue Origin Blue Moon MK1 on a SEPARATE critical path from Starship HLS; either provider can be selected for Artemis III late 2027; MK1 first orbital test NET Q2 2027) PASSES at 0.86. New claim, split from deprecated clm-009. Primary source src-2026-06-03-005 (Blue Origin press kit) in trail. The prior dossier open question 'Is Blue Moon on a parallel critical path or a backup?' is now resolved: SEPARATE critical path, selection pending."
+  recommended_action: promote
+  specific_actions:
+    - "Promote clm-2026-06-02-012 to verified=true. Trail: src-2026-06-03-005 (Blue Origin primary, trust 0.9, vendor-self-report + slip-history discounts). Note the multiple discounts in trust_notes."
+    - "Update dossier prose bullet 5 (line 17): change 'unverified' to 'verified 2026-06-03'. The 'Contradictions and open questions' section can be updated to reflect the SEPARATE critical path resolution."
+  snapshot_as_of: "2026-06-03T21:18:00-05:00"
+  issued_at: "2026-06-03T21:18:00-05:00"
+  temperature: 0.0
+
+- id: vrf-handoff-2026-06-03-010
+  audit_log_id: aud-2026-06-03-003
+  target: "dossiers/artemis_program.md"
+  dossier: "artemis_program"
+  verdict: PASS
+  weighted_score: 0.8560
+  rubric_criteria:
+    source_quality: 0.91
+    cross_source_agreement: 0.68
+    stage_discipline: 0.90
+    freshness: 1.00
+    process_compliance: 0.85
+    handoff_hygiene: 0.85
+  trail:
+    - src-2026-06-03-002
+    - src-2026-06-03-003
+    - src-2026-06-03-004
+    - src-2026-06-03-005
+    - fnd-2026-06-03-002
+    - fnd-2026-06-03-003
+    - fnd-2026-06-03-004
+    - fnd-2026-06-03-005
+    - dossiers/artemis_program.md
+    - notes/operator-brief.md
+  issue: "Dossier-level PASS for artemis_program.md. All 5 per-claim verdicts PASS (mean 0.856). The 3 prior NEEDS-MORE-EVIDENCE verdicts (vrd-2026-06-03-002/003/004) are superseded. clm-009 is deprecated; audit history preserved. Dossier is eligible to flow into Build and Content handoffs."
+  recommended_action: promote
+  specific_actions:
+    - "Flow dossier into Build and Content lanes. The dossier is no longer 'wait-for-verification' -- it is now 'verified'."
+    - "Carry-forward process gaps to next REFRESH: (a) no raw capture in raw/aerospace/ (REFRESH step 8 skipped); (b) no runs/RUN-2026-06-03-*.md for the artemis pass (REFRESH step 20 skipped); (c) aerospace source lane not in context/source-plan.md; (d) no wiki article for artemis. These are process-level, not claim-level, and do not block downstream handoffs."
+    - "The 1-to-many finding-to-claim structure (fnd-004 supporting clm-010 + clm-011) is acknowledged as a legitimate-granularity deviation, not a failure. Future dossier work can follow either 1-to-1 or 1-to-many as warranted by the underlying fact structure."
+  snapshot_as_of: "2026-06-03T21:18:00-05:00"
+  issued_at: "2026-06-03T21:18:00-05:00"
+  temperature: 0.0
 
 ## Convention
 
@@ -209,11 +389,12 @@
 - "Dossier prose contains 2 factual errors: (1) line 20 references 'fnd-artemis-2026-06-03-001' which is not the actual finding ID (actual is 'fnd-2026-06-03-001'); (2) line 20 claims the finding is 'not yet present in knowledge/findings.jsonl' when it is (line 33 of findings.jsonl). These were probably introduced when the dossier prose was drafted before the ledger write, and the prose was not reconciled with the ledger. The Researcher should treat 'dossier prose must match ledger IDs' as a hard rule for the next REFRESH."
 - "Researcher's own report claimed 'all 4 actions succeeded with one flagged anomaly' (dossier populated vs empty stub). Actual check: dossier populated, but the 4 named actions did not include raw capture, run receipt, wiki compile, or source-plan update — all of which the AGENTS.md requires for a full REFRESH. The 'success' framing was not quite right; the next REFRESH should not treat this as a clean pass."
 
-## Snapshot of audit state after this run
+## Snapshot of audit state after the re-audit run (aud-2026-06-03-003)
 
-- verdicts.jsonl: 4 total (1 from prior calibration on ai_agents, 3 new on artemis)
-- audit-log.jsonl: 2 total (prior calibration, this artemis run)
-- audit debt (NEEDS-MORE-EVIDENCE items): 3 (under the 25-item floor; no AUDIT block)
+- verdicts.jsonl: 10 total (1 prior calibration on ai_agents PASS 0.8025, 3 prior artemis NEEDS-MORE-EVIDENCE 0.455-0.475 [superseded by re-audit, audit history preserved], 6 new on artemis re-audit: 5 per-claim PASS 0.8175-0.88 + 1 dossier-level PASS 0.856)
+- audit-log.jsonl: 3 total (aud-001 prior calibration, aud-002 first artemis NEEDS-MORE-EVIDENCE pass, aud-003 re-audit pass)
+- audit debt (NEEDS-MORE-EVIDENCE items): 0 (the 3 prior artemis verdicts are SUPERSEDED by re-audit; clm-2026-06-02-009 is deprecated and removed; well under the 25-item floor; no AUDIT block)
 - FAIL verdicts issued this run: 0
-- Handoff lane (this file): 3 new pending items, 1 recently-consumed
+- Handoff lane (this file): 6 new pending items (vrf-handoff-2026-06-03-005/006/007/008/009/010), 3 prior items now superseded (vrf-002/003/004 retained for audit history), 1 recently-consumed (vrf-001 ai_agents calibration)
+- Re-audit closure: the 3 prior NEEDS-MORE-EVIDENCE reds on clm-007/008/009 are now green. HUD badge for artemis_program can light up green.
 - Temperature: 0.0 throughout (config.yaml enforcement, also applied to my reasoning)

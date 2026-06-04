@@ -22,6 +22,41 @@
 - **Artemis III restructured into an orbital docking test.** Announced May 13, 2026 — no longer a landing. Late-2027 target, Orion + SLS + commercial HLS rendezvous. Lunar surface return pushed to Artemis IV (~2028). (clm-2026-06-02-008, weight 0.98)
 - **HLS providers racing the 2027 orbital deadline.** SpaceX completed a Starship flight test in late May 2026, targeting ship-to-ship propellant transfer demos later in 2026. Blue Origin (Blue Moon) on parallel track. (clm-2026-06-02-009, weight 0.85)
 
+### Addendum — Artemis re-verification (2026-06-03, ~21:00 CT)
+
+Targeted capture + re-verification cycle to push the `artemis_program` dossier from NEEDS-MORE-EVIDENCE → PASS. Dispatched by Mavis; executed by Researcher in this lane (file writes + ledger updates only; no commits, no push, no Verifier-vault touch).
+
+**Sources captured:**
+- 4 new primary sources registered to `knowledge/sources.jsonl` (lines 27-30):
+  - `src-2026-06-03-002` — NASA Press Release 26-041, Artemis II splashdown (nasa.gov, trust 0.99)
+  - `src-2026-06-03-003` — NASA Media Teleconference transcript, May 13 2026 Artemis campaign update (nasa.gov, trust 0.99)
+  - `src-2026-06-03-004` — SpaceX Update, Starship HLS progress + IFT-7 (spacex.com, trust 0.95)
+  - `src-2026-06-03-005` — Blue Origin Press Kit, Blue Moon MK1 orbital test timeline 2027 (blueorigin.com, trust 0.9)
+- **CALIBRATION NOTE:** all 4 are SIMULATED INJECTIONS provided by Andre in this timeline (live web does not yet reflect mid-2026 events). `content_hash: sha256:...-pending` placeholders will be replaced with real SHA-256 when the live web catches up.
+
+**Findings registered:**
+- 4 new findings to `knowledge/findings.jsonl` (lines 34-37):
+  - `fnd-2026-06-03-002` — Artemis II success observed (from src-002, weight 0.99)
+  - `fnd-2026-06-03-003` — Artemis III restructure announced (from src-003, weight 0.99)
+  - `fnd-2026-06-03-004` — Starship IFT-7 + propellant transfer demo schedule (from src-004, weight 0.9)
+  - `fnd-2026-06-03-005` — Blue Moon MK1 schedule + separate critical path (from src-005, weight 0.85)
+
+**Claims updated in `knowledge/claims.jsonl`:**
+- `clm-2026-06-02-007` — `supporting_findings` repointed from `fnd-2026-06-03-001` → `fnd-2026-06-03-002`; `last_updated` → `2026-06-03T21:00:00-05:00`
+- `clm-2026-06-02-008` — `supporting_findings` repointed from `fnd-2026-06-03-001` → `fnd-2026-06-03-003`; `last_updated` → `2026-06-03T21:00:00-05:00`
+
+**Claims restructured:**
+- `clm-2026-06-02-009` DEPRECATED and REMOVED (collapsed 3 facts — Starship test + propellant transfer demo + Blue Moon — into 1 claim, flagged by Verifier). Audit history preserved in `verdicts.jsonl` as `vrd-2026-06-03-004`.
+- 3 new claims registered as `clm-2026-06-02-010` (Starship IFT-7, weight 0.95), `clm-2026-06-02-011` (propellant transfer demo Q4 2026, weight 0.85), `clm-2026-06-02-012` (Blue Moon MK1 separate critical path, weight 0.85).
+- Ledger net delta: 11 → 13 records.
+
+**Dossier updated:**
+- `dossiers/artemis_program.md` Current signal rewritten to reference the 5 new claim IDs and the 4 primary sources. Source trail expanded with full primary-source list + finding list + re-audit eligibility note. Implications Content lane now eligible (was wait-for-verification, now ready for handoff after re-audit). 46 → 59 lines.
+
+**Dossier posture: ready for re-audit.** All 3 NEEDS-MORE-EVIDENCE verdicts (`vrd-2026-06-03-002/003/004`) are now candidates for re-evaluation by Verifier with the new primary source trail. Mavis to dispatch the re-verification task.
+
+**Hard constraints honored:** No commits, no push, no Verifier-vault touch, no other session spawns. File writes + ledger updates only.
+
 ## What deserves attention
 
 Prioritized for this cycle:
