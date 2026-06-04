@@ -25,8 +25,8 @@ The Scribe is Andre's renderer. Its job is to take a **Verifier-PASSed, primary-
 
 | Date | Target | Verdict | Score | Issue |
 |------|--------|---------|-------|-------|
+| 2026-06-03 | drafts/artemis_program_thread.md (Run #2 — hype-trap stress test, 5-post X thread, 220 words) | **PASS** | 0.995 | All 33 factual statements across 5 posts trace to clm-007/008/010/011/012 or dossier Implications. 8 sentence-level compressions flagged transparently. 0 hype-trap hits across 9 pattern classes (emojis, hype vocab, exclamations, marketing, thread markers, external knowledge, vendor-owner names, Apollo recall, "what this means" extrapolation). Both Run #1 discipline notes propagated (word count total only, qualifier placement preserved). Two structural-integrity calls audited: ship-to-ship qualifier move Post 4→Post 5 is defensible (qualifier appears once in thread, in more contextually important post); slip-cause omission ("cryogenic coupling rework") is a watch-item for next run (slip direction is dossier-true, cause is dossier-true but compressed out, char budget had 47 chars of headroom). See `dossiers/scribe-audit-2.md` for full audit. |
 | 2026-06-03 | drafts/artemis_program_executive-briefing.md (Run #1) | **PASS** | 0.975 | All 16 manifest rows map cleanly to 5 dossier-grade claims. No external recall. Calibration note dropped per handoff permission, documented. Did not move to `published/` (Verifier owns on PASS). |
-| _next_ | _TBD_ | _TBD_ | _TBD_ | _No further runs audited yet._ |
 
 ## Run #1 fidelity checks (Artemis Program executive briefing)
 
