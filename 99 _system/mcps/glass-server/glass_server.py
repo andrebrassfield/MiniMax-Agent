@@ -65,12 +65,24 @@ class GlassHandler(BaseHTTPRequestHandler):
             self.send_error(500, f"Internal error: {e}")
 
     def _handle_get(self):
+        try:
+            self._handle_get_inner()
+        except Exception as e:
+            sys.stderr.write(f"[glass] ERROR: {e}\n")
+            self.send_error(500, f"Internal error: {e}")
+
+    def _handle_get_inner(self):
         # Parse URL
         parsed = urllib.parse.urlparse(self.path)
         path = parsed.path
-        # Strip leading slash
+        # Root path → Fleet Command HUD. The old "INDEX.md" landing was
+        # the Mavis vault's Obsidian MOC — designed for the Homepage
+        # plugin (mermaid diagrams + wikilinks), it rendered as a wall
+        # of plain text in Glass. The fleet view is the actually-useful
+        # landing page; INDEX.md is still reachable at /INDEX.md.
         if path == "/" or path == "":
-            path = "/INDEX.md"
+            self._serve_fleet()
+            return
         rel_path = path.lstrip("/")
 
         # Check ignored prefixes
@@ -446,7 +458,7 @@ class GlassHandler(BaseHTTPRequestHandler):
         the staged-rollout status from the dual-repo coordination doc.
         """
         mavis_html, mycelial_skills = self._build_mavis_section()
-        researcher_html, _d, claim_count = self._build_agent_section(
+        researcher_html, researcher_dossiers, claim_count = self._build_agent_section(
             agent_name="Researcher",
             agent_root="03 Projects/Researcher",
             role_label="Fleet Specialized · Evidence Operator",
@@ -459,7 +471,7 @@ class GlassHandler(BaseHTTPRequestHandler):
             ledger_filename="claims.jsonl",
             ledger_label="Total claims",
         )
-        verifier_html, _d, verdict_count = self._build_agent_section(
+        verifier_html, verifier_dossiers, verdict_count = self._build_agent_section(
             agent_name="Verifier",
             agent_root="03 Projects/Verifier",
             role_label="Fleet Specialized · Trust Layer",
@@ -473,18 +485,7 @@ class GlassHandler(BaseHTTPRequestHandler):
             ledger_label="Total verdicts",
         )
         hermes_html = self._build_hermes_section()
-
-        total_dossiers = _d.get("total", 0)  # placeholder; recompute below
-        # Recompute totals from both agents
-        _, r_dossiers, _ = self._build_agent_section.__func__  # noqa
-        # Simpler: re-call once to get dossier totals via the helper.
-        # The helper returns (html, dossier_counts_dict, ledger_count);
-        # the html was already built. Instead, just use the totals we
-        # already have:
-        # We need dossier totals from BOTH agents. Reuse the helper's
-        # data: we know researcher dossier count from the previous
-        # build. Cleaner: refactor to a dedicated data builder. For
-        # now, the totals below are computed via the agent sections.
+        total_dossiers = researcher_dossiers + verifier_dossiers
 
         template = (_HERE / "templates" / "fleet.html").read_text(encoding="utf-8")
         page = template
@@ -493,7 +494,7 @@ class GlassHandler(BaseHTTPRequestHandler):
         page = page.replace("{{RESEARCHER_SECTION}}", researcher_html)
         page = page.replace("{{VERIFIER_SECTION}}", verifier_html)
         page = page.replace("{{HERMES_SECTION}}", hermes_html)
-        page = page.replace("{{TOTAL_DOSSIERS}}", str(self._total_dossiers()))
+        page = page.replace("{{TOTAL_DOSSIERS}}", str(total_dossiers))
         page = page.replace("{{TOTAL_CLAIMS}}", str(claim_count))
         page = page.replace("{{TOTAL_VERDICTS}}", str(verdict_count))
         page = page.replace("{{TOTAL_MYCELIAL_SKILLS}}", str(mycelial_skills))
@@ -601,16 +602,26 @@ class GlassHandler(BaseHTTPRequestHandler):
             except OSError:
                 pass
 
-        # Dossiers
+        # Dossiers — count .md files directly in dossiers/, plus any
+        # .md files inside subdirectories. One "dossier" = one .md
+        # file (whether at the top level or in a subdir).
         dossier_total = 0
         dossier_items: list[str] = []
         if dossiers_dir.exists():
-            for d in sorted(dossiers_dir.iterdir()):
-                if d.is_dir():
-                    count = sum(1 for f in d.iterdir() if f.is_file() and f.suffix == ".md")
-                    dossier_total += count
+            for entry in sorted(dossiers_dir.iterdir()):
+                if entry.is_file() and entry.suffix == ".md":
+                    dossier_total += 1
                     dossier_items.append(
-                        f'<li><code>{html.escape(d.name)}</code> ({count} files)</li>'
+                        f'<li><code>{html.escape(entry.name)}</code></li>'
+                    )
+                elif entry.is_dir():
+                    sub_count = sum(
+                        1 for f in entry.rglob("*.md") if f.is_file()
+                    )
+                    dossier_total += sub_count
+                    dossier_items.append(
+                        f'<li><code>{html.escape(entry.name)}/</code> '
+                        f'({sub_count} files)</li>'
                     )
         dossier_list_html = "".join(dossier_items) or "<li><em>(no dossiers)</em></li>"
 
@@ -674,7 +685,7 @@ class GlassHandler(BaseHTTPRequestHandler):
             except OSError:
                 pass
 
-        html = (
+        card_html = (
             f'<div class="fleet-agent-card {role_class}">'
             f'<div class="fleet-agent-header">'
             f'<h2>{html.escape(agent_name)}</h2>'
@@ -696,7 +707,7 @@ class GlassHandler(BaseHTTPRequestHandler):
             f'</p>'
             f'</div>'
         )
-        return html, dossier_total, ledger_count
+        return card_html, dossier_total, ledger_count
 
     def _build_hermes_section(self) -> str:
         """Build the Hermes (External Fleet: Orchestrator) section.
@@ -762,15 +773,21 @@ class GlassHandler(BaseHTTPRequestHandler):
         )
 
     def _total_dossiers(self) -> int:
-        """Sum active dossier file counts across Researcher and Verifier trees."""
+        """Sum active dossier file counts across Researcher and Verifier trees.
+
+        Counts .md files directly in dossiers/ plus all .md files in
+        any subdirectories. Same convention as the per-agent section.
+        """
         total = 0
         for rel in ("03 Projects/Researcher/dossiers", "03 Projects/Verifier/dossiers"):
             root = self.vault_root / rel
             if not root.exists():
                 continue
-            for d in root.iterdir():
-                if d.is_dir():
-                    total += sum(1 for f in d.iterdir() if f.is_file() and f.suffix == ".md")
+            for entry in root.iterdir():
+                if entry.is_file() and entry.suffix == ".md":
+                    total += 1
+                elif entry.is_dir():
+                    total += sum(1 for f in entry.rglob("*.md") if f.is_file())
         return total
 
     def _resolve_safe(self, rel_path: str) -> Path | None:
