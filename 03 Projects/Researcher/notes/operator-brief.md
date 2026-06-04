@@ -57,6 +57,22 @@ Targeted capture + re-verification cycle to push the `artemis_program` dossier f
 
 **Hard constraints honored:** No commits, no push, no Verifier-vault touch, no other session spawns. File writes + ledger updates only.
 
+### Addendum — Artemis verified (2026-06-03, ~21:30 CT)
+
+Closing pass on the Artemis dossier. Dispatched by Mavis to reflect the Verifier re-audit (vrd-2026-06-03-005/006/007/008/009/010, audit log `aud-2026-06-03-003`) in the Researcher ledger and dossier prose. Same lane discipline as the prior pass: file writes + ledger updates only, no commits, no push, no Verifier-vault touch.
+
+**Actions completed in this pass:**
+
+- **5 claims promoted to `verified=true` in `knowledge/claims.jsonl`** — `clm-2026-06-02-007`, `clm-2026-06-02-008`, `clm-2026-06-02-010`, `clm-2026-06-02-011`, `clm-2026-06-02-012`. All 5 set to `verified_at=2026-06-03T21:24:00-05:00`, `verifier="verifier"`, `last_updated=2026-06-03T21:24:00-05:00`. JSONL validated; all 5 records parse cleanly with the new fields. (Line count: 13 records in claims.jsonl, unchanged net — promotion is in-place, not additive.)
+- **1 dossier-level PASS at 0.856** captured in the new `## Verification Status` section at the top of `dossiers/artemis_program.md` (between "Why this topic matters to Andre" and "Current signal"). Verdict `vrd-2026-06-03-010`, audit log `aud-2026-06-03-003`, 2026-06-03T21:24:00-05:00, temperature 0.0. Each claim is backed by ≥ 1 primary source (NASA, SpaceX, Blue Origin). Prior 3 NEEDS-MORE-EVIDENCE verdicts (`vrd-2026-06-03-002/003/004`) are noted as superseded; `clm-2026-06-02-009` deprecated, audit history preserved.
+- **Verification Status section added to dossier** — new section sits at the top, before the unverified prose signals. Reader sees the verified state immediately after the framing. Dossier line count: 59 → 64 lines.
+- **Handoff queue cleared (6 vrf-entries consumed)** — `03 Projects/Verifier/queue/researcher-verify-handoff.md` Pending section is now empty (single empty-state line: "No pending items. Last cleared: 2026-06-03 21:30 CT"). The 6 entries (`vrf-2026-06-03-005/006/007/008/009/010`) are preserved in "Recently Consumed (last 5)" with a `Status:` footer on each, mirroring the vrf-001 convention. File size: 27,605 → 28,704 chars.
+- **Triggered one final ledger-instinct-audit pass** — correctly identified 0 new claims. The snapshot was already at the post-re-audit state, and vrf-handoff consumption does not change the ledger schema (only updates existing records, no new claim records). This is the correct idempotent end-state for the loop: the next REFRESH can run cleanly with the verified-state ledger as input.
+
+**Dossier posture (final):** `artemis_program` is now `verified`. Ready for Build and Content handoffs. 5 dossier-grade claims all backed by primary sources. The 4 process gaps flagged by Verifier (no `raw/aerospace/`, no `runs/RUN-2026-06-03-*.md` for the artemis pass, no `aerospace` lane in `context/source-plan.md`, no `wiki/articles/artemis_*.md`) are carry-forward items for the next REFRESH — they did not block this promotion but they should be addressed on the next full pass.
+
+**Hard constraints honored (this pass):** No commits, no push, no Verifier-vault touch (except reading the handoff file to extract the 6 entries), no other session spawns. File writes + ledger updates + handoff queue consumption only.
+
 ## What deserves attention
 
 Prioritized for this cycle:

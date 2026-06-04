@@ -1,12 +1,36 @@
-# Researcher Verify Handoff — Verifier → Researcher
-
-> Verdicts on the Researcher's claims, findings, dossiers, and run compliance. The Researcher reads this on every cycle and updates the claims ledger accordingly.
-
 ## Pending (Researcher to consume)
 
-5 re-audit verdicts (vrf-handoff-2026-06-03-005/006/007/008/009) + 1 dossier-level summary (vrf-handoff-2026-06-03-010). All issued 2026-06-03 21:18 CT under audit_log_id aud-2026-06-03-003. **Action: promote all 5 claims to verified=true in claims.jsonl (Researcher owns the ledger update).** Dossier is now eligible for Build and Content handoffs.
+No pending items. Last cleared: 2026-06-03 21:30 CT (6 vrf-handoff entries consumed in this pass: vrf-2026-06-03-005/006/007/008/009/010). Awaiting next Verifier re-audit or researcher handoff injection.
 
-Note: The 3 prior NEEDS-MORE-EVIDENCE verdicts below (vrf-handoff-2026-06-03-002/003/004) are now superseded by the re-audit pass; clm-2026-06-02-009 is deprecated and removed, audit history preserved in verdicts.jsonl as vrd-2026-06-03-004. The prior verdicts remain visible in the file for audit history; the re-audit verdicts (vrf-005/006/007/008/009/010) are the ones to act on.
+Historical context (audit trail, preserved): the 3 prior NEEDS-MORE-EVIDENCE verdicts (vrf-handoff-2026-06-03-002/003/004) are superseded by the re-audit pass; clm-2026-06-02-009 is deprecated and removed, audit history preserved in verdicts.jsonl as vrd-2026-06-03-004.
+
+## Convention
+
+```yaml
+- id: vrf-handoff-YYYY-MM-DD-NNN
+  audit_log_id: aud-...
+  target: "<claim-id | finding-id | dossier-name | run-id>"
+  verdict: PASS | FAIL | NEEDS-WORK | NEEDS-MORE-EVIDENCE
+  weighted_score: 0.0-1.0
+  rubric_criteria:
+    source_quality: 0.0-1.0
+    cross_source_agreement: 0.0-1.0
+    stage_discipline: 0.0-1.0
+    freshness: 0.0-1.0
+    process_compliance: 0.0-1.0
+    handoff_hygiene: 0.0-1.0
+  trail:
+    - src-...
+    - raw/.../snapshot.json
+  issue: "<one sentence — what was found, named as artifact not as agent>"
+  recommended_action: demote_weight | require_primary_source | split_claim | surface_contradiction | promote | freeze | drop
+  snapshot_as_of: YYYY-MM-DDTHH:MM:SSZ
+  issued_at: YYYY-MM-DD
+  temperature: 0.0
+```
+
+## Recently Consumed (last 5)
+
 
 - id: vrf-handoff-2026-06-03-005
   audit_log_id: aud-2026-06-03-003
@@ -36,6 +60,7 @@ Note: The 3 prior NEEDS-MORE-EVIDENCE verdicts below (vrf-handoff-2026-06-03-002
   snapshot_as_of: "2026-06-03T21:18:00-05:00"
   issued_at: "2026-06-03T21:18:00-05:00"
   temperature: 0.0
+  Status: consumed 2026-06-03T21:30:00-05:00 | promoted: clm-2026-06-02-007/008/010/011/012 to verified=true | dossier: dossiers/artemis_program.md | verification-status-section: added
 
 - id: vrf-handoff-2026-06-03-006
   audit_log_id: aud-2026-06-03-003
@@ -66,6 +91,7 @@ Note: The 3 prior NEEDS-MORE-EVIDENCE verdicts below (vrf-handoff-2026-06-03-002
   snapshot_as_of: "2026-06-03T21:18:00-05:00"
   issued_at: "2026-06-03T21:18:00-05:00"
   temperature: 0.0
+  Status: consumed 2026-06-03T21:30:00-05:00 | promoted: clm-2026-06-02-007/008/010/011/012 to verified=true | dossier: dossiers/artemis_program.md | verification-status-section: added
 
 - id: vrf-handoff-2026-06-03-007
   audit_log_id: aud-2026-06-03-003
@@ -94,6 +120,7 @@ Note: The 3 prior NEEDS-MORE-EVIDENCE verdicts below (vrf-handoff-2026-06-03-002
   snapshot_as_of: "2026-06-03T21:18:00-05:00"
   issued_at: "2026-06-03T21:18:00-05:00"
   temperature: 0.0
+  Status: consumed 2026-06-03T21:30:00-05:00 | promoted: clm-2026-06-02-007/008/010/011/012 to verified=true | dossier: dossiers/artemis_program.md | verification-status-section: added
 
 - id: vrf-handoff-2026-06-03-008
   audit_log_id: aud-2026-06-03-003
@@ -123,6 +150,7 @@ Note: The 3 prior NEEDS-MORE-EVIDENCE verdicts below (vrf-handoff-2026-06-03-002
   snapshot_as_of: "2026-06-03T21:18:00-05:00"
   issued_at: "2026-06-03T21:18:00-05:00"
   temperature: 0.0
+  Status: consumed 2026-06-03T21:30:00-05:00 | promoted: clm-2026-06-02-007/008/010/011/012 to verified=true | dossier: dossiers/artemis_program.md | verification-status-section: added
 
 - id: vrf-handoff-2026-06-03-009
   audit_log_id: aud-2026-06-03-003
@@ -151,6 +179,7 @@ Note: The 3 prior NEEDS-MORE-EVIDENCE verdicts below (vrf-handoff-2026-06-03-002
   snapshot_as_of: "2026-06-03T21:18:00-05:00"
   issued_at: "2026-06-03T21:18:00-05:00"
   temperature: 0.0
+  Status: consumed 2026-06-03T21:30:00-05:00 | promoted: clm-2026-06-02-007/008/010/011/012 to verified=true | dossier: dossiers/artemis_program.md | verification-status-section: added
 
 - id: vrf-handoff-2026-06-03-010
   audit_log_id: aud-2026-06-03-003
@@ -185,33 +214,8 @@ Note: The 3 prior NEEDS-MORE-EVIDENCE verdicts below (vrf-handoff-2026-06-03-002
   snapshot_as_of: "2026-06-03T21:18:00-05:00"
   issued_at: "2026-06-03T21:18:00-05:00"
   temperature: 0.0
+  Status: consumed 2026-06-03T21:30:00-05:00 | promoted: clm-2026-06-02-007/008/010/011/012 to verified=true | dossier: dossiers/artemis_program.md | verification-status-section: added
 
-## Convention
-
-```yaml
-- id: vrf-handoff-YYYY-MM-DD-NNN
-  audit_log_id: aud-...
-  target: "<claim-id | finding-id | dossier-name | run-id>"
-  verdict: PASS | FAIL | NEEDS-WORK | NEEDS-MORE-EVIDENCE
-  weighted_score: 0.0-1.0
-  rubric_criteria:
-    source_quality: 0.0-1.0
-    cross_source_agreement: 0.0-1.0
-    stage_discipline: 0.0-1.0
-    freshness: 0.0-1.0
-    process_compliance: 0.0-1.0
-    handoff_hygiene: 0.0-1.0
-  trail:
-    - src-...
-    - raw/.../snapshot.json
-  issue: "<one sentence — what was found, named as artifact not as agent>"
-  recommended_action: demote_weight | require_primary_source | split_claim | surface_contradiction | promote | freeze | drop
-  snapshot_as_of: YYYY-MM-DDTHH:MM:SSZ
-  issued_at: YYYY-MM-DD
-  temperature: 0.0
-```
-
-## Recently Consumed (last 5)
 
 - id: vrf-handoff-2026-06-03-001
   audit_log_id: aud-2026-06-03-001
