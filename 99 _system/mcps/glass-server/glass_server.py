@@ -655,21 +655,36 @@ class GlassHandler(BaseHTTPRequestHandler):
             except OSError:
                 pass
 
-        # Health status
+        # Health status. Look for explicit verdict markers OR the
+        # baseline_health_check.py output format ("Issues found: *None.*"
+        # = pass, "Issues found: <list>" = warning, "Pending" = pending).
+        # Case-insensitive to handle "PASS." vs "pass".
         health_status = "pending"
         health_label = "Pending first run"
         if health_path.exists():
             try:
                 htext = health_path.read_text(encoding="utf-8")
-                if "Pending" in htext or "pending" in htext:
-                    health_status = "pending"
-                    health_label = "Pending first run"
-                elif "Pass" in htext or "pass" in htext:
-                    health_status = "healthy"
-                    health_label = "Healthy"
-                elif "Fail" in htext or "fail" in htext:
+                hlower = htext.lower()
+                if "**fail**" in hlower or '"verdict": "fail"' in hlower:
                     health_status = "warning"
                     health_label = "Needs attention"
+                elif "issues found" in hlower and (
+                    "*none.*" in hlower
+                    or "_none._" in hlower
+                    or "no issues" in hlower
+                    or "issues found: none" in hlower
+                ):
+                    health_status = "healthy"
+                    health_label = "Healthy"
+                elif "**pass**" in hlower:
+                    health_status = "healthy"
+                    health_label = "Healthy"
+                elif "issues found" in hlower:
+                    health_status = "warning"
+                    health_label = "Needs attention"
+                elif "pending" in hlower:
+                    health_status = "pending"
+                    health_label = "Pending first run"
             except OSError:
                 pass
 
