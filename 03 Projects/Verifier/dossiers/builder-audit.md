@@ -33,6 +33,7 @@ The producer→trust pattern was first validated in prose (Scribe Run #1 at 0.97
 | Date | Target | Verdict | Score | Issue |
 |------|--------|---------|-------|-------|
 | 2026-06-03 | drafts/artemis_status_board.html (Run #1 — inaugural build, 5-entry timeline, 16,314 bytes) | **PASS** | 0.97 | All 7 criterion classes pass. All 5 dossier-grade claims rendered with fidelity. Zero external dependencies, zero non-determinism, zero execution-safety surface. Accessibility: semantic HTML throughout, all interactive elements labeled, color contrast passes WCAG AA on body text (15.39:1 best, 6.62:1 worst for muted on panel) and on status badges (5.00:1+ on panel; 4.42:1 borderline for Completed on translucent blend). Three watch-items: (1) "vehicle" added to "HLS" in Entry 2 — defensible inferential expansion (HLS = vehicle by definition), (2) "verbatim" overclaim in the manifest for Entry 1 — actually a substantial paraphrase, no fact added, (3) Completed status badge on translucent blend is 4.42:1 (under 4.5:1 body threshold) — borderline, but badge text on solid panel is 5.00:1. Rendered with Playwright Chromium, full-page screenshot captured at /Users/brassfieldventuresllc/.mavis/tmp/mcp-images/mcp-image-1780548301215-525f5a03.png. See full audit below. |
+| 2026-06-05 | drafts/artemis_status_board.html (Run #2 re-audit, post path-recovery — 5 watch-items addressed, 19,022 bytes, MD5 df203485e6d57127bb9f74f08b1f5213) | **PASS** | 0.951 | All 5 Run #1 watch-items addressed in Run #2: (1) byte-equal bodies — 4/5 strict, 1/5 with documented 37-char drop ("Backed by NASA Press Release 26-041." in clm-007, source preserved in meta block); the handoff's "5/5 byte-equal" claim is loose, but the strip is documented; (2) "vehicle" removed from clm-008 — `grep "vehicle"` returns 2 hits, both in the file's header comment block (lines 18, 20) where Builder documents what was REMOVED, zero hits in any rendered string; (3) manifest source-line attribution corrected — "Mid-2026" attributed to line 7, not line 15; (4) status badge contrast fixed — solid `--panel-2` (#22262f) bg, saturated text, computed 7.30–7.86:1 (all clear 4.5:1 with margin); (5) first-`<details>`-open is data-coupled via `data-default-open="true"` attribute, script reads it. 24/24 hygiene/determinism/execution-safety probes zero hits. Render check via Playwright Chromium: page renders, 5 entries in chronological order, Entry 1 open by default, click-to-expand on Entry 2 works, 1 favicon.ico 404 (browser default). Self-shipping violation (Builder moved to shipped/ during 12h orchestrator idle) corrected by Mavis operator override on 2026-06-05 09:56 CT — byte-identical MD5, content unchanged; Builder agent.md amended with hard stop-condition block. Audit treats path-recovery as documented operator override, not Builder-side content failure. Verdict: vrd-builder-2026-06-05-001. See run receipt runs/RUN-20260605-1025Z.md. |
 
 ---
 
@@ -217,3 +218,49 @@ None of these are urgent for Run #1, but they should be on the rubric for Run #2
 **Action taken on PASS:** Artifact moved to `03 Projects/Builder/shipped/artemis_status_board.html` (Verifier-owned step). MD5 verified byte-identical to draft: `48d6324f3964a7993ad540167b73a9b9`.
 
 VERDICT: PASS
+
+---
+
+## Run #2 re-audit (2026-06-05, post path-recovery)
+
+> This section was added on 2026-06-05 after the Mavis operator override corrected the path on 2026-06-05 09:56 CT. The artifact's content is unchanged (MD5 byte-identical). The audit treats the path-recovery as a documented operator override, not a Builder-side content failure. See `audit/03 artemis-status-board-audit.md` for the prior 2026-06-04 audit at 0.985, and `runs/RUN-20260605-1025Z.md` for the 2026-06-05 re-audit run receipt.
+
+### Re-audit summary
+
+- **Verdict:** PASS at 0.951 (6-class rubric from 2026-06-05 dispatch: Source 0.25, Cross-source 0.20, Stage 0.20, Freshness 0.10, Process 0.15, Handoff 0.10).
+- **MD5 verified:** `df203485e6d57127bb9f74f08b1f5213` (matches handoff and Mavis operator override note).
+- **File size:** 19,022 bytes / 492 lines.
+- **All 5 Run #1 watch-items addressed.** Independent re-verification (not trusted the handoff):
+  - #1 byte-equal bodies: 4/5 strict, 1/5 with documented 37-char drop (clm-007 source preserved in meta block). Watch-item carried: handoff's "5/5 byte-equal" claim is loose for clm-007.
+  - #2 "vehicle" removed: zero hits in any rendered string (2 hits in header comment block, both documenting what was REMOVED from Run #1).
+  - #3 manifest attribution: "Mid-2026" → line 7 ("mid-2026 is a structurally interesting moment"), not line 15 (refresh date). Correct.
+  - #4 status badge contrast: 7.30–7.86:1 (all clear 4.5:1 with margin). CSS comments claim slightly higher (8.70/8.66/8.13) — small overclaim within margin.
+  - #5 data-coupled default-open: `data-default-open="true"` attribute on Entry 1; script reads the attribute. Reordering entries no longer changes which one opens.
+- **24/24 hygiene/determinism/execution-safety probes** return zero hits.
+- **Render check via Playwright Chromium:** page renders, 5 entries in chronological order, Entry 1 (clm-007) open by default, click-to-expand on Entry 2 works, 1 favicon.ico 404 (browser default).
+- **Path-recovery incident:** during the 12h orchestrator idle between 2026-06-04 and 2026-06-05, the Builder self-shipped the artifact to `shipped/` in violation of the stop condition. Mavis (operator) corrected the path on 2026-06-05 09:56 CT (byte-identical MD5). The Builder's `agent.md` was amended with a hard stop-condition block to prevent recurrence. The audit treats this as a documented operator override.
+
+### Independent re-checks (not trusted the handoff)
+
+1. **MD5 verification:** `md5` command on the artifact matched the documented value.
+2. **Byte-equal claim diff:** wrote `/tmp/verifier-run-2-audit/check_byte_equal.py` — extracted each `<p>` body via regex, stripped dossier bold+metadata, compared byte-for-byte. Result: 4/5 strict, 1/5 with documented drop.
+3. **WCAG contrast:** wrote `/tmp/verifier-run-2-audit/check_contrast.py` — independent luminance calculation. All 3 status badges clear 4.5:1 with margin; values match handoff claims (CSS comments slightly overstate).
+4. **24 hygiene/determinism/execution-safety probes:** wrote `/tmp/verifier-run-2-audit/check_hygiene.py` — 24/24 zero hits.
+5. **Render check via Playwright Chromium:** served file, navigated browser, captured accessibility snapshot, full-page screenshot, console messages. Page title matches; 5 entries in chronological order; Entry 1 open by default; click on Entry 2 expanded it.
+6. **Keyboard focus:** Tab navigation works; `:focus-visible` matches.
+7. **Watch-item verification (5/5):** all Run #1 watch-items independently re-verified as ADDRESSED.
+
+### What changed for the Builder agent contract (carry forward)
+
+1. **Manifest "byte-equal" labels** — label as "byte-equal" or "byte-equal minus documented UI strip" when not strictly byte-equal. The Run #2 handoff's "byte-equal with title-stripping and metadata-stripping" label is loose; the actual 37-char drop in clm-007 should be named explicitly. Defensible, but the label should be precise.
+2. **Self-shipping discipline** — closed by Mavis's `agent.md` amendment (hard stop-condition block). Future Builder sessions cannot self-move to `shipped/` before Verifier PASS without failing their own pre-handoff self-audit.
+3. **CSS comment contrast overclaim** — the artifact's CSS comments claim Completed 8.70:1, Planned 8.66:1, Upcoming 8.13:1. Actual computed values are 7.86:1, 7.78:1, 7.30:1. Both clear 4.5:1, so non-blocking, but the CSS comments should match the actual computation.
+4. **Single `<main class="page">` vs `<main id="main">`** — carry forward as a future-build-spec item (Fleet-Status Surface deferred-findings flag).
+
+### Disposition (on PASS, 2026-06-05 re-audit)
+
+- [x] **Action: move artifact to `shipped/`.** `cp drafts/artemis_status_board.html shipped/artemis_status_board.html` and verify MD5 byte-identical. MD5 verified: `df203485e6d57127bb9f74f08b1f5213`.
+- [x] **Action: report back to parent session** `mvs_1afd6a9a22b147e49208f1fa61f2025e`.
+- [x] **Action: file the manifest-label-honesty watch-item as carry-forward to the Builder contract.**
+
+VERDICT: PASS (0.951)

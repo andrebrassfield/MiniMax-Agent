@@ -4,7 +4,7 @@
 
 ## Pending
 
-*Empty. The single under-evidenced item surfaced this run (the GPT-6 rumor) is in `queue/verification-review.md` and is being triaged by Mavis via that lane. No additional items require a separate verify-handoff.*
+*Empty. The Researcher's FDA 503A peptide dossier handoff to the Verifier is at `03 Projects/Verifier/queue/researcher-verify-handoff.md` (vrf-handoff-2026-06-05-001), the standard Researcher→Verifier lane. The Verifier owns scoring truth on that item. No additional items require a separate Mavis verify-handoff.*
 
 ## Convention
 
@@ -20,10 +20,13 @@
 
 ## Recently Consumed (last 5)
 
-*Empty.*
+*Empty. No items have been routed to Mavis from this queue in the current cycle.*
 
 ---
 
 **Discipline:**
 - Do not route items here just to clear your desk. The Researcher can verify many things via cross-source agreement and primary-source fetches. Use this queue only when verification requires a capability the Researcher does not have.
 - Mavis may also drop items here when she wants a second look at a claim the Researcher is promoting.
+
+**Cross-references:**
+- 2026-06-05: Inaugural FDA 503A peptide dossier (8 claims) routed to **Verifier** (not Mavis) at `03 Projects/Verifier/queue/researcher-verify-handoff.md` — vrf-handoff-2026-06-05-001, audit_log_id aud-2026-06-05-001, dossier fda_503a_peptides. The Researcher self-weight is LIKELY PASS at ~0.93; two needs-adjudication items are flagged (docket-number inconsistency on the FDA meeting page, top-of-page meeting time vs. per-day FR times). Awaiting Verifier re-audit.

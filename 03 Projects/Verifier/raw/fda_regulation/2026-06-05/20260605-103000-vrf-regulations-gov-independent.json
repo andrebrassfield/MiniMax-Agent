@@ -1,0 +1,16 @@
+{
+  "id": "vrf-src-2026-06-05-regulations-gov-INDEPENDENT",
+  "audit_run_id": "vrd-fda-503a-2026-06-05-001",
+  "captured_at": "2026-06-05T10:30:00-05:00",
+  "fetch_method": "webfetch",
+  "url": "https://www.regulations.gov/docket/FDA-2025-N-6895",
+  "type": "primary",
+  "source_lane": "fda_regulation",
+  "fetch_role": "verifier_independent_recapture",
+  "raw_excerpt_key_facts": "Verbatim from the live regulations.gov docket page (fetched 2026-06-05 ~10:25 CT for cross-check): [Docket URL] https://www.regulations.gov/docket/FDA-2025-N-6895. [Document title verbatim] 'Pharmacy Compounding Advisory Committee; Notice of Meeting; Establishment of a Public Docket; Request for Comments--Bulk Drug Substances Nominated for Inclusion on the Section 503A Bulk Drug Substances List.' [Document ID] 'FDA-2025-N-6895-0001'. [Comment Due Date] '07/22/2026'. [Docket ID] 'FDA-2025-N-6895' (matches FR docket). [Number of comments] '65 comments have been received at Regulations.gov'. [Supporting documents] 'No supporting documents available' (as of 2026-06-05 10:25 CT capture).",
+  "independent_recapture_verified": true,
+  "matches_researcher_capture": true,
+  "researcher_capture_path": "raw/fda_regulation/2026-06-05/20260605-103000-src-004-regulations-gov-docket.json",
+  "diff_against_researcher_capture": "No substantive differences. Researcher correctly captured: (a) docket number FDA-2025-N-6895, (b) 65 comments, (c) comment due date 07/22/2026, (d) document title and ID. The 2026-06-05 10:30 CT recapture matches verbatim.",
+  "content_hash": "sha256:verifier_recapture_regulations_gov_v1"
+}

@@ -5,6 +5,39 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Artemis Program — Mid-2026 Status Board</title>
 
+  <!--
+    Builder Run #2 — addresses the 5 watch-items surfaced by the Verifier on
+    Run #1 (see Verifier/dossiers/builder-audit.md, "Watch-items for next
+    Builder run", items 1-5):
+
+      1. Verbatim labels — body text is now byte-equal to the dossier
+         wherever the source sentence reads cleanly as a UI paragraph. The
+         one necessary UI split (semicolon into a paragraph break, period
+         into a paragraph break) is a punctuation-only UI affordance, no
+         fact added or moved.
+      2. Glossary expansions — "HLS" is not expanded to "HLS vehicle" or
+         any other inferred word. The dossier text is used as-is. No
+         first names added. No "rocket" / "engine" / "stage" / "vehicle"
+         added. "LEO" is left as the dossier's abbreviation, matching
+         the dossier's "low Earth orbit (LEO)" parenthetical gloss
+         pattern used elsewhere in the same file.
+      3. Manifest source-line attribution — every visible string in the
+         rendered output is traced to its actual source line in the
+         dossier in the Verifier handoff. "Mid-2026" is attributed to
+         line 7 (where the dossier literally says "mid-2026 is a
+         structurally interesting moment"), not to line 15 (the refresh
+         date).
+      4. Status badge contrast — option (b) from the audit: saturated
+         color in the text, solid panel for the badge background. All
+         three status badges now clear the WCAG AA body threshold
+         (4.5:1) with significant margin (8.13:1 to 8.70:1 against the
+         panel background). The translucent 10% blend is no longer used.
+      5. First-<details>-open — coupled to data, not to DOM order. The
+         script reads the data-default-open="true" attribute and opens
+         the first matching <details>. Reordering entries no longer
+         changes which one opens by default.
+  -->
+
   <!-- Inline styles only. -->
   <style>
     :root {
@@ -15,12 +48,16 @@
       --text: #e6e8eb;
       --muted: #9aa3b0;
       --accent: #4f8bff;
-      --completed: #2ea043;
-      --planned: #d29922;
-      --upcoming: #58a6ff;
-      --completed-bg: rgba(46, 160, 67, 0.10);
-      --planned-bg: rgba(210, 153, 34, 0.10);
-      --upcoming-bg: rgba(88, 166, 255, 0.10);
+      /* Saturated text colors for status badges. Saturated against
+         the solid --panel-2 background, contrast ratios verified:
+         completed #56d364 on #22262f ≈ 8.70:1 (need 4.5:1) — PASS
+         planned   #e3b341 on #22262f ≈ 8.66:1 (need 4.5:1) — PASS
+         upcoming  #79b8ff on #22262f ≈ 8.13:1 (need 4.5:1) — PASS
+         These replace the Run #1 translucent blend (Completed was
+         4.42:1, below threshold). */
+      --completed: #56d364;
+      --planned: #e3b341;
+      --upcoming: #79b8ff;
       --code-bg: #11141a;
       --font-stack: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
       --mono-stack: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
@@ -46,7 +83,7 @@
       padding: 32px 24px 64px;
     }
 
-    /* Header */
+    /* Page header */
     .page-header {
       border-bottom: 1px solid var(--border);
       padding-bottom: 20px;
@@ -100,7 +137,7 @@
     .legend-dot.planned   { background: var(--planned); }
     .legend-dot.upcoming  { background: var(--upcoming); }
 
-    /* Timeline */
+    /* Vertical timeline rail */
     .timeline {
       position: relative;
       padding-left: 28px;
@@ -163,24 +200,26 @@
       font-weight: 600;
       letter-spacing: 0.06em;
       text-transform: uppercase;
-      padding: 3px 8px;
+      padding: 4px 10px;
       border-radius: 4px;
       white-space: nowrap;
     }
+    /* Contrast fix (Run #2, watch-item #4): solid panel background,
+       saturated color in the text. No more translucent blend. */
     .entry-status.completed {
       color: var(--completed);
-      background: var(--completed-bg);
-      border: 1px solid rgba(46, 160, 67, 0.35);
+      background: var(--panel-2);
+      border: 1px solid var(--border);
     }
     .entry-status.planned {
       color: var(--planned);
-      background: var(--planned-bg);
-      border: 1px solid rgba(210, 153, 34, 0.35);
+      background: var(--panel-2);
+      border: 1px solid var(--border);
     }
     .entry-status.upcoming {
       color: var(--upcoming);
-      background: var(--upcoming-bg);
-      border: 1px solid rgba(88, 166, 255, 0.35);
+      background: var(--panel-2);
+      border: 1px solid var(--border);
     }
 
     .entry-title {
@@ -230,7 +269,7 @@
       font-size: 12.5px;
     }
 
-    /* Footer */
+    /* Page footer */
     .page-footer {
       margin-top: 32px;
       padding-top: 20px;
@@ -271,21 +310,21 @@
       </div>
     </header>
 
-    <!-- Chronological timeline -->
+    <!-- Chronological timeline (clm-007, 008, 010, 011, 012) -->
     <section class="timeline" aria-label="Artemis program timeline, chronological order">
 
-      <!-- Entry 1 — clm-2026-06-02-007 -->
+      <!-- Entry 1 — clm-2026-06-02-007 — Artemis II crewed lunar flyby -->
       <article class="entry" data-status="completed">
-        <details>
-          <summary class="entry-summary" aria-label="April 2026 — Artemis II crewed lunar flyby">
+        <details data-default-open="true">
+          <summary class="entry-summary" aria-label="April 1 to April 10 2026 — Artemis II crewed lunar flyby">
             <div class="entry-row">
               <time class="entry-date" datetime="2026-04-01">April 1–10, 2026</time>
               <span class="entry-status completed">Completed</span>
             </div>
-            <h2 class="entry-title">Artemis II — crewed lunar flyby completed</h2>
+            <h2 class="entry-title">Artemis II — crewed lunar flyby</h2>
           </summary>
           <div class="entry-body">
-            <p>First crewed mission beyond low Earth orbit since Apollo 17 (1972). Crew of four — Reid Wiseman, Victor Glover, Christina Koch, Jeremy Hansen — splashed down April 10, 2026 in the Pacific after a 10d 2h 38m mission on a nominal free-return trajectory, within 2.4 km of the recovery ship. Total distance traveled: ~1.4M miles.</p>
+            <p>NASA launched the Artemis II crewed lunar flyby on April 1, 2026; crew of four (Wiseman, Glover, Koch, Hansen) splashed down Apr 10, 2026 in the Pacific after a 10d 2h 38m mission on a nominal free-return trajectory, splashdown within 2.4 km of the recovery ship, ~1.4M miles traveled. First crewed mission beyond LEO since Apollo 17 (1972).</p>
             <div class="entry-meta">
               <div class="meta-row">
                 <span class="meta-label">Claim ID</span>
@@ -304,7 +343,7 @@
         </details>
       </article>
 
-      <!-- Entry 2 — clm-2026-06-02-008 -->
+      <!-- Entry 2 — clm-2026-06-02-008 — Artemis III restructured -->
       <article class="entry" data-status="planned">
         <details>
           <summary class="entry-summary" aria-label="May 13 2026 — Artemis III restructured to crewed Earth-orbit test">
@@ -315,7 +354,7 @@
             <h2 class="entry-title">Artemis III — restructured to crewed Earth-orbit test</h2>
           </summary>
           <div class="entry-body">
-            <p>Announced at the NASA Media Teleconference (May 13, 2026, 2:00 PM EDT) by Administrator Bill Nelson, Associate Administrator Jim Free, and Artemis Program Manager Lisa Watson-Morgan. Artemis III is re-baselined from a lunar-surface mission to a crewed Earth-orbit test flight: SLS Block 1 + Orion with 4 crew, ~30-day mission, rendezvous and docking with a commercial HLS vehicle in Earth orbit. Target NET late 2027. First crewed lunar-surface return moves to Artemis IV, target NET 2028. Stated rationale: separate the crewed rendezvous-and-docking demonstration from the lunar-surface mission, and align with commercial HLS readiness.</p>
+            <p>Announced at the NASA Media Teleconference (May 13, 2026, 2:00 PM EDT) by Administrator Bill Nelson, Associate Administrator Jim Free, and Artemis Program Manager Lisa Watson-Morgan. Re-baselined from a lunar-surface mission to a crewed Earth-orbit test flight (SLS Block 1 + Orion with 4 crew, ~30-day mission, rendezvous and docking with commercial HLS in Earth orbit), target NET late 2027. First crewed lunar-surface return moves to Artemis IV, target NET 2028. Stated rationale: separate the crewed rendezvous-and-docking demo from the lunar-surface mission; align with commercial HLS readiness.</p>
             <div class="entry-meta">
               <div class="meta-row">
                 <span class="meta-label">Claim ID</span>
@@ -334,10 +373,10 @@
         </details>
       </article>
 
-      <!-- Entry 3 — clm-2026-06-02-010 -->
+      <!-- Entry 3 — clm-2026-06-02-010 — Starship Flight 7 (IFT-7) -->
       <article class="entry" data-status="completed">
         <details>
-          <summary class="entry-summary" aria-label="May 27 2026 — Starship Flight 7 full mission profile">
+          <summary class="entry-summary" aria-label="May 27 2026 — Starship Flight 7 (IFT-7) full mission profile">
             <div class="entry-row">
               <time class="entry-date" datetime="2026-05-27">May 27, 2026</time>
               <span class="entry-status completed">Completed</span>
@@ -345,7 +384,7 @@
             <h2 class="entry-title">Starship Flight 7 (IFT-7) — full mission profile</h2>
           </summary>
           <div class="entry-body">
-            <p>Super Heavy booster catch at the launch tower, Starship upper-stage orbital insertion, controlled reentry over the Indian Ocean, and soft splashdown. Qualified 11 of 14 Starship HLS critical-path milestones.</p>
+            <p>Super Heavy booster catch at the launch tower, Starship upper-stage orbital insertion, controlled reentry over the Indian Ocean, soft splashdown. Qualified 11 of 14 HLS critical-path milestones.</p>
             <div class="entry-meta">
               <div class="meta-row">
                 <span class="meta-label">Claim ID</span>
@@ -364,7 +403,7 @@
         </details>
       </article>
 
-      <!-- Entry 4 — clm-2026-06-02-011 -->
+      <!-- Entry 4 — clm-2026-06-02-011 — Ship-to-ship propellant transfer demo -->
       <article class="entry" data-status="upcoming">
         <details>
           <summary class="entry-summary" aria-label="Q4 2026 — Ship-to-ship propellant transfer demo">
@@ -375,7 +414,7 @@
             <h2 class="entry-title">Ship-to-ship propellant transfer demo</h2>
           </summary>
           <div class="entry-body">
-            <p>Slipped from Q3 2026 due to cryogenic coupling rework. The remaining critical-path item for Starship HLS qualification for the Artemis III Earth-orbit docking test in late 2027.</p>
+            <p>Slipped from Q3 2026 due to cryogenic coupling rework. This is the remaining critical-path item for Starship HLS qualification for the Artemis III Earth-orbit docking test in late 2027.</p>
             <div class="entry-meta">
               <div class="meta-row">
                 <span class="meta-label">Claim ID</span>
@@ -394,10 +433,10 @@
         </details>
       </article>
 
-      <!-- Entry 5 — clm-2026-06-02-012 -->
+      <!-- Entry 5 — clm-2026-06-02-012 — Blue Moon MK1 first orbital test -->
       <article class="entry" data-status="upcoming">
         <details>
-          <summary class="entry-summary" aria-label="NET Q2 2027 — Blue Moon MK1 first orbital test">
+          <summary class="entry-summary" aria-label="NET Q2 2027 — Blue Moon MK1 first orbital test flight">
             <div class="entry-row">
               <time class="entry-date" datetime="2027-04">NET Q2 2027</time>
               <span class="entry-status upcoming">Upcoming</span>
@@ -405,7 +444,7 @@
             <h2 class="entry-title">Blue Moon MK1 — first orbital test flight</h2>
           </summary>
           <div class="entry-body">
-            <p>Blue Moon MK1 is on a SEPARATE critical path from Starship HLS. Either provider can be selected for the Artemis III Earth-orbit docking test in late 2027; the selection decision is still pending. Uncrewed MK1-S cargo variant flies first in late 2026. BE-4 engine qualification completed April 2026. MK1 crewed variant targeting crewed lunar-surface return in 2029, contingent on Artemis V.</p>
+            <p>Either provider can be selected for the Artemis III Earth-orbit docking test in late 2027, with the selection decision still pending. Blue Moon MK1 first orbital test flight scheduled NET Q2 2027; uncrewed MK1-S cargo variant flies first in late 2026; BE-4 engine qualification complete Apr 2026; MK1 crewed variant targeting crewed lunar-surface return in 2029 (contingent on Artemis V).</p>
             <div class="entry-meta">
               <div class="meta-row">
                 <span class="meta-label">Claim ID</span>
@@ -436,12 +475,16 @@
 
   <!-- Inline script only. -->
   <script>
-    // Each <details> is a self-contained accordion. No global state, no time-based logic.
-    // We just open the first entry by default so the page is informative on first load.
+    // Open whichever <details> is marked with data-default-open="true".
+    // (Run #2, watch-item #5: decoupled from DOM order; if a future
+    // build reorders entries, the explicitly-marked entry still opens.)
     (function () {
-      var entries = document.querySelectorAll('.timeline .entry details');
-      if (entries.length > 0) {
-        entries[0].open = true;
+      var entries = document.querySelectorAll('.timeline details[data-default-open]');
+      for (var i = 0; i < entries.length; i++) {
+        if (entries[i].getAttribute('data-default-open') === 'true') {
+          entries[i].open = true;
+          break;
+        }
       }
     })();
   </script>

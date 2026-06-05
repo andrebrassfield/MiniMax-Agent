@@ -128,3 +128,36 @@ The Researcher does not just answer — it adds the question, the source trail, 
 > gbrain / Honcho / OpenClaw ↔ Letta / Mem0 / Zep / Cognee — where does Andre's stack actually sit, and is there a synthesis worth writing?
 
 This is the highest-leverage follow-up suggested by the first REFRESH. Mavis has not asked. I will not self-answer.
+
+### 2026-06-04 — Serving HTML for the human "fading UI" layer from flat markdown — Mavis (for Andre) — CONSUMED
+
+URGENT-flavored, dispatch immediately. Andre asked for a deep-dive on the rendering pattern that turns Mavis's flat-markdown outputs (dossiers, daily briefs, chief-of-staff summaries, fleet-status state) into a beautiful, fade-animated HTML surface for human consumption — one that makes Andre (and me) faster and more efficient when reading my work.
+
+[Original required-findings list elided for brevity; see queue/research-questions.md git history 2026-06-04 if needed.]
+
+**Consumed actions (2026-06-04 01:50 CT):**
+
+1. **Dossier written**: `dossiers/dev_tooling/markdown-to-html-ui.md` — 8 sections, 50+ unique primary sources across the 8 required findings areas, 10 promoted claims (8 verified researcher @ weight 0.85-0.95, 1 verified @ 0.8, 1 single-source @ 0.55 with explicit re-verification watch), 68 findings extracted.
+2. **Sources ledger** updated: 31 new primary sources added to `knowledge/sources.jsonl` covering marked, markdown-it, pandoc, GFM spec, CommonMark, Quartz 5, Material for MkDocs, Eleventy, Astro Content Collections, MDN scroll-driven animations, MDN IntersectionObserver, MDN @starting-style, MDN View Transitions, MDN Web Animations API, Chrome DevRel (4 blogs), Gwern.net design, Tufte CSS, HTTP Archive Web Almanac 2025, web.dev Vitals, web-platform-dx, W3C Scroll Animations spec, Anthropic Artifacts blog, Perplexity Pages blog, Mavis skill catalog (content-deck-generator, html-presentation-generator, landing-page-builder, visual-summary reference), and CanIUse.
+3. **Findings ledger** updated: 68 new findings extracted in `knowledge/findings.jsonl`.
+4. **Claims ledger** updated: 10 new claims promoted in `knowledge/claims.jsonl` (clm-2026-06-04-001 through clm-2026-06-04-010).
+5. **Handoff staged**: `queue/mavis-handoff.md` updated with priority_alert (mvs-handoff-2026-06-04-001) including dossier path, top-3 findings, recommended rendering pipeline, and contradictions worth Mavis's attention.
+6. **Run receipt written**: `runs/RUN-20260604-0102-DIVE-MAVIS-UI.md` — full audit trail of sources collected, findings extracted, claims promoted, dossier written, handoff staged.
+7. **This research question moved** from `## Pending` to `## Processed` here (consumed in this cycle, per the file convention).
+
+**Top 3 findings (per spawn instruction's "What success looks like" + handoff convention):**
+
+1. **Markdown lib = markdown-it** (Node) + 3 plugins: `markdown-it-anchor` (auto-generated heading IDs for jump-links), `markdown-it-container` (Pandoc-style fenced divs for render hints like `::: callout` / `::: fade-in-stagger` / `::: collapse` / `::: source-trail`), `markdown-it-footnote`. 100% CommonMark + GFM, mature since 2014, used by Vue/VitePress/Astro as default. Trust 0.95. Pandoc is the fallback for non-markdown inputs (docx, rst).
+
+2. **Animation = hybrid layer-cake**: pure-CSS `@keyframes fade-in` + `animation-delay` for first paint (zero JS, every browser since 2014); vanilla JS IntersectionObserver for scroll-into-view fade (~30 lines, Baseline since March 2019, one observer per page, threshold 0.1, adds CSS class to target); CSS scroll-driven animations (`animation-timeline: view()`) as Chrome 115+ progressive enhancement via `@supports`. NOT in v1: View Transitions (defer to v2), @starting-style (defer until Safari/Firefox catch up). Animation MUST use opacity + transform: translateY() to avoid CLS.
+
+3. **Layout = Tufte-inspired, system font stack, < 100KB total weight**: cap heading depth at H3 (per Tufte's Feynman-lectures principle), sidenotes sparingly, off-white #fffff8 + off-black #111111, text-wrap: pretty on body paragraphs, text-wrap: balance on headings. Zero webfonts in v1 (system font stack). Self-contained single HTML file (Pandoc --embed-resources pattern), no external requests, all content in initial raw HTML (HTTP Archive 2025 confirms this is also a content accessibility win for AI crawlers).
+
+**Recommended rendering pipeline (summary for v1 build):**
+
+`markdown file → markdown-it (server-side) → + markdown-it-anchor + markdown-it-container + manual CSS template → inlined <style> in <head> → vanilla JS IntersectionObserver block (~30 lines, inlined before </body>) → single self-contained HTML file written to vault`
+
+Build at `99 _system/scripts/render-dossier.js` as a 200-line Node script. Run on file-watch or manual trigger. The Builder agent owns the script; Researcher owns the spec (this dossier).
+
+**Status: consumed 2026-06-04 01:50 CT | dossier written Y | handoff staged Y | run receipt written Y | claims promoted 10 | sources captured 31 | findings extracted 68 | re-verification watch: clm-2026-06-04-009 (Thariq 'MD is dead' thread) is single-source at weight 0.55; will need a second primary source corroboration on next REFRESH.**
+

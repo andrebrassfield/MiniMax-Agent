@@ -78,6 +78,10 @@ Default: operator-space, not chief-drawer. Full rationale + worked example → `
 - Never write Templater templates via Write tool (renders syntax — use heredoc or Edit) — see `tool-quirks.md`
 - Worker sessions do not write to Mavis memory files (`MEMORY.md` / topic files in this dir). Memory is owner territory. If a worker claims it updated Mavis memory, verify file mtime before believing it (workers have hallucinated edits in 2026-06-04 cycle 1).
 - **Hung worker on rate-limited model → silent 12h orchestrator timeout** (2026-06-04/05). See full signature + detection heuristic + abort-to-solo trigger below.
+- **Vault destruction incident — full-vault gutting on 2026-06-05 11:28→11:42 CT** (hard correction, single most important lesson from the 2026-06-05 session). See full forensic + prevention below.
+- **Always quote paths with double-quotes** when calling shell tools that resolve to macOS filesystem operations (mavis-trash, mv, cp, osascript POSIX file refs). Backslash-escaping spaces (`MiniMax-Agent/99\ _system/`) is fragile and can be mis-interpreted as multi-arg → trashed the wrong target. Hard rule: `"$path"` everywhere, no exceptions.
+- **Push the vault to remote after every meaningful commit** — the 2026-06-05 vault-destruction incident is fully recoverable BECAUSE Andre had Finder Trash with Put Back. Without that, the data was gone. Push to `git@github.com:andrebrassfield/MiniMax-Agent` is the durable backup. If the local working tree is destroyed and there's no remote, the loss is total. Default: push after every commit, or set up a post-commit hook.
+- **Atomic commits require clean staging area** — when the user gives specific `git add` commands, run them, but verify the staging area is clean first (`git diff --cached --stat`). Otherwise `git commit` captures all staged changes, not just the user's scope. Better: `git reset` first, then the user's `git add`, then commit.
 
 ## Memory hygiene (Mavis-specific)
 - Language: write in Andre's natural language (English)
@@ -218,3 +222,38 @@ Type: orchestration-failure-mode (hard correction)
 **WHY this is a durable lesson, not a one-off.** "API rate limit cascades" is a first-class failure mode for any agent fleet that runs production workloads on a metered LLM. The next time Andre (or anyone) hits a similar outage — different model, same shape — the heuristic needs to fire correctly: detect early, abort to solo, finish in the same session, signal closure. The team/parallel value is forfeit the moment the workers are in the same failure mode the user is asking us to solve. Don't fight the rate limit with more workers; route around it with the orchestrator's own context.
 
 **Cross-reference.** Pair with "Cron watches for workers must verify deliverable existence, not just session status" (2026-06-04) — same underlying principle (filesystem is source of truth, not session lifecycle), different application (cron monitoring vs. abort-to-solo decision).
+
+### Vault destruction incident — 2026-06-05 11:28→11:42 CT (hard correction, single most important lesson)
+Type: data-loss-prevention (hard correction)
+
+**The signature.** A vault-wide destruction where the entire `/Users/brassfieldventuresllc/MiniMax-Agent/` directory tree was gutted to 4 entries (only `.smart-env/`, `99 _system/` with partial contents, plus `.`/`..`). All git history lost (no `.git/`). All projects, all daily briefs, all notes, all resources, all project handoffs, all worker queues, all memory files — gone. Recovery was via macOS Finder Trash → "Put Back" (Finder preserved the original-path reference that osascript and shell `mv` could not).
+
+**The timeline (best reconstruction).**
+- 11:23 — migration commit `fc0d308` landed clean (15 new files: MiniMax research + memory migration)
+- 11:27 — first atomic commit sequence (5c4abb6 "Operation Last Mile", then `git reset --soft HEAD~1` + `git reset` to undo)
+- 11:28 — `mavis-trash /Users/brassfieldventuresllc/MiniMax-Agent/99\ _system/scripts` (intended to trash only the framework-drift Node.js mess)
+- 11:28-11:42 — multiple failed osascript recovery attempts and shell `mv` operations
+- ~11:42 — vault shown as gutted to 4 entries; the entire `/Users/brassfieldventuresllc/MiniMax-Agent/` had been moved to Finder Trash
+- 11:54 — Andre manually did Finder Trash → Put Back to restore the vault
+- 11:55+ — recovery verified: git history intact, all today's deliverables on disk, migration commit at HEAD
+
+**Likely cause (best forensic guess).** The `mavis-trash 99\ _system/scripts` command on macOS uses osascript `tell application "Finder" to delete POSIX file "$file"`. The backslash-escaped path (`MiniMax-Agent/99\ _system/scripts`) was passed to bash, then to mavis-trash, then to osascript. The most likely failure mode: the escaping was misinterpreted at some layer, and the POSIX file path resolved to the parent dir `MiniMax-Agent` (the vault) rather than the intended subdir. The other 3 attempts (osascript queries, shell `mv`) were recovery attempts and FAILED without moving anything. So the destruction happened in a single macOS Finder operation triggered by my mavis-trash invocation.
+
+**Why I didn't catch it sooner.** I assumed the mavis-trash only removed the targeted subdir. I didn't verify the rest of the vault was intact until 11:42, when a `git log` check returned "fatal: not a git repository". By then, the trashed item's original-path reference was broken in Finder, complicating automated recovery. The "Operation not permitted" error from `mv ~/.Trash/MiniMax-Agent ~/` is a macOS SIP protection on the user trash — shell tools cannot read or move out of `~/.Trash/`. Only Finder (via GUI or AppleScript) can "Put Back" trashed items.
+
+**Three prevention rules (locked 2026-06-05).**
+1. **Always quote paths with double-quotes** in shell commands. Backslash-escaping spaces (`MiniMax-Agent/99\ _system/`) is fragile. POSIX path resolution at the osascript layer may not handle backslash-escaped spaces correctly. Hard rule: `"$path"` with double-quotes everywhere, no exceptions. Example fix: `mavis-trash "/Users/brassfieldventuresllc/MiniMax-Agent/99 _system/scripts"`.
+2. **Push the vault to remote after every meaningful commit.** Without remote backup, vault destruction = total data loss. The 2026-06-05 incident is fully recoverable BECAUSE Andre had Finder Trash with Put Back. Without that, the data was gone. Default: push to `git@github.com:andrebrassfield/MiniMax-Agent` after every commit, or set up a post-commit hook. Verify SSH key in the agent's keychain.
+3. **Atomic commits require clean staging area.** When the user gives specific `git add` commands, verify the staging area is clean first (`git diff --cached --stat`). Otherwise `git commit` captures all staged changes, not just the user's scope. The first atomic commit was bundled (18 files instead of 2) because I trusted the user's `git add` without checking the prior staging state. Better: `git reset` first, then the user's `git add`, then commit. Or commit then re-do if scope is wrong.
+
+**Why this is a durable lesson, not a one-off.** "Vault destruction" is a first-class failure mode for any agent fleet that runs production work on a metered LLM and uses the filesystem as the source of truth. The next time Andre (or anyone) has a similar incident — different cause, same shape — the heuristic needs to fire correctly: detect full-vault gutting within minutes (not hours), recover via Finder Trash, and push to remote for durable backup. The local-only git commit is a single point of failure.
+
+**The vault-watchdog cron (post-correction).** Set a 5-min watch via `mavis cron self vault-watchdog --every 5m --prompt "..."` that verifies:
+- `/Users/brassfieldventuresllc/MiniMax-Agent/.git` exists (failure → page Andre immediately)
+- `00 Inbox/`, `01 Daily/`, `02 Notes/`, `03 Projects/`, `99 _system/memory/MEMORY.md` all exist (any failure → page Andre immediately)
+- `git -C /Users/brassfieldventuresllc/MiniMax-Agent log --oneline -1` returns a valid commit hash
+- Stale detection: if the cron fires and the last successful integrity check was > 30 min ago, surface to Andre
+
+The cron does NOT need to verify content; it just needs to verify the vault's structural integrity. Content integrity is the Verifier's job.
+
+**Cross-reference.** Pair with "Vault rule (locked 2026-06-05)" — the durable knowledge must live in the vault, but the vault itself must be protected. The two rules together: vault = source of truth (write side) + vault integrity must be guarded (protection side).

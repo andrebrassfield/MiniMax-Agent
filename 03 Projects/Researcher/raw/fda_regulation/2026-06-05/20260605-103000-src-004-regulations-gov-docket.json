@@ -1,0 +1,12 @@
+{
+  "id": "src-2026-06-05-004",
+  "captured_at": "2026-06-05T10:30:00-05:00",
+  "source_lane": "fda_regulation",
+  "url": "https://www.regulations.gov/docket/FDA-2025-N-6895",
+  "type": "primary",
+  "fetch_method": "webfetch",
+  "raw_excerpt": "Regulations.gov docket FDA-2025-N-6895. Document title: Pharmacy Compounding Advisory Committee; Notice of Meeting; Establishment of a Public Docket; Request for Comments--Bulk Drug Substances Nominated for Inclusion on the Section 503A Bulk Drug Substances List. Document ID: FDA-2025-N-6895-0001. Comment Due Date: 07/22/2026. 65 comments received. Docket Title: Pharmacy Compounding Advisory Committee; Notice of Meeting; Establishment of a Public Docket; Request for Comments--Bulk Drug Substances Nominated for Inclusion on the Section 503A Bulk Drug Substances List. Docket Number: FDA-2025-N-6895. Note: This is the official comment-collection docket for the April 16 2026 Federal Register notice. The FDA's meeting page additionally cites 'Docket No. FDA-2026-N-2979' in one of its instructions paragraphs (under Public Participation Information) — a possible docket-number typo or an updated secondary docket, flagged for adjudication. Source link for the parallel comment-collection instructions: https://www.regulations.gov.",
+  "raw_full_path": "raw/fda_regulation/2026-06-05/20260605-103000-src-004-regulations-gov-docket.json",
+  "content_hash": "sha256:placeholder_regulations_gov_docket_2026_06_05",
+  "extracted_finding_ids": ["fnd-2026-06-05-004"]
+}

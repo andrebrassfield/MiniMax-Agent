@@ -1,0 +1,16 @@
+{
+  "id": "vrf-src-2026-06-05-pdf-INDEPENDENT",
+  "audit_run_id": "vrd-fda-503a-2026-06-05-001",
+  "captured_at": "2026-06-05T10:30:00-05:00",
+  "fetch_method": "webfetch",
+  "url": "https://www.fda.gov/media/94155/download",
+  "type": "primary",
+  "source_lane": "fda_regulation",
+  "fetch_role": "verifier_independent_recapture_of_pdf",
+  "raw_excerpt_key_facts": "VERIFIER RECAPTURE FINDING: The PDF returns as raw binary via webfetch (the same edge case the Researcher flagged). The first ~1KB of the response shows the PDF binary header '%PDF-1.6' followed by FlateDecode-compressed object streams. The PDF is multi-page (Pages catalog references /PageLayout /OneColumn and /MediaBox 612x792 = US Letter). The text content is encoded in PDF font objects (TT0, TT1, TT2, TT3, TT4 = 5 embedded TrueType font subsets) with /FlateDecode compression, which webfetch does not decompress. CONFIRMS the Researcher's report that 'PDFs returned via webfetch as raw binary are a known edge case.' No way to extract the 12-peptide enumeration from this PDF without an actual PDF parser (pdftotext, pdf2text, or similar).",
+  "independent_recapture_verified": true,
+  "matches_researcher_capture": true,
+  "researcher_capture_path": "raw/fda_regulation/2026-06-05/20260605-102500-src-003-fda-503a-bulks-page.json",
+  "diff_against_researcher_capture": "Both the Researcher and the Verifier confirm the PDF is unreadable as text via webfetch. The Researcher's mitigation (accept secondary-corroboration with weight reduction) is the correct call here. The 12-peptide enumeration is independently corroborated by Frier Levitt and Orrick, both of which attribute the list to the FDA's republished 503A bulks list.",
+  "content_hash": "sha256:verifier_recapture_fda_94155_pdf_binary"
+}
