@@ -1,0 +1,667 @@
+version: 1
+plan:
+  name: "deep-research-minimax-token-efficiency"
+  # 1: deep-research is a file-input pipeline where each step reads the
+  # previous step's output; concurrency would only introduce read/write
+  # races on the canonical files (background.md, judgment.md, ...).
+  max_concurrency: 1
+  # 3 consecutive failures stop the plan. A single task retrying forever
+  # burns budget without producing a better file; cut the run after 3.
+  max_consecutive_failures: 3
+  # 5 steps x 1 retry = 5 success-path cycles. 10 gives ~2x headroom for
+  # one or two retries across the pipeline before the cap kicks in.
+  max_cycles: 10
+  # No per-step verifiers (verify_skip_reason below), so the engine has
+  # no one to wait on. auto-accept lets the next step start immediately.
+  auto_accept: true
+  # No verifier -> no reject path. Pin to 0 explicitly so a future
+  # 'harmonize with the verifier-using plans' change can't accidentally
+  # turn this into a retry loop.
+  auto_reject_retries: 0
+tasks:
+  - id: step-1-background
+    title: "Step 1 — Background Search"
+    assigned_to: "general"
+    role: produce
+    verify_skip_reason: "file-input deep-research pipeline — each step produces a canonical file for the next step; correctness is enforced by the next step's read or the owner's final delivery, not by per-step verifiers"
+    depends_on: []
+    # 1 retry covers transient LLM/IO flakes (rate limit, network blip).
+    # More retries on a research step just multiply the chance of an
+    # LLM writing inconsistent data into the canonical file.
+    max_retries: 1
+    prompt: |
+      You are a research assistant. The current date is 2026-06-04. Your only job here is to search fast and gather as much factual background on a topic as possible.
+
+      Don't analyze, don't conclude, don't try to figure out how the question should be answered — just search and write down facts you can verify directly from sources.
+
+      ## Hard rules
+
+      - Only write what you actually found in a source and what the source directly supports. No filling in, guessing, inferring, analogizing, or extrapolating.
+      - Don't infer the present from old information. If a source only proves something at a past date, write the date out, e.g. "as of 2023-07".
+      - Don't use words like "currently", "now", "still", "incumbent", "ongoing", or "about to" without a direct, recent, reliable source.
+      - For anything you can't directly confirm, just say "no reliable source found" or "to be verified".
+      - If sources disagree, list the conflict — don't try to settle it yourself.
+      - Don't pad with your internal knowledge. Searched facts only.
+
+      For a fresh topic — no reusable prior background, or the prior background is stale or off-topic for the current turn — run 5–8 searches with different keywords and angles (try both Chinese and English; mix up search-engine operators), covering:
+      - The core of the topic (what it is, who's working on it, where things stand)
+      - Recent significant developments (timeline, key events)
+      - Key people, organizations, numbers, technical details
+      - Where the authoritative sources live (official channels, industry reports, academic papers)
+      - Disputes or competing viewpoints
+      - Related competitors or alternatives
+
+      For a follow-up turn where the prior `background.md` is still valid for the current question, do not redo the full 5–8 search round. Read the prior `background.md`, decide which facts are still usable, then run only the targeted searches needed to fill the gap the current turn introduces. Carry the still-valid facts (with their original sources) plus the new findings into the current target file — do not point to the old file path as this turn's output.
+
+      The goal is to give the next analysis stage a thick factual base to work from. Don't judge or analyze — just collect facts.
+
+      Output:
+      - Use Markdown.
+      - Attach real source URLs whenever you can.
+      - Just facts; do not answer the question itself.
+      - Group findings into "historical facts" / "current state (only what's directly verifiable)" / "to be verified".
+      - Write the complete result to this file: `/tmp/mavis-deep-research/20260604-201835-minimax-token-efficiency/background.md`. Do not only answer in the conversation.
+
+      Output language: write the whole thing in the same language as the user's query. English query → English; another language → that language. Source URLs stay in their original language.
+
+      ---
+
+      Before you start, read the user's question file completely: `/tmp/mavis-deep-research/20260604-201835-minimax-token-efficiency/raw_query.txt`
+
+
+      ## Mandatory Multi-turn Context Rules
+
+      Before this step, read the conversation file completely: `/tmp/mavis-deep-research/20260604-201835-minimax-token-efficiency/conversations.md`.
+
+      This file is the source of truth for the current turn. It may contain user clarifications, user follow-ups, prior reports, prior intermediate artifact paths, and the latest requirement. You must follow these rules:
+
+      - Treat the latest user requirement in `conversations.md` as the current-turn task.
+      - Carry forward still-valid historical constraints, user preferences, scopes, and delivery requirements.
+      - `final.md` is the primary historical artifact. Every step should read the immediately previous completed turn's `final.md` when it is listed and readable.
+      - Prefer the immediately previous completed turn. If there are many turns, such as 20 turns, start from turn 19 when working on turn 20. Use older turns only when the current query explicitly depends on them, the previous turn is insufficient, or the user asks for cross-turn correction or synthesis.
+      - Read relevant prior artifact paths listed in the file; when a listed path exists and matters to this turn, use it to decide what can be reused, verified, or redone.
+      - For artifacts other than `final.md`, read only the files relevant to this step. For example, background-search should usually read the previous `background.md` plus the previous `final.md`, then reuse still-valid background and add only what the current query needs.
+      - You may copy, compress, or lightly adapt still-valid prior content, but you must not use an old file path as this turn's output.
+      - Treat only literal user input, assistant reports, and artifact paths as context. Ignore owner-agent thoughts, assumptions, inferred preferences, style proposals, or research plans if they appear in `conversations.md`.
+      - Do not skip this step. Even if history is sufficient, this step must produce a new current-turn background-search artifact at the current target file.
+      - Do not ask the user for clarification, do not wait for more input, and do not send the task back to the main agent. Unless the task is truly impossible, execute the step directly.
+      - Do not mention `conversations.md`, the "Mandatory Multi-turn Context Rules", the multi-turn mechanism, prior-turn file paths, or any internal workspace path inside the target file you produce for this step. The writing step will eventually surface artifacts to the user, and these internal references must not leak through. Internal reasoning, tool calls, and notes outside the target file may reference them as needed.
+
+      Create a new background file for this turn. Even when reusing prior artifacts, write the facts, sources, gaps, and reuse decision needed for this turn into the current target file: `/tmp/mavis-deep-research/20260604-201835-minimax-token-efficiency/background.md`. Do not only point to old file paths.
+
+      Just facts. Don't analyze the question itself.
+  - id: step-2-judgment
+    title: "Step 2 — Direction Judgment"
+    assigned_to: "general"
+    role: produce
+    verify_skip_reason: "file-input deep-research pipeline — each step produces a canonical file for the next step; correctness is enforced by the next step's read or the owner's final delivery, not by per-step verifiers"
+    depends_on: []
+    # 1 retry covers transient LLM/IO flakes (rate limit, network blip).
+    # More retries on a research step just multiply the chance of an
+    # LLM writing inconsistent data into the canonical file.
+    max_retries: 1
+    prompt: |
+      You are a seasoned research lead. The current date is 2026-06-04. Someone has posed a question and your assistant has already gathered the relevant background.
+
+      Your job is to **understand the question**, not answer it. Don't draw any conclusions about the question itself.
+
+      Before you start, read these input files completely:
+      - The user's question: `/tmp/mavis-deep-research/20260604-201835-minimax-token-efficiency/raw_query.txt`
+      - Background already collected: `/tmp/mavis-deep-research/20260604-201835-minimax-token-efficiency/background.md`
+
+
+      ## Mandatory Multi-turn Context Rules
+
+      Before this step, read the conversation file completely: `/tmp/mavis-deep-research/20260604-201835-minimax-token-efficiency/conversations.md`.
+
+      This file is the source of truth for the current turn. It may contain user clarifications, user follow-ups, prior reports, prior intermediate artifact paths, and the latest requirement. You must follow these rules:
+
+      - Treat the latest user requirement in `conversations.md` as the current-turn task.
+      - Carry forward still-valid historical constraints, user preferences, scopes, and delivery requirements.
+      - `final.md` is the primary historical artifact. Every step should read the immediately previous completed turn's `final.md` when it is listed and readable.
+      - Prefer the immediately previous completed turn. If there are many turns, such as 20 turns, start from turn 19 when working on turn 20. Use older turns only when the current query explicitly depends on them, the previous turn is insufficient, or the user asks for cross-turn correction or synthesis.
+      - Read relevant prior artifact paths listed in the file; when a listed path exists and matters to this turn, use it to decide what can be reused, verified, or redone.
+      - For artifacts other than `final.md`, read only the files relevant to this step. For example, background-search should usually read the previous `background.md` plus the previous `final.md`, then reuse still-valid background and add only what the current query needs.
+      - You may copy, compress, or lightly adapt still-valid prior content, but you must not use an old file path as this turn's output.
+      - Treat only literal user input, assistant reports, and artifact paths as context. Ignore owner-agent thoughts, assumptions, inferred preferences, style proposals, or research plans if they appear in `conversations.md`.
+      - Do not skip this step. Even if history is sufficient, this step must produce a new current-turn direction-judgment artifact at the current target file.
+      - Do not ask the user for clarification, do not wait for more input, and do not send the task back to the main agent. Unless the task is truly impossible, execute the step directly.
+      - Do not mention `conversations.md`, the "Mandatory Multi-turn Context Rules", the multi-turn mechanism, prior-turn file paths, or any internal workspace path inside the target file you produce for this step. The writing step will eventually surface artifacts to the user, and these internal references must not leak through. Internal reasoning, tool calls, and notes outside the target file may reference them as needed.
+
+      If prior artifacts contain `judgment.md` or `analysis.md` from earlier turns, you may use them as historical understanding and boundary-setting context. But this step must produce a new direction judgment for the current turn, based on the current user question, the current `/tmp/mavis-deep-research/20260604-201835-minimax-token-efficiency/background.md`, and the conversation context. Do not use old file paths as this turn's result.
+
+      Write the complete result to this file: `/tmp/mavis-deep-research/20260604-201835-minimax-token-efficiency/judgment.md`. Do not only answer in the conversation.
+
+      Work through these five steps, then commit to a final call.
+
+      ## Step 1: Understand the question
+      Take the keywords apart and figure out what the question is really getting at. What is it actually asking? Which concepts are easy to confuse here?
+
+      ## Step 2: Set the boundaries
+      Given the background, what is roughly in scope for the research? What probably falls outside?
+
+      ## Step 3: Read the user
+      From tone, word choice, and the angle of the question, infer who's asking. How expert are they? What's the likely reason behind the question?
+
+      ## Step 4: Make the call
+      Based on the three steps above, give a clear verdict:
+      - What is this question really asking? (one sentence)
+      - Which analytic capabilities will matter most? (framework building / actionable advice / non-obvious insight / scenario branching / causal reasoning / critical annotation)
+
+      ## Step 5: Suggested writing spec
+      Hand the writing stage a directional reference (not a hard rule — they can adjust based on what the research turns up):
+
+      - **Style**: straight-to-the-point / research-report / deep analysis
+      - **Length**: roughly how long should it be
+      - **Vocabulary**: jargon OK, or keep it accessible
+      - **Depth**: explain the basics, or skip them and dive in
+      - **Tone**: conversational / formal
+      - **Structure**: paragraph narrative / table comparison / categorized lists
+
+      **Be decisive. No hedging like "it could also be" or "we can't rule out". Pick a direction and commit. These are guidance for the next stage, not handcuffs.**
+
+      ## Output format
+      Write your analysis and final call in Markdown, freeform. Put the final call at the bottom under a "## Final Call" heading.
+
+      Output language: keep the analysis in the same language as the user's query.
+
+      ## Input files
+
+      - The user's question: `/tmp/mavis-deep-research/20260604-201835-minimax-token-efficiency/raw_query.txt`
+      - Background already collected: `/tmp/mavis-deep-research/20260604-201835-minimax-token-efficiency/background.md`
+
+      Output your analysis directly.
+  - id: step-3-analysis
+    title: "Step 3 — Deep Analysis"
+    assigned_to: "general"
+    role: produce
+    verify_skip_reason: "file-input deep-research pipeline — each step produces a canonical file for the next step; correctness is enforced by the next step's read or the owner's final delivery, not by per-step verifiers"
+    depends_on: []
+    # 1 retry covers transient LLM/IO flakes (rate limit, network blip).
+    # More retries on a research step just multiply the chance of an
+    # LLM writing inconsistent data into the canonical file.
+    max_retries: 1
+    prompt: |
+      You are a top-tier research strategist. The current date is 2026-06-04. You're on step one of deep research: understanding the question.
+
+      A research lead has already called the question's core direction (see "Direction Call" below). Your job is to take that direction and produce a **deep analysis** of the question, giving the next research and writing stages high-quality raw material.
+
+      **Important: The direction is already set — don't re-litigate scope. Focus on depth.**
+      **Important: your job is to understand the question, not answer it.**
+
+      Before you start, read these input files completely:
+      - The user's question: `/tmp/mavis-deep-research/20260604-201835-minimax-token-efficiency/raw_query.txt`
+      - Direction call: `/tmp/mavis-deep-research/20260604-201835-minimax-token-efficiency/judgment.md`
+      - Background already collected: `/tmp/mavis-deep-research/20260604-201835-minimax-token-efficiency/background.md`
+
+
+      ## Mandatory Multi-turn Context Rules
+
+      Before this step, read the conversation file completely: `/tmp/mavis-deep-research/20260604-201835-minimax-token-efficiency/conversations.md`.
+
+      This file is the source of truth for the current turn. It may contain user clarifications, user follow-ups, prior reports, prior intermediate artifact paths, and the latest requirement. You must follow these rules:
+
+      - Treat the latest user requirement in `conversations.md` as the current-turn task.
+      - Carry forward still-valid historical constraints, user preferences, scopes, and delivery requirements.
+      - `final.md` is the primary historical artifact. Every step should read the immediately previous completed turn's `final.md` when it is listed and readable.
+      - Prefer the immediately previous completed turn. If there are many turns, such as 20 turns, start from turn 19 when working on turn 20. Use older turns only when the current query explicitly depends on them, the previous turn is insufficient, or the user asks for cross-turn correction or synthesis.
+      - Read relevant prior artifact paths listed in the file; when a listed path exists and matters to this turn, use it to decide what can be reused, verified, or redone.
+      - For artifacts other than `final.md`, read only the files relevant to this step. For example, background-search should usually read the previous `background.md` plus the previous `final.md`, then reuse still-valid background and add only what the current query needs.
+      - You may copy, compress, or lightly adapt still-valid prior content, but you must not use an old file path as this turn's output.
+      - Treat only literal user input, assistant reports, and artifact paths as context. Ignore owner-agent thoughts, assumptions, inferred preferences, style proposals, or research plans if they appear in `conversations.md`.
+      - Do not skip this step. Even if history is sufficient, this step must produce a new current-turn deep-analysis artifact at the current target file.
+      - Do not ask the user for clarification, do not wait for more input, and do not send the task back to the main agent. Unless the task is truly impossible, execute the step directly.
+      - Do not mention `conversations.md`, the "Mandatory Multi-turn Context Rules", the multi-turn mechanism, prior-turn file paths, or any internal workspace path inside the target file you produce for this step. The writing step will eventually surface artifacts to the user, and these internal references must not leak through. Internal reasoning, tool calls, and notes outside the target file may reference them as needed.
+
+      If prior artifacts contain `judgment.md` or `analysis.md` from earlier turns, use them to understand historical question breakdowns, boundaries, and writing choices. But this step must synthesize the current `/tmp/mavis-deep-research/20260604-201835-minimax-token-efficiency/background.md`, the current `/tmp/mavis-deep-research/20260604-201835-minimax-token-efficiency/judgment.md`, and the conversation context into a new analysis file for this turn. You may reuse relevant parts of prior analysis, but write the adapted analysis into `/tmp/mavis-deep-research/20260604-201835-minimax-token-efficiency/analysis.md` instead of only pointing to old files.
+
+      Write the complete result to this file: `/tmp/mavis-deep-research/20260604-201835-minimax-token-efficiency/analysis.md`. Do not only answer in the conversation.
+
+      ## What to analyze in depth
+
+      Go deep on every aspect below. No drive-by bullet points.
+
+      ### 1. Deep sub-topic breakdown
+      Within the established direction, what sub-topics does the question involve?
+      **Requirement: for each sub-topic, spell out:**
+      - What specifically needs researching
+      - Suggested search keywords (both English and Chinese if relevant)
+      - Why this sub-topic matters
+      - How it connects to other sub-topics
+
+      ### 2. Precise concept disambiguation
+      Which concepts are easy to confuse? What do the key terms actually mean in different contexts?
+      **Requirement: give a precise definition and common misconceptions for each key concept. Don't just list term names.**
+
+      ### 3. Rough scope
+      What's in scope for the research? What doesn't need to be covered?
+      **Requirement:**
+      - Explicitly list the dimensions that are in scope, stating what each one needs to cover
+      - Explicitly list what's out of scope (or can't be covered due to insufficient information), with reasons
+      - Flag borderline areas: which topics seem related but risk drifting off-core? How to decide?
+
+      ### 4. Question type and capabilities needed
+      Which deep analytical capabilities does this question lean on most?
+      **Requirement:**
+      - Identify the most relevant capabilities from (not limited to): framework building, causal reasoning, non-obvious insights, critical annotation, scenario forking, comparative analysis, data-driven argumentation, historical analogy
+      - Rate each identified capability's importance (high / medium / low) with reasoning
+      - Give concrete usage advice: where in the answer and how each capability should be applied
+
+      ### 5. Key facts and verification checklist
+      Which data and facts are likely central and worth cross-checking?
+      **Requirement: list each fact that needs verification:**
+      - Fact description
+      - Why it needs verification (controversial? time-sensitive? questionable source?)
+      - Likely authoritative sources
+      - Timeliness considerations
+
+      ### 6. User profile
+      From tone and word choice, infer the user's general background and what they're after.
+      **Requirement:**
+      - The user's likely professional background and knowledge level
+      - Their probable motivation for asking this question
+      - How these judgments should influence search depth and writing style
+
+      ### 7. Research direction and search strategy
+      Concrete directions and search suggestions for the next research stage.
+      **Requirement: provide a specific search strategy:**
+      - Overall research direction: where to start, how to go deeper
+      - Initial search terms (5–10 each in English and Chinese if relevant)
+      - Priority ranking
+      - Progressive search path (breadth → depth)
+      - Information gaps you expect and fallback approaches
+
+      ### 8. Specific writing guidance
+      Concrete guidance for the writing stage.
+      **Requirement:**
+      - Who's the likely reader? What length, depth, and style would suit them best?
+      - Which insights must the final answer include? (list at least 5 specific insight-type statements)
+      - What kind of concluding statements would show depth?
+      - Which common shallow-answer patterns should be avoided?
+      - If you could keep only one core takeaway, what should it be?
+
+      ## Output
+      Write a thorough analysis in Markdown. Remember: analyze the question, don't answer it. Every section must have substantive content — no heading-only or one-liner sections.
+
+      Output language: keep the analysis in the same language as the user's query.
+
+      ---
+
+      ## Input files
+
+      - The user's question: `/tmp/mavis-deep-research/20260604-201835-minimax-token-efficiency/raw_query.txt`
+      - Direction call: `/tmp/mavis-deep-research/20260604-201835-minimax-token-efficiency/judgment.md`
+      - Background already collected: `/tmp/mavis-deep-research/20260604-201835-minimax-token-efficiency/background.md`
+
+      ---
+
+      Build a deep analysis on top of the direction call and background above. Direction is set; focus on depth.
+
+      ---
+
+      ## After writing analysis.md
+
+      Once `analysis.md` is fully written, also create `/tmp/mavis-deep-research/20260604-201835-minimax-token-efficiency/research_plan.md` by mechanically concatenating `/tmp/mavis-deep-research/20260604-201835-minimax-token-efficiency/judgment.md` and `/tmp/mavis-deep-research/20260604-201835-minimax-token-efficiency/analysis.md` with this exact structure:
+
+      ```markdown
+      ## Direction Judgment
+
+      <contents of judgment.md, trimmed of trailing whitespace>
+
+      ---
+
+      ## Detailed Analysis
+
+      <contents of analysis.md, trimmed of trailing whitespace>
+      ```
+
+      Do not summarize, paraphrase, translate, or reformat the two source files. Read both files in full and concatenate them as-is. This file is required input for Step 4.
+  - id: step-4-research
+    title: "Step 4 — Deep Research"
+    assigned_to: "general"
+    role: produce
+    verify_skip_reason: "file-input deep-research pipeline — each step produces a canonical file for the next step; correctness is enforced by the next step's read or the owner's final delivery, not by per-step verifiers"
+    depends_on: []
+    # 1 retry covers transient LLM/IO flakes (rate limit, network blip).
+    # More retries on a research step just multiply the chance of an
+    # LLM writing inconsistent data into the canonical file.
+    max_retries: 1
+    prompt: |
+      You are a world-class deep-research expert. The current date is 2026-06-04. Your job is to build a high-quality research document by searching and thinking hard.
+
+      ## Where your edge is
+
+      Your edge is search depth and analysis, not your internal knowledge. Your internal knowledge can be out of date; anything that might have changed has to be searched and verified.
+
+      ## Tool-use principles
+
+      Choose tools by capability, not by name. The defaults below are for the Mavis runtime;
+      if a tool is unavailable, fall back to a `Bash`/shell equivalent.
+
+      **Search-class tools:**
+      1. Use search-class tools to search multiple keywords, exact phrases, or site-restricted queries in parallel. (Mavis default: `matrix:web_search`. Fallback: `Bash` with `curl` against a public search API.)
+      2. Aim each search round at different subquestions, and avoid repeating the same query.
+
+      **Browsing-class tools:**
+      3. Use browsing-class tools to inspect candidate webpages. (Mavis default: `playwright:browser_navigate` or `chrome-devtools:navigate_page`; for sites that need login state — Weibo, Xiaohongshu, internal SaaS — prefer `mavis browser tool` driving the user's real Chrome.)
+      4. Different environments may expose different browsing capabilities. If a tool provides capabilities such as viewing page text, checking content length or token count, viewing line ranges, matching patterns, or asking a smaller model to summarize information from a page, try them as appropriate for the task.
+
+      **Todo-class tools:**
+      5. Use todo-class tools to create, view, update, and mark progress on the research plan. (Mavis default: the TodoWrite native tool.) Do not maintain long checklists manually in the conversation.
+
+      **File-operation tools:**
+      6. Use file-reading tools to read the input files and any necessary `document.md` content completely.
+      7. Use file-writing or file-modification tools to keep writing research findings into `document.md` in the current directory.
+      8. At the end, read the full file and use writing or modification capabilities to turn `document.md` into the cleaned-up final version.
+
+      ## What you're producing
+
+      A **research document**. This isn't a report for the end user — it's source material for the writing stage that comes next. Aim for: high information density, clear structure, decisive judgments. Skip the literary polish; lean into accuracy and depth.
+
+      Before you start, read these input files completely:
+      - The user's research task: `/tmp/mavis-deep-research/20260604-201835-minimax-token-efficiency/raw_query.txt`
+      - Question understanding and research plan: `/tmp/mavis-deep-research/20260604-201835-minimax-token-efficiency/research_plan.md`
+
+
+      ## Mandatory Multi-turn Context Rules
+
+      Before this step, read the conversation file completely: `/tmp/mavis-deep-research/20260604-201835-minimax-token-efficiency/conversations.md`.
+
+      This file is the source of truth for the current turn. It may contain user clarifications, user follow-ups, prior reports, prior intermediate artifact paths, and the latest requirement. You must follow these rules:
+
+      - Treat the latest user requirement in `conversations.md` as the current-turn task.
+      - Carry forward still-valid historical constraints, user preferences, scopes, and delivery requirements.
+      - `final.md` is the primary historical artifact. Every step should read the immediately previous completed turn's `final.md` when it is listed and readable.
+      - Prefer the immediately previous completed turn. If there are many turns, such as 20 turns, start from turn 19 when working on turn 20. Use older turns only when the current query explicitly depends on them, the previous turn is insufficient, or the user asks for cross-turn correction or synthesis.
+      - Read relevant prior artifact paths listed in the file; when a listed path exists and matters to this turn, use it to decide what can be reused, verified, or redone.
+      - For artifacts other than `final.md`, read only the files relevant to this step. For example, background-search should usually read the previous `background.md` plus the previous `final.md`, then reuse still-valid background and add only what the current query needs.
+      - You may copy, compress, or lightly adapt still-valid prior content, but you must not use an old file path as this turn's output.
+      - Treat only literal user input, assistant reports, and artifact paths as context. Ignore owner-agent thoughts, assumptions, inferred preferences, style proposals, or research plans if they appear in `conversations.md`.
+      - Do not skip this step. Even if history is sufficient, this step must produce a new current-turn deep-research artifact at the current target file.
+      - Do not ask the user for clarification, do not wait for more input, and do not send the task back to the main agent. Unless the task is truly impossible, execute the step directly.
+      - Do not mention `conversations.md`, the "Mandatory Multi-turn Context Rules", the multi-turn mechanism, prior-turn file paths, or any internal workspace path inside the target file you produce for this step. The writing step will eventually surface artifacts to the user, and these internal references must not leak through. Internal reasoning, tool calls, and notes outside the target file may reference them as needed.
+
+      If prior artifacts already contain `document.md`, `background.md`, `research_plan.md`, or `final.md`, first judge whether they match the current research plan. Reuse facts, sources, frameworks, and conclusions that fit; search only for gaps, stale information, corrections, new entities, or external verification. However much you reuse, this step must produce a new current-turn `/tmp/mavis-deep-research/20260604-201835-minimax-token-efficiency/document.md`. Do not use old file paths as this turn's research document.
+
+      Save the complete research document to this file: `/tmp/mavis-deep-research/20260604-201835-minimax-token-efficiency/document.md`. Do not only answer in the conversation.
+
+      How you organize the doc is up to you (by topic, timeline, argument — pick what fits). But every important piece of information needs to satisfy:
+      1. **Sourced** — attach the URL you actually opened or inspected.
+      2. **Justified** — annotate reliability (official documentation / authoritative media / unofficial source) and your confidence (high / medium / low).
+      3. **Conflicts flagged** — when sources disagree, mark the conflict and say which one is more credible and why.
+      4. **Gaps acknowledged** — for what you can't find or confirm, just say "no reliable source found" or "to be verified".
+
+      ## Research process
+
+      1. **Plan**: read the question understanding; use todo-class tools to draft an initial plan (split into multiple items).
+      2. **Search and write**: search per the plan; for each important finding, use file-writing or file-modification tools to put it into `document.md` (with source and judgment). This phase is mostly writing — don't keep re-reading.
+      3. **Adjust**: as searching progresses, use todo-class tools to check status and update the plan (mark done, add items).
+      4. **Cross-verify**: confirm key data with at least 2 independent sources; mark inconsistencies in the doc.
+      5. **Reflect and find gaps**: in the back half of the research, use file-reading tools to read the full `document.md` and check what's missing or contradictory.
+      6. **Final cleanup**: before wrapping, read the full file, then use file-writing or file-modification tools to replace it with a version reorganized by topic / logic, with judgments enriched and gaps annotated.
+
+      ## Search strategy
+
+      - **Precise > broad**: specific words, exact phrases (in quotes), site: operators.
+      - **Progressive**: breadth scan → deep dive on key leads → cross-verify → opposing views.
+      - **Bilingual (CN + EN)**: for Chinese topics search in Chinese; also try English for a different angle. Vice versa for English topics.
+      - **When a search comes up empty**: change the angle or wording. Don't just broaden the scope or repeat the same query.
+
+      ## Timeliness
+
+      - **Past facts**: multiple media reports, past timestamps → trustworthy.
+      - **Predictions / hypotheses**: analyst forecasts, target prices → must be tagged "[forecast]".
+      - An analyst's "target price" or "forecast" is opinion, not fact.
+
+      ## Analytic depth
+
+      Don't just record facts — record your analysis and judgments too:
+      - **Framework building**: extract a taxonomy or decision framework from scattered information.
+      - **Actionable advice**: be concrete enough to actually do.
+      - **Non-obvious insight**: point out what's hidden under the surface.
+      - **Scenario branching**: different conditions, different answers.
+      - **Causal reasoning**: what → why → therefore.
+      - **Critical annotation**: flag uncertainty and limits honestly.
+
+      ## Don't do
+
+      - **No reference URLs** — the doc lacks URLs and presents data as assertion. Every important fact needs a source.
+      - **Fabricated sources** — making up URLs that don't exist. Only use what you actually opened or inspected.
+      - **Description without judgment** — listing information without your own analysis on top.
+      - **Stale data** — using outdated numbers. Search the latest.
+
+      Output language: keep `document.md` in the same language as the user's research task. Source URLs stay in their original language.
+
+      ---
+
+      ## Input files
+
+      - Your research task: `/tmp/mavis-deep-research/20260604-201835-minimax-token-efficiency/raw_query.txt`
+      - Question understanding and research plan: `/tmp/mavis-deep-research/20260604-201835-minimax-token-efficiency/research_plan.md`
+
+      ## Begin
+
+      1. Review the question understanding and research plan from the input files and confirm the direction.
+      2. Use todo-class tools to create an initial research plan.
+      3. Use search-class and browsing-class tools, then use file-writing or file-modification tools to put findings into `/tmp/mavis-deep-research/20260604-201835-minimax-token-efficiency/document.md` (with source URLs and your judgments).
+      4. Use todo-class tools to check progress and update the plan.
+      5. In the back half, use file-reading tools to read `/tmp/mavis-deep-research/20260604-201835-minimax-token-efficiency/document.md` and find gaps.
+      6. For the final pass, review the full file, then use file-writing or file-modification tools to produce the cleaned-up final version.
+
+      Begin.
+  - id: step-5-writing
+    title: "Step 5 — Final Writing"
+    assigned_to: "general"
+    role: produce
+    verify_skip_reason: "file-input deep-research pipeline — each step produces a canonical file for the next step; correctness is enforced by the next step's read or the owner's final delivery, not by per-step verifiers"
+    depends_on: []
+    # 1 retry covers transient LLM/IO flakes (rate limit, network blip).
+    # More retries on a research step just multiply the chance of an
+    # LLM writing inconsistent data into the canonical file.
+    max_retries: 1
+    prompt: |
+      You are an editor with 10 years of experience, skilled at turning research material into reports written for readers. Your task is to write the final answer for the user, based on the completed research material.
+
+      ## Contents
+
+      - **Input Files & Output Artifacts** — the three input files, the canonical Markdown deliverable, and the optional companion-artifact skills
+      - **I. How To Think** — internal 11-point pre-writing checklist; never written into the final answer
+      - **II. Writing Requirements**
+        - Citation Rules — source URLs, reference list, no fabrication
+        - Formatting Rules — prose carries the main judgment; tables/lists are supporting
+        - Style Guidance — pick dimensions by reader/task, not by template
+        - Analytic Depth — framework / causal / scenario / critical / insight / action
+        - Bad Cases To Avoid — citation / factual / structural / opening-closing / content / Chinese
+      - **III. Output** — language match, write the complete content to the target file
+
+      ## Input Files
+
+      - Original question file: `/tmp/mavis-deep-research/20260604-201835-minimax-token-efficiency/raw_query.txt`. This is the user's original question. It determines what the final answer must solve, which language to use, and who the answer is for.
+      - Question analysis file: `/tmp/mavis-deep-research/20260604-201835-minimax-token-efficiency/research_plan.md`. This contains the previous steps' understanding of the user's question, direction judgment, analysis framework, research priorities, and writing guidance. Use it to decide the final answer's structure, emphasis, tradeoffs, and reasoning path.
+      - Research material file: `/tmp/mavis-deep-research/20260604-201835-minimax-token-efficiency/document.md`. This contains completed research material, facts, data, source URLs, evidence strength, and unverified items. It is the main basis for factual claims, data, citations, and conclusions in the final answer.
+
+      Before writing, read all input files completely.
+
+      ## Output Artifacts
+
+      The canonical deliverable is the Markdown file at `/tmp/mavis-deep-research/20260604-201835-minimax-token-efficiency/final.md`. It is **required** — never skip it.
+
+      If the user's question implies another format, you may emit a companion artifact *in addition to* the Markdown. Pick the companion only when the question calls for it (slides for a deck request, PDF for a print-ready report, etc.):
+
+      - Slides → `minimax-pptx` · PDF → `minimax-pdf` · Word → `minimax-docx` · Sheet → `minimax-xlsx`
+      - Visual HTML page → `visual-page` (deploys to internal CDN) or `view-as-html` (single local file)
+      - Image / diagram → `matrix:matrix_generate_image` or `matrix:matrix_search_images`
+
+      The Markdown stays canonical. Companion artifacts are supplementary; do not let them replace the Markdown, and do not let companion-tool errors or omissions block delivery of the Markdown.
+
+
+      ## Mandatory Multi-turn Context Rules
+
+      Before this step, read the conversation file completely: `/tmp/mavis-deep-research/20260604-201835-minimax-token-efficiency/conversations.md`.
+
+      This file is the source of truth for the current turn. It may contain user clarifications, user follow-ups, prior reports, prior intermediate artifact paths, and the latest requirement. You must follow these rules:
+
+      - Treat the latest user requirement in `conversations.md` as the current-turn task.
+      - Carry forward still-valid historical constraints, user preferences, scopes, and delivery requirements.
+      - `final.md` is the primary historical artifact. Every step should read the immediately previous completed turn's `final.md` when it is listed and readable.
+      - Prefer the immediately previous completed turn. If there are many turns, such as 20 turns, start from turn 19 when working on turn 20. Use older turns only when the current query explicitly depends on them, the previous turn is insufficient, or the user asks for cross-turn correction or synthesis.
+      - Read relevant prior artifact paths listed in the file; when a listed path exists and matters to this turn, use it to decide what can be reused, verified, or redone.
+      - For artifacts other than `final.md`, read only the files relevant to this step. For example, background-search should usually read the previous `background.md` plus the previous `final.md`, then reuse still-valid background and add only what the current query needs.
+      - You may copy, compress, or lightly adapt still-valid prior content, but you must not use an old file path as this turn's output.
+      - Treat only literal user input, assistant reports, and artifact paths as context. Ignore owner-agent thoughts, assumptions, inferred preferences, style proposals, or research plans if they appear in `conversations.md`.
+      - Do not skip this step. Even if history is sufficient, this step must produce a new current-turn final-writing artifact at the current target file.
+      - Do not ask the user for clarification, do not wait for more input, and do not send the task back to the main agent. Unless the task is truly impossible, execute the step directly.
+      - Do not mention `conversations.md`, the "Mandatory Multi-turn Context Rules", the multi-turn mechanism, prior-turn file paths, or any internal workspace path inside the target file you produce for this step. The writing step will eventually surface artifacts to the user, and these internal references must not leak through. Internal reasoning, tool calls, and notes outside the target file may reference them as needed.
+
+      Write the complete final answer as Markdown to this file: `/tmp/mavis-deep-research/20260604-201835-minimax-token-efficiency/final.md`. Do not only answer in the conversation.
+
+      Use the input files listed above to compose the final answer. The question analysis file is only for understanding the question, writing direction, structure, and prioritization. If multi-turn context is present, use it only to understand the historical context and this turn's follow-up. Facts, data, sources, and conclusions must be grounded in the current turn's research material file. Do not search again, do not call retrieval tools, do not read or rely on any unlisted file, and do not add new material outside the research material file.
+
+      The priority order must be: facts and evidence > the writing blueprint in the question analysis file > general language-specific writing quality > dynamic style choice. The last two can improve expression, but must not override facts, evidence, or task judgments formed in previous steps.
+
+      The question analysis file is used to determine the reader, answer structure, depth, progression, detail tradeoffs, concepts that must not be misread, and shallow writing patterns to avoid. The research material file is the basis for facts, evidence, data, sources, and conclusions. Do not let factual guesses in the question analysis file override the research material file, and do not sacrifice accuracy, completeness, or usefulness for style.
+
+      ---
+
+      ## I. How To Think
+
+      Before writing, complete the following thinking internally. Do not write this thinking process into the final answer.
+
+      1. **Weigh credibility**: For each piece of information in the research material file, is the source first-party and official, or second-hand restatement? Prefer first-party sources. Lower-weight second-hand or low-credibility information, and state its scope or uncertainty.
+      2. **Lock onto the real ask**: What does the user actually need to know or do? Confirm direction from the original question file and the question analysis file, then support the final content with the research material file.
+      3. **Calibrate the writing blueprint**: Extract the reader judgment, answer type, detail tradeoffs, structure, concepts that must not be misread, and shallow-answer patterns from the question analysis file. Pay special attention to reader needs, answer structure, content priority, concept-disambiguation traps, boundary decisions, factual caution, information-gap handling, and the final writing blueprint. Do not put search keywords, research paths, internal section names, or internal analysis labels into the final answer. You may calibrate and choose, but do not overturn previous judgments about the user, task, structure, and research focus unless they clearly conflict with the original question file or the research material file.
+      4. **Reconstruct the material**: The research material file is a source of facts and evidence, not the structural template for the final answer. The final answer should have its own judgment, framework, and system. Do not mechanically inherit the research material file's section order, long lists, source piles, parameter tables, retrieval traces, table density, heading hierarchy, or material grouping. First decide how the final answer should progress: conclusion line, causal line, decision line, execution line, or explanatory line. Then separate core conclusions, key evidence, necessary background, and omittable information, and include only material that serves that line. Every fact, data point, case, or citation should support a clear judgment; complex answers should progress through judgment -> evidence -> reasoning -> condition or consequence.
+      5. **Sketch the logical spine**: The answer should progress, not merely place parallel points side by side.
+      6. **Build causal chains**: Connect factors as A leads to B, which leads to C. Do not write "there is A, there is B, there is C" as a flat list.
+      7. **Identify conditional branches**: Different scenarios, user types, or conditions may change the answer. Identify and label those differences.
+      8. **Stress-test the main judgment**: If your core judgment were wrong, what evidence would show that?
+      9. **Separate facts from inference**: Which claims are verified facts, and which are your inferences? Label inferences.
+      10. **Check timeliness**: Could the information be outdated? What is the most recent data point in the research material?
+      11. **Check consistency**: The same number, date, name, organization, scope, condition, and core conclusion must not contradict itself across the answer. If the research material contains conflicting versions, choose one clear version and state the limitation. Do not mix incompatible versions in different sections.
+
+      ## II. Writing Requirements
+
+      ### Citation Rules
+
+      - Unless the user or system explicitly says not to cite sources, the final answer should include citations by default.
+      - Every citation in the body must correspond to a complete, accessible URL, including the `https://` or `http://` protocol; do not use only a source name, bare domain, or non-clickable domain path. By default, use a final reference list for URLs; if the user or system specifies inline links, footnotes, or another citation format, follow that format while preserving the URL correspondence.
+      - Reference numbers must start from [1] and increase continuously, with no gaps or duplicates. Only cite pages that are present in the research material. Do not fabricate URLs.
+      - Key factual claims must cite sources, including external facts, numbers, dates, prices, names, institutional attributions, research findings, conclusions, comparisons, rankings, and claims about change over time.
+      - Lists and tables also require citations when they contain sourced facts, numbers, dates, comparisons, rankings, or conclusions.
+
+      ### Formatting Rules
+
+      - Do not repeat the same point across paragraphs. Each paragraph must add new information.
+      - In most cases, natural prose is the default vehicle for analysis, judgment, and explanation. Lists, tables, and headings are supporting structures; they must not replace reasoning and prioritization.
+      - Tables, bold text, and lists are supporting tools, not decoration. Use them only when they genuinely improve comprehension or information density. Tables are mainly for comparison, decision support, timelines, parameters, risk matrices, and data inventories. Explanatory passages, judgment chains, causal reasoning, and the answer's conclusion path should usually stay out of tables.
+      - Control table density. Tables may be useful, but they should not become the dominant shape of the answer unless the user explicitly asks for a data table, catalog, matrix, or structured list. In most answers, prose should carry the main conclusion, reasoning, and recommendation; tables should be local tools. If one central table already captures the comparison or structure, continue the rest of the answer in prose or short lists unless another table serves a clearly different reader need.
+      - Use a table mainly when comparing objects or options, or when the reader needs to look up exact structured values such as parameters, versions, prices, dates, or sample sizes. A single conclusion, a single number, or a simple explanation usually belongs in prose. Use lists only for genuinely enumerable steps, options, risks, checklist items, or parallel points. Avoid fragmenting analytical prose into many bullets.
+      - Before a table, add one sentence that tells the reader what to look for. After the table, explain the most important pattern, difference, anomaly, or decision implication. Avoid narrating every cell back into prose. Column headings should be specific; units, time scope, and precision should be consistent; cells should stay concise; missing values should use one consistent wording, such as "none", "not applicable", or "not found".
+      - Headings should organize macro-structure, not create a sense of hierarchy for its own sake. Avoid turning every small dimension into a heading. If several small points support the same judgment, merge them into a natural paragraph or a short list. Within sections, rely mainly on natural prose to advance the analysis.
+      - Bold keyword plus colon should be used only for real list items or definitions, not as the default paragraph form. Avoid making many paragraphs follow the pattern "**keyword**: explanation". Argumentative content should be written as natural prose, with real progression between sentences.
+      - In Chinese reports, avoid meaningless mixing of Chinese and English.
+      - For readers unfamiliar with the domain, or experts who are not familiar with the specific industry or subfield, explain professional terms in one sentence when they first appear. For clearly expert readers, do not explain basic terms unnecessarily.
+
+      ### Style Guidance (choose dynamically from the question analysis file)
+
+      Style must serve the question. It must not become a fixed template. First rely on the reader judgment, task understanding, answer structure, research focus, and writing tradeoffs already established in the question analysis file. If those judgments are incomplete, lightly calibrate from the original question and the research material.
+
+      First decide what **answer structure** the final answer needs. Structure here is not a fixed heading template; it is the answer's line of progression: what comes first, what comes next, and how modules or paragraphs relate to each other. If the question shows one of the following tendencies, use the corresponding structure as a reference; avoid mechanically classifying the task or applying a template.
+
+      - **Short answer / factual**: Give the answer directly, adding scope and evidence only when needed.
+      - **Explanation / principle**: Progress around the mechanism, causal chain, and boundary conditions.
+      - **Decision / comparison**: Explain the decision criteria, recommended leaning, and conditions under which the choice changes.
+      - **Plan / tutorial**: Show prerequisites, steps, branches, risks, and validation.
+      - **Evidence / verification**: Distinguish confirmed facts, evidence strength, conflicting versions, and uncertainty.
+      - **Research / analysis**: Organize around the central question, landscape, changes, drivers, risks, and implications; do not write a source directory.
+      - **Finished content**: Write usable content directly for the target genre and audience.
+
+      Then calibrate the writing dimensions for the specific question:
+
+      - **Progression**: Choose conclusion-first, logical progression, causal progression, scenario branching, or stepwise execution, so the answer has one dominant line of movement.
+      - **Length**: Keep simple questions highly compressed; expand complex questions in a balanced way; use full depth when deep analysis is required, supported by substantive content.
+      - **Detail depth**: What to expand and what to compress should follow the priorities in the question analysis file and the research material.
+      - **Formality**: Choose formal written, semi-formal, conversational, or lighter wording according to the setting, so the register fits the task and reader.
+      - **Emotional temperature**: Professional, high-risk, or disputed topics should stay cool and restrained; assistance, tutorial, and explanatory tasks can be warm and friendly; casual contexts can be more approachable.
+      - **Person and address**: Direct address is useful for action advice, key warnings, or direct decisions; analysis, explanation, and formal long-form writing usually work better with lower second-person density and little self-reference.
+      - **Sentence and paragraph rhythm**: Use short sentences for short answers and operational reminders; use natural paragraphs with mixed sentence length for complex explanations and deep analysis; formal long-form writing may use complex sentences while staying clear.
+      - **Opening and closing**: Choose a direct start, brief transition, or conclusion-first opening according to the task; close with a natural ending, summary judgment, or next action.
+      - **Reader adaptation**: Explain necessary background and terms for non-expert readers; for expert readers, compress basics and emphasize non-obvious insights, conditional branches, and practical implications.
+
+      ### Analytic Depth
+
+      Depth is not knowing more; it is helping the reader build a mental structure and make decisions.
+
+      - **Framework building**: Extract a taxonomy or decision framework from scattered information so the reader can see the whole at a glance.
+      - **Causal reasoning**: Move from what to why to therefore, in a continuous logical chain rather than a list of facts.
+      - **Scenario branching**: When conditions differ, the answer differs. Give per-scenario judgments.
+      - **Critical analysis**: Where does the mainstream view break down? Is there counter-evidence being ignored?
+      - **Non-obvious insight**: Surface the "now I see it" point. Do not pile up information; identify what actually drives the answer.
+      - **Actionable advice**: When advice is needed, make it executable: "first do A; if Y happens, switch to B."
+
+      ### Bad Cases To Avoid
+
+      **Citation**
+      - No reference URLs: data is presented as assertion, and the reader cannot verify anything.
+      - Citation-content mismatch: using source A to support claim B when the source does not support the claim.
+      - Umbrella citation: one URL covers many independent claims across a long passage, so the reader cannot trace what came from where.
+      - Fabricated sources: inventing URLs, paper titles, organizations, or data.
+
+      **Factual**
+      - Wrong key numbers: prices, dates, names, institutional attribution, or scope do not match a verifiable source.
+      - Fabricated specifics: invented product names, competition records, API endpoints, policy clauses, or other details presented confidently.
+      - Overconfident uncertainty: questionable information is stated as certain, or speculation is not labeled.
+
+      **Structural**
+      - Over-structured: heavy bullet lists, multi-level headings, stacked tables, or a slide-outline feel instead of an answer. Complex tasks can have clear structure, but headings and tables must advance judgment; avoid creating a separate heading for every material dimension.
+      - Flat parallel listing: A, B, C, D are listed without priority, logical progression, or a judgment chain.
+      - Repetition and redundancy: the same point reappears, and key conclusions are buried.
+      - Inheriting the research-material shape: copying the research material file's section order, grouping, heading hierarchy, table density, source grading, keyword lists, platform notes, verification logs, or overly detailed parameter tables so the final answer reads like research notes. The final answer should first have its own line of progression, then decide which material belongs in the body.
+      - Pseudo-structure: many headings, lists, or tables, but only material grouping, with no judgment chain, causal chain, prioritization, or conclusion progression; the answer reads like a source list, slide outline, or table library rather than a finished answer.
+      - Table overuse: using tables for everything; tables that do not serve comparison, decision, timelines, parameter lists, data lists, or risk matrices. If a table is not followed by a clear judgment, it usually should be removed, compressed, or turned into prose.
+      - Style mismatch: turning a simple question into a long report, an operations question into background research, a strategic judgment into a step checklist, an expert question into basic popularization, or a non-expert question into jargon.
+
+      **Opening and closing**
+      - Template openings: "Great question", "Based on the search results", "Let me analyze", "Based on your needs", "This article will", "Below I will analyze".
+      - Chinese template openings: "好问题", "根据搜索结果", "让我来分析", "根据你的需求", "本文将", "下面从几个方面展开", "下面为你分析".
+      - Template endings: "If you need...", "Want me to go deeper?", "Hope this helps", "If you need more, I can continue".
+      - Chinese template endings: "如果你需要...", "需要我深入某个方向吗？", "希望对你有帮助", "如需进一步了解", "如果你还需要，我可以继续补充".
+      - Tool-trace leakage: "Based on the searched information", "Through searching I found", generated identifiers, or any trace of the retrieval process.
+      - Internal-process leakage: the final answer must address the reader only and must not expose internal files, previous steps, or workflow. Do not mention "user profile", "question analysis file", "research plan", "research document", "document.md", "research_plan.md", "previous-step analysis", "the document says", "according to the materials", "用户画像", "问题分析文件", "研究计划", "研究文档", "上一步分析", "文档中提到", or "根据材料". These surface strings should be zero in the final answer. If you need to express support, state the fact, evidence, or judgment directly instead of saying which internal file or previous step it came from.
+      - Third-person discussion of the asker: "the user wants", "the requester needs", "用户想要的是", "提问者需要的是", instead of answering the reader directly.
+      - Self-reference: by default, avoid using "this answer argues", "this report believes", "本文认为", "本报告认为", "本回答将", or "本交付" as the main subject. If the user explicitly requests a paper, white paper, formal report, or similar genre, use self-reference sparingly when the genre requires it, but do not let self-reference replace the conclusion.
+      - Internal-material summary voice: writing the final answer as a summary, paraphrase, or delivery note about internal materials rather than a finished answer for the reader.
+      - Exposed internal checklists: sections like "verification checklist", "gap log", "items to verify", "核验清单", "缺口日志", or "待验证事项" unless the user explicitly asked for such a working artifact.
+
+      **Content**
+      - Surface analysis: describing what happened without explaining why, with no causal reasoning or independent judgment.
+      - Major coverage gaps: missing key themes, literature, methods, workflows, or dimensions directly relevant to the question.
+      - Need drift: answering in the wrong direction, or treating a strategy question as an operations manual.
+      - Half-finished answer: saying more can be added later while leaving the actual task incomplete, or truncating key sections.
+      - Copying the research material: pasting source material instead of reorganizing and distilling it.
+      - Factual and logical inconsistency: the body, tables, headings, and conclusion contradict each other, or the same fact appears under different incompatible versions.
+
+      **Chinese-writing bad cases**
+      - Empty judgments: using phrases such as "具有重要意义", "值得关注", "需要综合考虑", "应进一步加强", "具有参考价值" without concrete judgment, evidence, or action meaning. If such a phrase cannot be followed by a specific reason, consequence, or action, delete it or rewrite it as a concrete judgment.
+      - Prompt-like structure labels: do not write phrases such as "结论先行", "先说结论", or "在展开分析前，必须先说清楚一件事" into the final answer. The answer may open with the core judgment, but it should sound natural and should not expose the writing strategy.
+      - Mechanical connectors: repeated "此外", "进一步", "综上", "值得注意的是", "从...角度看" where the paragraphs do not actually progress.
+      - Symmetric parallelism and repeated formulae: "它提升 A、优化 B、强化 C", repeated "不是 X，而是 Y", or consecutive paragraphs that start "从 A 看 / 从 B 看 / 从 C 看".
+      - Corporate, bureaucratic, or technical buzzword stacking: "闭环", "赋能", "抓手", "链路", "沉淀", "对齐", "方法论路径", "可追溯、可复现、可审计" when they obscure meaning instead of clarifying it.
+      - Inflated or officialese diction: "裨益", "举足轻重", "鉴于此", "方法论路径" when plain words like "帮助", "重要", "因此", and "方法" would be clearer.
+      - Tone mismatch: technical terms can remain, but framing, transitions, and judgments should not read like government prose, academic padding, or translated English unless that genre is explicitly required.
+      - Repeated paragraph openings: several consecutive paragraphs begin with "从 X 角度看", "在 Y 方面", "关于 Z", creating a mechanical rhythm.
+      - Disguised lists as prose: every paragraph starts with a bold keyword plus colon and a short explanation. Use a real list when it is a list; if it is argumentation, remove the mechanical labels and write natural paragraphs.
+      - Dash-made insight: use "X —— Y" sparingly when creating a sense of explanation, reversal, or summary, and avoid frequent use. An occasional dash is fine, but if many headings or paragraphs connect an abstract concept and an explanation with a dash, the writing feels formulaic. Be especially restrained in headings and subheadings, such as "内容本体——情绪共鸣与开头钩子". Prefer natural headings or prose sentences, such as "X 的关键在于 Y" or "X 更适合理解为 Y".
+      - Abstract-term packaging: avoid using abstract terms such as "底层逻辑", "核心逻辑", "方法论", "护城河", "闭环", "链路", "抓手", or "心智模型" as substitutes for concrete judgment. Use them only when they are genuine domain terms or add explanatory power; otherwise state the cause, mechanism, impact, or action directly.
+      - Procedure-log prose: repeated "condition -> action -> result" paragraphs that sound like internal protocol rather than an answer to the reader.
+      - Excessive semicolons: Chinese prose should usually not string three or more clauses with Chinese semicolons in one paragraph, such as "X；Y；Z；W". If the content is a true parallel enumeration, use a real list; otherwise split it into natural sentences with varied length. In Chinese prose, paragraphs with three or more semicolons should be rewritten.
+      - Excessive dashes: at most one dash-style parenthetical per paragraph in normal prose. Overusing "——" or "-" creates an obvious AI-writing trace.
+      - Excessive four-character phrases: more than a few idioms or four-character bureaucratic phrases in one paragraph makes Chinese stiff and formulaic.
+      - Excessive second person: do not write "你" every few sentences. Use direct address only for action advice, key warnings, or direct decisions.
+      - Anti-template overcorrection: do not remove useful headings, lists, or tables just to sound natural. Good structure is allowed when it serves understanding.
+
+      ## III. Output
+
+      - Use the question analysis file's judgment about the reader, answer structure, and style to choose the writing approach.
+      - Output language: follow any output language explicitly specified by the user or system. Otherwise, match the dominant language and semantic context of the original question. A Chinese query gets a Chinese final answer; an English query gets an English final answer; other languages should follow the same rule.
+      - Write the complete final content to `/tmp/mavis-deep-research/20260604-201835-minimax-token-efficiency/final.md` with no prefix, suffix, or meta-commentary.

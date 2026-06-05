@@ -1,0 +1,1 @@
+We got rate limited on our minimax token plan earlier and that caused about an hour of inactivity. Can we do some research and design a plan if its possible to be more efficient with our minimax token plan?
