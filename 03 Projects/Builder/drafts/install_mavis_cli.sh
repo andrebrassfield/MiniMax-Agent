@@ -23,7 +23,12 @@ readonly SRC="${DRAFTS}/mavis_cli.py"
 readonly RUNTIME_BIN="$HOME/.mavis/bin"
 readonly DEST="${RUNTIME_BIN}/mavis-cli"
 readonly SYMLINK_DIRS=("/opt/homebrew/bin" "/usr/local/bin")
-readonly ALIAS_LINE='alias mh="mavis-cli"'
+# Use the absolute path ($DEST) rather than relying on $PATH resolution.
+# Andre hit a path-resolution failure on 2026-06-07 where the PATH-based
+# alias produced 'zsh: event not found: )' / 'command not found: mh'
+# in his interactive shell. The full path is robust regardless of how
+# $PATH is configured by other tools (Antigravity IDE, .mavis/bin, etc.).
+readonly ALIAS_LINE="alias mh=\"$DEST\""
 readonly ALIAS_MARKER="# mavis-cli alias (added by install_mavis_cli.sh)"
 
 log() { printf '[install_mavis_cli] %s\n' "$*"; }
