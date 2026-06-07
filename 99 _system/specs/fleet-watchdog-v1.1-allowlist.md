@@ -2,9 +2,9 @@
 
 **Author:** Mavis (chief of staff, MiniMax-M3)
 **For:** Hermes
-**Date:** 2026-06-07 16:56 CT
+**Date:** 2026-06-07 16:56 CT (initial) / 2026-06-07 17:02 CT (locked)
 **Supersedes:** v1.0 ship report's "v1.1 acknowledged-orphans allowlist deferred" note
-**Status:** Design spec, ready for implementation
+**Status:** **LOCKED 2026-06-07 17:02 CT** — all 7 open questions resolved, build order set, ready to implement. See §12 for the locked directives.
 
 ---
 
@@ -224,13 +224,15 @@ The original 3 tests (Orphan, Double-dispatch, Crash-loop) keep passing — they
 
 ## 9. Open Questions for Hermes (need his call)
 
-1. **Weekly vs monthly pacing for the 3 page-tier orphans.** I default to `weekly` in the spec because Hermes should review acknowledged-orphans at least once a week. If you'd rather monthly, change the YAML. No code impact — config-only.
-2. **`on_status_change` state file location.** I propose `~/.hermes/scripts/fleet_watchdog.allowlist_state.json`. Alternative: a column in the kanban DB. The sidecar is simpler; the DB column is more discoverable. Your call.
-3. **Should the `Mavis intake:` prefix be a *string match* (case-sensitive, exact prefix) or a *regex*?** I default to string match for v1.1. If you want to support `Mavis intake(*):` or `Mavis intake — ...` etc., switch to regex. Slightly more code, more flexibility.
-4. **Should the v1.1 allowlist work for OTHER invariants, not just orphan?** E.g., a long-running `ready` task could be allowlisted to skip the frozen-card check. v1.1 scope is orphans only. v1.2 could extend. Confirm or expand.
-5. **Ack timestamp format.** I use `YYYY-MM-DD` (date only, not datetime). If you want `YYYY-MM-DDTHH:MM:SSZ` for sub-day precision, switch. Date-only is simpler and matches the existing daily-summary pattern.
-6. **`--list-allowlist` output format.** I default to YAML. If you want JSON (for piping into `jq`), or a markdown table (for human review), say so.
-7. **Should we ship the config file in the v1.1 commit, or have Mavis add the 3 entries separately?** The spec assumes the config ships with the code. If you want Mavis to maintain the config (since she's the one adding entries), split the responsibilities: code in `~/.hermes/scripts/`, config in `~/MiniMax-Agent/99 _system/configs/fleet_watchdog.allowlist.yaml` (synced via vault) — then Mavis updates the vault copy, Hermes pulls on change. That's the cleaner long-term pattern but adds a sync step.
+**All 7 RESOLVED 2026-06-07 17:02 CT. Decisions in §12.**
+
+1. **Weekly vs monthly pacing for the 3 page-tier orphans.** → §12 Q1
+2. **`on_status_change` state file location.** → §12 Q2
+3. **String match vs regex for `Mavis intake:` prefix.** → §12 Q3
+4. **Allowlist scope — orphan only or extend to other invariants.** → §12 Q4
+5. **Ack timestamp format.** → §12 Q5
+6. **`--list-allowlist` output format.** → §12 Q6
+7. **Config file ownership — ship with code or vault-managed.** → §12 Q7
 
 ---
 
@@ -251,6 +253,80 @@ The original 3 tests (Orphan, Double-dispatch, Crash-loop) keep passing — they
 - **Mavis memory** (chief-of-staff, 2026-06-07): "Mavis→Hermes routing cards: status=cancelled at creation, not status=ready" hard correction
 - **Org chart** (Andre-locked 2026-06-07): Mavis routes, Hermes operates. v1.1 design and config changes are Hermes's build; this spec is Mavis's directive.
 
+---
+
+## 12. Implementation Directives (locked 2026-06-07 17:02 CT)
+
+**Status: LOCKED.** All 7 open questions resolved. Build order set. Ready to implement.
+
+### 12.1 Locked Decisions (Hermes answers)
+
+**Q1: Pacing for the 3 page-tier orphans → `weekly`.**
+3 pages/week total is trivial overhead for active decisions sitting in comments. Monthly (30 days between checks) is too long. The §3.1 schema already has `pace: weekly` on the 3 entries — keep it.
+
+**Q2: `on_status_change` state file → sidecar JSON at `~/.hermes/scripts/fleet_watchdog.allowlist_state.json`.**
+Kanban DB is for task state, not watchdog tracking state. Sidecar is self-contained, same directory as the script + config, no schema migration. If the file gets corrupted/deleted, worst case = one extra page on next tick, recoverable. No DB column.
+
+**Q3: Match style → string, case-sensitive, exact prefix.**
+Convention is established, prefix is fixed. Regex is overkill for a known constant. Convention is controlled by Mavis herself, so edge cases won't surface. v1.2 can revisit if a need emerges.
+
+**Q4: Allowlist scope → orphans only in v1.1.**
+Frozen-card and zombie-card invariants have different semantics (time-based, not profile-routability) and would need a different allowlist shape. Don't mix concerns. v1.2 can extend with an `invariant: orphan|frozen|zombie` field per entry if needed.
+
+**Q5: Ack timestamp format → `YYYY-MM-DD` (date-only).**
+Sub-day precision adds nothing for audit on a human decision. Matches daily-summary pattern and the existing YAML.
+
+**Q6: `--list-allowlist` output → YAML.**
+Same format as the config file — human-readable, diffable, consistent. JSON available via `python3 -c` piping if anyone needs it. Don't add format flags to the script.
+
+**Q7: Config file ownership → ships with code in `~/.hermes/scripts/`.**
+Two reasons:
+1. The config is infrastructure (which cards to silence), not domain knowledge (what the cards mean). It belongs next to the code it controls. Splitting across directories creates config drift.
+2. The org chart says no direct Mavis→Hermes file writes. Vault-sync (`~/MiniMax-Agent/...` → `~/.hermes/scripts/`) violates that boundary implicitly. Better: Mavis sends new allowlist entries via Andre (task comment or directive), Hermes updates the config. Audit trail via Andre, config stays with code, no sync step.
+
+**For the 3 pre-filled entries:** Hermes creates the YAML file with them included in the v1.1 build commit. No separate Mavis step needed.
+
+### 12.2 Build Order (sequential, with checkpoints)
+
+| # | Step | What | Checkpoint |
+|---|---|---|---|
+| 1 | **Code** | Add the 7 modules from §5 to `fleet_watchdog.py`. Use the YAML schema from §3.1 verbatim. All 4 pacing modes from §4. | Code review by Hermes himself (lint clean, no new lint warnings) |
+| 2 | **Tests** | Add the 12 new tests from §6 to `test_fleet_watchdog.sh`. Original 3 must keep passing. | All 15 tests pass locally |
+| 3 | **Config** | Create `fleet_watchdog.allowlist.yaml` with the 3 card entries + 2 pattern entries from §3.1. Pre-filled. | `fleet_watchdog.py --list-allowlist` prints the 5 entries cleanly |
+| 4 | **State file** | Initialize empty `fleet_watchdog.allowlist_state.json` (just `{}`). Will populate on first `on_status_change` match. | File exists, valid JSON `{}` |
+| 5 | **Dry-run** | Run `fleet_watchdog.py --dry-run` for 24h. Observe JSONL output. Expect: 0 pages for the 3 allowlisted cards, 0 false positives on Mavis intake patterns, 0 real orphans being suppressed. | After 24h: dry-run report with JSONL excerpts, anomaly list (expected: empty) |
+| 6 | **Swap** | Update the cron command to invoke v1.1. Cron ID stays `3d0d9620c031`. Verify first live tick. | First `*/30` boundary after swap: 0 pages for the 3 allowlisted cards, all other invariants still firing correctly |
+| 7 | **Report back** | When v1.1 is live and first dry-run + live tick is clean, report back to Mavis. | Full report with both the dry-run JSONL and the first live tick verification |
+
+### 12.3 Reporting Expectations
+
+- **After step 4** (state file init): one-line note "config + state initialized, ready for dry-run."
+- **After step 5** (24h dry-run complete): full report with JSONL excerpts, what was paged, what was suppressed, any anomalies. If something looks wrong, flag and pause — don't proceed to step 6.
+- **After step 6** (first live tick): "live v1.1 first tick clean" + summary of what fired and what was suppressed. Or failure details.
+
+Mavis will do a **one-pass review** when v1.1 reports live. One review, not iterative — same commitment as the v1.0 review (cf. handoff 2026-06-07 evening).
+
+### 12.4 v1.1 Commit Boundary
+
+v1.1 ships in a single commit (or split into code/tests/config if cleaner), containing:
+- `fleet_watchdog.py` updated
+- `fleet_watchdog.allowlist.yaml` created
+- `fleet_watchdog.allowlist_state.json` initialized (empty `{}`)
+- `test_fleet_watchdog.sh` extended
+
+**Cron registration stays the same:** ID `3d0d9620c031`, schedule `*/30 * * * *`, `no_agent: true`, `deliver: origin`. The cron command path is updated to point at v1.1 if the filename changes, or kept the same if the file is replaced in place.
+
+### 12.5 What Changes vs the Initial Spec
+
+- §3.1 schema: `pace: weekly` is now the *confirmed* default for the 3 page-tier orphans (was: "your call"). No code change.
+- §5.4 pacer: state file path is now `~/.hermes/scripts/fleet_watchdog.allowlist_state.json` (was: same, but listed as open question). No code change.
+- §5.3 should_skip: string match is now confirmed (was: open question). No code change.
+- §5.5 list-allowlist: YAML output is now confirmed (was: open question). No code change.
+- §3 location: config file ships with code, no vault sync (was: open question, with vault-sync as alternative). Code is unchanged; the decision affects who maintains entries (Hermes via Andre directive).
+- §10 unchanged: scope-creep items stay in v1.2.
+
+**Net change: zero new open questions, zero deferred decisions. Build per §12.2.**
+
 — Mavis (chief of staff, senior agent in the fleet)
   Session `mvs_5af152b1ed364fa58a9e18801092ceef`
-  2026-06-07 16:56 CT
+  2026-06-07 17:02 CT
