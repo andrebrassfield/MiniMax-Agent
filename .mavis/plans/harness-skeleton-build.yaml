@@ -1,0 +1,248 @@
+version: 1
+plan:
+  name: 'Build the Mavis Harness skeleton — command_router + context_loader'
+  max_concurrency: 1
+  max_consecutive_failures: 1
+  max_cycles: 2
+  verifier_config:
+    default_verifiers: [verifier]
+    audit_sample_rate: 0.0
+tasks:
+  - id: build-harness-skeleton
+    title: 'Build command_router.py + context_loader.py skeleton per v1 design doc Section 4'
+    assigned_to: builder
+    verified_by: verifier
+    timeout_ms: 1500000
+    prompt: |
+      You are the Mavis-native Systems Builder. Andre is building Mavis's
+      permanent runtime harness. This is the FIRST implementation step:
+      scaffold the two most-load-bearing components as runnable Python
+      skeletons. The v1 design doc is the contract.
+
+      ## Model spec (Andre's hard rule, 2026-06-07 12:55 CT)
+      M2.7 is ENFORCED for Mavis workers. You are a worker. M3 is reserved
+      for Mavis-the-chief. If your session launched on M3, mention it in
+      the handoff to Mavis; do not silently consume the higher-cost model.
+      The chief will surface the model mismatch to Andre if needed.
+
+      ## Spec (locked 2026-06-07 12:55 CT, APPROVED)
+      v1 design doc: `~/MiniMax-Agent/03 Projects/Mavis/phase_next_architecture.md`
+      - Section 4.1: `command_router` contract
+      - Section 4.2: `context_loader` contract
+      - Section 6a: locked decisions
+      Read Section 4 IN FULL before writing any code. The contracts are
+      the source of truth. The spec wins over any assumption you have
+      from prior context.
+
+      ## Deliverable (exactly two files)
+      1. `03 Projects/Builder/drafts/command_router.py`
+      2. `03 Projects/Builder/drafts/context_loader.py`
+
+      ### command_router.py — L1 Regex pre-filter, fail-closed to ask-first
+
+      Build a runnable Python module (executable as `python3 command_router.py`
+      with a tiny demo or self-test). It must implement:
+
+      - **L1 regex pre-filter**: a list of (pattern, intent) rules. Patterns
+        match against raw user text. Examples: `r'^/capture\s+(.+)$'` →
+        intent='capture', `r'^(go|continue building|yes|do it)$'` →
+        intent='confirm', `r'^@(\w+)\s+(.+)$'` → intent='slash_<name>'.
+        At least 5 rules covering common chief-of-staff commands.
+      - **Fail-closed default**: if no L1 rule matches, return
+        `{intent: 'ask_first', confidence: 0.0, payload: {raw: text}}`.
+        The caller (Mavis) handles the ask-first reply.
+      - **L2/L3 stubs**: include a function signature
+        `def classify_l2(text: str) -> Intent` and
+        `def classify_l3(text: str, context: dict) -> Intent`
+        that raise `NotImplementedError` with a docstring noting
+        "L2 = vector similarity; L3 = M3 LLM classification; see v1
+        design doc Section 4.1." Don't implement them. The L1 regex
+        is the working layer for v1.
+      - **Intent dataclass**: `Intent` with fields
+        `intent: str`, `confidence: float`, `payload: dict`,
+        `lane: Literal['capture', 'synthesize', 'dispatch',
+        'observe', 'ask_first']`.
+      - **Self-test**: a `__main__` block that runs the regex pre-filter
+        on 5 example inputs and prints the resulting Intent. This makes
+        the file runnable for the Verifier.
+      - **No external dependencies**. Standard library only. (M2.7 floor:
+        cost discipline. Library adds friction.)
+
+      ### context_loader.py — 3-tier memory cache skeleton (Meta, Topic, Full)
+
+      Build a runnable Python module. It must implement:
+
+      - **Three cache tiers** as separate classes:
+        - `MetaIndexCache` — always-loaded, ~3-8KB, holds section
+          headers + 1-line summaries. Backing file at
+          `~/MiniMax-Agent/.mavis/state/meta_index.json` (create the
+          dir if missing; empty `{}` is fine for skeleton).
+        - `TopicIndexCache` — lazy-loaded, ~5-50KB each, lazy on first
+          reference, TTL-cached. Backing: in-memory dict for skeleton
+          (filesystem wiring is a v2 step).
+        - `FullTopicCache` — on-demand only, ~1-50KB each, importance-
+          aware eviction with a 30-min hard floor. Backing: in-memory
+          dict for skeleton. Implement the eviction method
+          `evict_if_stale(now: float) -> list[str]` (returns evicted
+          keys).
+      - **Top-level `ContextLoader` class** that composes the three
+        tiers. Methods:
+        - `load_for_turn(user_text: str) -> ContextWindow` — assembles
+          [system_prompt | meta_index | active_topic_indexes (1-3) |
+          full_topic (0-1) | recent_turns | user_input]. Returns a
+          dataclass with the assembled pieces and a token-count estimate
+          (rough: len/4 heuristic is fine for skeleton).
+        - `record_turn(user_text: str, response: str) -> None` —
+          updates recent-turns buffer (last N=10).
+        - `cache_topic(key: str, content: str, importance: float) -> None`
+          — populates the right tier based on size (heuristic: <2KB
+          → meta_index, <10KB → topic, else → full).
+      - **Importance scoring** (M2.7-class LLM call, stubbed for
+        skeleton): `def score_importance(text: str) -> float` that
+        returns a constant 0.5 with a docstring noting "M2.7 LLM
+        scoring; see v1 design doc Section 4.2."
+      - **Self-test**: a `__main__` block that creates a `ContextLoader`,
+        caches 3 sample topics of varying sizes, calls `load_for_turn`
+        twice, and prints the resulting `ContextWindow`. This makes the
+        file runnable for the Verifier.
+      - **No external dependencies**. Standard library only.
+
+      ## Hard constraints (carried from the Builder's AGENTS.md)
+      - Single-language, no framework drift. Vanilla Python, stdlib only.
+      - Determinism: no `Date.now()`-style timestamps in the runtime
+        path; use the `now: float` argument the caller provides.
+      - Path discipline: write to `03 Projects/Builder/drafts/`
+        ONLY. Do NOT write to `03 Projects/Builder/shipped/` —
+        the Verifier owns that on PASS.
+      - Run `wc -c` on each file before handoff; report byte counts.
+      - Run `md5` on each file before handoff; report hashes.
+      - Self-audit before handoff:
+        1. `command_router.py` has the regex L1, Intent dataclass,
+           fail-closed ask_first, L2/L3 stubs, self-test.
+        2. `context_loader.py` has the three tier classes,
+           `ContextLoader` composition, the load/record/cache methods,
+           importance-scoring stub, self-test.
+        3. Both files are runnable as `python3 <file>.py` without
+           crashing (self-test passes).
+        4. No external imports beyond stdlib.
+
+      ## Handoff (when both files are written and self-audited)
+      Write a handoff to
+      `03 Projects/Verifier/queue/builder-verify-handoff.md`
+      with:
+      - Source spec: `phase_next_architecture.md` Section 4.1 + 4.2
+      - Draft paths + byte counts + MD5 hashes
+      - Self-test outputs (the printed Intent / ContextWindow from
+        the `__main__` blocks)
+      - Hygiene self-audit (the 4 checks above, all clean)
+      - Safety self-audit (no shell calls, no file writes outside
+        `drafts/`, no network)
+      - Structural notes (any deviations from the spec, with
+        justification)
+      - **Session model field**: report whether the session was
+        launched on M2.7 or M3. The chief will surface a mismatch.
+
+      Then write the deliverable.md to
+      `~/.mavis/plans/<plan_id>/outputs/build-harness-skeleton/deliverable.md`
+      (the engine will give you the path) with the same summary.
+
+      Stop. The Verifier owns the next step.
+
+      ## Time budget
+      You have a 25-minute cap (timeout_ms: 1500000). The two files are
+      skeletons, not production code. Aim for ~100-200 lines per file.
+      If you find yourself past 20 min, the spec is wrong or the scope
+      is wrong — write a short handoff explaining the blocker and exit
+      rather than spinning.
+
+      ## Definition of done
+      - Both files exist at the spec paths
+      - Both files are runnable as `python3 <file>.py` (self-tests
+        pass without crashing)
+      - Handoff written to the Verifier queue
+      - deliverable.md written
+      - Session model reported (M2.7 or M3)
+      - In handoff: any deviation from the v1 design doc, with
+        justification
+    verify_prompt: |
+      You are the Mavis-native Verifier. The Builder has delivered two
+      skeleton files. Your job is to audit them against the v1 design
+      doc and the spec in the dispatch prompt. This is the trust loop
+      of the Mavis Harness.
+
+      ## Model spec
+      M2.7 ENFORCED for Mavis workers. You are a worker. If your session
+      launched on M3, mention it in your verdict; do not silently
+      consume the higher-cost model.
+
+      ## Independent re-derivation
+      Do NOT just re-read the Builder's handoff and rubber-stamp. Open
+      the v1 design doc at
+      `~/MiniMax-Agent/03 Projects/Mavis/phase_next_architecture.md`
+      and re-read Section 4.1 (command_router) and Section 4.2
+      (context_loader) yourself. Then open the two delivered files
+      at:
+      - `03 Projects/Builder/drafts/command_router.py`
+      - `03 Projects/Builder/drafts/context_loader.py`
+      Compare. Then run the 8 checks below.
+
+      ## 8 audit checks (independent re-derivation, not vibe-check)
+
+      ### command_router.py
+      1. **L1 regex pre-filter** — Find the regex rules. Confirm there
+         are at least 5 distinct (pattern, intent) rules covering
+         common chief-of-staff commands. FAIL if fewer than 5 or if
+         the patterns are trivial.
+      2. **Fail-closed default** — Find the no-match branch. Confirm
+         it returns intent='ask_first' with confidence=0.0. FAIL if
+         the default is anything other than ask_first.
+      3. **Intent dataclass** — Confirm the `Intent` dataclass /
+         TypedDict has the four required fields
+         (intent, confidence, payload, lane) and that `lane` is one
+         of the five literal values. FAIL if a field is missing or
+         if lane is a free-form string.
+      4. **L2/L3 stubs** — Confirm `classify_l2` and `classify_l3`
+         exist as function signatures raising `NotImplementedError`
+         with a docstring. FAIL if implemented (L2/L3 is v2 work;
+         v1 is L1 only).
+
+      ### context_loader.py
+      5. **Three tier classes** — Confirm `MetaIndexCache`,
+         `TopicIndexCache`, and `FullTopicCache` exist as separate
+         classes. FAIL if missing one or if they're collapsed into
+         a single class.
+      6. **ContextLoader composition** — Confirm the top-level
+         `ContextLoader` class composes the three tiers. Confirm
+         `load_for_turn`, `record_turn`, and `cache_topic` exist
+         with the spec'd signatures. FAIL if missing or if
+         signatures diverge.
+      7. **30-min hard floor in FullTopicCache** — Confirm
+         `FullTopicCache.evict_if_stale` (or equivalent) checks
+         `now - cached_at < 1800` and refuses to evict within
+         the 30-min floor. FAIL if the floor isn't enforced.
+
+      ### Cross-cutting
+      8. **Runnable, no external deps, self-tests pass** — Run
+         `python3 03 Projects/Builder/drafts/command_router.py`
+         and `python3 03 Projects/Builder/drafts/context_loader.py`
+         yourself. Confirm both exit 0 and produce the expected
+         printed output. Grep for `import` statements and confirm
+         all are stdlib (`import re`, `import json`, `import os`,
+         etc.) — FAIL on `import requests`, `import numpy`,
+         `import pandas`, `import anthropic`, or any non-stdlib.
+
+      ## Session model check
+      Report in your verdict: did the Builder's session launch on
+      M2.7 or M3? Use `mavis session info <session_id>` to check
+      `effectiveModel`. M2.7 is the spec; M3 is a flag for Mavis
+      to surface to Andre.
+
+      ## Verdict
+      Report PASS / FAIL with line-numbered evidence for each of
+      the 8 checks. PASS only if all 8 are clean. A single FAIL
+      on any check is a FAIL overall.
+
+      Write your verdict to
+      `03 Projects/Verifier/queue/verifier-build-handoff.md`
+      (the engine's standard handoff path; the Builder reads it
+      from here).

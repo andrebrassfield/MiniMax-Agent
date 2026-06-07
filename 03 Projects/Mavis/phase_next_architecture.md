@@ -1,16 +1,19 @@
 ---
 type: design-doc
-status: v1
+status: APPROVED
+approved_at: 2026-06-07 12:55 CT
+approved_by: Andre
 created: 2026-06-07 12:46 CT
 author: Mavis (chief-of-staff) — synthesized from Mavis-native Researcher ledger
 for: Andre
 model: M3
 related_plans: [plan_cbc0bb0b (cancelled, ledger preserved)]
 ledger_sources:
-  claims: 03 Projects/Researcher/knowledge/claims.jsonl (clm-2026-06-07-001..010)
+  claims: 03 Projects/Researcher/knowledge/claims.jsonl (clm-2026-06-07-001..016)
   findings: 03 Projects/Researcher/knowledge/findings.jsonl (18 entries)
   sources: 03 Projects/Researcher/knowledge/sources.jsonl (34 entries)
 harness_decision: locked (Q1, 2026-06-07) — P50<2s, P95<8s, max 3 concurrent workers
+phase_decisions: locked (2026-06-07 12:55 CT) — see Section 6a
 ---
 
 # Phase Next Mavis Architecture
@@ -163,6 +166,15 @@ These are decisions only Andre can make. Surface them, don't resolve them.
 
 6. **M2.7 vs M3 model routing in the harness.** The plan called for M2.7 for the worker (cost floor). The actual session ran on M3 (the Researcher's default). Should Mavis workers be M2.7-enforced, or is the default M3 acceptable? M3 is higher capability but ~1.8x the output cost on the same plan. For a chief-of-staff running on the Mavis token plan, the M2.7 floor is the cost discipline; M3 is the quality floor. The choice is about where the chief draws the line.
 
+## 6a. Andre's locked decisions (2026-06-07 12:55 CT)
+
+1. **Menu bar presence — YES.** Companion-mode requires a persistent visual presence. The Mac menu bar is Mavis's primary state/attention signal.
+2. **Meta-index editability — NO.** Mavis owns the index. Auto-generated only, prevent human/machine state drift.
+3. **Scaffolding-review — OPT-OUT (on by default).** Observability-driven self-evolution is active. Daily crons run.
+4. **Tier 3 cache TTL — Importance-score with 30-min hard floor.** Never evict before 30 min regardless of score.
+5. **Computer Use reliability floor — 95%.** If an action fails twice, fall back to ask-first.
+6. **Model routing — M2.7 ENFORCED for workers.** M3 reserved strictly for Mavis-the-chief (synthesis, orchestration, scaffolding reviews). Cost discipline is absolute.
+
 ## 7. Cross-references
 
 - [[02 Notes/patterns/agent-harness]] — 12-component harness pattern, future-proofing test
@@ -186,4 +198,4 @@ These are decisions only Andre can make. Surface them, don't resolve them.
 
 ---
 
-*Status: v1 design synthesis. The Mavis-native Researcher's first attempt stalled mid-design-doc writing; the second attempt was on the same trajectory. Owner (Mavis, on M3) took over and synthesized this from the 10 verified claims + vault pointers + spec. Ready for Andre's review and the 6 open questions.*
+*Status: APPROVED. The Mavis-native Researcher's first attempt stalled mid-design-doc writing; the second attempt was on the same trajectory. Owner (Mavis, on M3) took over and synthesized this from the 10 verified claims + vault pointers + spec. Andre approved 2026-06-07 12:55 CT and locked the 6 architectural decisions (Section 6a). Implementation is the next phase; the Mavis Harness scaffold is the first deliverable.*
