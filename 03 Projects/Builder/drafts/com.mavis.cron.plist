@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+
+    <!-- ============================================================
+         com.mavis.cron — Mavis Scaffolding-Review LaunchAgent
+         Source: 03 Projects/Mavis/phase_next_architecture.md §4.3
+                 (eval-vault pattern for the harness itself)
+         Author: Mavis (chief-of-staff) — 2026-06-07 15:42 CT
+         Run:    launchctl bootstrap gui/$UID ~/Library/LaunchAgents/com.mavis.cron.plist
+         Stop:   launchctl bootout gui/$UID ~/Library/LaunchAgents/com.mavis.cron.plist
+         Logs:   ~/MiniMax-Agent/99 _system/logs/scaffolding-cron.log (stdout)
+                 ~/MiniMax-Agent/99 _system/logs/scaffolding-cron.err (stderr)
+
+         Schedule: 02:00 local time, daily, via StartCalendarInterval.
+
+         Program: scaffolding_review_cron_runner.py
+         Pipeline: GET http://127.0.0.1:11435/stats (harness daemon)
+                   → build ScaffoldingStats from the JSON
+                   → cron.run_review(stats) → vault write + change event
+
+         Replaces the earlier selftest-only path. See commit
+         "System: Deploy live observability cron and fix __main__ selftest routing."
+         ============================================================ -->
+
+    <key>Label</key>
+    <string>com.mavis.cron</string>
+
+    <key>ProcessType</key>
+    <string>Background</string>
+
+    <!-- /usr/bin/env resolves python3 from the user's login PATH
+         (launchd's PATH is stripped at bootstrap). The runner is the
+         live-data adapter; the cron module behind it is pure calc. -->
+    <key>ProgramArguments</key>
+    <array>
+        <string>/usr/bin/env</string>
+        <string>python3</string>
+        <string>/Users/brassfieldventuresllc/.mavis/bin/scaffolding_review_cron_runner.py</string>
+    </array>
+
+    <!-- Run from the workspace dir so the cron's vault-write path
+         (relative to the workspace) resolves. -->
+    <key>WorkingDirectory</key>
+    <string>/Users/brassfieldventuresllc/MiniMax-Agent</string>
+
+    <!-- Cron is a one-shot per StartCalendarInterval — do NOT
+         keep it alive between runs, and do NOT run at load. -->
+    <key>RunAtLoad</key>
+    <false/>
+
+    <key>KeepAlive</key>
+    <false/>
+
+    <!-- 02:00 local time, every day. -->
+    <key>StartCalendarInterval</key>
+    <dict>
+        <key>Hour</key>
+        <integer>2</integer>
+        <key>Minute</key>
+        <integer>0</integer>
+    </dict>
+
+    <!-- Resource limits: a selftest is cheap; the run_review path
+         (if swapped in) does a single /stats fetch and a small render.
+         512MB ceiling is generous. -->
+    <key>SoftResourceLimits</key>
+    <dict>
+        <key>NumberOfFiles</key>
+        <integer>256</integer>
+    </dict>
+
+    <!-- Standard I/O. Stdout is the operational log (selftest PASS/FAIL
+         receipts, drift events once run_review is wired). Stderr is
+         the exception log. Both append-mode. -->
+    <key>StandardOutPath</key>
+    <string>/Users/brassfieldventuresllc/MiniMax-Agent/99 _system/logs/scaffolding-cron.log</string>
+
+    <key>StandardErrorPath</key>
+    <string>/Users/brassfieldventuresllc/MiniMax-Agent/99 _system/logs/scaffolding-cron.err</string>
+
+    <!-- Environment. PYTHONUNBUFFERED forces line-buffered output
+         so logs flush immediately at the (short) end-of-run. -->
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>/usr/local/bin:/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Users/brassfieldventuresllc/.local/bin</string>
+        <key>PYTHONUNBUFFERED</key>
+        <string>1</string>
+        <key>MAVIS_HARNESS_MODE</key>
+        <string>cron</string>
+        <key>MAVIS_HARNESS_SESSION</key>
+        <string>launchd</string>
+    </dict>
+
+    <!-- Same Aqua-session gate as the harness plist — don't fire
+         before the user session is fully bootstrapped. -->
+    <key>LimitLoadToSessionType</key>
+    <string>Aqua</string>
+
+    <!-- macOS Big Sur+ nicety: launchd will not start the cron
+         while the system is shutting down. -->
+    <key>EnablePressuredExit</key>
+    <true/>
+
+</dict>
+</plist>
