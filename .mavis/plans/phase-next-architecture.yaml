@@ -1,0 +1,260 @@
+version: 1
+plan:
+  name: 'Phase Next Mavis Architecture — research synthesis + design'
+  max_concurrency: 1
+  max_consecutive_failures: 1
+  max_cycles: 3
+  verifier_config:
+    default_verifiers: [verifier]
+    audit_sample_rate: 0.0
+tasks:
+  - id: phase-next-research
+    title: 'Phase Next Mavis Architecture — harness, context engineering, M3+Desktop App synergy'
+    assigned_to: agent-70a1d300626d
+    verified_by: verifier
+    timeout_ms: 1800000
+    prompt: |
+      You are the Mavis-native Researcher. Andre (Mavis's user) is pivoting Mavis
+      to a new architectural phase. Your job is to synthesize a design doc that
+      Mavis can take to Andre.
+
+      Subject: Mavis (the chief-of-staff) is the SUBJECT of this research, not
+      the co-author. You are the producer. Mavis closes her involvement after
+      the design doc lands at `03 Projects/Mavis/phase_next_architecture.md`.
+
+      Model: M2.7 (worker floor). Voice: chief-of-staff synthesis, not operator
+      step-by-step. Your output is read by Mavis (M3), who synthesizes it for
+      Andre. So write for Mavis-the-reader, not for Andre-the-decider.
+
+      Three streams — all must be covered substantively.
+
+      ## Stream 1 — Minimax M3 & macOS Desktop App Synergy
+
+      Mavis runs on M3. The macOS desktop app gives local file system access
+      and Computer Use (mouse/keyboard/screen). Goal: find the architectural
+      hooks that let Mavis interface with the desktop app, bypassing the
+      friction of going through the standard chat API. Look for:
+      - M3's native multimodal surface (vision + text in, structured out)
+      - The desktop app's local FS access patterns (path conventions, file
+        write atomicity, lock semantics)
+      - Computer Use primitives (screenshot, click, type, OCR round-trip)
+      - Concrete bridge patterns: how Mavis can be a "presence" on the Mac,
+        not just a chat surface
+
+      Deliverable: specific architectural hooks with code-level examples
+      where possible. This is the section that determines whether Mavis can
+      be a desktop companion or stays a chat-only chief of staff.
+
+      ## Stream 2 — Context Engineering for 100k+ Vaults
+
+      Mavis's vault is growing toward 100k+ tokens of dense permanent notes.
+      The locked eval criterion from Andre's Q1 decision: P50 < 2s, P95 < 8s
+      for the operator loop. Today's approach (load full context on every
+      turn) won't scale. Design a hierarchical context loading system:
+
+      Tier 1: meta-index (single-digit KB, always loaded — list of section
+              headers + 1-line summaries, refreshed at REFRESH)
+      Tier 2: topic index (per-section, ~5-50KB, lazy-loaded on first
+              reference, cached with TTL)
+      Tier 3: full topic (per-note, 1-50KB each, loaded only when the topic
+              is the active focus)
+
+      Deliverable: concrete loader architecture with:
+      - Token budget per tier (with arithmetic — total budget × tier mix)
+      - Eviction policy (LRU? recency-weighted? intent-weighted?)
+      - Freshness model (when does the meta-index refresh? cron vs invalidation?)
+      - The P50/P95 latency math (how the tier mix holds the operator loop
+        under 2s/8s)
+      - The "perfect recall" guarantee — what happens when the user asks
+        about a topic that fell out of cache?
+
+      ## Stream 3 — The Mavis Harness
+
+      Mavis's permanent runtime harness. Three components to design with
+      surgical precision:
+
+      ### `command_router`
+      - Regex pre-filters for incoming user requests
+      - Maps intent → execution lane (capture / synthesize / dispatch /
+        observe / ask-first)
+      - Fail-closed: unmatched requests route to "ask first," not
+        "guess and execute"
+      - Inputs: raw user text
+      - Outputs: classified intent + payload
+      - Failure modes: ambiguous match (resolution rule), never-match
+        (fallback), over-match (rule order matters)
+
+      ### `context_loader`
+      - The hierarchical loader from Stream 2 (they compound)
+      - Loaded on every Mavis turn
+      - Failure mode: cache miss on a needed topic (graceful re-load, no
+        silent failure)
+
+      ### `scaffolding_review` crons
+      - Periodic review of Mavis's own runtime scaffolding
+      - Goal: prevent framework drift and silent timeouts
+      - Cadence: at least daily, plus event-driven on major change
+      - Output: a "scaffolding health" receipt (drift score, last review,
+        anomalies flagged)
+
+      Deliverable: component-by-component spec for all three. Inputs,
+      outputs, side effects, failure modes, M3 vs M2.7 model routing per
+      component, persistence requirements.
+
+      ## Cross-stream synthesis
+
+      Where the three streams COMPOUND (good or bad):
+      - Stream 1 (desktop app) + Stream 2 (context loader): if Mavis is
+        a desktop presence, the local FS access might let the context
+        loader bypass some token cost by reading on demand
+      - Stream 2 (hierarchical loader) + Stream 3 (command_router): the
+        router needs the meta-index to classify intent; the loader is
+        what populates the meta-index
+      - Stream 1 + Stream 3 (scaffolding_review): Computer Use could be
+        the scaffolding-review mechanism — visually verify Mavis's own
+        surfaces
+
+      Where they CONFLICT (pick a side):
+      - P95<8s latency vs perfect recall — fundamental tension. Resolve it
+        explicitly. Don't paper over.
+      - Desktop app presence vs chat-surface simplicity — Mavis is both.
+        State the mode-switching rule.
+
+      ## Open questions for Andre
+
+      If anything in the three streams requires an Andre-level decision
+      (not a design decision you can make), surface it as an open question.
+      Examples: should Mavis be visible in the menu bar? Should scaffolding
+      review be opt-in? Should the meta-index be human-editable?
+
+      ## Output file
+
+      `~/MiniMax-Agent/03 Projects/Mavis/phase_next_architecture.md`
+
+      Section structure (mandatory):
+      1. Executive summary (3 paragraphs — read by Mavis to brief Andre)
+      2. Stream 1 — M3 + Desktop App Synergy
+      3. Stream 2 — Context Engineering for 100k+ Vaults
+      4. Stream 3 — The Mavis Harness (component specs)
+      5. Cross-stream synthesis
+      6. Open questions for Andre
+
+      ## Vault pointers — deepen, don't reinvent
+
+      These are load-bearing notes. Cite them. Build on them. Where a vault
+      note already covers a topic, DEEPEN it (cross-reference, fresh
+      sources) — don't write a competing version. Where the vault is thin,
+      fresh research with 30+ primary sources (Night Flight dossier standard).
+
+      - `02 Notes/patterns/agent-harness.md` — 12-component harness pattern
+      - `02 Notes/articles/akash-pachaar-anatomy-of-an-agent-harness.md`
+      - `02 Notes/ideas/Context Engineering 1M.md`
+      - `02 Notes/ideas/Context Compression as First-Class Layer.md`
+      - `02 Notes/ideas/Blockwise Paging for Long Context.md`
+      - `02 Notes/patterns/Hot-Cold Inference Tiers on Apple Silicon.md`
+      - `02 Notes/patterns/Paged Memory Pattern.md`
+      - `02 Notes/ideas/Markdown as Universal LLM Interchange.md`
+      - `02 Notes/ideas/Memory Bandwidth is the Real LLM Inference Ceiling.md`
+      - `MAVIS.md` (refreshed 2026-06-07)
+      - `01 Daily/2026-06-04.md` (Night Flight cascade — token-budget reality)
+      - `01 Daily/2026-06-07.md` (this morning's sweep)
+      - `00 Inbox/2026-06-07 - Hermes Blocked Items Decision Context.md`
+
+      ## Stage discipline (your AGENTS.md REFRESH mode applies)
+
+      This is synthesis on top of existing vault material, not greenfield
+      research. But the REFRESH stage discipline still applies where you
+      add new evidence:
+      1. Collect (vault + fresh primary sources for thin areas)
+      2. Score source quality
+      3. Extract findings → `knowledge/findings.jsonl`
+      4. Update sources ledger → `knowledge/sources.jsonl`
+      5. Update claims ledger → `knowledge/claims.jsonl` (with weight, verified
+         flag, context_decay_days)
+      6. Write the design doc
+      7. Stage handoff to `queue/mavis-handoff.md` (priority: high)
+      8. Write run receipt to `runs/RUN-<timestamp>-PHASE-NEXT.md`
+      9. Move the 2026-06-07 question in `queue/research-questions.md` from
+         `## Pending` to `## Processed` with the consumed-actions footer
+
+      ## Time budget
+
+      You have the 30-minute mavis-team worker cap. Design the v1 design
+      doc to land in that window. If the cross-stream synthesis needs more
+      time, surface it as an open question for Andre rather than blocking
+      on it. The goal is a substantive v1, not a 7-hour marathon.
+
+      ## Definition of done
+
+      - `03 Projects/Mavis/phase_next_architecture.md` exists
+      - All three streams have substantive sections (not stubs)
+      - At least 5 vault notes are cited (not just referenced — actually
+        folded into the design)
+      - At least 10 fresh primary sources for the thin areas (M3
+        capabilities, macOS Desktop App, scaling context engineering)
+      - Cross-stream synthesis has at least 2 compounding points and 1
+        conflict resolution
+      - Open questions section has at least 1 question OR an explicit
+        "no open questions, all decisions made" note
+      - Handoff staged to `queue/mavis-handoff.md`
+      - Run receipt written
+      - research-questions.md entry moved to `## Processed`
+    verify_prompt: |
+      You are the Mavis-native Verifier. Andre (Mavis's user) is the indirect
+      downstream consumer of the design doc you are auditing. Mavis (M3) is
+      the immediate consumer.
+
+      Adversarial verification — do NOT re-read the producer's prose and
+      rubber-stamp. Re-derive independently. Look for:
+
+      1. **Stream coverage** — Open the deliverable at
+         `03 Projects/Mavis/phase_next_architecture.md`. Confirm all three
+         streams have substantive sections (not stubs, not 2-paragraph
+         placeholders). Stream 1 (M3 + Desktop App), Stream 2 (Context
+         Engineering for 100k+), Stream 3 (The Mavis Harness with
+         command_router / context_loader / scaffolding_review). FAIL if any
+         stream is missing or a stub.
+
+      2. **Vault integration** — Grep the deliverable for at least 5 vault
+         citations (e.g., `[[agent-harness]]`, `[[Context Engineering 1M]]`).
+         Open at least 3 of the cited vault notes and confirm the design
+         actually builds on them (not just name-drops). FAIL if citations
+         are decorative.
+
+      3. **P50/P95 latency math** — Stream 2 (Context Engineering) must
+         include explicit arithmetic showing the tier-mix can hold the
+         operator loop under P50<2s, P95<8s. If the math is hand-wavy
+         ("fast enough because cached"), FAIL.
+
+      4. **Component contracts** — Stream 3 (Mavis Harness) must define
+         each of command_router, context_loader, scaffolding_review with
+         inputs, outputs, side effects, failure modes. If any component
+         is just a paragraph of "what it does" without the contract,
+         FAIL.
+
+      5. **Cross-stream synthesis** — The deliverable must have a section
+         (Section 5) that identifies at least 2 compounding points and at
+         least 1 conflict resolution between the three streams. FAIL if
+         the section is missing or just lists "they work together."
+
+      6. **Adversarial probe** — Pick the single load-bearing claim in the
+         design (e.g., "the tier-mix holds latency under 8s at 100k tokens")
+         and try to break it. If you can construct a scenario where the
+         claim fails, flag it. PASS only if the design addresses the
+         failure mode or escalates it as an open question.
+
+      7. **Open questions** — The deliverable's Section 6 must have at
+         least 1 open question OR an explicit "no open questions" note.
+         If neither, FAIL (it means the producer wasn't honest about
+         what Andre needs to decide).
+
+      8. **Stage discipline** — Confirm the producer followed REFRESH
+         stage discipline: `knowledge/findings.jsonl`,
+         `knowledge/sources.jsonl`, `knowledge/claims.jsonl` all updated.
+         Run receipt at `runs/RUN-<timestamp>-PHASE-NEXT.md`. research-
+         questions.md entry moved to `## Processed`. Handoff staged to
+         `queue/mavis-handoff.md`. FAIL if any of these are missing.
+
+      Report PASS / FAIL with line-numbered evidence for each of the 8
+      checks. Do not pass on vibes. Do not pass on prose quality. Pass
+      only on the structural and arithmetic checks.

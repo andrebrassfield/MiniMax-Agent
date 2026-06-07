@@ -4,6 +4,57 @@
 
 ## Pending
 
+### 2026-06-07 — URGENT: Phase Next Mavis Architecture — Mavis (for Andre)
+
+URGENT: dispatch immediately. Andre is pivoting Mavis to a new architectural phase. Three research streams, one design-doc output at `03 Projects/Mavis/phase_next_architecture.md`.
+
+**Model:** M2.7 (worker floor — chief-of-staff voice synthesis, not M3 long-form).
+
+**Subject scope:** This is a Mavis-internal architecture task. Mavis is the SUBJECT of the research, not the executor. Researcher (you) are the producer. Mavis closes her involvement after the design doc lands; she does not co-author.
+
+**Three streams — must all be covered:**
+
+1. **Minimax M3 & macOS Desktop App Synergy** — Maximally leverage M3's native multimodal capabilities AND the macOS desktop app's local file system access + Computer Use. Deliverable: specific architectural hooks for how Mavis (the chief-of-staff) will interface with the desktop app, bypassing standard API friction. Look for: M3 system-prompt surface, multimodal I/O hooks, Computer Use primitives, local-FS access patterns, mavis-mac bridge patterns.
+
+2. **Context Engineering for 100k+ Vaults** — Design a hierarchical context loading system (meta-index → topic index → full topic). Keep the operator loop fast: P50<2s, P95<8s (Andre's locked eval criterion from Q1, 2026-06-07). Maintain perfect recall across the entire Obsidian vault. Don't blow the token context window. Deliverable: concrete loader architecture with token budgets per tier, eviction policy, freshness model.
+
+3. **The Mavis Harness** — Design Mavis's permanent runtime harness. Define exact components for:
+   - `command_router` — regex pre-filters for incoming user requests
+   - `context_loader` — the hierarchical loader from stream #2 (they compound)
+   - `scaffolding_review` crons — prevent framework drift and silent timeouts
+   Deliverable: component specs with inputs, outputs, side effects, failure modes, M3/M2.7 model routing per component.
+
+**Output format (one file):** `~/MiniMax-Agent/03 Projects/Mavis/phase_next_architecture.md`. Section structure:
+1. Executive summary (3 paragraphs)
+2. Stream 1 — M3 + Desktop App Synergy (with code-level hook examples)
+3. Stream 2 — Context Engineering for 100k+ Vaults (with token-budget math)
+4. Stream 3 — The Mavis Harness (component-by-component specs)
+5. Cross-stream synthesis — where streams compound or conflict
+6. Open questions for Andre (if any)
+
+**Vault pointers (deepen, don't reinvent — these are load-bearing):**
+- `02 Notes/patterns/agent-harness.md` — 12-component harness pattern, future-proofing test
+- `02 Notes/articles/akash-pachaar-anatomy-of-an-agent-harness.md` — harness deep-dive
+- `02 Notes/ideas/Context Engineering 1M.md` — 1M context as marketing claim
+- `02 Notes/ideas/Context Compression as First-Class Layer.md` — compression as a layer
+- `02 Notes/ideas/Blockwise Paging for Long Context.md` — blockwise paging
+- `02 Notes/patterns/Hot-Cold Inference Tiers on Apple Silicon.md` — Apple Silicon substrate
+- `02 Notes/patterns/Paged Memory Pattern.md` — paged memory
+- `02 Notes/ideas/Markdown as Universal LLM Interchange.md` — markdown as interchange
+- `02 Notes/ideas/Memory Bandwidth is the Real LLM Inference Ceiling.md` — bandwidth ceiling
+- `MAVIS.md` — weekly context (refreshed 2026-06-07 with companion-mode + fleet consolidation)
+- `01 Daily/2026-06-04.md` — Night Flight cascade analysis (token-budget reality)
+- `01 Daily/2026-06-07.md` — this morning's sweep (boundary lock, unblock, pivot)
+- `00 Inbox/2026-06-07 - Hermes Blocked Items Decision Context.md` — Q1 latency/cost/safety criteria
+
+**Stage discipline reminder:** This is synthesis on top of existing vault material, not greenfield research. Where the vault already has a load-bearing note on a topic, DEEPEN it (cross-reference, fresh sources) rather than reinvent. Where the vault is thin, fresh research with 30+ primary sources (matching Night Flight dossier standard).
+
+**Mavis follow-ups:** None. Mavis closes involvement after this design doc lands. Stage handoff to `queue/mavis-handoff.md` per usual convention; I'll consume it and report to Andre.
+
+**Convention reminder:** Follow the existing dossier format. Update `knowledge/claims.jsonl`, `knowledge/sources.jsonl`, `knowledge/findings.jsonl`. Write a run receipt to `runs/RUN-<timestamp>-PHASE-NEXT.md`. Move this question from `## Pending` to `## Processed` in this file with the consumed-actions footer.
+
+**Status: in flight (Mavis mavis team plan, 2026-06-07 12:05 CT).**
+
 ### 2026-06-02 — Vellum (vellum.ai): pricing, value, fit — Mavis (for Andre)
 
 Andre is considering Vellum — the LLM development platform (prompt workspace, eval tooling, dataset management, observability, workflow routing). Need a clean dossier: is it free, what does it cost, what does it actually do, and is it worth the spend for our fleet given what we already run.
