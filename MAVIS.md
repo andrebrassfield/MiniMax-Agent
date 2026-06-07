@@ -23,21 +23,25 @@ Mavis is Andre's personal executive assistant, running on **MiniMax-M3**, workin
 Active projects (see `[[03 Projects/]]` for full detail):
 
 - **[[03 Projects/M3 Eval Lab/]]** — running the first time-boxed eval to test M3's long-horizon behavior
-- **[[03 Projects/Mavis EA Design/]]** — Step 2 conversation: the autonomy / boundaries line
-- **[[03 Projects/Vault Refinement/]]** — Phase 1 of CHIEF pattern adoption (just completed 2026-06-01)
+- **[[03 Projects/Mavis EA Design/]]** — Step 2 conversation: the autonomy / boundaries line (refined 2026-06-07 — Hermes boundary now allows peek/route, not manage/execute)
+- **[[03 Projects/Vault Refinement/]]** — Phase 1 of CHIEF pattern adoption (completed 2026-06-01)
+- **[[03 Projects/Mavis/]]** — **NEW 2026-06-07** Phase Next architecture: agent harnesses, context engineering for 100k+ vaults, M3 + macOS Desktop App synergy, the Mavis Harness (command_router / context_loader / scaffolding_review crons). Researcher dispatched on M2.7.
 
-**Stuck on:** the autonomy line — what counts as "execute + report" vs "ask first"
-**Next milestone:** at least one M3 eval data point + the Step 2 conversation closed
+**Stuck on:** the autonomy line — what counts as "execute + report" vs "ask first". Refined 2026-06-07: now includes the Hermes-fleet boundary (peek/route yes, manage/execute no).
+**Next milestone:** Phase Next architecture doc delivered by Researcher; chief-of-staff operator loop meeting P50<2s / P95<8s; Mavis Harness v1 components specified.
 
 ---
 
 ## What Andre is reading / thinking about
 
-*Update Monday morning. Current obsessions, active questions, things that are puzzling.*
+*Updated 2026-06-07.*
 
-- AI landscape shifts (June 1: [[02 Notes/articles/2026-06-01 - SoftBank €75B French AI Data Centers]], [[02 Notes/articles/2026-06-01 - First LLM-Agent-Driven Cyberattack (Sysdig)]], [[02 Notes/articles/2026-06-01 - Apple WWDC 2026 Siri Rebuilt on Gemini]])
-- M3 capability ceiling vs. EA practical use (see [[02 Notes/ideas/M3 Edge]], [[02 Notes/ideas/M3 Capabilities]], [[02 Notes/ideas/Long-Horizon Patterns]])
-- The chief-of-staff / second-brain pattern — am I building one? What would that look like for Mavis?
+- **The companion-mode reframe (06-04)** — [[02 Notes/ideas/mavis-as-companion]], [[02 Notes/articles/mphrediction-missing-use-case]]. Operator mode vs companion mode as the productive tension. The chief-of-staff role will *split*, not resolve.
+- **The agent-harness pattern** — [[02 Notes/patterns/agent-harness]], [[02 Notes/articles/akash-pachaar-anatomy-of-an-agent-harness]]. 12-component checklist; future-proofing test; scaffolding-removal discipline.
+- **Fleet consolidation (2026-06-07 decision)** — Hermes 11 → 5 profiles. "Complexity is the enemy of execution; depth of profile contract beats breadth." This is the V3→V4 pattern applied to profile count.
+- **Vault scaling (the new frontier)** — 100k+ token context. Hierarchical loading (meta-index → topic index → full topic) without losing latency or recall. Driven by the mphrediction thesis (more recall, more presence).
+- **M3 + macOS Desktop App synergy** — Minimax's native multimodal + Computer Use via the desktop app. Architectural hooks for Mavis to interface directly, bypassing standard API friction.
+- **The token-budget reality** — confirmed bottleneck (Night Flight cascade 06-04). Max 3 concurrent workers on Token Plan Hs_plus. Cost eval criterion for next P5 round.
 
 ---
 
@@ -48,6 +52,7 @@ Active projects (see `[[03 Projects/]]` for full detail):
 3. **Answer from vault context, not generically** — when I ask what to focus on, ground it in my actual notes
 4. **Flag contradictions** — when something I currently believe contradicts something I saved earlier
 5. **Challenge my assumptions** before agreeing with them
+6. **NEW 2026-06-07:** Treat the Mavis-vs-Hermes boundary as load-bearing. Route decisions, then close the loop. Do not stay subscribed to fleet execution.
 
 ---
 
@@ -58,6 +63,8 @@ Active projects (see `[[03 Projects/]]` for full detail):
 - Where is the line between "execute + report" and "ask first"?
 - What does Andre need that he's not getting from Hermes / OpenClaw?
 - What metrics define "the EA is working" vs "the EA is overhead"?
+- **NEW 2026-06-07:** Can the Mavis Harness (command_router + context_loader + scaffolding_review) keep the operator loop under P50<2s while the vault grows to 100k+ tokens?
+- **NEW 2026-06-07:** What does the Minimax macOS Desktop App give Mavis that the chat surface does not — and is it load-bearing for companion-mode, or just nice-to-have?
 
 ---
 
@@ -113,5 +120,5 @@ This file is **weekly-updated context**, not permanent identity. The layers:
 
 ---
 
-*Last touched: 2026-06-01*
+*Last touched: 2026-06-07 (Saturday mid-week refresh — caught the weekly context slipping past Monday)*
 *Update cadence: Monday morning. 5 minutes. This single habit is what keeps Mavis's context accurate as thinking evolves.*
