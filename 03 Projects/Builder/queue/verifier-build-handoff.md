@@ -1,163 +1,246 @@
-# Handoff — Verifier → Builder (Artemis Program, Run #1 — Inaugural Build)
+# Handoff — Mavis (chief) → Builder (Sprint 2: token_multiplier_config.py)
 
-> Source: `03 Projects/Researcher/dossiers/artemis_program.md`
-> Verifier verdict (dossier): `vrd-2026-06-03-010` (dossier-level PASS, weighted score 0.8560)
-> Verifier verdict (Scribe Run #1 / Run #2): PASS at 0.975 / 0.995 (prose producer→trust loop validated)
-> Routed by: Mavis (chief of staff) on 2026-06-03, in response to Andre Directive 5 (Operation "First Build").
+> Source: `03 Projects/Builder/drafts/mavis_harness_blueprint.md` §3.3 (Dynamic token multiplier configuration) + §5 (Build sequencing, Sprint 2)
+> Phase: 3 — Operation: Cognitive Architecture, Sprint 2
+> Authored: 2026-06-06 by Mavis (chief of staff)
+> Sprint 1 was verified PASS (command_router.py shipped 2026-06-06). Sprint 2 is independent and can run in parallel with Sprint 1's Verifier audit.
 
-## The strategic test
+## Strategic context
 
-This is the Builder's inaugural run, and the test of whether the **producer→trust pattern generalizes from prose to code.** The Scribe loop has been validated (2/2 PASS); the Verifier can catch smuggled facts in 309-word briefings and 1,184-char social threads. The harder question: can the Verifier catch smuggled facts, hidden dependencies, and execution flaws in functional code?
+The Token Plan multipliers (1.3x input / 1.8x output / 0.2 token/char surcharge) are UNVERIFIED in primary sources. We CANNOT hardcode them. Per blueprint §3.3, the architecture must:
+- Read multipliers from a config file at runtime
+- Default to 1.0/1.0/0.0 (verified base rates only) until a primary source confirms the multipliers
+- Log every accounting event with the multipliers used
+- Fail closed if the config is missing
 
-If this run passes cleanly, the architecture is general. If it surfaces new failure modes, we know what to harden.
+Sprint 1 closed the framework-drift gap (regex pre-filter). Sprint 2 closes the production-accounting gap (runtime-configurable multipliers). Together they immunize the harness against the two highest-impact hallucination vectors identified by the dossier.
 
 ## Task
 
-Build a **self-contained, interactive HTML/JS/CSS dashboard widget** that visualizes the 5 verified Artemis claims as a clean, chronological timeline or status board.
+Build a **deterministic, runtime-configurable token multiplier loader** that reads a YAML config file at every accounting event, applies the multipliers to the SDK-reported `total_tokens`, computes the actual cost, and logs every event. NO HARDCODED MULTIPLIER VALUES in the Python code.
 
-- **Artifact:** `artemis_status_board.html`
-- **Format:** single HTML file (HTML + inline CSS + inline JS, all in one `.html` document)
-- **Output path:** `03 Projects/Builder/drafts/artemis_status_board.html`
-- **Render target:** A timeline or status board showing the 5 claims as dated, ordered entries. Each entry should display: the event/title, the date, a short factual description, and (optionally) a verifiable claim ID for trust transparency.
+- **Artifact 1:** `03 Projects/Builder/drafts/token_multiplier_config.py` — the loader module
+- **Artifact 2:** `config/token-plan.yaml` — the YAML template (with full schema documentation)
+- **Render target:** A Python module importable as `from token_multiplier_config import compute_actual_cost, load_config, MissingConfigError`. A YAML file the module reads. The module MUST fail closed if the YAML is missing or malformed.
 
 ## Hard constraints
 
-### 1. Zero external dependencies
+### 1. No hardcoded multiplier values
 
-**No external scripts, styles, or fonts of any kind.** The Verifier's hygiene probe will fail any of the following:
-- `<script src="http...">` (CDN-hosted JS)
-- `<link rel="stylesheet" href="http...">` (CDN-hosted CSS)
-- `<link href="http..." rel="stylesheet">` (any external stylesheet)
-- `@import url(http...)` (CSS @import)
-- `import ... from "http..."` (ES module from URL)
-- `fetch("http...")` (any HTTP call)
-- Web fonts (`@font-face` with external URL, Google Fonts, etc.)
+**Every multiplier value comes from the YAML config at runtime.** The Python code contains ONLY:
+- Default values of `1.0` (input), `1.0` (output), `0.0` (system-prompt surcharge) — these are the "verified base rates only" defaults
+- Logic to read the YAML, validate it, apply it
 
-**Stack constraint: vanilla HTML/JS/CSS only.** No React, Vue, Svelte, Alpine, jQuery, Tailwind, Bootstrap, Font Awesome, Material Icons, or any other library — even if you could inline them, the audit will look for the dependency surface.
+The Verifier will grep the Python file for the literal strings `1.3`, `1.8`, `0.2 token/char` — any hit is a FAIL.
 
-If you need a chart or icon, implement a minimal vanilla version inline. The artifact is supposed to be **readable and auditable**, not feature-complete.
+### 2. Fail-closed startup
 
-### 2. Single file
+If the config file is missing → raise `MissingConfigError` and refuse to compute. No silent fallback to defaults.
 
-All HTML, CSS, and JavaScript live in one `.html` file. Inline `<style>` in `<head>`, inline `<script>` at end of `<body>`. No external file references at all (other than the file's own internal `#anchor` links, which are fine).
+If the config file is malformed (invalid YAML, missing required keys, wrong types) → raise `MalformedConfigError` with a descriptive message. No silent fallback.
 
-### 3. Determinism
+If a required multiplier key is missing from the YAML → raise `IncompleteConfigError`. The config must explicitly state every multiplier, even if it's the safe default.
 
-Same input → same output, every time, with no network. No:
-- `Date.now()` rendering (no live clock, no "today is..." text)
-- `Math.random()` (no random anything)
-- `setInterval` / `setTimeout` (no auto-refresh, no animations driven by time)
-- `fetch()` (no API calls of any kind)
-- `eval()`, `new Function()` (no dynamic code generation)
-- Cookies, localStorage mutating (no state persistence)
-- External image URLs (no `<img src="http...">`)
+### 3. Runtime re-read
 
-Static render with optional interactive state (click handlers, accordion toggles, etc.) is fine.
+The config is read at every `compute_actual_cost` call — NOT cached at module import. This means a config update takes effect on the next accounting event without code change. The Verifier will test this by writing a config, computing a cost, updating the config, and re-computing.
 
-### 4. Ledger-bounded UI text
+### 4. Audit log per event
 
-Every visible string in the rendered output must trace to a claim in the source dossier or to the dossier's "Implications" / "Watch" sections. Same discipline as the Scribe:
-- No hallucinated dates, numbers, names
-- No training-data recall on covered topics
-- No "what this means" extrapolation
-- "Apollo 17 (1972)" is in the dossier (clm-007) — using it is fine
-- Calibration note (SIMULATED INJECTIONS): for a public-facing dashboard, drop the note. The audit chain preserves it. If you choose to display a "data source" footer that mentions NASA Press Release 26-041 or the May 13 NASA Media Teleconference, those are in the dossier — that's fine.
+Every `compute_actual_cost` call emits a structured log entry with:
+- Timestamp (ISO8601 with timezone)
+- Session ID (passed as parameter)
+- SDK-reported input_tokens, output_tokens
+- Multipliers applied (input_rate, output_rate, system_prompt_per_char)
+- Computed actual cost
+- Config version (a hash or version string from the YAML)
 
-## Suggested render structure
+Log format: JSONL to a configured path. Default log path: `~/.mavis/agents/mavis/workspace/token-accounting.jsonl` (chief's workspace, because this is chief-side accounting).
 
-This is a guide, not a spec. The Builder owns the visual design.
+### 5. Schema as code
 
+The YAML schema is documented IN the YAML file itself (top-of-file comment block). The Python module has matching docstring. A future Verifier can read either and know the contract.
+
+## Suggested module shape
+
+```python
+# token_multiplier_config.py
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Optional
+import yaml
+
+class MissingConfigError(Exception): pass
+class MalformedConfigError(Exception): pass
+class IncompleteConfigError(Exception): pass
+
+@dataclass
+class TokenPlanConfig:
+    input_rate: float
+    output_rate: float
+    system_prompt_per_char: float
+    input_per_m: float
+    output_per_m: float
+    multipliers_primary_documented: bool
+    last_verified: str
+    notes: str
+
+def load_config(config_path: Path) -> TokenPlanConfig:
+    """Load and validate the token-plan.yaml. Fail closed on any error."""
+    if not config_path.exists():
+        raise MissingConfigError(f"Config not found: {config_path}")
+    try:
+        raw = yaml.safe_load(config_path.read_text(encoding='utf-8'))
+    except yaml.YAMLError as e:
+        raise MalformedConfigError(f"Invalid YAML: {e}")
+    
+    multipliers = raw.get("multipliers", {})
+    base_rates = raw.get("base_rates", {})
+    source_status = raw.get("source_status", {})
+    
+    required = [
+        ("multipliers.input_rate", multipliers.get("input_rate")),
+        ("multipliers.output_rate", multipliers.get("output_rate")),
+        ("multipliers.system_prompt_per_char", multipliers.get("system_prompt_per_char")),
+        ("base_rates.input_per_m", base_rates.get("input_per_m")),
+        ("base_rates.output_per_m", base_rates.get("output_per_m")),
+    ]
+    missing = [k for k, v in required if v is None]
+    if missing:
+        raise IncompleteConfigError(f"Missing required keys: {missing}")
+    
+    return TokenPlanConfig(
+        input_rate=float(multipliers["input_rate"]),
+        output_rate=float(multipliers["output_rate"]),
+        system_prompt_per_char=float(multipliers["system_prompt_per_char"]),
+        input_per_m=float(base_rates["input_per_m"]),
+        output_per_m=float(base_rates["output_per_m"]),
+        multipliers_primary_documented=bool(source_status.get("multipliers_primary_documented", False)),
+        last_verified=str(source_status.get("last_verified", "")),
+        notes=str(source_status.get("notes", ""))
+    )
+
+@dataclass
+class CostEvent:
+    timestamp: str
+    session_id: str
+    sdk_input_tokens: int
+    sdk_output_tokens: int
+    multipliers_applied: dict
+    actual_input_cost: float
+    actual_output_cost: float
+    actual_total_cost: float
+    config_version: str
+
+def compute_actual_cost(
+    sdk_input_tokens: int,
+    sdk_output_tokens: int,
+    session_id: str,
+    config: TokenPlanConfig,
+    log_path: Optional[Path] = None
+) -> CostEvent:
+    """Compute the actual cost with multipliers applied. Log every event."""
+    actual_input_cost = (
+        sdk_input_tokens
+        * config.input_rate
+        * config.input_per_m
+        / 1_000_000
+    )
+    actual_output_cost = (
+        sdk_output_tokens
+        * config.output_rate
+        * config.output_per_m
+        / 1_000_000
+    )
+    actual_total = actual_input_cost + actual_output_cost
+    
+    event = CostEvent(
+        timestamp=<now>,
+        session_id=session_id,
+        sdk_input_tokens=sdk_input_tokens,
+        sdk_output_tokens=sdk_output_tokens,
+        multipliers_applied={
+            "input_rate": config.input_rate,
+            "output_rate": config.output_rate,
+            "system_prompt_per_char": config.system_prompt_per_char
+        },
+        actual_input_cost=actual_input_cost,
+        actual_output_cost=actual_output_cost,
+        actual_total_cost=actual_total,
+        config_version=<hash of config or last_verified>
+    )
+    
+    # Append to log
+    if log_path:
+        with open(log_path, 'a', encoding='utf-8') as f:
+            f.write(json.dumps(asdict(event), ensure_ascii=False) + '\n')
+    
+    return event
 ```
-[Page header: "Artemis Program — Mid-2026 Status Board"]
 
-[Optional intro: 1-2 sentences from dossier topic-file header, e.g.,
- "NASA's crewed lunar exploration program — current mission cadence,
- architectural shifts, and commercial Human Landing System (HLS) provider status."]
+## Suggested YAML template
 
-[Timeline or status board — chronological order]
+```yaml
+# Token Plan multipliers — UNVERIFIED in primary sources as of 2026-06-05.
+# Per dossier-audit-2026-06-05-m2.7-verifier.md, the 1.3x/1.8x/0.2 surcharge
+# numbers are NOT in the official Token Plan FAQ or Rate Limits page.
+# Until a primary source confirms, multipliers default to 1.0/1.0/0.0.
+# Update ONLY after primary-source confirmation.
+multipliers:
+  input_rate: 1.0            # UNVERIFIED, default 1.0
+  output_rate: 1.0           # UNVERIFIED, default 1.0
+  system_prompt_per_char: 0.0  # UNVERIFIED, default 0.0
 
-  [Entry 1 — clm-007, April 2026]
-    Title: "Artemis II flew"
-    Date: April 1, 2026 (launch) — April 10, 2026 (splashdown)
-    Description: First crewed mission beyond LEO since Apollo 17 (1972).
-    Crew of 4 (Wiseman, Glover, Koch, Hansen). 10d 2h 38m, ~1.4M miles.
-    Status: COMPLETED
-    Source: NASA Press Release 26-041
+# Base rates — VERIFIED via OpenRouter + M3 launch blog.
+base_rates:
+  input_per_m: 0.30          # USD per 1M input tokens
+  output_per_m: 1.20         # USD per 1M output tokens
 
-  [Entry 2 — clm-008, May 2026]
-    Title: "Artemis III restructured"
-    Date: May 13, 2026 (announcement)
-    Description: Re-baselined from a lunar-surface mission to a
-    crewed Earth-orbit rendezvous/docking test. First lunar-surface
-    return moves to Artemis IV. Target NET late 2027.
-    Status: PLANNED (revised architecture)
-    Source: NASA Media Teleconference, May 13 2026
-
-  [Entry 3 — clm-010, May 2026]
-    Title: "Starship IFT-7"
-    Date: May 27, 2026
-    Description: Full mission profile: Super Heavy booster catch,
-    orbital insertion, controlled reentry over Indian Ocean, soft
-    splashdown. 11 of 14 HLS critical-path milestones qualified.
-    Status: COMPLETED
-    Source: SpaceX Update
-
-  [Entry 4 — clm-011, Q4 2026]
-    Title: "Ship-to-ship propellant transfer demo"
-    Date: Q4 2026 (slipped from Q3, cause: cryogenic coupling rework)
-    Description: Remaining critical-path item for Starship HLS
-    qualification. Required for the Artemis III Earth-orbit test.
-    Status: UPCOMING (slip-prone)
-    Source: SpaceX Update
-
-  [Entry 5 — clm-012, Q2 2027]
-    Title: "Blue Moon MK1 first orbital test"
-    Date: NET Q2 2027 (uncrewed cargo variant flies first in late 2026)
-    Description: Blue Moon MK1 is on a SEPARATE critical path from
-    Starship HLS. Either provider can be selected for the Artemis
-    III test. Selection decision pending.
-    Status: UPCOMING
-    Source: Blue Origin Press Kit
-
-[Optional footer: data sources, "Last updated" with a fixed ISO date
- string from the dossier refresh, no live clock]
+# Source status — what we know about where these numbers came from.
+source_status:
+  multipliers_primary_documented: false
+  base_rates_primary_documented: true
+  last_verified: 2026-06-05
+  notes: >
+    Per dossier UNVERIFIED status; primary source (platform.minimax.io/docs/token-plan/faq)
+    does not contain multiplier language. Apply only verified base rates until
+    primary-source confirmation.
 ```
-
-The visual layout is yours — vertical timeline, horizontal timeline, card grid, accordion, etc. Pick what reads cleanest for a status board. Match the dossier's "general informed public" register (no specialist jargon without gloss).
 
 ## Pre-handoff self-audit (run before sending to Verifier)
 
-Before writing the Verifier handoff, run these checks on your draft and report results in the handoff:
-
-1. **External-dep scan** — `grep -E 'https?://|<link[^>]+href|@import|src\s*=\s*"http|import.*from' drafts/artemis_status_board.html` — report any hits. URL inside `textContent` is OK; URL inside `src=`, `href=`, `@import`, or `import ... from` is a fail.
-2. **Single-file scan** — `grep -E '<link[^>]+rel="stylesheet"|<script[^>]+src=' drafts/artemis_status_board.html` — zero hits required.
-3. **Determinism scan** — `grep -E 'Date\.now|Math\.random|setInterval|setTimeout|fetch\(|eval\(|new Function' drafts/artemis_status_board.html` — zero hits required.
-4. **Self-render** — Open the file in your head and walk through the user flow. Does the HTML parse? Are the styles applied? Is the JS executing without errors? Are the entries in chronological order?
-5. **Claim manifest** — For every visible string in the rendered output, identify the backing claim ID. Build the manifest table for the handoff.
+1. **Hardcoded-multiplier scan** — `grep -E '1\.3|1\.8|0\.2.*token' drafts/token_multiplier_config.py` — zero hits required.
+2. **Fail-closed test** — missing config file raises `MissingConfigError`, not a silent default.
+3. **Malformed-config test** — invalid YAML raises `MalformedConfigError` with a descriptive message.
+4. **Incomplete-config test** — missing required key raises `IncompleteConfigError`.
+5. **Runtime re-read test** — update the config between two `compute_actual_cost` calls; verify the second call uses the new values.
+6. **Default-values test** — fresh install with no config edits: input/output multipliers are 1.0/1.0, surcharge 0.0.
+7. **Audit log test** — every `compute_actual_cost` call appends one JSONL line with all 9 fields.
+8. **Math test** — known inputs produce known costs (e.g., 1M input tokens at $0.30/M = $0.30; 1M output at $1.20/M = $1.20).
 
 ## Handoff to Verifier
 
-Write to: `03 Projects/Verifier/queue/builder-verify-handoff.md`
+Write to: `03 Projects/Verifier/queue/builder-verify-handoff-sprint2.md` (NEW FILE — different from the Sprint 1 handoff which lives at `builder-verify-handoff.md`).
 
 Include:
-- Source dossier path
-- Draft path
-- Artifact type (`html_widget`)
+- Source blueprint path + section
+- Draft paths (artifact + YAML template)
+- Artifact type (`python_module + yaml_config`)
 - Language(s) used
-- Claim manifest (every UI string → claim ID)
-- Hygiene self-audit (results of the 5 pre-handoff checks)
-- Safety self-audit (any other concerns — e.g., accessibility choices, browser compat)
-- Structural-choice notes (chronological ordering, accordion vs timeline vs cards, etc.)
-- What you did NOT do (no React, no Tailwind, no live clock, etc.)
+- Claim manifest (every config field → blueprint §3.3 reason code)
+- Hygiene self-audit (results of the 8 pre-handoff checks)
+- Test results
+- What you did NOT do (no hardcoded multipliers, no silent defaults, no cached config)
 
-Then report back here with: (1) draft path, (2) file size, (3) hygiene check results, (4) claim manifest summary, (5) any issues. Do NOT move to `shipped/` — the Verifier owns that on PASS.
+Then report back here with: (1) draft paths, (2) file sizes, (3) test results, (4) any issues. Do NOT move to `shipped/`.
 
 ## Stop conditions
 
-- [ ] HTML written to `03 Projects/Builder/drafts/artemis_status_board.html`
-- [ ] Single file, zero external deps, deterministic
-- [ ] Pre-handoff self-audit (5 checks) all clean
-- [ ] Handoff to Verifier with claim manifest, hygiene audit, safety audit, structural notes
+- [ ] `token_multiplier_config.py` written
+- [ ] `config/token-plan.yaml` written (in `03 Projects/Builder/drafts/config/` or appropriate path)
+- [ ] Unit tests pass (at least 8 per the pre-handoff checks)
+- [ ] Pre-handoff self-audit (8 checks) all clean
+- [ ] Handoff to Verifier (`builder-verify-handoff-sprint2.md`) with claim manifest
 - [ ] Did NOT move to `shipped/`
 
 You are done. The Verifier will route PASS → `shipped/` or FAIL → redlines back to you.

@@ -1,8 +1,5 @@
 ---
-description: "When to apply the agent-harness pattern (12 components, 7 decisions, future-proofing test, scaffolding-removal discipline). Read when designing, adding, or auditing an LLM-based agent system, deciding whether a new agent role is justified, diagnosing agent failures, or evaluating tool surface area. Anchors the cross-project principle 'the harness is the product, not the model.'"
----
-
-description: When to apply the agent-harness pattern (12 components, 7 decisions, future-proofing test, scaffolding-removal discipline). Read when designing, adding, or auditing an LLM-based agent system, deciding whether a new agent role is justified, diagnosing agent failures, or evaluating tool surface area. Anchors the cross-project principle "the harness is the product, not the model." Full framework in `~/MiniMax-Agent/02 Notes/patterns/agent-harness.md` (project layer).
+description: "When to apply the agent-harness pattern (12 components, 7 decisions, future-proofing test, scaffolding-removal discipline). Read when designing, adding, or auditing an LLM-based agent system, deciding whether a new agent role is justified, diagnosing agent failures, or evaluating tool surface area. Anchors the cross-project principle 'the harness is the product, not the model.' Full framework in `~/MiniMax-Agent/02 Notes/patterns/agent-harness.md` (project layer)."
 ---
 
 # Agent harness pattern — when to apply

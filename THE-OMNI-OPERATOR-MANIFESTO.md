@@ -70,7 +70,9 @@ The Omni-Operator has six layers, each with a clear responsibility and a clear b
 
 ### Layer 1: The Vault
 
-Plain Markdown files, git-tracked, Apple-Silicon-local. The vault is the only source of truth. Every other layer is a *viewer* of the vault or a *generator* of vault content. The vault does not call anything; everything calls the vault.
+Plain Markdown files, git-tracked, Apple-Silicon-local. The vault is the only source of truth. Every other layer is a *viewer* of the vault or a *generator* of vault content. The vault does not call anything; everything calls the vault. 
+
+PATH: /Users/brassfieldventuresllc/MiniMax-Agent
 
 The folder structure: `00 Inbox/` (raw captures) → `01 Daily/` (one note per day) → `02 Notes/{patterns,ideas,articles,questions}/` (atomic CHIEF notes) → `03 Projects/` (long-running work) → `04 Resources/` (external content) → `05 Archive/` (retired) → `06 Connections/` (synthesis) → `07 Vellum/` (workflow definitions) → `99 _system/` (operator internals). Every folder has a purpose. Every file is reachable.
 
