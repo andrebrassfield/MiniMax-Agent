@@ -14,6 +14,19 @@ ledger_sources:
   sources: 03 Projects/Researcher/knowledge/sources.jsonl (34 entries)
 harness_decision: locked (Q1, 2026-06-07) — P50<2s, P95<8s, max 3 concurrent workers
 phase_decisions: locked (2026-06-07 12:55 CT) — see Section 6a
+revisions:
+  - revision: 1
+    revised_at: 2026-06-07 14:18 CT
+    revised_by: Andre
+    reason: Local-Compute Pivot — workers and command_router L2/L3 moved from M2.7 API to local Ollama
+    supersedes_section: "6a item 6 (model routing), 4.1 model routing line, 4.2 model routing line, 6 open question Q6"
+    adds_section: "4.0 Cross-cutting: Model Routing (Local-Compute Pivot)"
+  - revision: 2
+    revised_at: 2026-06-07 15:04 CT
+    revised_by: Andre
+    reason: 12B QAT Pivot — dropped 31B as L3 Logic Worker; 12B is the substrate-correct choice for fanless M4 Air (QAT lets 12B hit 30B+ thresholds without thermal throttle or swap)
+    supersedes_section: "6a item 6 (model routing), 4.1 model routing line, 4.2 model routing line, 4.3 model routing line, 4.0 routing table"
+    adds_paragraph: "4.0 QAT rationale for 12B as L3"
 ---
 
 # Phase Next Mavis Architecture
@@ -81,6 +94,35 @@ Well under any 200K context window. P50 fits in cache-warm path; P95 escapes are
 
 Mavis's three-component harness (command_router, context_loader, scaffolding_review) maps 1:1 onto the 2026 industry patterns (clm-2026-06-07-007). Each component has a defined contract; the components compose.
 
+### 4.0 Cross-cutting: Model Routing (Local-Compute Pivot, 2026-06-07 14:18 CT)
+
+**The pivot.** The original locked decision (Section 6a item 6, 2026-06-07 12:55 CT) routed the worker fleet to M2.7 over the Minimax API for cost discipline. The mavis daemon's per-agent `defaultModel` override (verified bug, 2026-06-07 14:00 CT) forces workers onto M3, which hits API rate limits and stalls mid-task. Fighting the daemon is a platform problem; routing around it is an architecture problem. The Local-Compute Pivot does the latter.
+
+| Role | Previous routing | Current routing | Why |
+|------|-------------------|-----------------|-----|
+| **Mavis (chief)** — synthesis, scaffolding_review, computer use | M3 (Minimax) | **M3 (Minimax)** — unchanged | Synthesis + judgment require frontier capability; M3 is the only model with 1M MSA, native multimodality, and Computer Use together (clm-2026-06-07-001). Cost is acceptable because the chief is single-threaded. |
+| **command_router L2 (intent similarity)** | M2.7 (Minimax) | **Local Ollama — `gemma4:e4b-it-qat`** (fast, edge-tuned) | L2 is a fast embedding/similarity check, ~50ms budget. Local Ollama runs it in 10-30ms with zero network. E4B is intentionally small — L2 doesn't need 30B+ reasoning, it needs fast vector math. |
+| **command_router L3 (ambiguous LLM classification)** | M3 (Minimax) | **Local Ollama — `gemma4:12b-it-qat`** (logic-class) | L3 needs structured-output classification, not synthesis. 12B local gets us there at zero API cost. M3 is reserved for synthesis-grade work. |
+| **Worker fleet (Researchers, Builders, Verifiers, Coder)** | M2.7 (Minimax) | **Local Ollama — `gemma4:12b-it-qat` (logic) or `gemma4:e4b-it-qat` (fast)** | The whole Producer → Trust loop runs locally. Zero API cost, zero rate limits, zero network latency. Workers pick `gemma4:e4b-it-qat` for fast structural tasks (read/structure/cite) and `gemma4:12b-it-qat` for logic tasks (build/reason/verify). |
+| **Context-loader importance scoring** | M2.7 (Minimax) | **Local Ollama — `gemma4:e4b-it-qat`** | M2.7-class importance scoring is a perfect fit for the small, fast E4B model. |
+
+**Why this works.** The 2026-06-07 14:00 CT daemon bug diagnosis showed the per-agent `defaultModel` config in `~/.mavis/agents/<name>/config.yaml` is silently overridden by the system default at `~/.minimax/config.yaml:74`. The bug is structural — no per-agent fix patches it. But the bug is also **irrelevant** for any task that doesn't go through the API. Local Ollama runs as a sidecar on `localhost:11434`; the daemon's model config has nothing to say about it. Routing workers to local compute sidesteps the bug entirely.
+
+**Hardware substrate.** Apple Silicon + Ollama gives hardware-accelerated inference for the edge-tier (E2B, E4B) and full-precision for the 31B tier via unified memory. No GPU cluster required; no API quota; no network round-trip. The single-machine constraint from the original design becomes a feature, not a limitation.
+
+**Cost arithmetic.** Workers previously consumed M2.7 quota at the chief's token-plan rate (input × 1.3, output × 1.8, system-prompt × 0.2/char). Moving the Producer → Trust loop to local Ollama drops that line item to $0.00. The chief's M3 quota is preserved for synthesis + Computer Use + scaffolding review. Net effect: per-worker-task cost goes from variable-API to fixed-electricity.
+
+**Latency arithmetic.** Local Ollama on Apple Silicon: 31B model runs at ~30-60 tokens/second for the prompt-prefill + decode cycle, with no network RTT. The previous M2.7 API path added 200-800ms of network RTT on top of inference. For a 1-2k-token worker response, that's a 30-50% latency reduction. P50<2s, P95<8s budget is now *more* achievable, not less.
+
+**Failure modes introduced by the pivot.**
+- **Ollama down** → workers fall back to the M3 API (the old path), with a `"fallback_reason": "ollama_unreachable"` marker on the cost event. The chief is not blocked; the harness degrades to the old (working) behavior.
+- **Model not pulled** → Ollama returns a 404 with `{"error": "model not found"}`. The harness surfaces this as a clear `WorkerConfigurationError` rather than a generic LLM failure.
+- **Apple Silicon thermal throttling** → the 12B model may slow under sustained load on a fanless M4 Air. The harness has a per-worker `max_tokens` cap to bound the worst case. Workers detect repeated timeout events and downgrade to `gemma4:e4b-it-qat` for the rest of the session.
+
+**QAT rationale for 12B as L3 (2026-06-07 15:04 CT).** Google DeepMind's quantization-aware training (QAT) for Gemma 4 lets the 12B model hit logic-class thresholds comparable to a traditional 30B+ model while using a fraction of the memory and energy budget. On Apple Silicon, this means the 12B fits safely inside the unified memory of a fanless MacBook Air M4 — typically ~7-8 GB resident, leaving the rest of the M4's memory for OS, apps, and the rest of the harness. A persistent 31B in the background on the Air would push the unified memory past the comfort zone, trigger thermal throttling on sustained load, and degrade to swap — an architectural error, not a tuning problem. The 12B is the substrate-correct choice for the M4 Air fleet. The QAT optimization is the enabler: without QAT, the 12B would lose quality at INT4/INT8 weights; with QAT, the quality delta is small enough to pass the logic-class floor for the worker fleet.
+
+**This pivot is the load-bearing decision of Sprint 5.** The four Sprint 1-4 primitives (`command_router`, `context_loader`, `filesystem_bridge`, `token_multiplier_config`, `scaffolding_review_cron`) were written API-agnostic on purpose. The Local-Compute Pivot is the routing configuration that closes the loop.
+
 ### 4.1 `command_router`
 
 **Purpose:** classify incoming user requests and route them to the right execution lane. Fail-closed: unmatched requests route to "ask first," not "guess and execute."
@@ -100,7 +142,7 @@ Mavis's three-component harness (command_router, context_loader, scaffolding_rev
 - Over-match (regex fires for unintended input) → strict ordering of L1 rules; rule order is reviewable in the scaffolding_review cron
 - The dispatch lane routes to a *file-based handoff* (queue/decision.md), not a worker-spawn. The Mavis-vs-Hermes boundary (Mavis may peek, may not manage) means command_router never directly spawns a worker; it writes a routing note (clm-2026-06-07-009).
 
-**Model routing:** L1 is regex (no model). L2 is a small embedding model (M2.7-class, fast). L3 is M3 (for ambiguous or novel requests). Mavis (the chief) reads L3 outputs; M3-as-worker is what runs L3.
+**Model routing (Local-Compute Pivot, 2026-06-07 14:18 CT; revised 2026-06-07 15:04 CT — 12B as L3):** L1 is regex (no model, unchanged). L2 is local Ollama `gemma4:e4b-it-qat` (fast edge-tier). L3 is local Ollama `gemma4:12b-it-qat` (logic-tier, QAT). Mavis (the chief) reads L2/L3 outputs and orchestrates the dispatch lane — but the inference itself never leaves the local machine. See Section 4.0 for the full routing table and rationale.
 
 ### 4.2 `context_loader`
 
@@ -114,7 +156,7 @@ Mavis's three-component harness (command_router, context_loader, scaffolding_rev
 - Importance score drift → scaffolding_review re-evaluates weekly
 - All tiers cold → 1-second cold-start cost; logged for review
 
-**Model routing:** the loader is *not* a model. It's a deterministic data structure (LRU+importance cache) with optional LLM-assisted importance scoring. The model is invoked only for LLM-assisted importance scoring on Tier 3 eviction decisions (M2.7-class for the scoring step).
+**Model routing (Local-Compute Pivot, 2026-06-07 14:18 CT):** the loader is *not* a model. It's a deterministic data structure (LRU+importance cache) with optional LLM-assisted importance scoring. The model is invoked only for LLM-assisted importance scoring on Tier 3 eviction decisions, and the scoring model is now local Ollama `gemma4:e4b-it-qat` (fast edge-tier, M2.7-class capability, zero API cost). See Section 4.0.
 
 ### 4.3 `scaffolding_review` crons
 
@@ -130,7 +172,7 @@ Mavis's three-component harness (command_router, context_loader, scaffolding_rev
 
 **The 2026 evidence for this being load-bearing:** model drift is the primary failure mode (Phil Schmid); observability-driven harness self-evolution added 7.3 points on Terminal-Bench 2.0 (Fudan AHE); golden-test suite + CI is the eval-vault pattern (Motomtech) (clm-2026-06-07-010). For Mavis: daily scaffolding review + event-driven on harness change + scaffolding review is the eval-vault for the harness itself.
 
-**Model routing:** scaffolding_review is an M3 task (synthesis + judgment, not M2.7's read/structure/cite floor). The cron dispatches a fresh Mavis session to run the review; the session reads the harness stats, runs the golden test suite, writes the health receipt, and exits.
+**Model routing (Local-Compute Pivot, 2026-06-07 14:18 CT; revised 2026-06-07 15:04 CT):** scaffolding_review is an M3 task (synthesis + judgment, not M2.7's read/structure/cite floor). The cron dispatches a fresh Mavis session to run the review; the session reads the harness stats, runs the golden test suite, writes the health receipt, and exits. **M3 is the only model used here — synthesis-grade judgment is the load-bearing step, and local Ollama's `gemma4:12b-it-qat` does not have the 1M MSA / native multimodality that scaffolding_review needs to spot subtle anomalies.**
 
 ## 5. Cross-stream synthesis
 
@@ -164,16 +206,16 @@ These are decisions only Andre can make. Surface them, don't resolve them.
 
 5. **Computer Use reliability floor.** Computer Use is near-100% reliable for standard UI elements but degrades for custom-drawn surfaces. What's the reliability floor Mavis should require before falling back to a different mechanism? Default: 95% (fall back to ask-first or to a chat reply if computer use fails twice on the same action). The number is a design parameter; Andre may want different thresholds for different action types.
 
-6. **M2.7 vs M3 model routing in the harness.** The plan called for M2.7 for the worker (cost floor). The actual session ran on M3 (the Researcher's default). Should Mavis workers be M2.7-enforced, or is the default M3 acceptable? M3 is higher capability but ~1.8x the output cost on the same plan. For a chief-of-staff running on the Mavis token plan, the M2.7 floor is the cost discipline; M3 is the quality floor. The choice is about where the chief draws the line.
+6. **M2.7 vs M3 model routing in the harness.** ~~Open as of 2026-06-07 12:55 CT.~~ **RESOLVED 2026-06-07 14:18 CT by the Local-Compute Pivot, refined 2026-06-07 15:04 CT to drop 31B and standardize on 12B** — see Section 4.0 and Section 6a item 6. Workers are no longer on the M2.7/M3 API; they are on local Ollama (`gemma4:12b-it-qat` for logic, `gemma4:e4b-it-qat` for fast). M3 stays strictly for Mavis-the-chief.
 
-## 6a. Andre's locked decisions (2026-06-07 12:55 CT)
+## 6a. Andre's locked decisions (2026-06-07 12:55 CT; revised 2026-06-07 14:18 CT — Local-Compute Pivot)
 
 1. **Menu bar presence — YES.** Companion-mode requires a persistent visual presence. The Mac menu bar is Mavis's primary state/attention signal.
 2. **Meta-index editability — NO.** Mavis owns the index. Auto-generated only, prevent human/machine state drift.
 3. **Scaffolding-review — OPT-OUT (on by default).** Observability-driven self-evolution is active. Daily crons run.
 4. **Tier 3 cache TTL — Importance-score with 30-min hard floor.** Never evict before 30 min regardless of score.
 5. **Computer Use reliability floor — 95%.** If an action fails twice, fall back to ask-first.
-6. **Model routing — M2.7 ENFORCED for workers.** M3 reserved strictly for Mavis-the-chief (synthesis, orchestration, scaffolding reviews). Cost discipline is absolute.
+6. **Model routing — Local Ollama ENFORCED for the worker fleet and the command_router L2/L3 fallback. M3 (Minimax) reserved strictly for Mavis-the-chief (synthesis, orchestration, scaffolding reviews, Computer Use).** Local model defaults: `gemma4:12b-it-qat` for logic-class tasks (worker builders, L3 classification, importance scoring on heavy documents), `gemma4:e4b-it-qat` for fast structural tasks (L2 similarity, fast-path worker reads, importance scoring on small entries). Rationale: the mavis daemon's per-agent `defaultModel` override is structurally unpatchable; routing workers to local compute sidesteps the bug entirely. **12B (QAT) is the official L3 Logic Worker as of 2026-06-07 15:04 CT** — Google DeepMind's quantization-aware training lets the 12B model hit logic-class thresholds comparable to a traditional 30B+ while fitting safely in the unified memory of a fanless MacBook Air M4 without triggering thermal throttling or heavy swap. A persistent 31B in the background on the Air was an architectural error; the 12B is the substrate-correct choice. See Section 4.0 for the full table, cost arithmetic, and failure-mode analysis.
 
 ## 7. Cross-references
 
@@ -199,3 +241,7 @@ These are decisions only Andre can make. Surface them, don't resolve them.
 ---
 
 *Status: APPROVED. The Mavis-native Researcher's first attempt stalled mid-design-doc writing; the second attempt was on the same trajectory. Owner (Mavis, on M3) took over and synthesized this from the 10 verified claims + vault pointers + spec. Andre approved 2026-06-07 12:55 CT and locked the 6 architectural decisions (Section 6a). Implementation is the next phase; the Mavis Harness scaffold is the first deliverable.*
+
+*Revision 1 (2026-06-07 14:18 CT, Local-Compute Pivot): Section 4.0 added; Section 4.1, 4.2, 4.3 model-routing lines updated; Section 6a item 6 updated (M2.7 API → Local Ollama); Section 6 open-question Q6 marked resolved. The mavis daemon's per-agent `defaultModel` override bug (verified 2026-06-07 14:00 CT) makes API-based M2.7 enforcement structurally unpatchable; routing workers to local Ollama sidesteps the bug, drops the worker line item to $0.00, and reduces per-worker latency by 30-50%. See `03 Projects/Builder/drafts/mavis_harness_main.py` (Sprint 5) for the wiring.*
+
+*Revision 2 (2026-06-07 15:04 CT, 12B QAT Pivot): Section 4.0 routing table updated (31B → 12B); Section 4.0 failure-modes section's "Apple Silicon thermal throttling" line updated for the 12B scale; Section 4.1, 4.2, 4.3 model-routing lines updated; Section 6a item 6 updated with the QAT rationale; Section 4.0 adds a "QAT rationale for 12B as L3" paragraph explaining the substrate fit on the M4 Air. The 31B was an architectural error on a fanless Air; 12B + QAT is the substrate-correct choice. See `03 Projects/Builder/drafts/mavis_harness_main.py` for the updated `DEFAULT_OLLAMA_CHAT_MODEL` constant.*

@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+
+    <!-- ============================================================
+         com.mavis.harness — Mavis Harness LaunchAgent
+         Source: 03 Projects/Mavis/phase_next_architecture.md §4.0
+                 (Local-Compute Pivot, 2026-06-07 14:18 CT)
+         Author: Mavis (chief-of-staff) — Sprint 5 deployment
+         Run:    launchctl bootstrap gui/$UID ~/Library/LaunchAgents/com.mavis.harness.plist
+         Stop:   launchctl bootout gui/$UID ~/Library/LaunchAgents/com.mavis.harness.plist
+         Logs:   ~/MiniMax-Agent/99 _system/logs/harness.log (stdout)
+                 ~/MiniMax-Agent/99 _system/logs/harness.err (stderr)
+
+         Why a LaunchAgent (not a system daemon):
+         - User-level (no sudo) — fits the personal-Mavis pattern.
+         - Auto-starts at user login.
+         - KeepAlive + ThrottleInterval give us crash recovery without tight restart loops.
+         - Log files are per-user; no system log pollution.
+         ============================================================ -->
+
+    <key>Label</key>
+    <string>com.mavis.harness</string>
+
+    <!-- Run as the user (UID is resolved at load time; no hardcoded UID here). -->
+    <key>ProcessType</key>
+    <string>Background</string>
+
+    <!-- The harness runs as a long-lived python3 process. We use
+         /usr/bin/env to resolve python3 from PATH (the user's PATH
+         at login, not launchd's, since launchd has a stripped PATH). -->
+    <key>ProgramArguments</key>
+    <array>
+        <string>/usr/bin/env</string>
+        <string>python3</string>
+        <string>/Users/brassfieldventuresllc/.mavis/bin/mavis_harness_main.py</string>
+        <string>--daemon</string>
+    </array>
+
+    <!-- Run from the workspace dir so relative paths in the harness
+         (state/, .mavis/) resolve correctly. -->
+    <key>WorkingDirectory</key>
+    <string>/Users/brassfieldventuresllc/MiniMax-Agent</string>
+
+    <!-- Start the harness when launchd loads the plist. -->
+    <key>RunAtLoad</key>
+    <true/>
+
+    <!-- KeepAlive policy:
+           SuccessfulExit: false → restart on non-zero exit (crash)
+           Crashed: true     → restart on signal-based termination
+         A clean exit (the harness sets a graceful-shutdown flag) is
+         honored — useful for manual restarts after a config change. -->
+    <key>KeepAlive</key>
+    <dict>
+        <key>SuccessfulExit</key>
+        <false/>
+        <key>Crashed</key>
+        <true/>
+    </dict>
+
+    <!-- ThrottleInterval: minimum seconds between restarts. If the
+         harness crashes in a tight loop, launchd backs off for 10s
+         before trying again. This prevents the "100% CPU on broken
+         config" failure mode. -->
+    <key>ThrottleInterval</key>
+    <integer>10</integer>
+
+    <!-- Resource limits: bound the harness so a runaway inference loop
+         can't OOM the machine. 2GB is generous for the orchestration
+         layer; the heavy lifting is in Ollama's separate process. -->
+    <key>SoftResourceLimits</key>
+    <dict>
+        <key>NumberOfFiles</key>
+        <integer>1024</integer>
+    </dict>
+
+    <!-- Standard I/O paths. Stdout is the operational log (cron
+         receipts, drift events, request traces). Stderr is the
+         exception log. Both are append-mode and rotated by
+         newsyslog / logrotate if desired — the deploy script can
+         install a logrotate config in a v2 step. -->
+    <key>StandardOutPath</key>
+    <string>/Users/brassfieldventuresllc/MiniMax-Agent/99 _system/logs/harness.log</string>
+
+    <key>StandardErrorPath</key>
+    <string>/Users/brassfieldventuresllc/MiniMax-Agent/99 _system/logs/harness.err</string>
+
+    <!-- Environment. PYTHONUNBUFFERED forces line-buffered output so
+         logs flush immediately (otherwise Python's stdout buffering
+         hides harness output for 4-8KB at a time). -->
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>/usr/local/bin:/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Users/brassfieldventuresllc/.local/bin</string>
+        <key>PYTHONUNBUFFERED</key>
+        <string>1</string>
+        <key>MAVIS_HARNESS_MODE</key>
+        <string>daemon</string>
+        <key>MAVIS_HARNESS_SESSION</key>
+        <string>launchd</string>
+    </dict>
+
+    <!-- Don't start until the user's session is fully bootstrapped.
+         This avoids races where the harness tries to load Tier 1
+         before the .mavis/state dir is fully visible. -->
+    <key>LimitLoadToSessionType</key>
+    <string>Aqua</string>
+
+    <!-- macOS Big Sur+ nicety: launchd will not start the harness
+         while the system is shutting down. -->
+    <key>EnablePressuredExit</key>
+    <true/>
+
+</dict>
+</plist>

@@ -1,0 +1,44 @@
+# =============================================================================
+# Token Plan Configuration — Mavis Harness
+# =============================================================================
+# YAML Schema:
+#   multipliers:
+#       input_rate:            float  # multiplier for sdk input token count
+#       output_rate:           float  # multiplier for sdk output token count
+#       system_prompt_per_char: float  # per-char surcharge (default 0.0)
+#   base_rates:
+#       input_per_m:           float  # USD per 1M input tokens
+#       output_per_m:          float  # USD per 1M output tokens
+#   source_status:
+#       multipliers_primary_documented: bool  # true only after primary-source confirmation
+#       base_rates_primary_documented:   bool  # verified via OpenRouter + M3 blog
+#       last_verified:         str     # ISO date of last update
+#       notes:                 str     # human-readable provenance note
+# =============================================================================
+
+# --- Multipliers --------------------------------------------------------------
+# Per blueprint §3.3: 1.3x/1.8x/0.2 surcharge are UNVERIFIED in primary sources.
+# The Token Plan FAQ and Rate Limits page do not contain these numbers.
+# Default: 1.0/1.0/0.0 (verified base rates only).
+# UPDATE ONLY AFTER primary-source confirmation.
+multipliers:
+  input_rate: 1.0            # UNVERIFIED; primary source not found; default 1.0
+  output_rate: 1.0            # UNVERIFIED; primary source not found; default 1.0
+  system_prompt_per_char: 0.0  # UNVERIFIED; default 0.0
+
+# --- Base rates ---------------------------------------------------------------
+# VERIFIED via OpenRouter (platform.openrouter.ai/models/minimax/M3) + M3 launch blog.
+base_rates:
+  input_per_m: 0.30          # USD per 1M input tokens (M3)
+  output_per_m: 1.20         # USD per 1M output tokens (M3)
+
+# --- Source status ------------------------------------------------------------
+# Tracking what we know about where these numbers came from.
+source_status:
+  multipliers_primary_documented: false
+  base_rates_primary_documented: true
+  last_verified: "2026-06-05"
+  notes: >
+    Per dossier UNVERIFIED status; primary source
+    (platform.minimax.io/docs/token-plan/faq) does not contain multiplier
+    language. Apply only verified base rates until primary-source confirmation.
