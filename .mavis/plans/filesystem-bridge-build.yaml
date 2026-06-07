@@ -1,0 +1,197 @@
+version: 1
+plan:
+  name: 'Build filesystem_bridge.py — Tier 3 lazy loader with macOS atomic writes'
+  max_concurrency: 1
+  max_consecutive_failures: 1
+  max_cycles: 2
+  verifier_config:
+    default_verifiers: [verifier]
+    audit_sample_rate: 0.0
+tasks:
+  - id: build-filesystem-bridge
+    title: 'Build filesystem_bridge.py + test_filesystem_bridge.py — Tier 3 atomic loader'
+    assigned_to: builder
+    verified_by: verifier
+    timeout_ms: 1500000
+    prompt: |
+      You are the Mavis-native Systems Builder. Andre is wiring Mavis to
+      the macOS Desktop App's native capabilities. This task scaffolds
+      the Tier 3 filesystem bridge — the module that lets Mavis read
+      full topics from the Obsidian Vault and write atomically without
+      API serialization overhead.
+
+      ## Model spec (Andre's hard rule, 2026-06-07 12:55 CT)
+      M2.7 ENFORCED for Mavis workers. The agent config at
+      `~/.mavis/agents/builder/config.yaml` now sets
+      `defaultModel: minimax/MiniMax-M2.7`. Your session should
+      launch on M2.7. If `mavis session info <your-session-id>` shows
+      `effectiveModel: minimax/MiniMax-M3` (the system-level default
+      from `~/.minimax/config.yaml:74` won the override race), report
+      it in the handoff to Mavis; the per-agent override is being
+      verified end-to-end.
+
+      ## Spec (locked 2026-06-07 12:55 CT, APPROVED)
+      v1 design doc: `~/MiniMax-Agent/03 Projects/Mavis/phase_next_architecture.md`
+      - Section 2 (Stream 1 — M3 + macOS Desktop App Synergy)
+      - Section 2.1 "Architectural hooks for the desktop app"
+      - Section 2.1.1 (filesystem read path) and 2.1.2 (filesystem write path)
+      - The atomic write pattern is in the spec: write to temp file → fsync → rename
+      Read Section 2 IN FULL before writing any code.
+
+      ## Deliverable (exactly two files)
+      1. `03 Projects/Builder/drafts/filesystem_bridge.py`
+      2. `03 Projects/Builder/drafts/test_filesystem_bridge.py`
+
+      ### filesystem_bridge.py — Tier 3 lazy loader with macOS atomic writes
+
+      Build a runnable Python module (executable as
+      `python3 filesystem_bridge.py` for the self-test). It must
+      implement:
+
+      - **`load_full_topic(vault_root: str, note_path: str) -> str`**:
+        Lazy load a single full topic (Tier 3) from the Obsidian Vault
+        directly via filesystem. Bypasses API serialization token
+        overhead. Returns the file contents as a string. If the file
+        doesn't exist, raises `FileNotFoundError` with the resolved
+        path (so the caller can distinguish "topic not yet captured"
+        from "load failure"). The vault root is validated to be
+        absolute and to exist before any file read. The note_path is
+        resolved relative to vault_root and **must not escape the
+        vault** (use `os.path.realpath` and check the resolved path
+        starts with `realpath(vault_root) + os.sep`). This is the
+        security boundary that prevents path traversal attacks.
+
+      - **`atomic_write(target_path: str, content: str) -> None`**:
+        Atomic write pattern. Write to `<target_path>.tmp.<pid>.<rand>`,
+        `os.fsync()` the temp file, then `os.rename()` to the final
+        path (rename is atomic on POSIX and macOS APFS). The temp
+        file MUST be cleaned up on any failure (try/finally). The
+        target_path's parent dir is created with `os.makedirs(...,
+        exist_ok=True)` before the write. The fsync is non-negotiable
+        — it ensures the bytes hit disk before the rename, so a crash
+        between rename and a delayed fsync can't leave a partial
+        file visible.
+
+      - **`Tier3Loader` class** that wraps `load_full_topic` with:
+        - An in-memory LRU+importance cache (max 64 entries, evict by
+          `(recency × importance)` with a 30-min hard floor matching
+          the v1 design doc Section 4.2)
+        - A `load(vault_root, note_path, importance: float = 0.5) -> str`
+          method that checks cache first, calls `load_full_topic` on
+          miss, caches the result with the importance score, and
+          returns
+        - An `evict_if_stale(now: float) -> list[str]` method that
+          evicts entries where `now - cached_at >= 1800` ONLY if
+          importance is below the eviction threshold (default 0.3);
+          the 30-min hard floor is enforced (never evict before 30
+          min regardless of score)
+        - A `stats() -> dict` method returning cache hits, misses,
+          evictions, total bytes served
+
+      - **macOS Full Disk Access compatibility note** (in module
+        docstring): the bridge requires FDA-granted access to the
+        Vault directory. Document the FDA prerequisite in the module
+        docstring so a reader knows what to grant at the OS level.
+        No actual FDA check in code (that's an OS concern, not a
+        Python concern); just document it.
+
+      - **Self-test**: a `__main__` block that:
+        1. Creates a temp dir as fake vault
+        2. Writes 2 test files via `atomic_write` to the fake vault
+        3. Reads them back via `load_full_topic` and `Tier3Loader.load`
+        4. Calls `atomic_write` a second time to overwrite a file —
+          verifies no temp file leaks
+        5. Calls `evict_if_stale` with `now=current+3600` and verifies
+          it evicts when importance is low
+        6. Calls `evict_if_stale` with `now=current+60` and verifies
+          the 30-min hard floor holds
+        7. Prints the `Tier3Loader.stats()` output
+        8. Cleans up the temp vault
+        Self-test exits 0 on success.
+
+      - **No external dependencies**. Standard library only (`os`,
+        `tempfile`, `time`, `pathlib`, `hashlib`, `secrets`).
+
+    verify_prompt: |
+      You are the Mavis-native Verifier. The Builder has delivered the
+      Tier 3 filesystem bridge. Your job is to audit it against the v1
+      design doc and the dispatch prompt. This is a security-sensitive
+      module (filesystem bridge with macOS atomic writes) — adversarial
+      re-derivation is required.
+
+      ## Model spec
+      M2.7 ENFORCED for Mavis workers. If your session launched on M3,
+      report it in your verdict; do not silently consume the higher-cost
+      model.
+
+      ## Independent re-derivation
+      Do NOT just re-read the Builder's handoff. Open the v1 design doc
+      at `~/MiniMax-Agent/03 Projects/Mavis/phase_next_architecture.md`
+      Section 2.1.1-2.1.2 yourself. Then open the two delivered files
+      at:
+      - `03 Projects/Builder/drafts/filesystem_bridge.py`
+      - `03 Projects/Builder/drafts/test_filesystem_bridge.py`
+      Compare. Then run the 7 audit checks below.
+
+      ## 7 audit checks (independent re-derivation)
+
+      1. **`load_full_topic` path-traversal protection** — Find the
+         path validation. Confirm it uses `os.path.realpath` and
+         verifies the resolved path starts with `realpath(vault_root) + os.sep`.
+         Try to bypass: construct a note_path like `../../../etc/passwd`
+         and confirm `load_full_topic` raises (ValueError or similar)
+         rather than reading outside the vault. FAIL if the check is
+         missing or uses only string-prefix matching without realpath.
+
+      2. **`atomic_write` actually does fsync** — Confirm the temp
+         write is followed by `os.fsync()` before `os.rename()`. The
+         order matters: temp file → fsync → rename. FAIL if fsync is
+         missing or comes after rename.
+
+      3. **`atomic_write` cleans up temp file on failure** — Find the
+         try/finally or context manager. Confirm the temp file is
+         removed in the failure path. Construct a failure (e.g., make
+         the target dir read-only) and verify no `<target>.tmp.*` files
+         leak. FAIL if the cleanup is missing.
+
+      4. **`Tier3Loader.evict_if_stale` enforces 30-min hard floor** —
+         Confirm `evict_if_stale` refuses to evict entries with
+         `now - cached_at < 1800` regardless of importance. Test:
+         cache an entry with importance=0.0 (would normally evict),
+         call `evict_if_stale(now=cached_at + 60)`, confirm the entry
+         is NOT evicted. Then call
+         `evict_if_stale(now=cached_at + 3600)`, confirm it IS evicted
+         (because floor is satisfied AND importance < threshold). FAIL
+         if the floor isn't enforced.
+
+      5. **No external dependencies** — Grep the file for `import`
+         statements. Confirm all are stdlib (`os`, `tempfile`, `time`,
+         `pathlib`, `hashlib`, `secrets`, `json`, `dataclasses`,
+         `typing`). FAIL on any third-party import.
+
+      6. **Self-tests pass with the atomic-write + Tier3Loader
+         behaviors** — Run
+         `python3 03 Projects/Builder/drafts/filesystem_bridge.py`
+         yourself. Confirm exit 0 and the expected output (the
+         self-test prints the stats and a per-check status). FAIL if
+         any check fails or the script errors.
+
+      7. **`test_filesystem_bridge.py` exists and runs** — Run
+         `python3 03 Projects/Builder/drafts/test_filesystem_bridge.py`
+         yourself. Confirm exit 0 and a meaningful test report
+         (e.g., unittest/pytest output showing all tests pass). FAIL
+         if the test file is missing, the script errors, or tests
+         fail.
+
+      ## Session model check
+      Report in your verdict: did the Builder's session launch on
+      M2.7 or M3? Use `mavis session info <session_id>` to check
+      `effectiveModel`. M2.7 is the spec (per `defaultModel: minimax/MiniMax-M2.7`
+      in `~/.mavis/agents/builder/config.yaml`); M3 is a flag for Mavis
+      to surface to Andre.
+
+      ## Verdict
+      Report PASS / FAIL with line-numbered evidence for each of the
+      7 checks. PASS only if all 7 are clean. A single FAIL on any
+      check is a FAIL overall. Pay extra attention to checks 1, 2, 3
+      (security-sensitive — path traversal, atomicity, cleanup).
