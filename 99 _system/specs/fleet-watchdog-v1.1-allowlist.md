@@ -6,6 +6,17 @@
 **Supersedes:** v1.0 ship report's "v1.1 acknowledged-orphans allowlist deferred" note
 **Status:** **LOCKED 2026-06-07 17:02 CT** — all 7 open questions resolved, build order set, ready to implement. See §12 for the locked directives.
 
+### Post-deployment note (2026-06-07 20:25 CT, Mavis)
+
+v1.1 swapped live 20h early (user opt) after a clean dry-run window. **One bug found and fixed during the live swap** (silently broken before, would have surfaced as a "weekly cards keep firing every 30 min" complaint if the dry-run had run a full week):
+
+- `fleet_watchdog.py:353` had `state = state or {}`. When `state` is `{}` (falsy on first run), this rebinds to a new dict, breaking the reference and silently discarding all pacer mutations. Result: the allowlist state file at `~/.hermes/scripts/fleet_watchdog.allowlist_state.json` was never being written. Weekly pace was effectively a no-op.
+- **Fix:** `if state is None: state = {}`. Mutations now propagate, state file gets written, second run of the same week correctly silences the 3 weekly cards.
+- All 15 v1.1 tests still pass (Tests 7 and 8 cover weekly pace; both green after fix).
+- See [[2026-06-07 - gbrain pivot + v1.1 live-swap post-mortem|evening session log]] for the full pivot context (gbrain to ZE, wrapper script env override, doctor false positive).
+
+**For Hermes:** v1.0 cron `3d0d9620c031` is presumably still running every 30 min. Disable it now that v1.1 (live via `fleet_watchdog_dryrun.sh` with `--dry-run` removed) is operational, or you'll get duplicate pages on the same 3 orphans.
+
 ---
 
 ## 1. Problem (recap from v1.0)
