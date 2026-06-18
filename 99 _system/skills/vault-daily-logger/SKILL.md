@@ -1,21 +1,48 @@
 ---
 name: vault-daily-logger
-description: Daily cron (18:00 CT) that auto-generates a 5-bullet technical-footprint daily note at `01 Daily/YYYY-MM-DD.md` when the day's file is missing or empty. Detects manual entries (content beyond frontmatter) and halts to preserve them. Tags the generated file with `tags: [auto-generated]` so the operator can tell the chief wrote it. Source material: `find 03 Projects/ -type f -mtime 0` grouped by top-level project, top 5 by modification count. Triggers: cron at 18:00 CT daily. Manual invocation: "run vault-daily-logger", "auto-generate today's daily", "daily note cron", "fallback daily brief". Hard constraint: NEVER overwrite a daily that has manual entries — that is the load-bearing rule. Read-only against `01 Daily/` for the detection step; writes only to today's file.
+description: |
+  Daily cron (18:00 CT) that auto-generates a 5-bullet technical-
+  footprint daily note at `01 Daily/YYYY-MM-DD.md` when the day's file
+  is missing or empty. Detects manual entries (≥100 bytes of body
+  content after frontmatter) and halts to preserve them. Tags the
+  generated file with `tags: [auto-generated]` so the operator can
+  tell the chief wrote it. Source material: `find 03 Projects/ -type
+  f -mtime 0` grouped by top-level project, top 5 by modification
+  count. Triggers: cron at 18:00 CT daily. Manual invocation:
+  "run vault-daily-logger", "auto-generate today's daily", "daily
+  note cron", "fallback daily brief", "backfill the daily note gap".
+  Hard constraint: NEVER overwrite a daily that has manual entries —
+  that is the load-bearing rule. Read-only against `01 Daily/` for
+  the detection step; writes only to today's file.
 ---
 
-# Vault Daily Logger
+# vault-daily-logger
 
-## What this skill does
+The daily-note habit gap closer. The 2026-06-16 vault audit found
+a 6-day gap where no daily notes were written, with the prior gap
+having been caught by the chief ("Mavis's memory was lagging
+reality, citing 3-day-old state as if current"). This skill is the
+automated fallback that ensures a daily note always exists at
+18:00 CT, so the chief never operates on stale context.
 
-Closes the **daily-note habit gap** identified in the 2026-06-16 vault audit. The audit found a 6-day gap (2026-06-10 → 2026-06-16) where no daily notes were written, with the prior gap having been caught by the chief ("Mavis's memory was lagging reality, citing 3-day-old state as if current"). This skill is the automated fallback that ensures a daily note always exists at 18:00 CT, so the chief never operates on stale context.
+## Intent
 
-The cron runs daily at 18:00 CT. It checks `01 Daily/YYYY-MM-DD.md` for today's date. If the file is missing or empty, it auto-generates a 5-bullet summary of the day's actual technical footprint (files modified today in `03 Projects/`, grouped by top-level project, top 5 by modification count). The generated file is tagged with `tags: [auto-generated]` so the operator can tell the chief wrote it (vs. a manual entry).
+- Cron at 18:00 CT daily
+- Check `01 Daily/YYYY-MM-DD.md` for today's date
+- If the file is missing or empty, auto-generate a 5-bullet summary of the day's actual technical footprint
+- If the daily already exists with manual entries (≥100 bytes of body content after frontmatter), halt — the operator's manual work is sacred
+- Append to a run log at `99 _system/logs/daily-logger-runs.jsonl`
 
-If the daily already exists with manual entries (i.e., body content beyond the frontmatter), the skill **halts** — the operator's manual work is sacred and never overwritten.
+The model decides *what* the 5 bullets say (the 1-line project
+summary per project). The deterministic layer (find/awk/sort for
+scanning, Python for the atomic write, the 100-byte manual
+detection logic) lives in `references/`. Safety halts and edge cases
+live in `tests/`.
 
 ## When to run
 
-**Primary trigger:** cron at 18:00 CT daily. Wire to `99 _system/intake-log/cron/jobs.json` (or wherever the chief's cron lives).
+**Primary trigger:** cron at 18:00 CT daily. Wire to the chief's cron
+schedule (`mavis cron`).
 
 **Manual triggers:**
 - "run vault-daily-logger"
@@ -25,235 +52,70 @@ If the daily already exists with manual entries (i.e., body content beyond the f
 - "backfill the daily note gap"
 
 **Do NOT run for:**
-- Future dates (e.g., writing tomorrow's daily in advance) — halt and surface if the date is in the future.
-- Dates more than 7 days in the past — the audit is weekly-cadence; older gaps should be flagged, not silently backfilled.
-- The `02 Notes/` or `00 Inbox/` directories — this skill writes only to `01 Daily/`.
-- A daily that has manual entries — the load-bearing halt.
+- Future dates (system clock may be off)
+- Dates more than 7 days in the past (older gaps should be flagged, not silently backfilled)
+- The `02 Notes/` or `00 Inbox/` directories (this skill writes only to `01 Daily/`)
+- A daily that has manual entries (the load-bearing halt)
 
 ## Inputs
 
 | Input | Default | Required |
-|-------|---------|----------|
-| Date to log | today (CT, `date +%Y-%m-%d`) | no |
+|---|---|---|
+| Date to log | today (CT) | no |
 | Vault root | `/Users/brassfieldventuresllc/MiniMax-Agent` | no |
 | Daily dir | `01 Daily/` | no |
 | Projects dir | `03 Projects/` | no |
 | Top-N bullets | 5 | no |
-| Manual-detection threshold | 100 bytes of body content (excluding frontmatter) | no — adjust if the operator's manual dailies are consistently shorter or longer |
+| Manual-detection threshold | 100 bytes of body content | no — adjust if operator's dailies are consistently shorter/longer |
 
-## Outputs
+## Output contract
 
-A markdown file at `01 Daily/YYYY-MM-DD.md` with the following structure:
+A markdown file at `01 Daily/YYYY-MM-DD.md` (only on the
+"missing-or-empty" path) with:
+- Frontmatter (date, day, type, tags `[auto-generated]`, generator
+  metadata)
+- An `> **AUTO-GENERATED**` callout (explicit marker for future-Mavis)
+- The 5-bullet technical footprint (top 5 projects by file-mod
+  count, each with: project name + count + 1-line summary + key
+  files)
+- Optional stubs (🎯 / 📥 / ✅ / 🚧 / 🧹) for manual follow-up
+- "Notes for the chief" section with the run metadata
 
-```markdown
----
-date: YYYY-MM-DD
-day: <DayOfWeek>
-type: daily
-tags: [auto-generated]
-generator: vault-daily-logger
-generator_version: 1.0
----
+Plus an append to the run log at
+`99 _system/logs/daily-logger-runs.jsonl` (one line per run with
+timestamp, files scanned, top projects).
 
-# YYYY-MM-DD, <DayOfWeek>, <Month> <Day>, <Year>
+The full file template is in `references/output-template.md`.
 
-> **AUTO-GENERATED** by `vault-daily-logger` at 18:00 CT on YYYY-MM-DD. The chief did not write a manual daily for this date. The 5 bullets below are the day's actual technical footprint (files modified in `03 Projects/`), grouped by top-level project, top 5 by modification count. Edit this file to add manual context — subsequent cron runs will halt.
+## Resolver
 
-## 5-bullet technical footprint
+Auto-invoke when:
+- 18:00 CT cron fires (the primary trigger)
+- Operator says "run vault-daily-logger" / "backfill the daily note gap"
 
-- **<Project name 1>** — <N> files modified. <1-line summary>. Key files: <path1>, <path2>, ...
-- **<Project name 2>** — <N> files modified. <1-line summary>. Key files: <path1>, <path2>, ...
-- **<Project name 3>** — <N> files modified. <1-line summary>. Key files: <path1>, <path2>, ...
-- **<Project name 4>** — <N> files modified. <1-line summary>. Key files: <path1>, <path2>, ...
-- **<Project name 5>** — <N> files modified. <1-line summary>. Key files: <path1>, <path2>, ...
+Do NOT auto-invoke for:
+- Future dates (clock-skew check)
+- Manual dailies present (the load-bearing halt)
+- Dates >7 days old (surface the gap, don't silently backfill)
 
-## (Optional) Stubs for manual follow-up
+## Hard constraints (the load-bearing rule + supporting halts)
 
-- 🎯 Most Important Thing Today: <to be filled by the operator>
-- 📥 Captures: <to be filled by the operator>
-- ✅ Confirms: <to be filled by the operator>
-- 🚧 In-flight: <to be filled by the operator>
-- 🧹 Vault hygiene: <to be filled by the operator>
-
-## Notes for the chief
-
-- Cron run completed at HH:MM:SS CT. The 5-bullet summary was generated by scanning `03 Projects/` for files modified today.
-- Total files modified today: <N>. Top 5 projects captured. If <5 projects had activity, the bullets are fewer (or just one bullet if only one project).
-- The next cron run is scheduled for 18:00 CT tomorrow.
-- **Manual-detection:** this file was generated because the daily was missing or had <100 bytes of body content. The next cron run will halt if this file has been edited.
-```
-
-The 5 bullets are the load-bearing element. The optional stubs give the operator a scaffold for manual follow-up (matching the convention of the existing daily notes in `01 Daily/`).
-
-## The Hard Constraint (READ THIS)
-
-**NEVER overwrite a daily that has manual entries.** If `01 Daily/YYYY-MM-DD.md` exists and has ≥100 bytes of body content (excluding frontmatter), the skill halts immediately. The operator's manual work is sacred.
-
-Detection logic:
-1. Read the file.
-2. Strip the frontmatter (lines between the first `---` and the second `---`).
-3. If the remaining body content is < 100 bytes → treat as empty, proceed to generate.
-4. If ≥ 100 bytes → halt with the message "manual daily already exists, no overwrite."
-
-The 100-byte threshold is the manual-detection calibration. It's intentionally low (so even a 1-paragraph manual daily is preserved) but high enough that an auto-generated stub (with the AUTO-GENERATED banner + 5 bullets) is detected as auto-generated. If the operator finds the threshold miscalibrated, the parameter is exposed in the Inputs table.
-
-## The Procedure
-
-### Step 1: Determine today's date in CT
-
-```bash
-date_today=$(TZ=America/Chicago date "+%Y-%m-%d")
-day_of_week=$(TZ=America/Chicago date "+%A")
-```
-
-If the date is in the future (e.g., system clock off), halt and surface.
-
-### Step 2: Check for existing daily
-
-```bash
-daily_path="01 Daily/${date_today}.md"
-if [ -f "$daily_path" ]; then
-    body_size=$(python3 -c "
-import re
-content = open('$daily_path').read()
-m = re.match(r'^---\n.*?\n---\n', content, re.DOTALL)
-body = content[m.end():] if m else content
-print(len(body.strip()))
-")
-    if [ "$body_size" -ge 100 ]; then
-        echo "HALT: manual daily already exists at $daily_path (body size: $body_size bytes)" >&2
-        exit 1
-    fi
-fi
-```
-
-If the file doesn't exist OR the body is < 100 bytes, proceed to generate.
-
-### Step 3: Scan `03 Projects/` for files modified today
-
-```bash
-find "03 Projects" -type f -mtime 0 -not -name ".DS_Store" 2>/dev/null
-```
-
-The `-mtime 0` matches files modified within the last 24 hours. This is a wider window than "today" — it includes the previous evening's late work. If a tighter window is needed, use `-newermt "$(date +%Y-%m-%d)"` instead.
-
-### Step 4: Group by top-level project, count modifications
-
-```bash
-find "03 Projects" -type f -mtime 0 -not -name ".DS_Store" 2>/dev/null \
-  | awk -F'/' '{print $3}' \
-  | sort | uniq -c | sort -rn | head -5
-```
-
-This gives the top 5 project names by modification count.
-
-### Step 5: For each top-5 project, extract 2-3 key files
-
-For each project, list the files modified and pick the 2-3 most-recently-modified (or the 2-3 most "load-bearing" by name match — e.g., files with "00 Overview" or "README" or "agent.md" or "SKILL.md" are usually the structural files).
-
-```bash
-for project in <top-5-project-list>; do
-    find "03 Projects/${project}" -type f -mtime 0 -not -name ".DS_Store" 2>/dev/null \
-      | head -3
-done
-```
-
-### Step 6: Generate the 1-line summary per project
-
-The 1-line summary is a synthesis of what the project is + what changed. Heuristics:
-- If the project has an `00 Overview.md` modified today, read the first 30 chars of the `## Goal` section.
-- If the project has a `README.md` modified today, read the first 30 chars of the `## What this is` section.
-- If neither, fall back to a generic "active" line.
-
-This is the LLM-callable step. The chief (Mavis) is the natural LLM caller; a future automation could call a small model for the summary. For the cron-driven case, the chief's daily note IS the summary; the cron just generates the bullet structure.
-
-### Step 7: Build the file
-
-Write the file with the structure shown in the Outputs section. Use atomic write (temp-write-fsync-rename) to prevent partial writes on cron interruption.
-
-```python
-import os, tempfile
-from pathlib import Path
-
-DAILY = Path("01 Daily/YYYY-MM-DD.md")
-content = f"""---
-date: {date_today}
-day: {day_of_week}
-type: daily
-tags: [auto-generated]
-generator: vault-daily-logger
-generator_version: 1.0
----
-
-# {date_today}, {day_of_week}, ... 
-...
-"""
-with tempfile.NamedTemporaryFile(
-    mode="w", dir=DAILY.parent, prefix=".daily_", suffix=".tmp", delete=False
-) as f:
-    f.write(content)
-    f.flush()
-    os.fsync(f.fileno())
-    tmp_path = f.name
-os.replace(tmp_path, DAILY)
-```
-
-### Step 8: Log the run
-
-Append a one-line entry to a run log (suggested path: `99 _system/logs/daily-logger-runs.jsonl`). The log entry: `{"date": "...", "run_at": "HH:MM:SS CT", "files_scanned": N, "top_projects": [...], "daily_path": "..."}`.
-
-### Step 9: Return summary
-
-Send a one-paragraph summary to the chief (or to the cron log):
-- Date logged
-- Files scanned
-- Top 5 projects (with modification counts)
-- Halt conditions, if any
-- Next cron run: 18:00 CT tomorrow
-
-## The File Format
-
-The generated file matches the `99 _system/templates/daily.md` template (per the vault's `daily.md` template convention). The key differences from a manual daily:
-- Frontmatter has `tags: [auto-generated]` and `generator: vault-daily-logger` (the operator can grep for these to find auto-generated dailies).
-- The body opens with a `> **AUTO-GENERATED**` callout — explicit so the operator (or future chief) knows the file is auto-generated.
-- The 5-bullet section is structured (project + count + summary + key files), not narrative.
-- The optional stubs (🎯 / 📥 / ✅ / 🚧 / 🧹) are present but empty, so the operator can fill them in if they want to convert an auto-generated daily to a manual one.
-
-## The Safety Halts
-
-1. **Manual daily exists.** Halt; do not overwrite.
-2. **Future date.** Halt; the system clock may be off.
-3. **Date more than 7 days in the past.** Halt; the operator should manually backfill or the gap should be flagged for the chief.
-4. **`03 Projects/` missing or unreadable.** Halt; surface the disk error.
-5. **Atomic write fails.** Halt; surface the write error.
-6. **Body size detection fails (file is binary or has no frontmatter).** Halt; surface the file structure anomaly.
-
-## Failure modes
-
-| Failure | Detection | Response |
-|---------|-----------|----------|
-| Manual daily exists | body size ≥ 100 bytes | Halt; preserve the manual work |
-| Future date | system clock | Halt; surface the clock issue |
-| 0 files modified today | `find` returns empty | Generate a stub daily with "0 files modified today" — still produces a daily, even if sparse |
-| Top project has 50+ files modified | count threshold | Cap the bullet's "key files" list at 3; the bullet's "summary" is the load-bearing element, not the file list |
-| `01 Daily/` doesn't exist | `ls` fails | Halt; the daily-notes dir is missing — surface to the operator |
-| Atomic write fails | `os.replace` raises | Halt; surface the write error |
-| File at the daily path is binary or has no frontmatter | `re.match` fails | Halt; surface the file structure anomaly |
-
-## Verification
-
-After writing the daily:
-1. `ls -la 01 Daily/YYYY-MM-DD.md` confirms the file exists
-2. `head -10 01 Daily/YYYY-MM-DD.md` confirms the AUTO-GENERATED callout
-3. The 5-bullet section has the correct project names and counts (cross-check against the `find` output from Step 3)
-4. The atomic write pattern was used (no partial writes)
-5. The run log was appended (not overwritten)
-6. The next cron run (tomorrow 18:00 CT) will detect this file as ≥ 100 bytes and halt (no overwriting)
+1. **NEVER overwrite a daily that has manual entries.** This is the load-bearing rule. If the file has ≥100 bytes of body content (excluding frontmatter), halt immediately. The operator's manual work is sacred.
+2. **Future date → halt.** System clock may be off.
+3. **Date >7 days in the past → halt.** The audit is weekly-cadence; older gaps should be flagged, not silently backfilled.
+4. **Atomic write mandatory.** Use temp-write-fsync-rename to prevent partial writes on cron interruption.
+5. **0 files modified today → still generate a stub daily.** "0 files modified today" is a valid daily, even if sparse.
+6. **Top project with 50+ files modified → cap the bullet's key files at 3.** The bullet's summary is the load-bearing element, not the file list.
 
 ## Cross-reference
 
+- `references/output-template.md` — the file structure + the auto-generated frontmatter
+- `references/scan-protocol.md` — the find/awk/sort pipeline for `03 Projects/`
+- `references/atomic-write.md` — the Python atomic write pattern
+- `references/run-log.md` — the JSONL log entry shape
+- `tests/safety-halts.md` — manual-daily, future-date, body-size, atomic-write failure
+- `tests/manual-detection.md` — the 100-byte threshold accuracy
+- `tests/edge-cases.md` — 0 files modified, single project, sparse days
 - The `99 _system/templates/daily.md` template — the canonical daily-note structure this skill mirrors
 - The `vault-30day-auditor` skill — the audit skill that flagged the 6-day gap this skill is fixing
-- The chief's `MEMORY.md` "Daily notes cadence" — the discipline this skill is operationalizing
-- The 2026-06-16 vault audit report — the input that identified the gap
-- The chief's `orchestration-failure-modes.md` (if it exists) — for the worker-stall pattern when the chief is unavailable to write the summary
+- The chief's `MEMORY.md` "Daily notes cadence" — the discipline this skill operationalizes
