@@ -84,3 +84,35 @@ When running an evaluation loop (SePO, audit, A/B test, any measurement), report
 **Cross-project:** applies to any structured evaluation Mavis runs — quality scoring, A/B test results, audit reports, fitness scoring, regression tests. The principle is 'what the measurement says, not what the operator wants to hear.' Same discipline as direct quotes for 'what Andre said' vs paraphrase: the source-of-truth principle generalizes.
 
 **Test case for self-check:** if Mavis produces a result that matches operator expectations → good. If Mavis produces a result that DOESN'T match operator expectations AND the reasoning is sound → also good. If Mavis produces a result that DOESN'T match operator expectations AND the reasoning is weak → flag the reasoning, not the result.
+
+### Resilience-first scaling for volatile UIs (2026-06-18)
+Type: pattern
+
+**Context:** X-Content-Engine reply-guy pipeline. Andre pushed from 1 original post to "be a reply guy" — 30 replies/day target. I built the pipeline (skill + crons + first batch of 3 replies) and then said "Heads-up: the crons are using the osascript clipboard path that the v2 attempt hit duplication on." Andre pushed back hard: "This is an issue an incredible EA would catch and fix without bringing it to me."
+
+**The pattern:** When scaling automation on volatile UIs (X.com, Notion, Linear, Substack, any React/Tailwind site), the load-bearing failure mode is NOT the core workflow logic. It is:
+1. Modal drift (X.com throws "Who to follow" / "Subscribe to Premium" / "Turn on notifications" interstitials that steal focus)
+2. Brittle selectors (X.com generates dynamic React/Tailwind classes; hardcoded XPath decays in weeks)
+3. Account health (rate limit + deboost + engagement collapse can permanently flag the account)
+
+Build resilience skills FIRST, then scale volume. Specifically:
+- **x-ui-bouncer** (modal dismissal): pre-flight + mid-flight scan for known modals, dismiss, retry. Real-world test: caught 2 generic close buttons on /home in 1 second.
+- **x-semantic-locator** (3-tier element finding): a11y tree → data-testid → contentEditable. Each tier is a fallback for the previous. Test: Tier 1 (a11y snapshot) found a textbox at ref=e211.
+- **x-health-telemetry** (pre-sweep health): rate-limit scan + post-visibility check + engagement-velocity comparison. HALT the sweep if any trip.
+
+**Why this matters at scale:** 30 replies/day on a brittle automation is 1 modal away from a broken pipeline. The compounding loop dies. The resilience layer is not optional at scale.
+
+**Cross-project:** Applies to any automation on a React/Tailwind site. The tool-quirks.md note already flagged the duplication bug for the same root cause (dynamic React class generation). The resilience pattern generalizes.
+
+**Discipline rules:**
+1. Before scaling volume on any UI automation, audit the UI for: modal patterns, selector stability, health-check surface.
+2. Build the resilience layer (bouncer + locator + telemetry) FIRST, even if the workflow logic is done.
+3. Real-world test the resilience layer on the live UI (not just docs): navigate, run the bouncer, verify the locator, run the telemetry check. The 11:35 CT bouncer test caught 2 real modals on /home in 1 second.
+4. Wire the resilience layer into every cron (not just the new ones) — the X-Content-Engine pattern was to update post-2..9 retroactively with the bouncer pre-flight, even though they were already using the Playwright path.
+5. Cap volume at a conservative level (10/day) for Week 1, scale only after engagement data confirms positive algorithm response. The 10/day → 30/day ramp is a discipline, not a default.
+
+**Trigger phrases (Andre-side):**
+- "scale this fast as hell" → reach for resilience skills FIRST
+- "we have to treat the platform as hostile" → build x-ui-bouncer + x-semantic-locator
+- "before we fire a cannon, ensure we are not firing into a void" → x-health-telemetry
+- "brittle automation" → 3-layer defense (bouncer + locator + telemetry)

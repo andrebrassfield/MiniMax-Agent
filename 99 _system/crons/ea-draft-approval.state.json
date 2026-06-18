@@ -15,11 +15,11 @@
       "post_text": "AI isn't going to take your job. A person using AI is going to take your job. 40+ hiring managers told me: every one is planning to upgrade, not replace. The person you compete with isn't an algorithm. It's the coworker who spent 30 minutes this weekend.",
       "post_char_count": 254,
       "proposed_at": "2026-06-17T18:00:00-05:00",
-      "response_status": "open",
-      "response_text": null,
-      "responded_at": null,
-      "acted_at": null,
-      "action": null
+      "response_status": "approved",
+      "response_text": "Run them all",
+      "responded_at": "2026-06-18T10:09:02-05:00",
+      "acted_at": "2026-06-18T10:09:02-05:00",
+      "action": "batch_approved"
     },
     {
       "draft_id": "03 Projects/X-Content-Engine/drafts/machine-batch-2026-06-17.md:r1d2:b14cb8d7dca1e9f7",
@@ -33,11 +33,11 @@
       "post_text": "Everyone is hyping the new real-time voice model. Who cares. Here is what a customer success rep can do with it: 50 calls a day, AI handles the CRM notes. 10 minutes of prep instead of 1 hour of manual entry. $400/mo. 40 minutes saved daily.",
       "post_char_count": 241,
       "proposed_at": "2026-06-17T18:00:00-05:00",
-      "response_status": "open",
-      "response_text": null,
-      "responded_at": null,
-      "acted_at": null,
-      "action": null
+      "response_status": "approved",
+      "response_text": "Run them all",
+      "responded_at": "2026-06-18T10:09:02-05:00",
+      "acted_at": "2026-06-18T10:09:02-05:00",
+      "action": "batch_approved"
     },
     {
       "draft_id": "03 Projects/X-Content-Engine/drafts/machine-batch-2026-06-17.md:r1d3:5da5ace56206bc4f",
@@ -51,11 +51,11 @@
       "post_text": "New tool dropped Tuesday. By Wednesday, 1,100 demos, 90 think-pieces, 10 practical breakdowns. The 10 broke out. Stop adding to the noise. Be the one who ships the useful thing.",
       "post_char_count": 177,
       "proposed_at": "2026-06-17T18:00:00-05:00",
-      "response_status": "open",
-      "response_text": null,
-      "responded_at": null,
-      "acted_at": null,
-      "action": null
+      "response_status": "approved",
+      "response_text": "Run them all",
+      "responded_at": "2026-06-18T10:09:02-05:00",
+      "acted_at": "2026-06-18T10:09:02-05:00",
+      "action": "batch_approved"
     },
     {
       "draft_id": "03 Projects/X-Content-Engine/drafts/machine-batch-2026-06-17.md:r2d1:896c7312a5533bb2",
@@ -69,11 +69,11 @@
       "post_text": "30 minutes this weekend. Three Notion databases. One Zapier connector. Five ChatGPT system instructions. Total: $20/mo. The output: you walk into Monday's standup with answers before questions are asked.",
       "post_char_count": 203,
       "proposed_at": "2026-06-17T18:00:00-05:00",
-      "response_status": "open",
-      "response_text": null,
-      "responded_at": null,
-      "acted_at": null,
-      "action": null
+      "response_status": "approved",
+      "response_text": "Run them all",
+      "responded_at": "2026-06-18T10:09:02-05:00",
+      "acted_at": "2026-06-18T10:09:02-05:00",
+      "action": "batch_approved"
     },
     {
       "draft_id": "03 Projects/X-Content-Engine/drafts/machine-batch-2026-06-17.md:r2d2:3c07125581362f39",
@@ -87,11 +87,11 @@
       "post_text": "5 minutes after a new tool drops: (1) Save 1+ hr/week? → Archive if no. (2) Works with tools I use? → Archive if no. (3) Cost < $20/mo? → Archive if no. (4) Install in <4 hrs? → Archive if no. (5) Usage-based? → Archive if no. 4 of 5 passes = install it.",
       "post_char_count": 254,
       "proposed_at": "2026-06-17T18:00:00-05:00",
-      "response_status": "open",
-      "response_text": null,
-      "responded_at": null,
-      "acted_at": null,
-      "action": null
+      "response_status": "approved",
+      "response_text": "Run them all",
+      "responded_at": "2026-06-18T10:09:02-05:00",
+      "acted_at": "2026-06-18T10:09:02-05:00",
+      "action": "batch_approved"
     },
     {
       "draft_id": "03 Projects/X-Content-Engine/drafts/machine-batch-2026-06-17.md:r2d3:cc3f3330956f4261",
@@ -105,11 +105,11 @@
       "post_text": "Your local shop is already losing business to AI overviews. The GEO drop is happening now. Schema markup. Author entities. Primary-source citation density. Build the entity the scripts cite. Not just the pages Google ranks.",
       "post_char_count": 223,
       "proposed_at": "2026-06-17T18:00:00-05:00",
-      "response_status": "open",
-      "response_text": null,
-      "responded_at": null,
-      "acted_at": null,
-      "action": null
+      "response_status": "approved",
+      "response_text": "Run them all",
+      "responded_at": "2026-06-18T10:09:02-05:00",
+      "acted_at": "2026-06-18T10:09:02-05:00",
+      "action": "batch_approved"
     },
     {
       "draft_id": "03 Projects/X-Content-Engine/drafts/machine-batch-2026-06-17.md:r3d1:ea20c615a03b83cc",
@@ -123,11 +123,11 @@
       "post_text": "GitHub Copilot's 55% stat isn't for engineers. Less-experienced developers gained the most. AI does the boilerplate. You ship the judgment. $20/mo ChatGPT. 4 hrs/week saved. $200/wk at $50/hr. The gap isn't technical ability. It's knowing what to ask.",
       "post_char_count": 251,
       "proposed_at": "2026-06-17T18:00:00-05:00",
-      "response_status": "open",
-      "response_text": null,
-      "responded_at": null,
-      "acted_at": null,
-      "action": null
+      "response_status": "approved",
+      "response_text": "Run them all",
+      "responded_at": "2026-06-18T10:09:02-05:00",
+      "acted_at": "2026-06-18T10:09:02-05:00",
+      "action": "batch_approved"
     },
     {
       "draft_id": "03 Projects/X-Content-Engine/drafts/machine-batch-2026-06-17.md:r3d2:7605852f8a07e814",
@@ -141,11 +141,11 @@
       "post_text": "AI won't take your coding job. A developer using AI will take your coding job. AI does the boilerplate. You ship the design. The threat isn't the algorithm. It's the developer at the next desk who's already automating their grunt work.",
       "post_char_count": 235,
       "proposed_at": "2026-06-17T18:00:00-05:00",
-      "response_status": "open",
-      "response_text": null,
-      "responded_at": null,
-      "acted_at": null,
-      "action": null
+      "response_status": "approved",
+      "response_text": "Run them all",
+      "responded_at": "2026-06-18T10:09:02-05:00",
+      "acted_at": "2026-06-18T10:09:02-05:00",
+      "action": "batch_approved"
     },
     {
       "draft_id": "03 Projects/X-Content-Engine/drafts/machine-batch-2026-06-17.md:r3d3:3091a98541653b44",
@@ -159,11 +159,11 @@
       "post_text": "You don't need a new FSM platform. You need the 200 lines Python the wrapper is missing. Every tool in the FSM stack is a wrapper at the data layer. The fix isn't a migration. It's the polling fallback the vendor should have shipped.",
       "post_char_count": 233,
       "proposed_at": "2026-06-17T18:00:00-05:00",
-      "response_status": "open",
-      "response_text": null,
-      "responded_at": null,
-      "acted_at": null,
-      "action": null
+      "response_status": "approved",
+      "response_text": "Approved",
+      "responded_at": "2026-06-18T09:42:12-05:00",
+      "acted_at": "2026-06-18T09:42:12-05:00",
+      "action": "approved"
     }
   ],
   "schema_version": 1

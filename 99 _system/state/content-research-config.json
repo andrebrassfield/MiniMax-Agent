@@ -1,0 +1,89 @@
+{
+  "_meta": {
+    "type": "content-research-daily-config",
+    "project": "X-Content-Engine",
+    "owner": "Mavis (chief)",
+    "created": "2026-06-18",
+    "updated": "2026-06-18",
+    "purpose": "Declarative config for the content-research-daily cron. Keywords + creators per Pillar. The runtime is `mavis cron`; this file is the version-controlled source of truth that documents what each Pillar scans for.",
+    "cron_name": "content-research-daily",
+    "schedule": "0 9 * * * America/Chicago",
+    "scanner_default": "x-niche-scraper (real browser, anti-bot risk on dense runs)",
+    "scanner_fallback": "web_search via matrix MCP (Mavis-side synthesis; used when 6-Pillar scan is run in tight-cadence cron)"
+  },
+  "pillars": [
+    {
+      "id": 1,
+      "name": "E-Commerce Logistics",
+      "query": "Shopify inventory OR \"TikTok Shop\" penalty OR multi-channel fulfillment",
+      "key_topics": ["TikTok Shop 2026-01-26 fulfillment rules", "Amazon MCF for TikTok Shop", "55+ fee items per order", "96-hour rule", "$5/order penalty", "LDR tiers"],
+      "voice_anchor": "Stop selling SaaS utilities to SMBs. They don't want software; they want outcomes. Sell them an autonomous worker.",
+      "creator_targets": ["@DreTheSalesGuy voice", "Shopify product team", "TikTok Shop seller community"]
+    },
+    {
+      "id": 2,
+      "name": "The Trades (HVAC / Plumbing)",
+      "query": "AI voice agent HVAC OR \"missed call\" OR \"plumbing AI\" OR Vapi Synthflow ServiceTitan",
+      "key_topics": ["missed-call math", "after-hours voicemail gap", "Synthflow + ServiceTitan", "4-week install window", "AI receptionist ROI", "trades-business build-log"],
+      "voice_anchor": "Your $450 missed call isn't an ops problem. It's a math problem. If you miss 8 calls a day, you are burning $1M a year.",
+      "creator_targets": ["r/AIReceptionistOwners", "Vapi / Synthflow / Bland vendor blogs", "trades-practitioner build-logs"]
+    },
+    {
+      "id": 3,
+      "name": "Existential Macro (Search → GEO)",
+      "query": "programmatic SEO OR GEO generative engine OR answer engine optimization",
+      "key_topics": ["38% of 2026 search via generative AI", "schema.org / author entities / citation density", "pSEO volume asymmetry", "the 25% → 38% stat evolution", "GEO stack for local services"],
+      "voice_anchor": "Your SEO ranking is dying. Not because Google is broken. 25% of search is moving to answer engines. They don't show your link. They cite your source. Build the GEO stack.",
+      "creator_targets": ["Jake Ward (pSEO)", "Mailchimp / Sagefrog GEO primers", "B2B Marketing Zone GEO coverage"]
+    },
+    {
+      "id": 4,
+      "name": "Build Logs (Voice-to-FSM Bridge)",
+      "query": "\"AI agent\" \"build log\" OR \"voice agent latency\" OR \"FSM bridge\" ServiceTitan",
+      "key_topics": ["sub-700ms → sub-500ms latency frontier", "NetoAI 4-model cascade (TSLAM + T-VEC + TTE + T-Synth)", "Listen-Think-Speak semantic triggering", "200 lines Python the wrapper is missing", "Dre Builds Hybrid AI Voice-to-FSM Bridge PoC"],
+      "voice_anchor": "Sub-700ms is the ceiling. Above that, callers hang up. First Synthflow test hit 920ms. The customer thought the AI was broken. It wasn't. It was slow. Tuned to gpt-4o-mini. Cut the system prompt by 40%. Latency: 640ms. The math is the product.",
+      "creator_targets": ["arXiv 2508.04721", "arXiv 2601.19952 (LTS-VoiceAgent)", "callsphere.ai latency engineering", "Dre Builds founder build log"]
+    },
+    {
+      "id": 5,
+      "name": "Leverage Play (Job Defense)",
+      "query": "\"AI replace jobs\" OR \"automate weekly report\" OR \"second brain AI\"",
+      "key_topics": ["WEF 2025: 40% of employers expect to reduce workforce where AI can automate", "30-minutes-a-weekend tactical play", "GitHub Copilot 55% stat", "the 体力活 vs 脑力劳动 distinction", "Klarna-style replacement announcements"],
+      "voice_anchor": "AI isn't going to take your job. A person using AI is going to take your job. Spend 30 minutes this weekend learning how to automate your weekly reporting. Walk into the office Monday as the most dangerous person in your department.",
+      "creator_targets": ["WEF Future of Jobs 2025", "Fudan Shanghai Forum 2026", "网易 2026 work-change piece", "李彦宏 WAIC 2024 quotes"]
+    },
+    {
+      "id": 6,
+      "name": "Hype Translator (Cool, Practical Shit)",
+      "query": "new AI tool drop OR \"practical AI use case\" OR \"hype translation\"",
+      "key_topics": ["2026 hype-to-pragmatism shift", "scaling laws exhausting", "vertical AI over horizontal", "localization gap (English-first tools on Chinese)", "the 4-line implementation template"],
+      "voice_anchor": "Everyone is hyping up this new video model for making movies. Who cares. Here is how a local roofer can use it to turn one iPhone video into a week of high-converting TikTok ads in 4 minutes. A practical breakdown 🧵:",
+      "creator_targets": ["TechCrunch hype-to-pragmatism 2026", "雷科技 year-in-review", "听脑AI / Sembly / Otter / Fireflies comparison", "Manchester U / U Groningen journalism study"]
+    }
+  ],
+  "output_paths": {
+    "per_pillar_seed_dir": "00 Inbox/",
+    "per_pillar_seed_naming": "raw-seed-pillarN-YYYY-MM-DD-HHMM.md (Mavis-synthesized) OR x-niche-<query-slug>-YYYY-MM-DD-HHMM.md (real x-niche-scraper)",
+    "concatenated_input": "00 Inbox/daily-research-YYYY-MM-DD.md",
+    "brief_output": "03 Projects/X-Content-Engine/briefs/YYYY-MM-DD-HHMM-brief.md",
+    "brain_state": "03 Projects/X-Content-Engine/memory/content_brain.json"
+  },
+  "researcher_dispatch": {
+    "registered_agent_name": "x-researcher",
+    "agent_self_name_in_frontmatter": "x-content-researcher",
+    "dispatch_via": "mavis communication send --from <this-session> --to <spawn> --command spawn --content '{\"agent\":\"x-researcher\",\"prompt\":\"<abs-path-to-daily-research-YYYY-MM-DD.md>\"}'",
+    "note_on_naming": "The cron prompt's example command uses 'x-content-researcher' but the actual registered name is 'x-researcher'. Use the registered name in --content.agent."
+  },
+  "hard_stops": [
+    "Pillar 1-6 scan returned 0 posts total → HALT, surface 'no signal today, skipping Scribe dispatch'",
+    "x-niche-scraper skill not found → HALT, surface 'skill missing, install via mavis skill install x-niche-scraper'",
+    "Researcher output missing → HALT, surface 'researcher didn't write, manual intervention'",
+    "Token spend > 100K cumulative → HALT, surface 'budget cap reached, Mavis to review'"
+  ],
+  "changelog": [
+    {
+      "date": "2026-06-18",
+      "change": "Initial config. 6 Pillars mapped to the persona.md Pillar definitions. Default scanner is x-niche-scraper (real browser); fallback is web_search (Mavis-side synthesis). Per-Pillar voice anchors + creator targets documented. Researcher dispatch agent name corrected to x-researcher (registered name, not the frontmatter self-name)."
+    }
+  ]
+}

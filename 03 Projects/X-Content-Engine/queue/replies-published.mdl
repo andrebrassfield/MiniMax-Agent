@@ -1,0 +1,24 @@
+---
+type: reply-ledger
+created: 2026-06-18
+owner: Mavis (chief)
+generator: x-reply-guy
+schema_contract: 03 Projects/X-Content-Engine/reply-guy-strategy-2026-06-18.md
+---
+
+# Replies Published — @DreTheSalesGuy
+
+<!-- Append-only. One line per published reply. Consumed by reply-engagement-tracker (T+24h, T+72h) + reply-recalibrator (weekly). Older entries roll off (keep last 200). -->
+
+<!--
+Format per line:
+
+- YYYY-MM-DD HH:MM CT — reply to @<target> (target_post: <url>) → <reply_url> | <reply_type> | <pillar> | <target_tier>
+
+Examples:
+
+- 2026-06-18 10:54 CT — reply to @michaelheredia (target_post: https://x.com/michaelheredia/status/2067620049222049936) → https://x.com/DreTheSalesGuy/status/2067637331520111070 | insight | P2 | B
+-->
+
+- 2026-06-18 10:56 CT — reply to @spandan_madan (target_post: https://x.com/spandan_madan/status/2067320100911493454) → https://x.com/DreTheSalesGuy/status/2067637840058470606 | contrarian | P4 | A
+- 2026-06-18 10:57 CT — reply to @svpino (target_post: https://x.com/svpino/status/2067626389088661639) → https://x.com/DreTheSalesGuy/status/2067638115041153121 | contrarian | P5 | A

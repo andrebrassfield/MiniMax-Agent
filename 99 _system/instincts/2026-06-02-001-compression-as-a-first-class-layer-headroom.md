@@ -1,29 +1,18 @@
 ---
-id: i-2026-06-02-001
-type: instinct
 title: "Compression as a first-class layer (Headroom)"
-created: 2026-06-02
-confidence: 0.85
-cluster: context
-trigger_context: "When the prompt is over 50K tokens or the budget is tight"
-evidence_source: "Context Compression as First-Class Layer note 2026-06-02"
-tags: [context, compression, headroom, budget]
-migrated_from: learnings.md + MEMORY.md
-migration_date: 2026-06-02
+node_type: stub
+archived: true
+superseded_by: "[[context-budget-is-finite]]"
+archived_on: 2026-06-18
+archived_by: Mavis (Night Shift) (session mvs_0072886f0a8f4938a1a0d90b7f1dea16)
+original_path: "99 _system/instincts/2026-06-02-001-compression-as-a-first-class-layer-headroom.md"
+principle: "99 _system/principles/context-budget-is-finite.md"
 ---
 
 # Compression as a first-class layer (Headroom)
 
-Headroom's 60-95% token savings on real agent workloads are the difference between a $100/mo budget lasting the quarter and burning out in two weeks. Compression is not an optimization; it's a layer. CCR (reversible compression) via SHA-256 content hash means the model can opt back into the original when it detects signal decay.
+> **ARCHIVED 2026-06-18.** This note has been consolidated into the TPG principle `99 _system/principles/context-budget-is-finite.md`. The full original content is preserved at `99 _system/archive/2026-06-18/99 _system/instincts/2026-06-02-001-compression-as-a-first-class-layer-headroom.md`.
+>
+> The chooser MUST skip this stub (matched on `node_type: stub` or `archived: true`). Wikilinks to `[[Compression as a first-class layer (Headroom)]]` still resolve to this stub, but the canonical source for the consolidated argument is the principle.
 
-## Trigger
-
-When the prompt is over 50K tokens or the budget is tight
-
-## Evidence
-
-Context Compression as First-Class Layer note 2026-06-02
-
-## Counter-evidence
-
-What would contradict this instinct: a session where the trigger fired and the lesson didn't apply, or the lesson was actively wrong.
+This stub is a marker, not the source. Do not edit. Refer to the principle.

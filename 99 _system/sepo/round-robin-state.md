@@ -1,1 +1,1 @@
-ea-decision-logger
+ea-skill-evolution

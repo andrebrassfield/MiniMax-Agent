@@ -174,6 +174,41 @@
       "why_it_works": "The cultural observation pattern. Source 1 surfaces this as the meta-commentary the reader nods along with. The 1,100/90/10 split is a specific number trio that anchors the pattern. The '10 broke out' is the implication.",
       "date_added": "2026-06-17",
       "times_used": 0
+    },
+    {
+      "text": "TikTok Shop's $5 late-shipment penalty is bigger than the $3 average profit on a $30 item. Sell one late order, lose money on it. 5% late rate × 10K orders = $2,500/month in pure loss.",
+      "emotion": "fear",
+      "why_it_works": "Per-unit penalty exceeds per-unit margin — the merchant immediately checks their own SKU economics. The 卖一单亏一单 (sell one order, lose money) is verbatim from TikTok Shop seller forums; the specific 5% × 10K × $5 = $2,500 math is the load-bearing element. Pillar 1 specific.",
+      "date_added": "2026-06-18",
+      "times_used": 0
+    },
+    {
+      "text": "One missed call is one missed customer. Plus 5 referrals. Plus 8 years of repeat service work. The math isn't $450. The math is $4,200. The fix is a $400/mo voice agent. 10x payback in month one.",
+      "emotion": "recognition",
+      "why_it_works": "The network-effect multiplier reframes the missed-call cost. Source: 'a missed call is one missed customer + a referral handed to whoever you're competing with' (verbatim from r/AIReceptionistOwners). The 4-6x lifetime multiplier via referrals is the insight. Pillar 2 specific.",
+      "date_added": "2026-06-18",
+      "times_used": 0
+    },
+    {
+      "text": "38% of online search is now answered by generative AI directly. The signpost is dead. The tour guide says your name. Or doesn't. Build the GEO stack: schema, author entities, citation density. The volume war is over. The citation war is the next one.",
+      "emotion": "fear",
+      "why_it_works": "Specific stat (38% in 2026) + the 站牌→导游 (signpost→tour guide) metaphor pivot that translates the GEO concept for an SMB owner who's never read schema.org. The X→Y flip is the load-bearing rhetorical move. Pillar 3 specific.",
+      "date_added": "2026-06-18",
+      "times_used": 0
+    },
+    {
+      "text": "First Synthflow test hit 920ms. Customers thought the AI was broken. It wasn't. It was slow. Tuned to gpt-4o-mini. Cut the system prompt by 40%. Latency: 640ms. Sub-500ms is the 2026 ceiling. We hit 480ms last Tuesday. The math is the product.",
+      "emotion": "recognition",
+      "why_it_works": "Numbers as the load-bearing element: 920ms → 640ms → 480ms is the canonical build-log changelog. The persona's voice anchor (Example 9: 920ms → 640ms via gpt-4o-mini + 40% system-prompt cut). The 2026 frontier is sub-500ms. Pillar 4 specific.",
+      "date_added": "2026-06-18",
+      "times_used": 0
+    },
+    {
+      "text": "40% of employers plan to reduce headcount where AI can automate. The threat isn't the algorithm. It's the coworker who spent 30 minutes this weekend. List your 12 weekly tasks. Mark the 4 AI can do. Become undeniable on the other 8.",
+      "emotion": "defiance",
+      "why_it_works": "WEF Future of Jobs 2025 stat (replaces the 2013 Oxford 47% anchor) + the X→Y pivot that redirects fear from the algorithm to the coworker. The 12-tasks / 4-automatable / 8-undeniable structure is the Pillar 5 tactical frame. Pillar 5 specific.",
+      "date_added": "2026-06-18",
+      "times_used": 0
     }
   ],
   "formats": [
@@ -276,6 +311,26 @@
     {
       "structure": "Cultural Observation + Implication: 'A new [TOOL] dropped Tuesday. By Wednesday: [N] demos, [N] think-pieces, [N] practical breakdowns. The [N] broke out.'",
       "why_it_works": "The meta-commentary pattern. The specific number trio (1,100/90/10) is the load-bearing element. The implication ('the 10 broke out') tells the reader why this matters without preaching. Sources 1 and 5 both surface the speed-to-tactical discipline."
+    },
+    {
+      "structure": "Penalty-vs-Margin Drop: [Per-unit penalty] > [per-unit margin]. [Late rate] × [monthly volume] = $[loss/month]. [The fix in 1 line].",
+      "why_it_works": "Specific penalty + the math that wipes margin. Pillar 1 specific (TikTok Shop $5/order SLA). The 'penalty > margin' inversion is the load-bearing element — abstract 'late shipments cost money' would lose the reader in 3 lines."
+    },
+    {
+      "structure": "Network-Effect Cost Reveal: [Loss X]. It's not [X]. It's [N multipliers — referrals, repeat work, reviews, family-and-neighbors word-of-mouth].",
+      "why_it_works": "The unit cost multiplies 4-6x when you account for the customer-lifetime network effect. Pillar 2 specific. The 'missed call = missed customer + 4-6 referrals' reveal is the new framing beyond the persona's existing $450 figure."
+    },
+    {
+      "structure": "Metaphor Pivot (Familiar → Abstract): [Old concept] is [everyday thing A — signpost, blueprint, filing cabinet]. [New concept] is [everyday thing B — tour guide, recipe, library card]. [Implication for the SMB owner].",
+      "why_it_works": "Pairs a familiar concrete thing with a less-familiar abstract thing. The 站牌→导游 / 关键词→语义资产 metaphor sequence lands the GEO concept for an SMB owner who's never read schema.org. Pillar 3 specific. Avoid Medium-article patterns by grounding the metaphor in something the reader has physically seen."
+    },
+    {
+      "structure": "Latency Changelog: [N1]ms broke. Tuned to [model]. Cut [prompt/system/X] by [%]. [N2]ms. The math is the product.",
+      "why_it_works": "Numbers as the load-bearing element. The 920ms → 640ms → 480ms narrative is the canonical build-log changelog. Pillar 4 specific. The 'math is the product' closer is the persona's voice anchor (Example 9)."
+    },
+    {
+      "structure": "Stat + Task-Audit Action: [Specific stat] (source). [The real threat isn't X — it's the coworker]. [Audit: 12 weekly tasks → 4 automatable → 8 undeniable]. [30-min weekend play].",
+      "why_it_works": "WEF 40% is the data anchor. The implication redirects fear from the algorithm to the coworker. The 12-task audit is the Pillar 5 tactical frame — gives the reader a concrete checklist for the 30-min weekend play. Pillar 5 specific."
     }
   ],
   "pain_points": [
@@ -378,6 +433,26 @@
     {
       "exact_audience_language": "another AI tool, who cares",
       "frequency": 2
+    },
+    {
+      "exact_audience_language": "TikTok Shop's $5 penalty wipes the $3 margin",
+      "frequency": 3
+    },
+    {
+      "exact_audience_language": "missed call = missed customer + 5 referrals",
+      "frequency": 2
+    },
+    {
+      "exact_audience_language": "I shipped 13K pSEO pages, ChatGPT cited my competitor",
+      "frequency": 3
+    },
+    {
+      "exact_audience_language": "my voice agent is at 920ms, customers hang up",
+      "frequency": 3
+    },
+    {
+      "exact_audience_language": "AI took the repetitive, now my boss wants more",
+      "frequency": 3
     }
   ],
   "ideas_backlog": [
@@ -618,6 +693,66 @@
       "format": "Audit Drop + Imperative Close",
       "pillar": "Pillar 4 — Build Logs",
       "status": "used"
+    },
+    {
+      "hook": "TikTok Shop's $5 late-shipment penalty is bigger than the $3 average profit on a $30 item. 5% late rate × 10K orders = $2,500/month in pure loss. The fix is FIFO event ordering + a dead-letter queue, not a new ERP.",
+      "format": "Penalty-vs-Margin Drop",
+      "pillar": "Pillar 1 — E-Commerce Logistics",
+      "status": "pending"
+    },
+    {
+      "hook": "TikTok Shop settles 55+ fee items per order. Platform fee. Creator commission. Subsidy. Return deduction. Freight delta. You think you have a margin problem. You have a data-extraction problem. The fix is 200 lines of Python + a single source of truth.",
+      "format": "Audit Drop + Imperative Close",
+      "pillar": "Pillar 1 — E-Commerce Logistics",
+      "status": "pending"
+    },
+    {
+      "hook": "One missed call is one missed customer. Plus 5 referrals. Plus 8 years of repeat service calls. The math isn't $450. The math is $4,200. The fix is a $400/mo voice agent. 10x payback in month one.",
+      "format": "Network-Effect Cost Reveal",
+      "pillar": "Pillar 2 — Trades / Missed Call",
+      "status": "pending"
+    },
+    {
+      "hook": "Your $400/mo voice agent is at 920ms latency. The caller hangs up. The job goes to voicemail. The competitor's voice agent is at 480ms. Same call. Different outcome. Sub-700ms is the line. Below it, the AI books. Above it, the AI bleeds.",
+      "format": "Latency-as-Revenue Drop [cross-pillar P2 / P4]",
+      "pillar": "Pillar 2 — Trades / Missed Call",
+      "status": "pending"
+    },
+    {
+      "hook": "38% of online search is now answered by generative AI directly. The signpost is dead. The tour guide says your name. Or doesn't. Build the GEO stack: schema, author entities, citation density. The volume war is over. The citation war is the next one.",
+      "format": "Metaphor Pivot (Signpost → Tour Guide) + Stat Drop",
+      "pillar": "Pillar 3 — Existential Macro Threat / GEO",
+      "status": "pending"
+    },
+    {
+      "hook": "First Synthflow test hit 920ms. Customers thought the AI was broken. It wasn't. It was slow. Tuned to gpt-4o-mini. Cut the system prompt by 40%. Latency: 640ms. Sub-500ms is the 2026 ceiling. We hit 480ms last Tuesday. The math is the product.",
+      "format": "Latency Changelog",
+      "pillar": "Pillar 4 — Build Logs",
+      "status": "pending"
+    },
+    {
+      "hook": "I audited 5 voice agent platforms. All 5 wrap an LLM + an ASR + a TTS + a calendar API. The 4-bit quantized Telecom LLM (arXiv 2508.04721) hits 600ms. General-purpose models hit 1.2s. The architecture is the moat, not the wrapper.",
+      "format": "Audit Drop + Tech Spec",
+      "pillar": "Pillar 4 — Build Logs",
+      "status": "pending"
+    },
+    {
+      "hook": "40% of employers plan to reduce headcount where AI can automate. The threat isn't the algorithm. It's the coworker who spent 30 minutes this weekend. List your 12 weekly tasks. Mark the 4 AI can do. Become undeniable on the other 8.",
+      "format": "Stat + Task-Audit Action",
+      "pillar": "Pillar 5 — Leverage Play / Job Defense",
+      "status": "pending"
+    },
+    {
+      "hook": "AI takes the repetitive, not the judgment. Your weekly report is the 体力活 of 脑力劳动. The boss doesn't read it; they skim it. AI drafts the data. You decide what to flag. 30 minutes Sunday. Monday you walk in with answers before questions are asked.",
+      "format": "Bilingual X→Y Pivot + Pro-Human Framing",
+      "pillar": "Pillar 5 — Leverage Play / Job Defense",
+      "status": "pending"
+    },
+    {
+      "hook": "Everyone is hyping the new transcription model. Who cares. Here's what a US plumbing company does with it: 50 customer service calls a day, full of 'evaporator coil' and 'backflow preventer' jargon. English-tuned hits 94%. Plumbing-tuned hits 99%. 5 hours saved per rep per week. $20/month. Boring. Profitable.",
+      "format": "Contrarian-Hype + Operator Implementation",
+      "pillar": "Pillar 6 — Hype Translator",
+      "status": "pending"
     }
   ],
   "performance_log": [
@@ -668,6 +803,75 @@
       "likes": 0,
       "date": "2026-06-17",
       "_note": "impressions=3, likes=0, replies=0, reposts=0, profile_visits=0, new_follows=0, bookmarks=0, shares=0, engagement_rate=0.0%; P4 Build Logs stress test Draft 3 R3-D3 from drafts/machine-batch-2026-06-17.md (idea[37]); brand new post (published 2026-06-17 18:48 CT), impressions still accumulating in real time; text-only post"
+    },
+    {
+      "post_id": "https://x.com/DreTheSalesGuy/status/2067635267163300066",
+      "hook_used": "AI isn't going to take your job. A person using AI is going to take your job.",
+      "views": 0,
+      "likes": 0,
+      "retweets": 0,
+      "replies": 0,
+      "date": "2026-06-18",
+      "publish_time": "10:47 CT",
+      "pillar": "P5",
+      "idea_index": 28,
+      "_note": "auto-published via x-publish skill (Playwright MCP page.fill() path) — R1D1 of 2026-06-17 batch, run early at Andre's request, scheduled cron 13:10 CT superseded"
+    },
+    {
+      "post_id": "https://x.com/DreTheSalesGuy/status/2067637331520111070",
+      "type": "reply",
+      "hook_used": "Sound human matters after pickup. Capture rate is the bottleneck.",
+      "views": 0,
+      "likes": 0,
+      "retweets": 0,
+      "replies": 0,
+      "date": "2026-06-18",
+      "publish_time": "10:55 CT",
+      "pillar": "P2",
+      "reply_type": "insight",
+      "target_post_id": "https://x.com/michaelheredia/status/2067620049222049936",
+      "target_author_handle": "@michaelheredia",
+      "target_account_tier": "B",
+      "target_text_excerpt": "Most HVAC owners I talk to want the AI to sound human. Wrong priority. Answer the 9pm call...",
+      "_note": "first reply in the x-reply-guy pipeline test. Playwright MCP page.fill path, byte-identical verified, no duplication. P2 value-add insight: extends OP's point with sub-200ms latency + capture rate stat."
+    },
+    {
+      "post_id": "https://x.com/DreTheSalesGuy/status/2067637840058470606",
+      "type": "reply",
+      "hook_used": "Tool system is also just prompt engineering.",
+      "views": 0,
+      "likes": 0,
+      "retweets": 0,
+      "replies": 0,
+      "date": "2026-06-18",
+      "publish_time": "10:56 CT",
+      "pillar": "P4",
+      "reply_type": "contrarian",
+      "target_post_id": "https://x.com/spandan_madan/status/2067320100911493454",
+      "target_author_handle": "@spandan_madan",
+      "target_account_tier": "A",
+      "target_engagement_at_publish": "510K views, 394 reposts, 138 likes, 85 replies",
+      "target_text_excerpt": "The Tool Architecture of Claude Code - 200 lines of system prompt + retry patterns is the same shape as the memory layer...",
+      "_note": "Second reply in x-reply-guy test. P4 contrarian-extend on a 510K-view AI dev post. Target tier A (high engagement). High upside if OP or other readers engage with the contrarian take."
+    },
+    {
+      "post_id": "https://x.com/DreTheSalesGuy/status/2067638115041153121",
+      "type": "reply",
+      "hook_used": "The 3.4x stat misses the half-life.",
+      "views": 0,
+      "likes": 0,
+      "retweets": 0,
+      "replies": 0,
+      "date": "2026-06-18",
+      "publish_time": "10:57 CT",
+      "pillar": "P5",
+      "reply_type": "contrarian",
+      "target_post_id": "https://x.com/svpino/status/2067626389088661639",
+      "target_author_handle": "@svpino",
+      "target_account_tier": "A",
+      "target_engagement_at_publish": "fresh post, 45m old at reply time",
+      "target_text_excerpt": "Nearly half of all production code is now generated by AI. Checkmarx: companies that rely more on AI-generated code ship vulnerabilities at 3.4x the rate...",
+      "_note": "Third reply in x-reply-guy test. P5 contrarian-extend on a fresh AI safety post. Target tier A (Santiago = mid-size AI educator). High upside if Santiago replies (his audience is AI devs, 75x compounding weight)."
     }
   ]
 }
