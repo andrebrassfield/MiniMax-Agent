@@ -17,7 +17,7 @@ expires: when the 8 items are unblocked
 **Vault grounding:**
 - **Safety** — already mostly locked. `[[MAVIS]]` hard constraints and `[[SOUL]]` give you the rule set: no deploys / pushes / external sends / credential / schedule / destructive ops without explicit in-session approval; no fleet from Mavis; no orphan spawns. For the *operator path* specifically, this maps cleanly to: "no destructive ops without explicit confirmation, no outbound sends without auth, no schedule changes without confirmation." The mphrediction companion-mode lens (`[[mavis-as-companion]]`) adds an under-specified dimension: emotional/personal-domain actions. Not in scope for P5 eval criteria unless you want it to be.
 - **Cost** — your prior post-mortem (`[[2026-06-04]]` Night Flight) found the *budget* was the bottleneck, not the architecture. Cascade hit at 18,462,000 / 18,462,000 tokens on Token Plan Hs_plus (5-hour cap). Suggested next-time levers: lower concurrency (3-4 workers, not 5-6); lighter tasks; staged dispatches. The cost eval criterion should be expressible in the same units (tokens/task, or % under current ceiling).
-- **Latency** — no prior stated targets in the vault. Apple Silicon is the inference substrate per `[[Hot-Cold Inference Tiers on Apple Silicon]]`; hot-tier latency is a few seconds for short prompts. P50 <2s, P95 <8s is the kind of target that constrains design without being impossible. You may want to flag whether the latency target is the *operator path only* (chief-of-staff loop) or the full request→response (including worker dispatch + tool calls).
+- **Latency** — no prior stated targets in the vault. Apple Silicon is the inference substrate per `[[Hot-Cold Inference Tiers on Apple Silicon]]`; hot-tier latency is a few seconds for short prompts. P50 <2s, P95 <8s is the kind of target that constrains design without being impossible. You may want to flag whether the latency target is the *operator path only* (EA loop) or the full request→response (including worker dispatch + tool calls).
 
 **Tradeoff to flag:** the cost ceiling and the latency target can fight each other. Cheaper (slower model, fewer tokens) → higher latency on harder tasks. Tighter latency → more likely to use the bigger/faster model. The eval rubric should pick which side loses when they collide.
 
@@ -39,7 +39,7 @@ expires: when the 8 items are unblocked
 
 **What I'd ask before you answer:** is the 11-profile count *current* (after V3 cleanup) or *pre-cleanup*? If post-cleanup, then 11 is already reduced. If pre-cleanup, then 11 is inflated and the question is "how much more to cut." The decision doc doesn't disambiguate. Worth confirming with Hermes.
 
-**My read (chief-of-staff, not decision-maker):** the impulse to *split by function* is usually a refactorer's instinct — clean abstractions look right on paper but compound the coordination cost. The Night Flight taught you the budget, not the architecture, was the bottleneck. Consolidation (B) is the change that compounds; the C split is the change that has to be defended repeatedly.
+**My read (EA, not decision-maker):** the impulse to *split by function* is usually a refactorer's instinct — clean abstractions look right on paper but compound the coordination cost. The Night Flight taught you the budget, not the architecture, was the bottleneck. Consolidation (B) is the change that compounds; the C split is the change that has to be defended repeatedly.
 
 But you have more context than I do. If there's a *specific* reason C is right (e.g., a verifier profile that's blocking other work, a routing profile that needs to be standalone), I can't see it from the vault. Worth a 1-line "why" on whichever option you pick.
 
@@ -58,7 +58,7 @@ Trivial. Confirm/deny. The vault doesn't have the PR body in scope to evaluate �
 2. **OAuth relay (your existing OpenClaw gateway at 18789/18792?)** — fleet-adjacent, leverages existing auth; adds a network hop and an OAuth dependency
 3. **Always-on tunnel (Cloudflare / Tailscale-style)** — works from anywhere; biggest attack surface, hardest to revoke
 
-The mphrediction / companion-mode framing argues for *more* friction on cross-machine access (the chief-of-staff should be present, not always-on-remote). Pulls toward #1 unless there's a specific cross-machine use case I'm missing.
+The mphrediction / companion-mode framing argues for *more* friction on cross-machine access (the EA should be present, not always-on-remote). Pulls toward #1 unless there's a specific cross-machine use case I'm missing.
 
 **Fleet switcher — UX + persistence.** UX options: CLI flag (power-user), dashboard toggle (visible), both (redundant). Persistence options: per-session (lost on restart), per-machine (config file), per-machine synced via vault (cross-device). The vault-as-source-of-truth pattern (`[[INDEX]]` / `[[MAVIS]]`) would argue for vault-synced; the "no hosted service" constraint from your 06-04 daily would argue against it. Pick one UX, pick one persistence. If you don't have a strong preference, "CLI flag + per-machine" is the boring-correct default.
 

@@ -1,0 +1,12 @@
+{
+  "id": "src-2026-06-04-015",
+  "captured_at": "2026-06-04T01:20:00-05:00",
+  "source_lane": "dev_tooling",
+  "url": "https://developer.chrome.com/blog/entry-exit-animations",
+  "type": "primary",
+  "fetch_method": "webfetch",
+  "raw_excerpt": "Chrome for Developers: 'Four new CSS features for smooth entry and exit animations' by Una Kravets and Joey Arhar. 'Motion is a core part of any digital experience, guiding your user from one interaction to the next. But there are a few gaps in smooth animations on the web platform. These include the ability to easily animate entry and exit animations, and smoothly animate to and from the top layer for dismissible elements such as dialogs and popovers.' Chrome 116 and 117: (1) display and content-visibility in keyframe rules (Chrome 116). (2) transition-behavior with allow-discrete keyword for transitions of discrete properties like display (Chrome 117). (3) @starting-style rule for entry effects from display: none (Chrome 117). (4) overlay property for top-layer behavior (Chrome 117). 'Note: This post was updated on 2024-09-13 to use the correct order for nested @starting-style rules. As of Chrome 130, @starting-style rules must be placed after the post-entry state (normal) declarations.'",
+  "raw_full_path": "raw/dev_tooling/2026-06-04/20260604-012000-src-015-chrome-entry-exit-animations.json",
+  "content_hash": "sha256:chrome_entry_exit_animations_2026_06_04",
+  "extracted_finding_ids": ["fnd-2026-06-04-029", "fnd-2026-06-04-030", "fnd-2026-06-04-031"]
+}

@@ -1,0 +1,12 @@
+{
+  "id": "src-2026-06-04-005",
+  "captured_at": "2026-06-04T01:08:00-05:00",
+  "source_lane": "dev_tooling",
+  "url": "https://github.github.com/gfm/",
+  "type": "primary",
+  "fetch_method": "webfetch",
+  "raw_excerpt": "GitHub Flavored Markdown Spec, Version 0.29-gfm (2019-04-06). 'GFM is a strict superset of CommonMark. All the features which are supported in GitHub user content and that are not specified on the original CommonMark Spec are hence known as extensions.' Extensions: Tables (extension), Task list items (extension), Strikethrough (extension), Autolinks (extension), Disallowed Raw HTML (extension). 'Markdown is a plain text format for writing structured documents... It was developed by John Gruber (with help from Aaron Swartz) and released in 2004.' ATX headings: 1-6 unescaped # characters, optional closing sequence. Setext headings: text + === or --- underline. Fenced code blocks: 3+ backticks or tildes. CommonMark is the underlying spec by John MacFarlane.",
+  "raw_full_path": "raw/dev_tooling/2026-06-04/20260604-010800-src-005-gfm-spec.json",
+  "content_hash": "sha256:gfm_spec_029_2026_06_04",
+  "extracted_finding_ids": ["fnd-2026-06-04-009", "fnd-2026-06-04-010", "fnd-2026-06-04-011"]
+}

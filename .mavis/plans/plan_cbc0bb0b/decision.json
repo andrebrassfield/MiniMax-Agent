@@ -1,0 +1,12 @@
+{
+  "last_cycle": [
+    {
+      "task_id": "phase-next-research",
+      "verdict": "manual_retry",
+      "reason": "Researcher did 70% of the work cleanly: 34 fresh sources, 18 findings, 10 promoted claims (verified @ 0.8-0.95), all REFRESH-stage ledgers updated. Then the session went silent for 13+ minutes (no board updates, no file writes to 03 Projects/Mavis/, no handoff, no run receipt, no deliverable.md). The session appears hung past the design-doc writing step. 9 min remaining on the cap. Salvage the work that landed: skip the redundant research, use the existing ledgers as the source material, and write the design doc directly. Same task_id so the engine reuses the existing session (if recoverable) or spawns a cold-start (3-5 min cost) with the same prompt. Tight focus: only the deliverables in Definition-of-Done — no scope creep on cross-stream synthesis (surface as open question instead if running long)."
+    }
+  ],
+  "next_cycle": [],
+  "plan_complete": false,
+  "message_to_user": "Researcher went silent 13 min in after finishing the ledger work. Pausing and retrying with a focused prompt to skip the redundant research and write the design doc from the existing 10 claims. ~15 min to a deliverable."
+}

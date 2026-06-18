@@ -26,7 +26,7 @@
 - 'Use evaluated' disclaimer correctly framed as 'uses FDA reviewed for safety and effectiveness at the bulks-list evaluation stage, not approved indications and not on-label uses.'
 - Verbatim quotes preserved: FDA 503A bulks page (Cat 1 enforcement discretion); Frier Levitt (2 quotes — enforcement discretion, API bottleneck); Orrick (2 quotes — API sourcing, 2024 PCAC precedent).
 - Style discipline: 0 hype words across 25 patterns, 0 exclamation points, 0 emojis, 0 CTA phrases. 'Inflection point' allowed (dossier's own framing, in lede). 'Worst-case procedural outcome' allowed (description of quorum failure mode, in closing).
-- Closing: H2 'The question that should be answered on July 24' is the chief-contract sharp question (behavior 3, not a CTA). Body articulates two implicit questions; final line is a closing, not a CTA.
+- Closing: H2 'The question that should be answered on July 24' is the ea-contract sharp question (behavior 3, not a CTA). Body articulates two implicit questions; final line is a closing, not a CTA.
 - 7 adversarial probes (substring false-positive trap, vendor-owner smuggling, external knowledge smuggling, hidden numerical hallucinations, hidden date hallucinations, Biden-era framing, clinical characterization smuggling) all clean.
 - Word count 2,061 (in 1,800-2,200 target). H2 count 7 (in 5-7 target). File in `published/` (MD5 4574f5aa49235324b8fb083d66a0c738 byte-identical to draft).
 - 8 new findings appended to `knowledge/findings.jsonl`. 1 new verdict appended to `knowledge/verdicts.jsonl` (artifact-level). 1 new audit log entry appended.

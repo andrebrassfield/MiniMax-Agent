@@ -1,0 +1,12 @@
+{
+  "id": "src-2026-06-04-030",
+  "captured_at": "2026-06-04T01:34:00-05:00",
+  "source_lane": "dev_tooling",
+  "url": "https://www.mavis/skills/landing-page-builder/SKILL.md",
+  "type": "primary",
+  "fetch_method": "filesystem-read",
+  "raw_excerpt": "Mavis skill: landing-page-builder. Creates Awwwards-level landing pages with cinematic hero sections, deployed online. Spec-first workflow: Step 1 Gather Requirements, Step 2 Refine UI Requirement & Generate spec.md, Step 3-4 design system + generate HTML/CSS/JS, Step 5 deploy. spec.md must include: expanded prompt (Project Context, Hero Section, Typography, Layout, Motion), Tech Strategy (Stack HTML5 + modern CSS + minimal JS, Asset Protocol), Design System (Color Palette, Typography, Layout). Strict color constraint. Hero Section is Video-First.",
+  "raw_full_path": "raw/dev_tooling/2026-06-04/20260604-013400-src-030-landing-page-builder.json",
+  "content_hash": "sha256:landing_page_builder_2026_06_04",
+  "extracted_finding_ids": ["fnd-2026-06-04-059", "fnd-2026-06-04-060"]
+}

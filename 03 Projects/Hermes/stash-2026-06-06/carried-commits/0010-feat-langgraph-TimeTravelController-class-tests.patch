@@ -1,0 +1,331 @@
+From 2070eae36d5bf0760566b38f80059a5a2b4723c9 Mon Sep 17 00:00:00 2001
+From: Hermes Agent <hermes@brassfield.ai>
+Date: Sat, 6 Jun 2026 10:14:18 -0500
+Subject: [PATCH 10/11] feat(langgraph): TimeTravelController class + tests
+
+Checkpoint history listing, rewind to specific checkpoint, and graph
+resume for HermesPostgresSaver-backed LangGraph workflows.
+---
+ agent/langgraph/time_travel.py            | 153 ++++++++++++++++++----
+ tests/agent/langgraph/test_time_travel.py | 134 +++++++++++++++++++
+ 2 files changed, 260 insertions(+), 27 deletions(-)
+ create mode 100644 tests/agent/langgraph/test_time_travel.py
+
+diff --git a/agent/langgraph/time_travel.py b/agent/langgraph/time_travel.py
+index 284baa49a..80a5e783d 100644
+--- a/agent/langgraph/time_travel.py
++++ b/agent/langgraph/time_travel.py
+@@ -4,44 +4,143 @@ Provides rewind, replay, and branch inspection helpers that work on top
+ of the HermesPostgresSaver checkpoint layer.
+ """
+ 
++from __future__ import annotations
++
+ from typing import Any
+ 
++from langchain_core.runnables import RunnableConfig
++from langgraph.checkpoint.postgres import PostgresSaver
++
++from agent.langgraph.checkpointer import HermesPostgresSaver
++
++
++class TimeTravelController:
++    """Navigate and restore LangGraph checkpoints for debugging.
+ 
+-def list_checkpoints(thread_id: str, saver: Any) -> list[dict[str, Any]]:
+-    """List all checkpoints for a thread.
++    Works with :class:`HermesPostgresSaver` (or any PostgresSaver-compatible
++    checkpointer) to list checkpoint history, rewind to a specific point, and
++    resume graph execution from there.
+ 
+-    Args:
+-        thread_id: The thread identifier.
+-        saver: A PostgresSaver-compatible checkpoint instance.
++    Example::
+ 
+-    Returns:
+-        A list of checkpoint metadata dicts.
++        with HermesPostgresSaver.from_hermes_config() as saver:
++            tt = TimeTravelController(saver)
++            history = tt.list_history("thread-123")
++            tt.rewind("thread-123", history[2]["checkpoint_id"])
+     """
+-    raise NotImplementedError("list_checkpoints() is not yet implemented.")
+ 
++    def __init__(self, saver: PostgresSaver | HermesPostgresSaver) -> None:
++        self.saver = saver
+ 
+-def rewind_to(thread_id: str, checkpoint_id: str, saver: Any) -> dict[str, Any]:
+-    """Rewind a thread to a specific checkpoint.
++    # ------------------------------------------------------------------
++    # Listing
++    # ------------------------------------------------------------------
+ 
+-    Args:
+-        thread_id: The thread identifier.
+-        checkpoint_id: The checkpoint to rewind to.
+-        saver: A PostgresSaver-compatible checkpoint instance.
++    def list_history(self, thread_id: str) -> list[dict[str, Any]]:
++        """List all checkpoints for a thread, newest first.
+ 
+-    Returns:
+-        The checkpoint state dict.
+-    """
+-    raise NotImplementedError("rewind_to() is not yet implemented.")
++        Args:
++            thread_id: The thread identifier.
+ 
++        Returns:
++            A list of checkpoint metadata dicts with keys:
++            ``checkpoint_id``, ``step``, ``source``, ``writes``,
++            ``timestamp``, ``parent_checkpoint_id``.
++        """
++        config: RunnableConfig = {"configurable": {"thread_id": thread_id}}
++        tuples = list(self.saver.list(config))
++        return [
++            {
++                "checkpoint_id": t.config["configurable"].get("checkpoint_id"),
++                "step": t.metadata.get("step") if t.metadata else None,
++                "source": t.metadata.get("source") if t.metadata else None,
++                "writes": t.metadata.get("writes") if t.metadata else None,
++                "timestamp": t.checkpoint.get("ts") if t.checkpoint else None,
++                "parent_checkpoint_id": t.checkpoint.get("parent_id")
++                if t.checkpoint
++                else None,
++            }
++            for t in tuples
++        ]
+ 
+-def replay(thread_id: str, saver: Any) -> Any:
+-    """Replay a thread from its earliest checkpoint.
++    # ------------------------------------------------------------------
++    # Rewind
++    # ------------------------------------------------------------------
+ 
+-    Args:
+-        thread_id: The thread identifier.
+-        saver: A PostgresSaver-compatible checkpoint instance.
++    def rewind(self, thread_id: str, checkpoint_id: str) -> dict[str, Any]:
++        """Load the graph state at a specific checkpoint.
+ 
+-    Returns:
+-        A generator or iterator over the replayed steps.
+-    """
+-    raise NotImplementedError("replay() is not yet implemented.")
++        Args:
++            thread_id: The thread identifier.
++            checkpoint_id: The checkpoint to rewind to.
++
++        Returns:
++            The checkpoint state dict (channel_values + metadata).
++        """
++        config: RunnableConfig = {
++            "configurable": {
++                "thread_id": thread_id,
++                "checkpoint_id": checkpoint_id,
++            }
++        }
++        checkpoint_tuple = self.saver.get_tuple(config)
++        if checkpoint_tuple is None:
++            raise ValueError(
++                f"Checkpoint {checkpoint_id!r} not found for thread {thread_id!r}"
++            )
++        return {
++            "checkpoint": checkpoint_tuple.checkpoint,
++            "metadata": checkpoint_tuple.metadata,
++            "config": checkpoint_tuple.config,
++            "channel_values": checkpoint_tuple.checkpoint.get("channel_values", {})
++            if checkpoint_tuple.checkpoint
++            else {},
++        }
++
++    # ------------------------------------------------------------------
++    # Resume
++    # ------------------------------------------------------------------
++
++    def resume(
++        self,
++        graph: Any,
++        thread_id: str,
++        checkpoint_id: str | None = None,
++        *,
++        input_override: dict[str, Any] | None = None,
++    ) -> Any:
++        """Resume graph execution from a checkpoint.
++
++        Args:
++            graph: A compiled LangGraph graph.
++            thread_id: The thread identifier.
++            checkpoint_id: Optional checkpoint to resume from. If ``None``,
++                resumes from the latest checkpoint.
++            input_override: Optional state updates to inject before resuming.
++
++        Returns:
++            The graph invocation result (same shape as ``graph.invoke()``).
++        """
++        config: RunnableConfig = {"configurable": {"thread_id": thread_id}}
++        if checkpoint_id:
++            config["configurable"]["checkpoint_id"] = checkpoint_id
++
++        if input_override:
++            # LangGraph allows passing a dict of state updates as input
++            return graph.invoke(input_override, config=config)
++        return graph.invoke(None, config=config)
++
++    def get_latest_state(self, thread_id: str) -> dict[str, Any] | None:
++        """Return the latest checkpoint state for a thread, or ``None``."""
++        config: RunnableConfig = {"configurable": {"thread_id": thread_id}}
++        checkpoint_tuple = self.saver.get_tuple(config)
++        if checkpoint_tuple is None:
++            return None
++        return {
++            "checkpoint": checkpoint_tuple.checkpoint,
++            "metadata": checkpoint_tuple.metadata,
++            "config": checkpoint_tuple.config,
++            "channel_values": checkpoint_tuple.checkpoint.get("channel_values", {})
++            if checkpoint_tuple.checkpoint
++            else {},
++        }
+diff --git a/tests/agent/langgraph/test_time_travel.py b/tests/agent/langgraph/test_time_travel.py
+new file mode 100644
+index 000000000..a6e77a6ab
+--- /dev/null
++++ b/tests/agent/langgraph/test_time_travel.py
+@@ -0,0 +1,134 @@
++"""Tests for agent.langgraph.time_travel.TimeTravelController.
++
++All tests mock the underlying ``PostgresSaver`` so no real database is needed.
++"""
++
++from __future__ import annotations
++
++from typing import Any
++from unittest.mock import MagicMock
++
++import pytest
++
++from agent.langgraph.time_travel import TimeTravelController
++
++
++# ---------------------------------------------------------------------------
++# Fixtures
++# ---------------------------------------------------------------------------
++
++@pytest.fixture
++def mock_saver() -> MagicMock:
++    """Return a mock PostgresSaver with pre-seeded checkpoints."""
++    saver = MagicMock()
++    # Simulate two checkpoints
++    saver.list.return_value = [
++        MagicMock(
++            config={"configurable": {"checkpoint_id": "cp-002"}},
++            metadata={"step": 2, "source": "loop", "writes": {"agent": "hello"}},
++            checkpoint={"ts": "2026-06-06T10:00:00", "parent_id": "cp-001"},
++        ),
++        MagicMock(
++            config={"configurable": {"checkpoint_id": "cp-001"}},
++            metadata={"step": 1, "source": "input", "writes": {"input": "hi"}},
++            checkpoint={"ts": "2026-06-06T09:00:00", "parent_id": None},
++        ),
++    ]
++    return saver
++
++
++@pytest.fixture
++def controller(mock_saver: MagicMock) -> TimeTravelController:
++    return TimeTravelController(mock_saver)
++
++
++# ---------------------------------------------------------------------------
++# list_history
++# ---------------------------------------------------------------------------
++
++class TestListHistory:
++    def test_returns_list_of_metadata(self, controller: TimeTravelController, mock_saver: MagicMock) -> None:
++        history = controller.list_history("thread-1")
++        mock_saver.list.assert_called_once()
++        assert len(history) == 2
++        assert history[0]["checkpoint_id"] == "cp-002"
++        assert history[0]["step"] == 2
++        assert history[0]["timestamp"] == "2026-06-06T10:00:00"
++        assert history[0]["parent_checkpoint_id"] == "cp-001"
++
++    def test_empty_list_when_no_checkpoints(self, controller: TimeTravelController, mock_saver: MagicMock) -> None:
++        mock_saver.list.return_value = []
++        history = controller.list_history("thread-1")
++        assert history == []
++
++
++# ---------------------------------------------------------------------------
++# rewind
++# ---------------------------------------------------------------------------
++
++class TestRewind:
++    def test_returns_checkpoint_state(self, controller: TimeTravelController, mock_saver: MagicMock) -> None:
++        mock_saver.get_tuple.return_value = MagicMock(
++            config={"configurable": {"checkpoint_id": "cp-001"}},
++            metadata={"step": 1},
++            checkpoint={"ts": "2026-06-06T09:00:00", "channel_values": {"foo": "bar"}},
++        )
++        state = controller.rewind("thread-1", "cp-001")
++        assert state["channel_values"] == {"foo": "bar"}
++        assert state["metadata"]["step"] == 1
++
++    def test_raises_when_checkpoint_not_found(self, controller: TimeTravelController, mock_saver: MagicMock) -> None:
++        mock_saver.get_tuple.return_value = None
++        with pytest.raises(ValueError, match="Checkpoint 'cp-999' not found"):
++            controller.rewind("thread-1", "cp-999")
++
++
++# ---------------------------------------------------------------------------
++# resume
++# ---------------------------------------------------------------------------
++
++class TestResume:
++    def test_invokes_graph_with_config(self, controller: TimeTravelController) -> None:
++        mock_graph = MagicMock()
++        mock_graph.invoke.return_value = {"result": "ok"}
++
++        result = controller.resume(mock_graph, "thread-1", "cp-001")
++        mock_graph.invoke.assert_called_once()
++        call_args = mock_graph.invoke.call_args
++        assert call_args[1]["config"]["configurable"]["thread_id"] == "thread-1"
++        assert call_args[1]["config"]["configurable"]["checkpoint_id"] == "cp-001"
++        assert result == {"result": "ok"}
++
++    def test_resume_with_input_override(self, controller: TimeTravelController) -> None:
++        mock_graph = MagicMock()
++        mock_graph.invoke.return_value = {"result": "ok"}
++
++        controller.resume(mock_graph, "thread-1", "cp-001", input_override={"foo": "bar"})
++        call_args = mock_graph.invoke.call_args
++        assert call_args[0] == ({"foo": "bar"},)
++
++    def test_resume_latest_when_no_checkpoint_id(self, controller: TimeTravelController) -> None:
++        mock_graph = MagicMock()
++        controller.resume(mock_graph, "thread-1")
++        call_args = mock_graph.invoke.call_args
++        assert "checkpoint_id" not in call_args[1]["config"]["configurable"]
++
++
++# ---------------------------------------------------------------------------
++# get_latest_state
++# ---------------------------------------------------------------------------
++
++class TestGetLatestState:
++    def test_returns_latest(self, controller: TimeTravelController, mock_saver: MagicMock) -> None:
++        mock_saver.get_tuple.return_value = MagicMock(
++            config={"configurable": {"checkpoint_id": "cp-002"}},
++            metadata={"step": 2},
++            checkpoint={"ts": "2026-06-06T10:00:00", "channel_values": {"x": 1}},
++        )
++        state = controller.get_latest_state("thread-1")
++        assert state is not None
++        assert state["channel_values"] == {"x": 1}
++
++    def test_returns_none_when_no_checkpoints(self, controller: TimeTravelController, mock_saver: MagicMock) -> None:
++        mock_saver.get_tuple.return_value = None
++        assert controller.get_latest_state("thread-1") is None
+-- 
+2.54.0
+

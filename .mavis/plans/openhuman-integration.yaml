@@ -1,0 +1,151 @@
+version: 1
+plan:
+  name: 'openhuman integration research + fleet design'
+  max_concurrency: 4
+  max_consecutive_failures: 2
+  max_cycles: 8
+  verifier_config:
+    default_verifiers: [verifier]
+    audit_sample_rate: 0.0
+tasks:
+  - id: openhuman-deep-dive
+    title: 'openhuman repo deep dive — architecture, capabilities, model requirements, dependencies, license, integration surface'
+    prompt: |
+      Research the openhuman repository (https://github.com/tinyhumansai/openhuman) and produce a deep engineering brief.
+
+      Use WebFetch / web_search to read the repo directly. Do NOT rely on second-hand summaries.
+
+      Deliverable: write a deep brief to $HOME/MiniMax-Agent/03 Projects/Mavis/research/openhuman-deep-dive.md (create the directory if missing). The brief must cover, with evidence (URL + commit or date where possible):
+
+      1. **What openhuman actually is** — product purpose, target user, what problem it solves. Quote the README and any design docs you find.
+      2. **Architecture** — main modules, language(s), entry points, how the system boots, request lifecycle. If it is a CLI tool, an HTTP service, a library, or something else, say which and back it up with a file:line citation.
+      3. **Model requirements** — what LLMs does it use, with what context window, what role (chat, embedding, vision, TTS, STT)? Is it tied to a specific model or model class? Is it model-agnostic via an interface? Look for model-config files, env vars, or hard-coded model names.
+      4. **Integration surface** — does it expose an API, a CLI, a library import, a webhook, a plugin interface, an MCP server? What would it take to call it from another agent system?
+      5. **Dependencies** — package list (pyproject.toml / requirements.txt / package.json / Cargo.toml), runtime requirements (Python version, Node version, GPU, OS), heavyweight deps that would be painful to install (PyTorch + CUDA, large model weights, etc.).
+      6. **License** — exact license from the LICENSE file. Is it compatible with private/closed fleet use? Note any restrictions.
+      7. **Maintenance / maturity** — last commit date, open issue count, release tags, contributor count, star count. Is it an active project or a one-shot demo?
+      8. **What is genuinely novel or useful** vs what can be replicated in 200 lines. Be honest — if it is mostly a wrapper over a known library, say so.
+
+      Do NOT speculate. If you cannot find something, mark it "NOT FOUND" with what you searched. Do not invent file paths or commit hashes.
+
+      Keep the brief tight — module-by-module if it is large, but no padding. The audience is engineering: I need to know whether to wire this into a production fleet or pass.
+    assigned_to: general
+    verified_by: verifier
+    verify_prompt: |
+      Independently re-verify the openhuman deep dive. Re-fetch at least 3 specific claims from the GitHub repo (do not just re-read the producer's brief) — pick a file path, a dependency, and a model-name claim, and confirm each from source.
+
+      FAIL if:
+      - Any cited file:line does not exist or does not say what the brief claims
+      - Any version, dependency name, or commit hash is wrong
+      - License is mis-stated
+      - Claims about "what is novel" are asserted without evidence
+      - Brief invents information it could not have found
+
+      PASS only if the brief's load-bearing facts are reproducible from the source repo. Be adversarial — this is a production decision.
+    timeout_ms: 1800000
+
+  - id: fleet-architecture-audit
+    title: 'audit current Mavis/Hermes/gbrain/kanban fleet — find the integration seam for openhuman'
+    prompt: |
+      Audit the current local fleet architecture so we can decide where openhuman plugs in. Sources to consult (in this order of authority):
+
+      1. $HOME/MiniMax-Agent/ — Mavis's working vault (PARA structure)
+      2. $HOME/DreBrain/DreBrain/ — Andre's gbrain (source of truth for vault content; may be git-parked, see note)
+      3. ~/.mavis/ — Mavis daemon home (agents, sessions, skills)
+      4. ~/.hermes/ — Hermes orchestrator home (scripts, kanban DB, dispatcher)
+      5. ~/.hermes-evolution/ — evolver territory
+      6. ~/.gbrain/ — gbrain index territory
+
+      Read enough to understand, do not just list. Specifically I need to know:
+
+      1. **Mavis's role and surfaces** — what Mavis does, where the boundaries are (peek vs manage vs execute). Cite the CHIEF contract or equivalent.
+      2. **Hermes's role** — what Hermes dispatches, how its dispatcher daemon works, what the kanban DB schema looks like (the `skills` JSON column shape, the `kind` values in use).
+      3. **The gbrain layer** — what is "live" (vault) vs "parked" (PGLite/Supabase). What DreBrain is, where it lives, who reads it.
+      4. **The kanban DB as operational shared surface** — what schemas are in use (orch-*, design-handoff-*, pi-task-*, audit-*, incident-*, etc.). The Mavis/Hermes boundary goes through here.
+      5. **Model routing** — who is M3, who is M2.7, who runs where, and what is the existing local-model footprint if any (Ollama? llama.cpp? MLX?). Is there a local gemma install already?
+      6. **What runs in cron** — list the actual launchd crons in the fleet (Mavis watchdogs, Hermes dispatcher loops, design-doc detector, kanban health, etc.) with paths.
+      7. **The actual gap openhuman would fill** — based on the capabilities you discover, identify the 1–2 places where openhuman adds something we don't have, and the 1–2 places where it would just duplicate existing functionality. Be specific.
+
+      Deliverable: $HOME/MiniMax-Agent/03 Projects/Mavis/research/fleet-integration-audit.md
+
+      Format: short audit, with section per numbered question above. Cite file_path:line_number for every load-bearing claim. If you discover a fact that contradicts what is in Mavis's MEMORY.md, surface that explicitly (do not silently overwrite).
+    assigned_to: general
+    verified_by: verifier
+    verify_prompt: |
+      Independently verify the fleet audit. Pick 3 file:line citations from the audit and confirm each by reading the file directly. Confirm the kanban schema claims by querying the live kanban DB (sqlite3 ~/.hermes/kanban.db or wherever it lives) and showing one real card. Confirm the model-routing claim by checking the actual config, not memory.
+
+      FAIL if citations don't resolve, schema is mis-stated, or any "this is a real cron" claim points at a non-existent script.
+    timeout_ms: 1800000
+
+  - id: model-routing-decision
+    title: 'local gemma vs MiniMax-M3 decision brief — when each runs, cost, latency, capability, privacy tradeoffs'
+    prompt: |
+      Produce a decision brief on the local-gemma vs MiniMax-M3 routing for openhuman workloads, AND a separate "is local gemma on this hardware even viable" assessment.
+
+      This Mac is a M-series (likely M2/M3 Pro/Max). Check `uname -m` and `system_profiler SPHardwareDataType` to get the chip and RAM.
+
+      Cover, with evidence:
+
+      1. **Hardware viability** — can a modern gemma (gemma3, gemma3:27b, or whatever is current as of 2026-06) actually run on this machine? Metal/MLX support? Realistic tokens/sec for a 7B/12B/27B model? Memory headroom (model weights + KV cache + OS + Mavis's other workloads)?
+      2. **Ollama vs llama.cpp vs MLX** — which is the most pragmatic install path? What is already on the machine? (Check `which ollama`, `ls ~/Library/Application\ Support/ollama/`, etc.)
+      3. **Workload suitability** — for the workloads openhuman implies (long-context reasoning, multimodal if applicable, voice in/out), is local gemma strong enough, or does it fall over? Cite gemma3 benchmarks if you can find them. Be honest if gemma3 is a 70% solution.
+      4. **M3 as the fallback / escalation** — when local can't cut it (too slow, too dumb, too long context), what's the cost / latency / privacy hit of escalating to MiniMax-M3? What is the right escalation trigger (latency budget, accuracy floor, privacy class)?
+      5. **Privacy / data residency** — what data classes must stay local vs are safe to send to M3? Apply the standard chief-of-staff privacy classes.
+      6. **Recommendation** — concrete routing rule, not vibes. "Use local gemma for X, escalate to M3 for Y" with the trigger spelled out.
+
+      Deliverable: $HOME/MiniMax-Agent/03 Projects/Mavis/research/model-routing-decision.md
+
+      Tone: opinionated. The user wants a recommendation, not a survey.
+    assigned_to: general
+    verified_by: verifier
+    verify_prompt: |
+      Verify the model routing brief adversarially.
+
+      1. Confirm the chip / RAM by running `system_profiler SPHardwareDataType` yourself.
+      2. Confirm Ollama (or whatever is claimed) is or isn't installed.
+      3. Spot-check at least 2 gemma3 benchmark numbers against a public source.
+      4. Read the recommendation and ask: does the routing rule make sense given the chip, the workload, and the privacy classes? If the brief recommends M3 for something local gemma clearly handles, FAIL.
+
+      PASS only if the hardware claim, the install-state claim, and the recommendation all line up.
+    timeout_ms: 1800000
+
+  - id: integration-design
+    title: 'synthesize: integration design for openhuman into the local fleet, with model routing rules'
+    prompt: |
+      You are the synthesis step. Read all three upstream deliverables:
+
+      - $HOME/MiniMax-Agent/03 Projects/Mavis/research/openhuman-deep-dive.md
+      - $HOME/MiniMax-Agent/03 Projects/Mavis/research/fleet-integration-audit.md
+      - $HOME/MiniMax-Agent/03 Projects/Mavis/research/model-routing-decision.md
+
+      Cross-reference, do not just concatenate. The audience is Andre (technical, decisive, will push back on waffle). The user wants a recommendation he can act on, not a survey.
+
+      Deliverable: $HOME/MiniMax-Agent/03 Projects/Mavis/research/openhuman-integration-design.md
+
+      Depth contract — must include:
+
+      1. **TL;DR** (≤8 lines) — the recommendation, the one key risk, and the next concrete step. If Andre reads nothing else, he should know what to do.
+      2. **What openhuman is, in 3 lines** — pulled from the deep dive, with citation.
+      3. **Where it plugs in** — concrete integration point in the fleet (a new card kind, a new skill, a new daemon, a new vault surface). Show the data flow. Show who owns the card / state when openhuman is mid-call.
+      4. **Model routing rules** — the routing table. Local gemma for X, M3 for Y, with trigger conditions. Cross-reference the model-routing brief.
+      5. **Data flow and privacy** — what data leaves the machine, what stays, what is logged, what is in the kanban. Be specific.
+      6. **What we DON'T do, and why** — the integration ideas we considered and rejected, with one-line reason each. This is more valuable than the ones we picked.
+      7. **Risks** — top 3, with mitigation. The "what kills this" risks, not the cosmetic ones.
+      8. **Phased rollout** — phase 1 (one weekend), phase 2 (one week), phase 3 (production). Each phase has a single owner, a single deliverable, and a single go/no-go gate.
+      9. **Open questions for Andre** — at most 3, the ones that genuinely change the design. Do NOT pad with "we should research more" — only the load-bearing questions.
+
+      Coverage matrix at the end: each upstream deliverable → which sections of this design it informs.
+
+      Compression policy: keep the body dense. If a section can be a 2-line bullet, make it a 2-line bullet. No overview-only padding.
+    assigned_to: general
+    depends_on: [openhuman-deep-dive, fleet-architecture-audit, model-routing-decision]
+    verified_by: verifier
+    verify_prompt: |
+      This is the gating deliverable. Verify two things separately:
+
+      1. **Factual correctness** — every load-bearing claim (model names, file paths, schema fields, recommendation) traces to one of the three upstream briefs. No new claims invented in synthesis. If a number appears, it must come from upstream.
+
+      2. **Depth / completeness** — re-check the depth contract. If the synthesis dropped a section, weakened a routing rule into a vague hand-wave, or padded with non-actionable content, FAIL. If the TL;DR does not name a concrete next step, FAIL. If the open questions are padded with "should consider" items, FAIL.
+
+      The user is going to read this once and act on it. Optimize for that.
+    timeout_ms: 1800000

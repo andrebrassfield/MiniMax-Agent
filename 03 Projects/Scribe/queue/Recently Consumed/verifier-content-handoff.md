@@ -3,7 +3,7 @@
 > Source: `03 Projects/Researcher/dossiers/artemis_program.md`
 > Verifier verdict: `vrd-2026-06-03-010` (dossier-level PASS, weighted score 0.8560)
 > Verifier audit log: `aud-2026-06-03-003` (2026-06-03T21:24:00-05:00, temperature 0.0)
-> Routed by: Mavis (chief of staff) on 2026-06-03, in response to Andre's Operation First Draft go-signal.
+> Routed by: Mavis (EA) on 2026-06-03, in response to Andre's Operation First Draft go-signal.
 
 ## Task
 

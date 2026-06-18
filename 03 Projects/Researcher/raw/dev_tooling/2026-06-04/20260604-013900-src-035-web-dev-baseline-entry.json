@@ -1,0 +1,12 @@
+{
+  "id": "src-2026-06-04-035",
+  "captured_at": "2026-06-04T01:39:00-05:00",
+  "source_lane": "dev_tooling",
+  "url": "https://web.dev/blog/baseline-entry-animations",
+  "type": "primary",
+  "fetch_method": "websearch",
+  "raw_excerpt": "web.dev: 'Now in Baseline: animating entry effects' (2024). Confirms @starting-style and transition-behavior: allow-discrete are now Baseline (cross-browser). 'The @starting-style rule defines the initial styles on an element before it's rendered on the page. This is required for elements that animate in.' Independent confirmation of the cross-browser support for the entry animation primitives.",
+  "raw_full_path": "raw/dev_tooling/2026-06-04/20260604-013900-src-035-web-dev-baseline-entry.json",
+  "content_hash": "sha256:web_dev_baseline_entry_animations_2026_06_04",
+  "extracted_finding_ids": ["fnd-2026-06-04-066"]
+}

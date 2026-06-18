@@ -1,0 +1,583 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="color-scheme" content="light dark" />
+  <title>Today</title>
+  <style>
+    /* Reset */
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+
+    /* Companion-mode palette. Warm paper, warm ink, soft accent. */
+    :root {
+      --paper:    #FBF7EE;
+      --paper-2:  #F5EFE0;
+      --ink:      #3A352E;
+      --ink-soft: #6B6258;
+      --ink-faint:#A39A8E;
+      --rule:     #E8DFCE;
+      --accent:   #B8956A;
+    }
+
+    html {
+      background: var(--paper);
+      color: var(--ink);
+      font-family: 'Iowan Old Style', 'Charter', 'Georgia', 'Apple Garamond', serif;
+      font-size: 18px;
+      line-height: 1.65;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
+    }
+
+    body {
+      min-height: 100vh;
+      padding: clamp(2.5rem, 8vh, 6rem) 1.5rem 4rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .page {
+      width: 100%;
+      max-width: 38rem;
+    }
+
+    /* Header */
+    .brand {
+      text-align: center;
+      margin-bottom: 4rem;
+      color: var(--ink-faint);
+      font-style: italic;
+      font-size: 0.95rem;
+      letter-spacing: 0.04em;
+    }
+
+    /* Today's question */
+    .today { margin-bottom: 3.5rem; }
+
+    .today-date {
+      color: var(--ink-soft);
+      font-size: 0.95rem;
+      font-style: italic;
+      margin-bottom: 1.25rem;
+    }
+
+    .today-question {
+      font-size: 1.55rem;
+      line-height: 1.5;
+      color: var(--ink);
+      font-weight: 400;
+      margin: 0 0 1.75rem;
+      letter-spacing: -0.005em;
+    }
+
+    /* The writing field — almost invisible, like a blank page */
+    .write {
+      width: 100%;
+      background: transparent;
+      border: none;
+      outline: none;
+      resize: none;
+      color: var(--ink);
+      font-family: inherit;
+      font-size: 1.05rem;
+      line-height: 1.75;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid var(--rule);
+      transition: border-color 0.6s ease;
+      min-height: 4.5em;
+    }
+    .write::placeholder { color: var(--ink-faint); font-style: italic; }
+    .write:focus { border-bottom-color: var(--accent); }
+
+    /* Subtle line under the writing field */
+    .save-line {
+      margin-top: 1.25rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      color: var(--ink-faint);
+      font-size: 0.85rem;
+      font-style: italic;
+      min-height: 1.8em;
+    }
+
+    .save-action {
+      color: var(--ink-soft);
+      background: transparent;
+      border: 1px solid var(--rule);
+      border-radius: 999px;
+      padding: 0.4rem 1.1rem;
+      font: inherit;
+      font-size: 0.85rem;
+      font-style: normal;
+      cursor: pointer;
+      transition: background 0.4s ease, color 0.4s ease, border-color 0.4s ease;
+    }
+    .save-action:hover {
+      background: var(--paper-2);
+      border-color: var(--ink-faint);
+    }
+    .save-action:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    .save-status {
+      transition: opacity 0.7s ease;
+    }
+
+    .first-time {
+      color: var(--ink-soft);
+      font-style: italic;
+      font-size: 0.95rem;
+      margin: 0 0 0.75rem;
+    }
+
+    /* Timeline — last 7 days, the past that is also present */
+    .timeline {
+      margin-top: 5rem;
+      padding-top: 2.5rem;
+      border-top: 1px solid var(--rule);
+    }
+    .timeline-label {
+      color: var(--ink-faint);
+      font-style: italic;
+      font-size: 0.9rem;
+      margin-bottom: 2rem;
+      letter-spacing: 0.04em;
+    }
+    .timeline-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 2.25rem;
+    }
+    .day {
+      display: grid;
+      grid-template-columns: 5.75rem 1fr;
+      gap: 1.5rem;
+      align-items: baseline;
+    }
+    .day-date {
+      color: var(--ink-faint);
+      font-size: 0.85rem;
+      font-style: italic;
+      padding-top: 0.2rem;
+      text-align: right;
+    }
+    .day-body { min-width: 0; }
+    .day-question {
+      color: var(--ink-soft);
+      font-size: 0.95rem;
+      font-style: italic;
+      margin-bottom: 0.5rem;
+      line-height: 1.5;
+    }
+    .day-answer {
+      color: var(--ink);
+      font-size: 1.02rem;
+      line-height: 1.7;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+    .day-empty {
+      color: var(--ink-faint);
+      font-style: italic;
+    }
+
+    /* Footer — the privacy line, present but quiet */
+    .foot {
+      margin-top: 5rem;
+      text-align: center;
+      color: var(--ink-faint);
+      font-size: 0.8rem;
+      font-style: italic;
+    }
+
+    /* Animation — breath, not motion vocabulary */
+    @media (prefers-reduced-motion: no-preference) {
+      .page > * {
+        opacity: 0;
+        transform: translateY(4px);
+        animation: breathe 1.6s ease-out forwards;
+      }
+      .page > *:nth-child(1) { animation-delay: 0.1s; }
+      .page > *:nth-child(2) { animation-delay: 0.4s; }
+      .page > *:nth-child(3) { animation-delay: 0.7s; }
+    }
+    @keyframes breathe {
+      to { opacity: 1; transform: none; }
+    }
+
+    /* Mobile */
+    @media (max-width: 480px) {
+      html { font-size: 17px; }
+      .day {
+        grid-template-columns: 1fr;
+        gap: 0.4rem;
+      }
+      .day-date { text-align: left; }
+    }
+
+    /* Dark mode — companion, not utility */
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --paper:    #1C1A17;
+        --paper-2:  #25221E;
+        --ink:      #EAE3D5;
+        --ink-soft: #A8A092;
+        --ink-faint:#6E665B;
+        --rule:     #2F2B25;
+        --accent:   #C8A878;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="brand">Mavis &mdash; today</div>
+
+    <section class="today" id="today">
+      <div class="today-date" id="todayDate"></div>
+      <h1 class="today-question" id="todayQuestion"></h1>
+      <div id="todayBody"></div>
+    </section>
+
+    <section class="timeline" id="timeline" hidden>
+      <div class="timeline-label">The last seven days</div>
+      <ul class="timeline-list" id="timelineList"></ul>
+    </section>
+
+    <div class="foot">
+      Stays on this device. Nothing leaves.
+    </div>
+  </div>
+
+  <script>
+  (function () {
+    'use strict';
+
+    /* ----------------------------------------------------------------------
+       Mavis Daily Check-in — companion mode
+       One question per day, localStorage only, last 7 days visible.
+       ---------------------------------------------------------------------- */
+
+    var STORAGE_KEY = 'mavis.checkins.v1';
+    var MAX_DAYS_SHOWN = 7;
+
+    /* Companion-mode question pool.
+       Rotate deterministically by day-of-year: same date -> same question.
+       Tone: presence, not productivity. */
+    var QUESTIONS = [
+      "What's the one thing you're carrying today?",
+      "What's the energy like?",
+      "How are you, really?",
+      "Where are you, in this moment?",
+      "What's the quietest thing on your mind?",
+      "What do you need to say, that you haven't said?",
+      "What did you notice about yourself today?",
+      "What do you want to remember about today?",
+      "What feels warm right now?",
+      "What's the smallest good thing?",
+      "What are you holding in your body right now?",
+      "Where could you be a little gentler with yourself?",
+      "What's weighing on you that isn't in any inbox?",
+      "Where is your energy going, that you didn't expect?",
+      "What's true, even if it isn't useful?"
+    ];
+
+    /* ----- helpers ----- */
+
+    function pad2(n) { return n < 10 ? '0' + n : '' + n; }
+
+    function todayISO() {
+      var d = new Date();
+      return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate());
+    }
+
+    function isoFromDate(d) {
+      return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate());
+    }
+
+    function dayOfYear(d) {
+      var start = new Date(d.getFullYear(), 0, 0);
+      return Math.floor((d - start) / 86400000);
+    }
+
+    function questionForToday() {
+      return QUESTIONS[dayOfYear(new Date()) % QUESTIONS.length];
+    }
+
+    function prettyDate(iso) {
+      var p = iso.split('-');
+      var d = new Date(+p[0], +p[1] - 1, +p[2]);
+      return d.toLocaleDateString(undefined, {
+        weekday: 'long', month: 'long', day: 'numeric'
+      });
+    }
+
+    function prettyDateShort(iso) {
+      var p = iso.split('-');
+      var d = new Date(+p[0], +p[1] - 1, +p[2]);
+      return d.toLocaleDateString(undefined, {
+        weekday: 'short', month: 'short', day: 'numeric'
+      });
+    }
+
+    function loadAll() {
+      try {
+        var raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return [];
+        var data = JSON.parse(raw);
+        if (!Array.isArray(data)) return [];
+        return data.filter(function (e) {
+          return e && typeof e.date === 'string' && typeof e.answer === 'string';
+        });
+      } catch (err) {
+        return [];
+      }
+    }
+
+    function saveAll(entries) {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+        return true;
+      } catch (err) {
+        return false;
+      }
+    }
+
+    function findEntry(entries, dateISO) {
+      for (var i = 0; i < entries.length; i++) {
+        if (entries[i].date === dateISO) return entries[i];
+      }
+      return null;
+    }
+
+    /* ----- state ----- */
+
+    var dateISO = todayISO();
+    var question = questionForToday();
+    var entries = loadAll();
+    var todays = findEntry(entries, dateISO);
+
+    var dateEl = document.getElementById('todayDate');
+    var qEl = document.getElementById('todayQuestion');
+    var bodyEl = document.getElementById('todayBody');
+    var timelineEl = document.getElementById('timeline');
+    var timelineListEl = document.getElementById('timelineList');
+
+    dateEl.textContent = prettyDate(dateISO);
+    qEl.textContent = question;
+
+    /* ----- save status (toast-like but quiet) ----- */
+
+    var statusTimer = null;
+    function setSaveStatus(text) {
+      var status = bodyEl.querySelector('.save-status');
+      if (!status) return;
+      status.textContent = text;
+      if (statusTimer) clearTimeout(statusTimer);
+      if (text) {
+        statusTimer = setTimeout(function () {
+          status.style.opacity = '0';
+          statusTimer = setTimeout(function () {
+            status.textContent = '';
+            status.style.opacity = '1';
+            statusTimer = null;
+          }, 800);
+        }, 2600);
+      }
+    }
+
+    /* ----- write mode (the unsaved state) ----- */
+
+    function renderWriteMode(initialValue) {
+      bodyEl.innerHTML = '';
+      initialValue = initialValue || '';
+
+      if (entries.length === 0) {
+        var hint = document.createElement('div');
+        hint.className = 'first-time';
+        hint.textContent = 'No pressure. One sentence is fine.';
+        bodyEl.appendChild(hint);
+      }
+
+      var ta = document.createElement('textarea');
+      ta.className = 'write';
+      ta.rows = 4;
+      ta.placeholder = 'A few words is enough.';
+      ta.spellcheck = true;
+      ta.autocomplete = 'off';
+      ta.value = initialValue;
+      bodyEl.appendChild(ta);
+
+      var line = document.createElement('div');
+      line.className = 'save-line';
+
+      var status = document.createElement('span');
+      status.className = 'save-status';
+      status.setAttribute('aria-live', 'polite');
+
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'save-action';
+      btn.textContent = 'Save';
+
+      line.appendChild(status);
+      line.appendChild(btn);
+      bodyEl.appendChild(line);
+
+      function commit() {
+        var value = ta.value.trim();
+        if (!value) {
+          setSaveStatus('Nothing to save yet.');
+          return;
+        }
+        var entry = {
+          date: dateISO,
+          question: question,
+          answer: value,
+          savedAt: new Date().toISOString()
+        };
+        var existing = findEntry(entries, dateISO);
+        if (existing) {
+          existing.answer = value;
+          existing.question = question;
+          existing.savedAt = entry.savedAt;
+        } else {
+          entries.push(entry);
+        }
+        var ok = saveAll(entries);
+        if (!ok) {
+          setSaveStatus('Couldn\u2019t save — storage may be off.');
+          return;
+        }
+        renderSavedMode(value);
+        renderTimeline();
+      }
+
+      btn.addEventListener('click', commit);
+
+      ta.addEventListener('keydown', function (e) {
+        if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+          e.preventDefault();
+          commit();
+        }
+      });
+
+      // Gentle focus after the breath-in animation.
+      setTimeout(function () {
+        try { ta.focus({ preventScroll: true }); } catch (e) { ta.focus(); }
+      }, 1200);
+    }
+
+    /* ----- saved mode (today is done) ----- */
+
+    function renderSavedMode(answerText) {
+      bodyEl.innerHTML = '';
+
+      var answer = document.createElement('div');
+      answer.className = 'day-answer';
+      answer.style.marginBottom = '1.25rem';
+      answer.textContent = answerText;
+      bodyEl.appendChild(answer);
+
+      var line = document.createElement('div');
+      line.className = 'save-line';
+
+      var note = document.createElement('span');
+      note.className = 'save-status';
+      note.textContent = 'Saved \u2014 here whenever you want to return.';
+
+      var editBtn = document.createElement('button');
+      editBtn.type = 'button';
+      editBtn.className = 'save-action';
+      editBtn.textContent = 'Edit';
+      editBtn.addEventListener('click', function () {
+        var current = findEntry(entries, dateISO);
+        renderWriteMode(current ? current.answer : '');
+      });
+
+      line.appendChild(note);
+      line.appendChild(editBtn);
+      bodyEl.appendChild(line);
+    }
+
+    /* ----- timeline (the last 7 days) ----- */
+
+    function renderTimeline() {
+      timelineListEl.innerHTML = '';
+
+      var days = [];
+      for (var i = 1; i <= MAX_DAYS_SHOWN; i++) {
+        var d = new Date();
+        d.setDate(d.getDate() - i);
+        days.push(isoFromDate(d));
+      }
+
+      var any = false;
+      for (var j = 0; j < days.length; j++) {
+        var iso = days[j];
+        var entry = findEntry(entries, iso);
+
+        var li = document.createElement('li');
+        li.className = 'day';
+
+        var dateDiv = document.createElement('div');
+        dateDiv.className = 'day-date';
+        dateDiv.textContent = prettyDateShort(iso);
+
+        var body = document.createElement('div');
+        body.className = 'day-body';
+
+        if (entry) {
+          any = true;
+          var q = document.createElement('div');
+          q.className = 'day-question';
+          q.textContent = entry.question;
+          var a = document.createElement('div');
+          a.className = 'day-answer';
+          a.textContent = entry.answer;
+          body.appendChild(q);
+          body.appendChild(a);
+        } else {
+          var e = document.createElement('div');
+          e.className = 'day-empty';
+          e.textContent = '\u2014 a quiet day \u2014';
+          body.appendChild(e);
+        }
+
+        li.appendChild(dateDiv);
+        li.appendChild(body);
+        timelineListEl.appendChild(li);
+      }
+
+      // Show the timeline only if there's at least one prior entry.
+      // First-ever open: no "you have empty days" judgment.
+      var hasPrior = false;
+      for (var k = 0; k < entries.length; k++) {
+        if (entries[k].date !== dateISO) { hasPrior = true; break; }
+      }
+      timelineEl.hidden = !hasPrior;
+    }
+
+    /* ----- initial render ----- */
+
+    if (todays) {
+      renderSavedMode(todays.answer);
+    } else {
+      renderWriteMode('');
+    }
+    renderTimeline();
+  })();
+  </script>
+</body>
+</html>

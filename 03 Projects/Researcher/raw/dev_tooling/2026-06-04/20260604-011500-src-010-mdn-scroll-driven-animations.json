@@ -1,0 +1,12 @@
+{
+  "id": "src-2026-06-04-010",
+  "captured_at": "2026-06-04T01:15:00-05:00",
+  "source_lane": "dev_tooling",
+  "url": "https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_scroll-driven_animations",
+  "type": "primary",
+  "fetch_method": "webfetch",
+  "raw_excerpt": "MDN: CSS scroll-driven animations module. 'provides functionality that builds on top of the CSS animations module and Web Animations API. It allows you to animate property values along a scroll-based timeline rather than the default time-based document timeline. This means that you can animate an element by scrolling the element, its scroll container, or its root element, rather than just by the passing of time.' Two types of scroll-based timelines: 'scroll progress timeline: You progress this timeline by scrolling a scrollable element (scroller) from top to bottom (or left to right) and back again.' 'view progress timeline: You progress this timeline based on the change in visibility of a box (the subject) as it moves through a scrollport.' Reference: animation-range shorthand (animation-range-end, animation-range-start), scroll-timeline shorthand (scroll-timeline-axis, scroll-timeline-name), view-timeline shorthand, timeline-scope, <timeline-range-name>. Functions: scroll(), view(). Interfaces: ScrollTimeline, ViewTimeline. Page last modified 2026-05-28.",
+  "raw_full_path": "raw/dev_tooling/2026-06-04/20260604-011500-src-010-mdn-scroll-driven-animations.json",
+  "content_hash": "sha256:mdn_scroll_driven_2026_06_04",
+  "extracted_finding_ids": ["fnd-2026-06-04-020", "fnd-2026-06-04-021", "fnd-2026-06-04-022"]
+}

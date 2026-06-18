@@ -4,7 +4,7 @@ mavis_harness_daemon.py — HTTP daemon mode for the Mavis Harness.
 Source: 03 Projects/Mavis/phase_next_architecture.md §4.0
         (Local-Compute Pivot, 2026-06-07 14:18 CT; 12B QAT Pivot, 2026-06-07 15:04 CT)
 Sprint: 5 (deployment bridge)
-Author: Mavis (chief-of-staff)
+Author: Mavis (EA)
 
 Purpose
 -------

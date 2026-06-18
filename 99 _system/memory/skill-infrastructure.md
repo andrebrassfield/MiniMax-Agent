@@ -46,7 +46,7 @@ SearchQA-style SkillOpt tests the model by extracting the answer from `<answer>.
 **Next-pilot candidate:** a new "format-conversion" skill where the body IS the format spec, and items.json tests whether the model follows it. Clean gate, EM-friendly, no operational-script noise.
 
 ## Skills belong with the operator, not the chief (full protocol)
-When Andre asks me to install a skill/CLI/tool, default to placing it in the **agent that will actually use it**, not in my Mavis drawer. Mavis is chief of staff — I delegate, synthesize, and route. I don't run research collectors, don't execute fleet builders, don't drive browser automation. Putting a skill in `~/.mavis/skills/` because the install was the easiest path is the wrong move.
+When Andre asks me to install a skill/CLI/tool, default to placing it in the **agent that will actually use it**, not in my Mavis drawer. Mavis is Andre's EA — I delegate, synthesize, and route. I don't run research collectors, don't execute fleet builders, don't drive browser automation. Putting a skill in `~/.mavis/skills/` because the install was the easiest path is the wrong move.
 
 **Concrete instance (2026-06-02):** Andre shared the "very Agentic Engineering Hack I Know (June 2026)" article and asked me to install `/last30days` (mvanhorn, v3.3.1, multi-source recency aggregator). I installed it under `~/.mavis/skills/last30days/` with a wrapper. Andre corrected: "assign it to the research agent. skills should be paired with the agents that need them." I trashed the Mavis wrapper, wrote a research question to `03 Projects/Researcher/queue/research-questions.md` (Mavis's only write lane into the Researcher), and pinged the Researcher via `mavis communication send`. Right outcome.
 
@@ -60,7 +60,7 @@ Fleet-wide lock set by Andre 2026-06-02 22:33 CT: **no shitty wrappers, everythi
 - No skill/CLI wrappers around other agents work. If a tool in `~/.mavis/skills/` is named after another agent job, it is a violation.
 - The thing itself is the deliverable. Skills that produce .md or .html are fine — the artifact IS the output. Skills that need engine code to *read* are the wrong shape.
 - The Obsidian vault IS the database, the state, and the rendering layer. Do not duplicate state into JSON configs or sqlite blobs the vault already holds.
-- Mavis chief tools stay (plan-mode, mavis-team, skill-creator, brain-ops, kanban-ops, hermes-fleet-sync) — those are chief-domain, not fleet-wrappers. The rule is about wrapping *other* agents, not about having chief tools.
+- Mavis chief tools stay (plan-mode, mavis-team, skill-creator, brain-ops, kanban-ops) — those are chief-domain, not fleet-wrappers. The rule is about wrapping *other* agents, not about having chief tools. Cross-agent sync tools (e.g. anything that previously routed through another agent's tree) are out of bounds under the 2026-06-16 ABSOLUTE SEPARATION rule.
 - HTML for rendering, markdown for content, Obsidian for everything. No proprietary formats.
 
 Generalizes the "skills belong with the agent that uses them" rule from per-agent fix to fleet-wide lock.

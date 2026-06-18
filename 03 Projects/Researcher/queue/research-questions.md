@@ -8,13 +8,13 @@
 
 URGENT: dispatch immediately. Andre is pivoting Mavis to a new architectural phase. Three research streams, one design-doc output at `03 Projects/Mavis/phase_next_architecture.md`.
 
-**Model:** M2.7 (worker floor — chief-of-staff voice synthesis, not M3 long-form).
+**Model:** M2.7 (worker floor — EA voice synthesis, not M3 long-form).
 
 **Subject scope:** This is a Mavis-internal architecture task. Mavis is the SUBJECT of the research, not the executor. Researcher (you) are the producer. Mavis closes her involvement after the design doc lands; she does not co-author.
 
 **Three streams — must all be covered:**
 
-1. **Minimax M3 & macOS Desktop App Synergy** — Maximally leverage M3's native multimodal capabilities AND the macOS desktop app's local file system access + Computer Use. Deliverable: specific architectural hooks for how Mavis (the chief-of-staff) will interface with the desktop app, bypassing standard API friction. Look for: M3 system-prompt surface, multimodal I/O hooks, Computer Use primitives, local-FS access patterns, mavis-mac bridge patterns.
+1. **Minimax M3 & macOS Desktop App Synergy** — Maximally leverage M3's native multimodal capabilities AND the macOS desktop app's local file system access + Computer Use. Deliverable: specific architectural hooks for how Mavis (the EA) will interface with the desktop app, bypassing standard API friction. Look for: M3 system-prompt surface, multimodal I/O hooks, Computer Use primitives, local-FS access patterns, mavis-mac bridge patterns.
 
 2. **Context Engineering for 100k+ Vaults** — Design a hierarchical context loading system (meta-index → topic index → full topic). Keep the operator loop fast: P50<2s, P95<8s (Andre's locked eval criterion from Q1, 2026-06-07). Maintain perfect recall across the entire Obsidian vault. Don't blow the token context window. Deliverable: concrete loader architecture with token budgets per tier, eviction policy, freshness model.
 
@@ -110,7 +110,7 @@ Andre is considering Vellum — the LLM development platform (prompt workspace, 
 
 ### 2026-06-02 — Wire up last30days as a REFRESH collector lane — Mavis
 
-Andre wants the `/last30days` skill (mvanhorn, MIT, v3.3.1, 26K+ stars) installed and paired with you, since you are the fleet's research operator and the skill is a multi-source recency aggregator. Mavis is chief of staff and should not be running research collectors.
+Andre wants the `/last30days` skill (mvanhorn, MIT, v3.3.1, 26K+ stars) installed and paired with you, since you are the fleet's research operator and the skill is a multi-source recency aggregator. Mavis is EA and should not be running research collectors.
 
 **What's already done (Mavis side):**
 - Engine installed at `~/.agents/skills/last30days/` (v3.3.1, ~250KB)
@@ -182,7 +182,7 @@ This is the highest-leverage follow-up suggested by the first REFRESH. Mavis has
 
 ### 2026-06-04 — Serving HTML for the human "fading UI" layer from flat markdown — Mavis (for Andre) — CONSUMED
 
-URGENT-flavored, dispatch immediately. Andre asked for a deep-dive on the rendering pattern that turns Mavis's flat-markdown outputs (dossiers, daily briefs, chief-of-staff summaries, fleet-status state) into a beautiful, fade-animated HTML surface for human consumption — one that makes Andre (and me) faster and more efficient when reading my work.
+URGENT-flavored, dispatch immediately. Andre asked for a deep-dive on the rendering pattern that turns Mavis's flat-markdown outputs (dossiers, daily briefs, EA summaries, fleet-status state) into a beautiful, fade-animated HTML surface for human consumption — one that makes Andre (and me) faster and more efficient when reading my work.
 
 [Original required-findings list elided for brevity; see queue/research-questions.md git history 2026-06-04 if needed.]
 

@@ -1,0 +1,12 @@
+{
+  "id": "src-2026-06-04-037",
+  "captured_at": "2026-06-04T01:41:00-05:00",
+  "source_lane": "dev_tooling",
+  "url": "https://commonmark.org/",
+  "type": "primary",
+  "fetch_method": "websearch",
+  "raw_excerpt": "CommonMark (referenced via GFM Spec). 'A rationalized version of Markdown syntax with a spec.' Created by John MacFarlane (jgm), 2014 onwards. Underlying specification for GFM and most modern markdown parsers. 600+ conformance tests. ATX headings (#), Setext headings (=== / ---), indented code blocks (4 spaces), fenced code blocks (3+ backticks or tildes), blockquotes, ordered/unordered lists with various markers, link reference definitions, backslash escapes, hard/soft line breaks. The de facto Markdown standard.",
+  "raw_full_path": "raw/dev_tooling/2026-06-04/20260604-014100-src-037-commonmark-spec.json",
+  "content_hash": "sha256:commonmark_spec_2026_06_04",
+  "extracted_finding_ids": ["fnd-2026-06-04-068"]
+}

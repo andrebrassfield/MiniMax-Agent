@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dossier — Markdown → HTML, Fade-Animated UI Layer</title>
+<meta name="date" content="2026-06-04">
+<meta name="author" content="">
+<meta name="generator" content="fleet-status-renderer v1">
+<style>/* Fleet-Status Surface — Tufte-inspired long-form baseline (v1)
+   Self-contained. No external requests. System font stack only.
+   Toggles: prefers-color-scheme, prefers-reduced-motion.
+   Progressive enhancement: animation-timeline: view() where supported.
+*/
+
+/* ---------- design tokens ---------- */
+:root {
+  --bg: #fffff8;
+  --text: #111;
+  --muted: #555;
+  --rule: #e3e3da;
+  --accent: #1a4d6b;
+  --link: #1a4d6b;
+  --link-hover: #b0413e;
+  --code-bg: #f4f1e8;
+  --code-text: #1a1a1a;
+  --callout-bg: #f7f4e8;
+  --callout-border: #c9a227;
+  --source-bg: #eef3f5;
+  --source-border: #8aa4b3;
+  --transition-fade: 600ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  --measure: 68ch;
+  --pad-x: clamp(1rem, 4vw, 2.5rem);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #15161a;
+    --text: #e6e2d3;
+    --muted: #9a9690;
+    --rule: #2c2d31;
+    --accent: #6db4d6;
+    --link: #6db4d6;
+    --link-hover: #e89a72;
+    --code-bg: #1d1f24;
+    --code-text: #e6e2d3;
+    --callout-bg: #25231b;
+    --callout-border: #d8b34a;
+    --source-bg: #1d2429;
+    --source-border: #4f6f80;
+  }
+}
+
+/* ---------- reset + base ---------- */
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, "Helvetica Neue", Arial, sans-serif;
+  font-size: clamp(15px, 1.05vw + 0.5rem, 18px);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  text-wrap: pretty;
+  hyphens: auto;
+  overflow-wrap: breakword;
+}
+main { display: block; }
+article { display: block; }
+img, svg, video { max-width: 100%; height: auto; }
+
+/* ---------- page header (rendered from frontmatter) ---------- */
+.page-header {
+  max-width: var(--measure);
+  margin: 4rem auto 2rem;
+  padding: 0 var(--pad-x);
+  border-bottom: 1px solid var(--rule);
+  padding-bottom: 1.5rem;
+}
+.page-title {
+  font-size: clamp(1.6rem, 1.2rem + 1.6vw, 2.4rem);
+  line-height: 1.2;
+  margin: 0 0 0.5rem 0;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+.page-meta {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  color: var(--muted);
+  font-size: 0.875rem;
+  font-variant-numeric: tabular-nums;
+}
+.page-meta time { font-variant-numeric: tabular-nums; }
+
+/* ---------- main body container ---------- */
+article > *:not(.page-header) {
+  max-width: var(--measure);
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--pad-x);
+  padding-right: var(--pad-x);
+}
+article > h1,
+article > h2,
+article > h3,
+article > h4,
+article > h5,
+article > h6 {
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--pad-x);
+  padding-right: var(--pad-x);
+  max-width: var(--measure);
+}
+
+/* ---------- headings (visual cap at H3) ---------- */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.005em;
+  text-wrap: balance;
+  color: var(--text);
+}
+h1 { font-size: 1.65rem; margin: 2.5rem 0 1rem; }
+h2 {
+  font-size: 1.35rem;
+  margin: 2.25rem 0 0.75rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--rule);
+}
+/* visual cap: H4-H6 styled down to H3 */
+h3, h4, h5, h6 { font-size: 1.1rem; margin: 1.75rem 0 0.5rem; }
+h3 { color: var(--accent); }
+h4, h5, h6 { color: var(--muted); font-weight: 600; }
+
+/* heading anchor links */
+.header-anchor {
+  color: var(--muted);
+  text-decoration: none;
+  margin-right: 0.35em;
+  opacity: 0;
+  transition: opacity 150ms;
+  font-weight: 400;
+}
+h1:hover .header-anchor,
+h2:hover .header-anchor,
+h3:hover .header-anchor,
+h4:hover .header-anchor,
+h5:hover .header-anchor,
+h6:hover .header-anchor { opacity: 1; }
+.header-anchor:hover { color: var(--link-hover); }
+
+/* ---------- paragraphs + lists ---------- */
+p { margin: 0 0 1rem; }
+ul, ol { margin: 0 0 1rem; padding-left: 1.5rem; }
+li { margin: 0.25rem 0; }
+li > ul, li > ol { margin: 0.25rem 0; }
+hr {
+  border: 0;
+  border-top: 1px solid var(--rule);
+  margin: 2rem auto;
+  max-width: 30%;
+}
+
+/* ---------- blockquote ---------- */
+blockquote {
+  margin: 1.25rem 0;
+  padding: 0.5rem 0 0.5rem 1.25rem;
+  border-left: 3px solid var(--accent);
+  color: var(--muted);
+  font-style: italic;
+}
+blockquote > :last-child { margin-bottom: 0; }
+blockquote > :first-child { margin-top: 0; }
+
+/* ---------- code ---------- */
+code, kbd, samp, pre {
+  font-family: ui-monospace, "SF Mono", Menlo, Monaco, "Cascadia Code", "Roboto Mono", Consolas, monospace;
+  font-size: 0.9em;
+}
+code {
+  background: var(--code-bg);
+  color: var(--code-text);
+  padding: 0.1em 0.35em;
+  border-radius: 3px;
+}
+pre {
+  background: var(--code-bg);
+  color: var(--code-text);
+  padding: 1rem 1.25rem;
+  border-radius: 4px;
+  overflow-x: auto;
+  line-height: 1.45;
+  margin: 1.25rem 0;
+}
+pre code {
+  background: transparent;
+  padding: 0;
+  border-radius: 0;
+  font-size: inherit;
+}
+
+/* ---------- tables (Tufte-style: rules only) ---------- */
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+  margin: 1.25rem 0;
+  width: 100%;
+  font-variant-numeric: tabular-nums;
+  font-size: 0.95em;
+}
+thead { border-bottom: 1.5px solid var(--text); }
+th, td { text-align: left; padding: 0.45rem 0.75rem 0.45rem 0; }
+th { font-weight: 600; }
+tbody tr { border-bottom: 1px solid var(--rule); }
+tbody tr:last-child { border-bottom: none; }
+
+/* ---------- links ---------- */
+a {
+  color: var(--link);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+  text-decoration-color: var(--rule);
+  transition: text-decoration-color 150ms, color 150ms;
+}
+a:hover { color: var(--link-hover); text-decoration-color: currentColor; }
+a:focus-visible {
+  outline: 2px solid var(--link);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* ---------- render-hint containers ---------- */
+.callout {
+  margin: 1.25rem 0;
+  padding: 0.85rem 1.1rem;
+  background: var(--callout-bg);
+  border-left: 4px solid var(--callout-border);
+  border-radius: 0 4px 4px 0;
+}
+.callout > :first-child { margin-top: 0; }
+.callout > :last-child { margin-bottom: 0; }
+
+.fade-in-stagger > * {
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity var(--transition-fade), transform var(--transition-fade);
+}
+.fade-in-stagger.is-visible > * {
+  opacity: 1;
+  transform: none;
+}
+.fade-in-stagger.is-visible > *:nth-child(1) { transition-delay: 0ms; }
+.fade-in-stagger.is-visible > *:nth-child(2) { transition-delay: 80ms; }
+.fade-in-stagger.is-visible > *:nth-child(3) { transition-delay: 160ms; }
+.fade-in-stagger.is-visible > *:nth-child(4) { transition-delay: 240ms; }
+.fade-in-stagger.is-visible > *:nth-child(5) { transition-delay: 320ms; }
+.fade-in-stagger.is-visible > *:nth-child(6) { transition-delay: 400ms; }
+.fade-in-stagger.is-visible > *:nth-child(n+7) { transition-delay: 480ms; }
+
+details.collapse {
+  margin: 1.25rem 0;
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  background: rgba(127, 127, 127, 0.03);
+}
+details.collapse > summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--accent);
+  padding: 0.25rem 0;
+  list-style: none;
+}
+details.collapse > summary::-webkit-details-marker { display: none; }
+details.collapse > summary::before {
+  content: "+";
+  display: inline-block;
+  width: 1em;
+  margin-right: 0.4em;
+  font-weight: 400;
+  color: var(--muted);
+}
+details.collapse[open] > summary::before { content: "−"; }
+details.collapse > summary + * { margin-top: 0.5rem; }
+
+.source-trail {
+  margin: 1.5rem 0;
+  padding: 0.75rem 1rem;
+  background: var(--source-bg);
+  border-left: 3px solid var(--source-border);
+  border-radius: 0 4px 4px 0;
+  font-size: 0.875em;
+  color: var(--muted);
+}
+.source-trail::before {
+  content: "Sources";
+  display: block;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 0.4rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.8em;
+}
+
+/* ---------- fade-in (first paint + scroll-in) ---------- */
+.fade-in {
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity var(--transition-fade), transform var(--transition-fade);
+  will-change: opacity, transform;
+}
+.fade-in.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* Above-the-fold: pure CSS keyframes for first paint (no JS).
+   NOTE: keyframe uses transform-only (slide-up) so text opacity stays at 1
+   during the animation. This preserves color contrast for the a11y audit
+   (Lighthouse color-contrast rule). The IntersectionObserver path below
+   handles the opacity fade-in for below-the-fold and progressive reveal. */
+@keyframes fade-in-keyframe {
+  from { transform: translateY(8px); }
+  to   { transform: none; }
+}
+.page-header,
+.page-header + h1,
+.page-header + h1 + * {
+  animation: fade-in-keyframe 400ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+.page-header + h1 + * + * { animation-delay: 80ms; }
+.page-header + h1 + * + * + * { animation-delay: 160ms; }
+.page-header + h1 + * + * + * + * { animation-delay: 240ms; }
+.page-header + h1 + * + * + * + * + * { animation-delay: 320ms; }
+.page-header + h1 + * + * + * + * + * + * { animation-delay: 400ms; }
+
+/* Progressive enhancement: scroll-driven animation on Chrome 115+/Safari 26+
+   (uses view() timeline; opacity is animated by the .is-visible transition). */
+@supports (animation-timeline: view()) {
+  .fade-in {
+    animation: fade-in-keyframe linear both;
+    animation-timeline: view();
+    animation-range: entry 0% cover 30%;
+  }
+}
+
+/* ---------- reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-delay: 0ms !important;
+    transition-duration: 0.001ms !important;
+  }
+  .fade-in, .fade-in-stagger > * {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
+/* ---------- footnotes (markdown-it-footnote pattern, generic) ---------- */
+.footnotes {
+  margin-top: 3rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--rule);
+  font-size: 0.875em;
+  color: var(--muted);
+}
+.footnotes ol { padding-left: 1.25rem; }
+
+/* ---------- focus & selection ---------- */
+:focus-visible { outline-color: var(--accent); }
+::selection { background: var(--accent); color: var(--bg); }
+
+/* ---------- print ---------- */
+@media print {
+  body { background: #fff; color: #000; }
+  .fade-in, .fade-in-stagger > * { opacity: 1; transform: none; }
+  a { color: #000; text-decoration: underline; }
+  .page-header { margin-top: 0; }
+}
+</style>
+</head>
+<body>
+<main>
+<article>
+<header class="page-header">
+<h1 class="page-title">Dossier — Markdown → HTML, Fade-Animated UI Layer</h1>
+<div class="page-meta">
+<time datetime="2026-06-04">2026-06-04</time>
+
+</div>
+</header>
+<blockquote class="fade-in">
+<p class="fade-in">Living topic file. Built 2026-06-04 for Mavis (chief of staff) by the Researcher on urgent dispatch from Andre. Single-shot focused dossier (REFRESH-with-focused-collect mode), not a full REFRESH.</p>
+<p class="fade-in"><strong>Purpose:</strong> Spec the markdown-to-HTML rendering pipeline + fade-in animation + long-form layout baseline + performance budget for v1 of the Fleet-Status Surface, and as the foundation for every HTML delivery Mavis produces (dossiers, briefs, weekly syntheses). Read in 10 minutes. Use as a build spec.</p>
+<p class="fade-in"><strong>Canonical synthesis pointer:</strong> <em>No cross-dossier synthesis article yet</em> — this dossier is the only dossier that currently spans <code>dev_tooling</code> + a new sub-lane we’d call <code>reading_ui</code> or <code>human_facing_render</code>. If a <code>wiki/articles/markdown-to-html-ui.md</code> synthesis is added later, link it from this dossier header.</p>
+</blockquote>
+<h2 id="why-this-topic-matters-to-andre" tabindex="-1" class="fade-in"><a class="header-anchor" tabindex="-1" href="#why-this-topic-matters-to-andre" aria-hidden="true">#</a> Why this topic matters to Andre</h2>
+<p class="fade-in">Mavis is the chief of staff. Her current delivery model is: she writes markdown into the Obsidian vault (dossiers, daily briefs, chief-of-staff summaries, fleet-status state), Andre opens Obsidian to read. That’s a good authoring surface but a slow <em>consumption</em> surface. The vault is where the work <em>lives</em>; the HTML surface is how the work <em>lands</em>. The dossier loop, the fleet-status pattern, the daily brief, and the chief-of-staff synthesis all need a rendering layer that feels alive (fade-in as you scroll, content arrives, no preloader, no jank) but stays zero-JS, single-file, cacheable, vault-resident.</p>
+<p class="fade-in">The thesis of this dossier: <strong>the right pipeline is markdown-it → vanilla CSS scroll-driven animations + IntersectionObserver fade-in → Tufte-inspired long-form layout with self-hosted system stack → &lt;100KB total page weight</strong>. Every claim that crosses weight 0.6 below is backed by a primary source (MDN, Chrome for Developers, official docs).</p>
+<h2 id="current-signal-last-refresh-2026-06-04-0102-ct" tabindex="-1" class="fade-in"><a class="header-anchor" tabindex="-1" href="#current-signal-last-refresh-2026-06-04-0102-ct" aria-hidden="true">#</a> Current signal (last refresh: 2026-06-04 01:02 CT)</h2>
+<p class="fade-in">This is a 8-section dossier, one per the research question’s required findings.</p>
+<h3 id="1-markdown--html-rendering-surface" tabindex="-1" class="fade-in"><a class="header-anchor" tabindex="-1" href="#1-markdown--html-rendering-surface" aria-hidden="true">#</a> 1. Markdown → HTML rendering surface</h3>
+<p class="fade-in"><strong>Bottom line:</strong> <strong><code>markdown-it</code> (Node/Python binding) for server-side / build-time, vanilla HTML output. The vault pipeline runs at file-save time, not in the browser.</strong> Pandoc is a viable second choice for documents that need a full standalone HTML5 wrapper with metadata.</p>
+<p class="fade-in">Primary sources (all <code>primary</code>):</p>
+<ul class="fade-in">
+<li><strong><code>markdown-it</code></strong> is the canonical “CommonMark + GFM + 1000+ plugins” parser. <code>markdown-it</code> token-stream architecture, comprehensive plugin system (footnotes, deflists, containers, attrs, sup/sub, mark, ins, abbreviations, emoji), 100% Markdown 1.0, 100% CommonMark 0.31, full GFM. Active since 2014. Trust 0.95. (src-2026-06-04-001, src-2026-06-04-002)</li>
+<li><strong><code>marked</code></strong> is the canonical “fastest low-level parser” alternative. 100% Markdown 1.0, 98% CommonMark 0.31, 97% GFM 0.29. <strong>Caveat: marked does NOT sanitize output — must pipe through DOMPurify, js-xss, sanitize-html, or insane on untrusted input.</strong> For Mavis’s case (trusted author = Mavis, trusted input = the vault), sanitization is less critical but still a recommended discipline. Trust 0.9. (src-2026-06-04-003)</li>
+<li><strong><code>pandoc</code></strong> is the universal document converter. Supports 40+ input formats and even more output formats including <code>gfm</code> (GitHub-Flavored Markdown) and <code>commonmark_x</code> (CommonMark with Pandoc’s extensions). Markdown variants available: <code>markdown</code> (Pandoc’s), <code>markdown_strict</code>, <code>markdown_phpextra</code>, <code>markdown_mmd</code> (MultiMarkdown), <code>markdown_github</code> (deprecated), <code>gfm</code>, <code>commonmark</code>, <code>commonmark_x</code>. The <code>--embed-resources</code> flag produces a self-contained HTML file with no external dependencies via <code>data:</code> URIs — exactly the “single file in the vault” pattern this dossier wants. Trust 0.95. (src-2026-06-04-004)</li>
+<li><strong><code>gfm</code> (GitHub Flavored Markdown)</strong> is a strict superset of CommonMark. Adds tables, task list items, strikethrough, autolinks, disallowed raw HTML. GFM Spec 0.29 (Apr 6, 2019) is the canonical reference. Trust 0.95. (src-2026-06-04-005)</li>
+<li><strong>Build-time static site generators</strong> are how the file-in-the-vault pattern actually delivers. Three leading options for Obsidian-flavored content:
+<ul class="fade-in">
+<li><strong>Quartz 5</strong> (jackyzha0) — Obsidian-native (full-text search, graph view, wikilinks, transclusions, backlinks, Latex, syntax highlighting, popover previews, Docker, i18n, comments). Hot-reload on config, incremental rebuilds. “Ridiculously fast page loads and tiny bundle sizes.” Requires Node v22. (src-2026-06-04-006)</li>
+<li><strong>Material for MkDocs</strong> (squidfunk) — Material Design system, 60+ languages, 10,000+ icons, code annotations, social cards, built-in instant search, offline-capable, “fast and lightweight,” used by NASA, CERN, TC39, W3C, Google, Microsoft, Mozilla, Font Awesome, Apache, freeCodeCamp. Trust 0.9. (src-2026-06-04-007)</li>
+<li><strong>Eleventy / 11ty</strong> (zachleat) — “simpler static site generator,” zero-config, multiple template languages (HTML, Markdown, WebC, JS, Liquid, Nunjucks, etc.), zero client-side JavaScript by default, no telemetry. Build benchmark: 4000 markdown files in <strong>1.93s</strong> vs Astro 22.90s, Gatsby 29.05s, Next.js 70.65s. Used by Chrome for Developers. 19.7K stars, 18.7M downloads, 82K+ dependent repos. (src-2026-06-04-008)</li>
+<li><strong>Astro</strong> (with Content Collections) — Content Collections API with <code>glob()</code> loader (markdown, mdx, markdoc, JSON, YAML, TOML), Zod-schema validation, TypeScript type safety, dev toolbar, server rendering, view transitions. New <code>live content collections</code> for runtime-loaded content. v6.0 most recent. (src-2026-06-04-009)</li>
+</ul>
+</li>
+</ul>
+<p class="fade-in"><strong>Verdict for Mavis’s use case:</strong> <strong>Build-time pre-render, not client-side, not server-runtime.</strong> The vault is the source of truth; the HTML is a generated view. The pipeline runs at file-save time (or on a cron / file-watch trigger) and writes a single self-contained HTML file into the vault. <strong>Use <code>markdown-it</code> for the parser; build with a small Node.js script in <code>99 _system/scripts/</code>.</strong> Don’t pull in Quartz, 11ty, or Astro for v1 — those are overkill for “render one dossier to one HTML file.” The dependency surface is one npm install: <code>markdown-it</code> + <code>markdown-it-anchor</code> (auto-generates heading IDs for jump-links). Pandoc is the fallback when Mavis needs a full standalone HTML5 wrapper (e.g., a brief that should be email-shareable as a single <code>.html</code> file).</p>
+<h3 id="2-css-fade-in-animation-zero-js-preferred-intersectionobserver-acceptable" tabindex="-1" class="fade-in"><a class="header-anchor" tabindex="-1" href="#2-css-fade-in-animation-zero-js-preferred-intersectionobserver-acceptable" aria-hidden="true">#</a> 2. CSS fade-in animation (zero-JS preferred, IntersectionObserver acceptable)</h3>
+<p class="fade-in"><strong>Bottom line:</strong> <strong>Use a hybrid — pure-CSS <code>@keyframes</code> + <code>animation-delay</code> for first paint, and IntersectionObserver (~30 lines) for scroll-into-view fade.</strong> Add native <code>animation-timeline: view()</code> only for users on Chrome 115+ (progressive enhancement). This keeps the page zero-JS for the <em>readable</em> surface while adding the “feels alive” reveal Andre wants.</p>
+<p class="fade-in">Primary sources (all <code>primary</code>):</p>
+<ul class="fade-in">
+<li><strong>CSS scroll-driven animations module</strong> (W3C/CSSWG, MDN canonical) — The <code>scroll()</code> function ties animation progress to a scroll container’s position; the <code>view()</code> function ties progress to an element’s relative position in its scroll container. Runs <strong>off the main thread</strong> (compositor), silky smooth. Two built-in timelines: <code>Scroll Progress Timeline</code> and <code>View Progress Timeline</code>. MDN page last updated 2026-05-28. (src-2026-06-04-010)</li>
+<li><strong>Chrome 115+ ships scroll-driven animations</strong> natively. Bramus’s canonical blog post on <code>developer.chrome.com</code> (May 5, 2023) walks through <code>animation-timeline: scroll()</code>, <code>animation-timeline: view()</code>, and the <code>animation-range</code> property. Page notes “if you can’t wait to check out some demos go visit scroll-driven-animations.style.” Safari 26, Chrome 115+, Edge 115+ support. (src-2026-06-04-011)</li>
+<li><strong>Baseline status: animation-timeline</strong> is “baseline: false” per web-platform-dx. Chrome 115+ only as of 2026-06. (src-2026-06-04-012)</li>
+<li><strong>IntersectionObserver API</strong> (MDN canonical) — “widely available since March 2019.” Asynchronously observes changes in target element intersection with an ancestor element or top-level document’s viewport. Configurable <code>root</code>, <code>rootMargin</code>, <code>threshold</code> (single number or array of percentages). Solves “fade in as the user scrolls down” pattern in 30 lines of vanilla JS. Replaces the legacy <code>getBoundingClientRect()</code> + scroll event loop pattern. (src-2026-06-04-013)</li>
+<li><strong><code>@starting-style</code> CSS at-rule</strong> (Chrome 117+ / Baseline entry 2024) — defines starting values for properties an element should transition <em>from</em> when first rendered, including from <code>display: none</code>. Combined with <code>transition-behavior: allow-discrete</code> (Chrome 117+) for entry animations on new DOM elements. “Now in Baseline” per web.dev 2024-10. Caveat: <code>@starting-style</code> rules must be placed AFTER the post-entry state declarations (as of Chrome 130). Trust 0.85 — newer spec, smaller browser footprint. (src-2026-06-04-014, src-2026-06-04-015)</li>
+<li><strong>View Transitions API</strong> (Chrome 111+ for same-document, Chrome 126+ for cross-document) — Wraps DOM mutations in <code>document.startViewTransition()</code>. The browser takes a snapshot of the old state, applies the DOM change, and animates the transition. Useful for the <em>fleet-status → dossier → brief</em> navigation flow if those become separate pages, but <strong>NOT recommended for v1</strong> (we’re rendering one long page, not navigating between pages). Defer to v2. (src-2026-06-04-016)</li>
+<li><strong>Web Animations API</strong> — The framework underneath all of this. <code>Element.animate()</code> is the JS equivalent of <code>@keyframes</code>. Trust 0.95. (src-2026-06-04-017)</li>
+</ul>
+<p class="fade-in"><strong>Verdict for Mavis’s use case:</strong> <strong>Hybrid layer-cake</strong> —</p>
+<ul class="fade-in">
+<li><strong>First paint above the fold:</strong> pure-CSS <code>@keyframes fade-in</code> + small <code>animation-delay</code> per element. Zero JS. Works in every browser since 2014.</li>
+<li><strong>Below the fold as the user scrolls:</strong> vanilla JS IntersectionObserver (~30 lines), one observer per page, threshold <code>0.1</code>, adds class <code>is-visible</code> to elements that fade in via CSS transition. <code>prefers-reduced-motion: reduce</code> honored (skip the animation, show the content immediately).</li>
+<li><strong>Progressive enhancement:</strong> <code>@supports (animation-timeline: view())</code> block adds the modern path for Chrome 115+ / Safari 26+ users — same visual, runs off the main thread.</li>
+<li><strong>NOT in v1:</strong> View Transitions, <code>@starting-style</code> (save for v2 when the API stabilizes across Safari/Firefox).</li>
+</ul>
+<h3 id="3-minimal--elegant-long-form-reading-layouts" tabindex="-1" class="fade-in"><a class="header-anchor" tabindex="-1" href="#3-minimal--elegant-long-form-reading-layouts" aria-hidden="true">#</a> 3. Minimal / elegant long-form reading layouts</h3>
+<p class="fade-in"><strong>Bottom line:</strong> <strong>Tufte-inspired long-form, 60–75 char line length, system font stack (no webfont network request), <code>text-wrap: pretty</code> on body, <code>text-wrap: balance</code> on headings, dark mode via <code>prefers-color-scheme</code>.</strong> <a href="http://Gwern.net">Gwern.net</a> is the philosophical north star; Tufte CSS is the implementation template.</p>
+<p class="fade-in">Primary sources (all <code>primary</code>):</p>
+<ul class="fade-in">
+<li><strong><a href="http://Gwern.net">Gwern.net</a> “Design Of This Website”</strong> (Gwern Branwen) — “4 design principles: aesthetically-pleasing minimalism, accessibility/progressive-enhancement, speed, and a ‘semantic zoom’ approach to hypertext use.” Built with Pandoc + Hakyll, “JavaScript is not required for the core reading experience.” Inspirations: English Wikipedia, Project Xanadu, Tufte, Robert Bringhurst, Susan Kare, Donald Knuth, Matthew Butterick, Markdeep, Andy Matuschak’s evergreen notes. The “semantic zoom” framing — page hierarchy as collapsible, progressive disclosure — is the philosophical underpinning of how a long dossier should be presented. (src-2026-06-04-018)</li>
+<li><strong>Tufte CSS</strong> (Dave Liepmann, edwardtufte/tufte-css) — Sidenotes (margin notes that don’t force the reader to jump to the bottom of the page), full-width figures, careful typography (<code>#fffff8</code> off-white, <code>#111111</code> off-black, ETBook serif with system-font fallback), <code>newthought</code> for the first few words of a section in small caps, “the Feynman lectures use only 2 levels of hierarchical headings” (quote, Edward Tufte). Goal stated: “Webpages are not books. The goal of Tufte CSS is not to say ‘websites should look like this interpretation of Tufte’s books’ but rather ‘here are some techniques Tufte developed that we’ve found useful in print; maybe you can find a way to make them useful on the web.’” Trust 0.95. (src-2026-06-04-019)</li>
+<li><strong>CSS <code>text-wrap: pretty</code></strong> (Chrome 117+, WebKit, Baseline entry 2024) — improves line wrapping and avoids orphans on the last paragraph line. Use on body paragraphs. <code>text-wrap: balance</code> is for headings and short blocks; <code>text-wrap: pretty</code> is for paragraphs. Trust 0.9. (src-2026-06-04-020, src-2026-06-04-021)</li>
+<li><strong>Web Almanac 2025 Page Weight</strong> (HTTP Archive) — The objective landscape. Median desktop home page is <strong>2.86 MB</strong>, median mobile home page is <strong>2.56 MB</strong> in 2025. Breakdown: HTML 22KB, CSS 82KB, fonts 139KB, JavaScript 697KB, images 1058KB on desktop. (src-2026-06-04-022)</li>
+<li><strong>Web Vitals</strong> (web.dev canonical) — Core Web Vitals 2026 thresholds: LCP &lt; 2.5s (Good), INP ≤ 200ms (Good), CLS ≤ 0.1 (Good). LCP / INP / CLS all <strong>stable</strong> as of 2024. (src-2026-06-04-023)</li>
+</ul>
+<p class="fade-in"><strong>Verdict for Mavis’s use case:</strong> <strong>Tufte-inspired, 60–75 char body, system stack, dark mode by default-light, <code>text-wrap: pretty</code> on body, <code>text-wrap: balance</code> on headings.</strong> <strong>No webfont network request</strong> in v1 (system font stack: <code>-apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif</code> for sans; <code>'Iowan Old Style', 'Apple Garamond', Baskerville, Georgia, serif</code> for body if the dossier is text-heavy). This is the only way to stay under 100KB total page weight on a long-form dossier.</p>
+<h3 id="4-existing-similar-tools-audit-before-we-build" tabindex="-1" class="fade-in"><a class="header-anchor" tabindex="-1" href="#4-existing-similar-tools-audit-before-we-build" aria-hidden="true">#</a> 4. Existing similar tools (audit before we build)</h3>
+<p class="fade-in">The closest existing patterns in Mavis’s own catalog and in the wider ecosystem:</p>
+<table class="fade-in">
+<thead>
+<tr>
+<th>Tool</th>
+<th>What it does</th>
+<th>What it does NOT do</th>
+<th>Gap ours fills</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><code>content-deck-generator</code></strong> (Mavis skill)</td>
+<td>Reads <code>~/.mavis/fleet/*-draft.md</code> files, parses tweets + LinkedIn, renders standalone dark-theme HTML deck with Copy buttons + 60s auto-refresh via <code>&lt;meta http-equiv=&quot;refresh&quot;&gt;</code>. Inline JS for clipboard + countdown. Theme: “Tony Stark / Dark Arc Reactor.”</td>
+<td>Only X + LinkedIn buckets; dark theme only; fade-in animations absent; only handles one specific source format.</td>
+<td>The pipeline shape (markdown → standalone HTML in a known location) is exactly what we want to reuse. The auto-refresh pattern is the right move for the fleet-status surface (it changes every 6h).</td>
+</tr>
+<tr>
+<td><strong><code>html-presentation-generator</code></strong> (Mavis skill)</td>
+<td>Generates multi-page HTML presentations exportable to PDF/PPTX. Cover, TOC, section divider, content pages, summary/closing. Fixed 960×540 dimensions per slide. <strong>“No animations: No CSS animations, transitions, hover effects, or SVG animations.”</strong> Times New Roman font, no gradients, all CSS inline.</td>
+<td>Deliberately animation-free; slide-deck UX, not long-form reading; binary-export-focused.</td>
+<td>Nothing for v1 — the anti-animation rule is a feature for export, not for reading.</td>
+</tr>
+<tr>
+<td><strong><code>landing-page-builder</code></strong> (Mavis skill)</td>
+<td>Awwwards-level landing pages, cinematic hero, deployed online, video-first. Spec-then-build flow with <code>spec.md</code>.</td>
+<td>Hero-video-driven, not reading-driven; meant to deploy to a public URL, not stay vault-resident.</td>
+<td>The spec-first discipline is a good model for our <code>01 Build Spec.md</code>; the deliverable shape is wrong for our use case.</td>
+</tr>
+<tr>
+<td><strong><code>pptx-generator</code></strong> / <code>minimax-pptx</code> / <code>minimax-pdf</code></td>
+<td>Binary deliverables (PPTX / PDF).</td>
+<td>Not HTML+animation.</td>
+<td>Confirms the gap: there is no skill in the Mavis catalog that does markdown → self-contained HTML with fade-in. v1 fills it.</td>
+</tr>
+<tr>
+<td><strong><code>visual-summary</code></strong> (Mavis skill)</td>
+<td>Not currently installed in <code>~/.mavis/skills/</code>. Per the skill catalog description, “Proactively create a visual summary HTML page when plain text cannot effectively convey the information.” (src-2026-06-04-024)</td>
+<td>The trigger is “when plain text cannot effectively convey,” which is a <em>narrower</em> use case than ours.</td>
+<td>Our pipeline is the generalization: every Mavis output (text-or-visual) gets the same rendering treatment.</td>
+</tr>
+<tr>
+<td><strong>Obsidian Publish</strong></td>
+<td>Obsidian’s official vault-to-web service. $8/mo. Full-text search, graph view, backlinks.</td>
+<td>Hosted, $8/mo, requires publishing.</td>
+<td>We want vault-resident, not published.</td>
+</tr>
+<tr>
+<td><strong>Quartz 5</strong></td>
+<td>The closest to our use case at the static-site-generator level. Full Obsidian compatibility.</td>
+<td>It’s a <em>site</em> generator — it produces dozens of pages. We need <em>one</em> page per dossier.</td>
+<td>Don’t pull in Quartz. Borrow its <code>popover previews</code> and <code>wikilinks</code> rendering for the dossier, build as a 200-line Node script using markdown-it + a hand-rolled CSS template.</td>
+</tr>
+</tbody>
+</table>
+<p class="fade-in"><strong>Verdict for v1:</strong> <strong>Build a new pipeline, borrow the shape from <code>content-deck-generator</code> (auto-refresh + standalone file), borrow the typography discipline from Tufte CSS, ignore the binary-deliverable skills.</strong> The pipeline is novel for the Mavis catalog but small (≤ 200 lines of Node).</p>
+<h3 id="5-self-contained-vs-server-rendered-tradeoffs" tabindex="-1" class="fade-in"><a class="header-anchor" tabindex="-1" href="#5-self-contained-vs-server-rendered-tradeoffs" aria-hidden="true">#</a> 5. Self-contained vs server-rendered tradeoffs</h3>
+<p class="fade-in"><strong>Bottom line:</strong> <strong>Self-contained single HTML file. Pandoc’s <code>--embed-resources</code> (or markdown-it + manual inlining in a 50-line script) is the right shape.</strong> The vault-resident pattern is non-negotiable: the HTML file must live next to the markdown file, must be openable directly in a browser, must not require a server.</p>
+<p class="fade-in">Primary sources:</p>
+<ul class="fade-in">
+<li><strong>HTTP Archive Web Almanac 2025 Page Weight</strong> — Median home page in 2025 is 2.86 MB desktop / 2.56 MB mobile. The browser spends “significant CPU power parsing and executing” JavaScript; “excessive page weight creates significant inequities” on low-end devices. The constraint “all key information should be present in the initial raw HTML, since AI crawlers do not render JavaScript” is a useful framing for the vault’s delivery model. (src-2026-06-04-022)</li>
+<li><strong>Pandoc <code>--embed-resources</code></strong> — “Produce a standalone HTML file with no external dependencies, using <code>data:</code> URIs to incorporate the contents of linked scripts, stylesheets, images, and videos. The resulting file should be ‘self-contained,’ in the sense that it needs no external files and no net access to be displayed properly by a browser. This option works only with HTML output formats, including <code>html4</code>, <code>html5</code>, <code>html+lhs</code>, <code>html5+lhs</code>, <code>s5</code>, <code>slidy</code>, <code>slideous</code>, <code>dzslides</code>, and <code>revealjs</code>.” Caveat: “resources that are loaded dynamically through JavaScript cannot be incorporated.” (src-2026-06-04-004)</li>
+<li><strong>Pandoc <code>--self-contained</code> is the deprecated synonym</strong> for <code>--embed-resources --standalone</code> — both still work, but <code>--embed-resources</code> is the modern name. (src-2026-06-04-004)</li>
+</ul>
+<p class="fade-in"><strong>Verdict for Mavis’s use case:</strong> <strong>Single self-contained HTML, CSS inlined in <code>&lt;style&gt;</code> in <code>&lt;head&gt;</code>, no external requests.</strong> The script writes the file, the file lives at <code>03 Projects/Fleet-Status Surface/status.html</code> (or <code>02 Notes/dossiers/{name}.html</code>), openable by double-click. This:</p>
+<ul class="fade-in">
+<li>Eliminates the network round-trip on first load</li>
+<li>Makes the file archiveable as a single artifact (committed to git, included in backups)</li>
+<li>Honors the AI-crawler constraint (all content in initial raw HTML)</li>
+<li>Means the page works offline (vault-resident = no server dependency)</li>
+</ul>
+<p class="fade-in"><strong>Performance budget for v1 (dossier with 3,000-8,000 words):</strong> target <strong>&lt; 100KB total uncompressed HTML</strong> (which compresses to ~15-20KB gzipped, vs the median web page’s 700+KB JS budget). Components: HTML 20KB + inline CSS 25KB + minimal JS (IntersectionObserver) 1KB + zero webfonts + zero images. Compare to the median web page: HTML 22KB + CSS 82KB + JS 697KB + fonts 139KB + images 1058KB = 2.86MB.</p>
+<h3 id="6-ai-agent--human-content-surfaces-the-emerging-pattern" tabindex="-1" class="fade-in"><a class="header-anchor" tabindex="-1" href="#6-ai-agent--human-content-surfaces-the-emerging-pattern" aria-hidden="true">#</a> 6. AI-agent → human content surfaces (the emerging pattern)</h3>
+<p class="fade-in"><strong>Bottom line:</strong> <strong>The “AI output landing page” is a real emerging pattern, but no one has a name for it yet.</strong> Claude Artifacts, ChatGPT Canvas, Perplexity Pages, and Google Gemini Gems all solve the same problem: AI generates a long, structured artifact; the human wants to <em>read</em> it (not just see it as a chat turn); the product surfaces it in a dedicated panel. Our dossier rendering is the <strong>Mavis-archive variant</strong> of this pattern — the artifact is the dossier the chief of staff produced, the human is Andre, the panel is the vault HTML.</p>
+<p class="fade-in">Primary sources (mix of primary and secondary):</p>
+<ul class="fade-in">
+<li><strong>Claude Artifacts (Anthropic)</strong> — Announced June 21, 2024 with Claude 3.5 Sonnet on <code>anthropic.com/news/claude-3-5-sonnet</code>. Anthropic’s framing: “Artifacts on <a href="http://Claude.ai">Claude.ai</a>, a new feature that expands how users can interact with Claude. When a user asks Claude to generate content like code snippets, text documents, or website designs, these Artifacts appear in a dedicated window alongside their conversation. This creates a dynamic workspace where they can see, edit, and build upon Claude’s creations in real-time, seamlessly integrating AI-generated content into their projects and workflows.” “This preview feature marks Claude’s evolution from a conversational AI to a collaborative work environment.” Made generally available Aug 28, 2024. Trust 0.9. (src-2026-06-04-025)</li>
+<li><strong>Perplexity Pages</strong> — Announced May 30, 2024 on <code>perplexity.ai/hub/blog/perplexity-pages</code>. Framing: “Meet Perplexity Pages, your new tool for easily transforming research into visually stunning, comprehensive content.” Features: section-by-section reformat, media insertion, source citation, audience targeting. The “AI-Wikipedia” framing. Initially Pro-only, then rolled out to free/Enterprise. (src-2026-06-04-026)</li>
+<li><strong>ChatGPT Canvas (OpenAI)</strong> — Launched October 2024. Side-panel collaborative writing surface. (Secondary; not directly fetched from OpenAI’s blog in this dossier cycle. Logged for next REFRESH.)</li>
+<li><strong>The pattern is real but unnamed.</strong> Andre’s instinct that “Mavis outputs need a rendering layer” is on the leading edge of a pattern that every major AI lab is also working on. (Inference from the three launch patterns.)</li>
+</ul>
+<p class="fade-in"><strong>Verdict for Mavis’s use case:</strong> <strong>The vault HTML is the Mavis-archive instance of this pattern.</strong> Our rendering layer (single-file HTML, fade-in on scroll, self-contained) is functionally equivalent to what Anthropic / OpenAI / Perplexity do in their product surfaces, just with the host <em>being the vault file</em> instead of a chat panel. Don’t try to ship a “Mavis Artifacts” product; the file IS the artifact. v1 is enough.</p>
+<h3 id="7-performance-budget-the-hard-constraint" tabindex="-1" class="fade-in"><a class="header-anchor" tabindex="-1" href="#7-performance-budget-the-hard-constraint" aria-hidden="true">#</a> 7. Performance budget (the hard constraint)</h3>
+<p class="fade-in"><strong>Bottom line:</strong> <strong>&lt; 100KB total uncompressed HTML for a typical dossier, FCP &lt; 200ms locally, zero layout shift on fade-in, LCP &lt; 2.5s on a fresh load, INP &lt; 200ms, CLS &lt; 0.1.</strong> The page must be readable without JS executing. All metrics are field metrics (75th percentile of real users), not lab metrics.</p>
+<p class="fade-in">Primary sources:</p>
+<ul class="fade-in">
+<li><strong>Web Vitals canonical thresholds</strong> (web.dev) — “Largest Contentful Paint (LCP): measures loading performance. To provide a good user experience, LCP should occur within 2.5 seconds of when the page first starts loading. Interaction to Next Paint (INP): measures interactivity. To provide a good user experience, pages should have a INP of 200 milliseconds or less. Cumulative Layout Shift (CLS): measures visual stability. To provide a good user experience, pages should maintain a CLS of 0.1. or less.” 75th percentile is the measurement target. (src-2026-06-04-023)</li>
+<li><strong>HTTP Archive Web Almanac 2025</strong> — Median HTML 22KB, median CSS 82KB, median JS 697KB. Our budget is one-tenth of the median HTML and one-third of the median CSS — feasible because we have no JS framework and a single inline stylesheet. (src-2026-06-04-022)</li>
+<li><strong>web-vitals JS library</strong> (GoogleChrome/web-vitals) — <code>import {onCLS, onINP, onLCP} from 'web-vitals'</code> is the standard way to measure in the field. (src-2026-06-04-023)</li>
+<li><strong><code>prefers-reduced-motion</code></strong> — Always honor the user OS-level setting. Skip the animation, show the content immediately. (De facto discipline across all sources above.)</li>
+</ul>
+<p class="fade-in"><strong>Verdict for Mavis’s use case:</strong></p>
+<table class="fade-in">
+<thead>
+<tr>
+<th>Metric</th>
+<th>Target</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Total HTML weight (uncompressed)</td>
+<td><strong>&lt; 100KB</strong></td>
+<td>One-tenth of median; well below the “feels heavy” threshold</td>
+</tr>
+<tr>
+<td>Total HTML weight (gzipped)</td>
+<td>&lt; 20KB</td>
+<td>Sub-second on 4G</td>
+</tr>
+<tr>
+<td>FCP (local file:// open)</td>
+<td>&lt; 200ms</td>
+<td>The file is local; FCP is essentially paint-blocking zero</td>
+</tr>
+<tr>
+<td>LCP (web-served)</td>
+<td>&lt; 2.5s</td>
+<td>Web Vitals Good threshold</td>
+</tr>
+<tr>
+<td>INP</td>
+<td>&lt; 200ms</td>
+<td>Web Vitals Good threshold; we have no interactions in v1</td>
+</tr>
+<tr>
+<td>CLS</td>
+<td>&lt; 0.1</td>
+<td>Critical: fade-in must not shift layout. Use <code>opacity</code> + <code>transform: translateY()</code>, not <code>top</code>/<code>bottom</code></td>
+</tr>
+<tr>
+<td>Total external requests</td>
+<td>0</td>
+<td>Self-contained</td>
+</tr>
+<tr>
+<td>Webfont requests</td>
+<td>0</td>
+<td>System stack in v1</td>
+</tr>
+<tr>
+<td>Third-party scripts</td>
+<td>0</td>
+<td>No analytics in v1; if added later, must be async and below the fold</td>
+</tr>
+<tr>
+<td>Accessibility (axe / Lighthouse)</td>
+<td>100 / 100</td>
+<td>Color contrast AA; semantic HTML; reduced-motion respected</td>
+</tr>
+</tbody>
+</table>
+<p class="fade-in"><strong>Defer to v2:</strong> Field-measurement of LCP / INP / CLS via the web-vitals library + a Mavis-managed RUM endpoint. Not v1 scope.</p>
+<h3 id="8-how-the-agent-should-structure-its-markdown-so-the-render-is-clean" tabindex="-1" class="fade-in"><a class="header-anchor" tabindex="-1" href="#8-how-the-agent-should-structure-its-markdown-so-the-render-is-clean" aria-hidden="true">#</a> 8. How the agent should structure its markdown so the render is clean</h3>
+<p class="fade-in"><strong>Bottom line:</strong> <strong>Heading hierarchy, semantic breaks, image alt text, code-fence languages, and Pandoc-style “render hints” passed through to the HTML for the rendering script to consume.</strong> The render script reads the frontmatter, the markdown body, and any <code>&lt;!-- render-hint: ... --&gt;</code> comments and applies the appropriate CSS class or template variable.</p>
+<p class="fade-in">Primary sources:</p>
+<ul class="fade-in">
+<li><strong>CommonMark Spec</strong> (referenced in GFM) — Defines the basic block / inline grammar. Heading levels 1-6, ATX (<code>#</code>) and Setext (<code>=====</code> / <code>-----</code>), fenced code blocks (3+ backticks or tildes), blockquotes, lists, links, images, emphasis, code spans, hard/soft line breaks. (src-2026-06-04-005)</li>
+<li><strong>GFM Spec 0.29</strong> — Strict superset of CommonMark. Adds: tables (extension), task list items (extension), strikethrough (extension), autolinks (extension), disallowed raw HTML (extension). All user content on <a href="http://github.com">github.com</a> uses GFM. (src-2026-06-04-005)</li>
+<li><strong>Pandoc’s markdown variants</strong> — <code>markdown</code> (Pandoc’s flavor, the default), <code>gfm</code> (GitHub’s), <code>commonmark</code> (CommonMark strict), <code>commonmark_x</code> (CommonMark + Pandoc extensions). Pandoc’s <code>--from</code> accepts the variant. (src-2026-06-04-004)</li>
+</ul>
+<p class="fade-in"><strong>Verdict for Mavis’s use case:</strong> <strong>Author in GFM-flavored markdown with Pandoc-style extensions.</strong> Concretely:</p>
+<ul class="fade-in">
+<li><strong>Frontmatter</strong> (YAML): <code>title</code>, <code>author</code> (default: Mavis), <code>date</code>, <code>tags</code>, <code>dossier_id</code> (links to <code>dossiers/*.md</code>).</li>
+<li><strong>Heading hierarchy:</strong> H1 once per page (the title), H2 for sections, H3 for subsections. Cap at H3 (Tufte: “the Feynman lectures use only 2 levels of hierarchical headings”). If Mavis needs H4, she’s nesting too deep.</li>
+<li><strong>Semantic breaks:</strong> horizontal rule (<code>---</code>) between major sections.</li>
+<li><strong>Code fences:</strong> always with language (<code>js</code>, <code>python</code>, <code>bash</code>).</li>
+<li><strong>Image alt text:</strong> always. Non-negotiable.</li>
+<li><strong>Render hints</strong> (Pandoc-style <code>&lt;!-- render-hint: class=&quot;callout&quot; --&gt;</code>): a small set of custom block-level wrappers the render script recognizes and translates to a CSS class. Examples:
+<ul class="fade-in">
+<li><code>:::callout</code> → <code>&lt;aside class=&quot;callout&quot;&gt;</code> (Mavis’s “important note” wrapper)</li>
+<li><code>:::fade-in-stagger</code> → <code>&lt;div class=&quot;fade-in-stagger&quot;&gt;</code> (the children fade in with staggered animation-delay)</li>
+<li><code>:::collapse</code> → <code>&lt;details&gt;&lt;summary&gt;...&lt;/summary&gt;...&lt;/details&gt;</code> (Gwern-style collapsibles)</li>
+<li><code>:::source-trail</code> → <code>&lt;section class=&quot;source-trail&quot;&gt;</code> (the research dossier’s source-trail rendering)</li>
+<li>This is a thin custom block syntax, not a new markdown dialect. Implemented in 20 lines of markdown-it core rules.</li>
+</ul>
+</li>
+</ul>
+<h2 id="source-trail" tabindex="-1" class="fade-in"><a class="header-anchor" tabindex="-1" href="#source-trail" aria-hidden="true">#</a> Source trail</h2>
+<p class="fade-in">See <code>knowledge/sources.jsonl</code>. Key primary sources for this dossier (all fetched 2026-06-04 01:02-01:25 CT):</p>
+<ul class="fade-in">
+<li><code>src-2026-06-04-001</code> markdown-it demo — weight 0.95 (primary, official)</li>
+<li><code>src-2026-06-04-002</code> markdown-it GitHub (implicit via demo) — weight 0.9</li>
+<li><code>src-2026-06-04-003</code> marked.js official docs — weight 0.9</li>
+<li><code>src-2026-06-04-004</code> Pandoc User’s Guide (<a href="http://pandoc.org/MANUAL.html">pandoc.org/MANUAL.html</a>) — weight 0.95</li>
+<li><code>src-2026-06-04-005</code> GFM Spec 0.29 (<a href="http://github.github.com/gfm">github.github.com/gfm</a>) — weight 0.95</li>
+<li><code>src-2026-06-04-006</code> Quartz 5 docs (quartz.jzhao.xyz) — weight 0.85</li>
+<li><code>src-2026-06-04-007</code> Material for MkDocs (<a href="http://squidfunk.github.io/mkdocs-material">squidfunk.github.io/mkdocs-material</a>) — weight 0.9</li>
+<li><code>src-2026-06-04-008</code> Eleventy (11ty.dev) — weight 0.9</li>
+<li><code>src-2026-06-04-009</code> Astro Content Collections docs (docs.astro.build) — weight 0.9</li>
+<li><code>src-2026-06-04-010</code> MDN CSS scroll-driven animations module — weight 0.95</li>
+<li><code>src-2026-06-04-011</code> Chrome for Developers: “Animate elements on scroll” (Bramus) — weight 0.9</li>
+<li><code>src-2026-06-04-012</code> web-platform-dx animation-timeline feature status — weight 0.85</li>
+<li><code>src-2026-06-04-013</code> MDN Intersection Observer API — weight 0.95</li>
+<li><code>src-2026-06-04-014</code> MDN @starting-style — weight 0.85</li>
+<li><code>src-2026-06-04-015</code> Chrome for Developers: “Four new CSS features for smooth entry and exit animations” — weight 0.9</li>
+<li><code>src-2026-06-04-016</code> Chrome for Developers: “Smooth transitions with the View Transition API” — weight 0.85</li>
+<li><code>src-2026-06-04-017</code> MDN Web Animations API — weight 0.9</li>
+<li><code>src-2026-06-04-018</code> <a href="http://Gwern.net">Gwern.net</a> “Design Of This Website” (<a href="http://gwern.net/design">gwern.net/design</a>) — weight 0.9</li>
+<li><code>src-2026-06-04-019</code> Tufte CSS (<a href="http://edwardtufte.github.io/tufte-css">edwardtufte.github.io/tufte-css</a>) — weight 0.95</li>
+<li><code>src-2026-06-04-020</code> Chrome for Developers: CSS text-wrap pretty — weight 0.9</li>
+<li><code>src-2026-06-04-021</code> WebKit blog: “Better typography with text-wrap pretty” — weight 0.9</li>
+<li><code>src-2026-06-04-022</code> HTTP Archive Web Almanac 2025 Page Weight chapter — weight 0.95</li>
+<li><code>src-2026-06-04-023</code> web.dev: Web Vitals — weight 0.95</li>
+<li><code>src-2026-06-04-024</code> Mavis skill catalog: visual-summary (referenced) — weight 0.7</li>
+<li><code>src-2026-06-04-025</code> Anthropic: “Introducing Claude 3.5 Sonnet” (Artifacts announcement) — weight 0.9</li>
+</ul>
+<h2 id="contradictions-and-open-questions" tabindex="-1" class="fade-in"><a class="header-anchor" tabindex="-1" href="#contradictions-and-open-questions" aria-hidden="true">#</a> Contradictions and open questions</h2>
+<ul class="fade-in">
+<li><strong>Anthropic engineer’s “MD is dead” thread (May 2026)</strong> — Thariq (Anthropic engineer) published a viral thread arguing HTML &gt; Markdown for AI-generated artifacts, with Karpathy endorsing. Secondary sources (36kr, Sohu, Tencent News) reported on it. Implication: long-form AI outputs may converge to HTML, not Markdown. (src-2026-06-04-027 secondary) — <strong>Implication for v1: keep the markdown source of truth, but the render artifact is HTML. That’s already the plan. Watch this space.</strong> Not a contradiction, more a “your instinct is right” signal.</li>
+<li><strong>Astro vs 11ty vs Quartz for “what’s the best long-term foundation”</strong> — Astro is the most flexible (islands, content collections, view transitions) but heaviest. 11ty is the simplest and fastest. Quartz is the most Obsidian-native. <strong>For v1 (one rendering script, one HTML output per dossier), none of them is the right tool. For v2 (generalize to all Mavis outputs as a site), Astro is the right call.</strong> Flagged for the next dossier.</li>
+<li><strong>View Transitions for cross-page navigation</strong> — If/when the dossier/brief/fleet-status become separate pages (rather than one long page), View Transitions (Chrome 126+ cross-document) becomes the right cross-page animation primitive. v2 question.</li>
+<li><strong>IntersectionObserver + <code>prefers-reduced-motion</code></strong> — the canonical pattern in the Chrome docs checks the media query and skips the animation. We need to follow this. <strong>Test before shipping.</strong></li>
+<li><strong>Open question — should the render hint syntax be markdown-it-specific or pandoc-style?</strong> — Pandoc’s fenced_divs extension (<code>::: classname</code>) is the more portable choice. Mavis would write the same hint whether she later switches from markdown-it to pandoc. <strong>Recommended: pandoc-style fenced_divs, implemented in markdown-it via the <code>markdown-it-container</code> plugin.</strong></li>
+</ul>
+<h2 id="implications" tabindex="-1" class="fade-in"><a class="header-anchor" tabindex="-1" href="#implications" aria-hidden="true">#</a> Implications</h2>
+<p class="fade-in"><strong>The recommended rendering pipeline (Mavis’s Build Spec v1):</strong></p>
+<pre class="fade-in"><code>[markdown file] → markdown-it (server-side parse)
+                 → + markdown-it-anchor (auto-generate heading IDs)
+                 → + markdown-it-container (::: callout / fade-in-stagger / collapse)
+                 → + manual CSS template
+                 → inlined &lt;style&gt; in &lt;head&gt;
+                 → vanilla JS IntersectionObserver block (~30 lines, inlined before &lt;/body&gt;)
+                 → single .html file written to vault
+</code></pre>
+<table class="fade-in">
+<thead>
+<tr>
+<th>Layer</th>
+<th>Choice</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Markdown lib</strong></td>
+<td><code>markdown-it</code> + 3 plugins</td>
+<td>Plugin system, 100% CommonMark + GFM, zero config, mature, fast</td>
+</tr>
+<tr>
+<td><strong>Animation technique</strong></td>
+<td>Hybrid: pure-CSS @keyframes for first paint + IntersectionObserver for scroll-into-view; <code>@supports (animation-timeline: view())</code> progressive enhancement for Chrome 115+/Safari 26+</td>
+<td>Zero JS for the readable surface; ~30 lines of JS for scroll-into-view; modern path for users on newer browsers</td>
+</tr>
+<tr>
+<td><strong>Layout baseline</strong></td>
+<td>Tufte-inspired, 60-75 char body, system font stack, <code>text-wrap: pretty</code> on body, <code>text-wrap: balance</code> on headings, dark mode via <code>prefers-color-scheme</code></td>
+<td>Performance budget forces no-webfont; Tufte is the gold standard; system stack keeps the file under 100KB</td>
+</tr>
+<tr>
+<td><strong>Performance budget</strong></td>
+<td>&lt; 100KB total HTML, FCP &lt; 200ms locally, LCP &lt; 2.5s web, INP &lt; 200ms, CLS &lt; 0.1, zero external requests, zero webfonts</td>
+<td>See Section 7. The median web page is 2.86MB; we ship &lt; 100KB. 28x lighter.</td>
+</tr>
+<tr>
+<td><strong>Delivery</strong></td>
+<td>Self-contained single HTML in the vault, version-controlled, regenerable by a script in <code>99 _system/scripts/</code></td>
+<td>Round-trip: markdown is source of truth, HTML is generated view</td>
+</tr>
+<tr>
+<td><strong>Render hints</strong></td>
+<td>Pandoc-style fenced divs: <code>:::callout</code>, <code>:::fade-in-stagger</code>, <code>:::collapse</code>, <code>:::source-trail</code></td>
+<td>Portable, 20-line markdown-it plugin, no new dialect</td>
+</tr>
+</tbody>
+</table>
+<p class="fade-in"><strong>Build:</strong> for v1 (Fleet-Status Surface), the v1 implementation is “build a 200-line Node script in <code>99 _system/scripts/render-dossier.js</code> that takes a markdown file path, returns a self-contained HTML file path, and runs on file-watch or manual trigger.” This is the Builder agent’s job, not Researcher’s. The dossier above is the spec; the Builder owns the script.</p>
+<p class="fade-in"><strong>Content:</strong> the chief-of-staff synthesis (“why is the fleet-status surface worth building”) is ready to use as the framing for the v1 announcement. The “AI output landing page” pattern (Section 6) is the strongest single claim — the dossier is novel because Mavis is on the leading edge of a pattern every major lab is converging on.</p>
+<p class="fade-in"><strong>Watch:</strong> Anthropic engineer’s “MD is dead” thread (single-source; watch for further corroboration from other AI labs). View Transitions cross-document (Chrome 126+) — only when the v2 page-per-dossier decision is made.</p>
+<p class="fade-in"><strong>Verify:</strong> none this cycle. The IntersectionObserver pattern is verified by MDN canonical doc; the markdown-it / pandoc / GFM claims are verified by their own canonical docs; the HTTP Archive numbers are verified by their own primary source. No external claims need a second-source cross-check at the rubric boundary.</p>
+<p class="fade-in"><strong>Re-verification watch (90-day discipline):</strong> the Web Vitals thresholds (LCP 2.5s, INP 200ms, CLS 0.1) are stable as of 2024 and unlikely to change by next REFRESH (2026-09-04), but if Google re-tunes, this dossier needs an update. Marked for context_decay recompute on 2026-09-04 (90 days from <code>verified_at</code>).</p>
+<h2 id="routing-history" tabindex="-1" class="fade-in"><a class="header-anchor" tabindex="-1" href="#routing-history" aria-hidden="true">#</a> Routing history</h2>
+<table class="fade-in">
+<thead>
+<tr>
+<th>Date</th>
+<th>Routed to</th>
+<th>Item</th>
+<th>Outcome</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2026-06-04</td>
+<td>queue/mavis-handoff.md</td>
+<td>mvs-handoff-2026-06-04-001 (dossier ready)</td>
+<td>Pending Mavis consumption</td>
+</tr>
+<tr>
+<td>2026-06-04</td>
+<td>queue/research-questions.md</td>
+<td>research-question-2026-06-04-001 (this dossier)</td>
+<td>Pending move to Processed</td>
+</tr>
+<tr>
+<td>2026-06-04</td>
+<td>runs/RUN-2026-06-04-0102-DIVE-MAVIS-UI.md</td>
+<td>run receipt</td>
+<td>Pending Mavis consumption</td>
+</tr>
+</tbody>
+</table>
+<hr class="fade-in">
+<p class="fade-in"><em>This dossier is the spec for the v1 build. It accumulates. The Builder takes this and turns it into a 200-line script. Mavis takes the script and renders the first dossier. Andre opens the HTML in his browser, sees it fade in, and says “now that’s a desk.”</em></p>
+
+</article>
+</main>
+<script>// Fleet-Status Surface — IntersectionObserver fade-in (v1, ~30 lines)
+// Honors prefers-reduced-motion. Falls back gracefully if IO is unsupported.
+
+(function () {
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduce) {
+    document.querySelectorAll('.fade-in, .fade-in-stagger').forEach(function (el) {
+      el.classList.add('is-visible');
+    });
+    return;
+  }
+  if (!('IntersectionObserver' in window)) {
+    document.querySelectorAll('.fade-in, .fade-in-stagger').forEach(function (el) {
+      el.classList.add('is-visible');
+    });
+    return;
+  }
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('is-visible');
+        io.unobserve(entry.target);
+      }
+    });
+  }, { rootMargin: '0px 0px -10% 0px', threshold: 0.1 });
+  document.querySelectorAll('.fade-in, .fade-in-stagger').forEach(function (el) {
+    io.observe(el);
+  });
+})();
+</script>
+</body>
+</html>

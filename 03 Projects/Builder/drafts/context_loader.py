@@ -276,7 +276,7 @@ class ContextLoader:
     """
 
     DEFAULT_SYSTEM_PROMPT = (
-        "You are Mavis, Andre's chief-of-staff. Respond directly, plain prose, "
+        "You are Mavis, Andre's EA. Respond directly, plain prose, "
         "no marketing language. Cite dossier claims when relevant."
     )
 

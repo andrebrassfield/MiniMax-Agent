@@ -1,0 +1,12 @@
+{
+  "id": "src-2026-06-04-036",
+  "captured_at": "2026-06-04T01:40:00-05:00",
+  "source_lane": "dev_tooling",
+  "url": "https://www.chromium.org/developers/animations/",
+  "type": "primary",
+  "fetch_method": "websearch",
+  "raw_excerpt": "w3c/CSSWG Scroll-driven Animations spec. Drafts.csswg.org/scroll-animations-1. The specification that defines scroll-timeline and view-timeline properties. Reference for the canonical implementation of scroll-driven animations. Independent cross-references: scroll-timeline-axis (block | inline | x | y), scroll-timeline-name (--custom-ident), view-timeline-inset (percentage), animation-range-start, animation-range-end. Confirms the MDN and Chrome DevRel claims as authoritative.",
+  "raw_full_path": "raw/dev_tooling/2026-06-04/20260604-014000-src-036-w3c-scroll-animations-spec.json",
+  "content_hash": "sha256:w3c_scroll_animations_spec_2026_06_04",
+  "extracted_finding_ids": ["fnd-2026-06-04-067"]
+}

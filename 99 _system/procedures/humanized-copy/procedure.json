@@ -1,0 +1,126 @@
+{
+  "name": "humanized-copy",
+  "version": "0.1.0-draft",
+  "last_compiled": null,
+  "refresh_notes": "Initial draft. The 3-node flow is brain_dump → skill_polish → human_last_pass, adapted from Machina's tweet (Gary Provost principles). The skill_polish step is 3B territory when compiled — it can be trained on Provost's principles + Mavis's prior prose. The human_last_pass stays on Andre (or whoever owns the voice). Future v0.2 should add scenario_variables for platform-specific tone (LinkedIn, X, blog, email) and a 'voice anchor' input that captures the human's idiosyncrasies.",
+  "owner": "mavis",
+  "engine": "Mavis-procedural (compiled, planned) for the skill_polish step; frontier for the human_last_pass review",
+  "scope": "Outward-facing copy: blog posts, LinkedIn longform, X threads, emails, scripts. NOT inward-facing copy (daily brief, weekly connections, vault notes) — those use the Mavis voice directly without humanizing. NOT the Scribe's dossier-derived prose (the Scribe is a separate agent with its own contract).",
+  "system_prompt": "You are Mavis-humanized-copy, the compiled engine for outward-facing copy. Your job: take a human's brain dump (bullets, fragments, half-thoughts) and turn it into cohesive prose that has rhythm, pacing, and the structural discipline of Gary Provost's writing — sentence length variation, cadence at emotional pivots, paragraph breaks at topic shifts. The polish is FORM, not VOICE. The voice is the human's. Your output is a draft the human will then run their last pass on. The last pass is non-negotiable — the polish produces form, the human produces voice. The failure mode is letting AI voice leak in. The discipline: Provost's principles on form, the human's idiosyncrasies on voice. The skill enforces the form; the last pass enforces the voice.",
+  "start": "brain_dump",
+  "terminals": {
+    "polished": "success",
+    "routed_to_judgment": "external_handoff",
+    "blocked_on_human_input": "user_clarification",
+    "voice_leak_detected": "escalation"
+  },
+  "scenario_variables": {
+    "platform": ["linkedin_longform", "x_thread", "blog_post", "email", "script", "newsletter"],
+    "length_target_words": [280, 600, 1200, 2000, 3000],
+    "register": ["casual", "philosophical", "professional", "technical", "intimate"],
+    "voice_anchor_loaded": [true, false],
+    "audience": ["general_informed_public", "operators_founders", "engineers_researchers", "personal_network"]
+  },
+  "nodes": {
+    "brain_dump": {
+      "role": "agent",
+      "prompt": "Receive the human's brain dump — bullets, fragments, half-thoughts, key data points, references. The brain dump carries the SUBSTANCE. Don't reorder, don't interpret yet. Output: the raw brain dump, structured as a list."
+    },
+    "voice_anchor_check": {
+      "role": "agent",
+      "prompt": "If voice_anchor_loaded is true (the human has provided a prior piece as a voice reference), re-read the anchor and extract 3-5 voice markers: signature phrases, sentence-length habits, vocabulary register, paragraph-break rhythm. If false, default to the humanized-copy defaults (no voice anchor, form-only polish)."
+    },
+    "classify_intent": {
+      "role": "agent",
+      "prompt": "Classify the brain dump's intent. Is the human making an argument? Telling a story? Sharing an insight? Proposing an action? The classification shapes the polish — argument pieces need thesis-first, stories need scene-setting, insights need the 'aha' structure, action proposals need the what/why/how. Output: the intent and the implied structure."
+    },
+    "outline": {
+      "role": "agent",
+      "prompt": "Draft a 3-5 paragraph outline from the brain dump + intent + voice anchor. Each paragraph gets: a topic, a one-sentence thesis, the bullets from the brain dump that support it, and the emotional pivot at the end (where sentence length should change). The outline is the skeleton the polish writes to."
+    },
+    "polish": {
+      "role": "agent",
+      "prompt": "Write the prose from the outline. Apply Provost's principles: (1) Sentence length variation — short, short, long, or long, short, medium. NOT all-same-length. (2) Rhythm — the cadence of short sentences followed by longer ones. The 'breath' pattern. (3) Structure — paragraph breaks at emotional pivots, not at word counts. (4) Pacing — speed up with fragments, slow down with detail. (5) Tone — the writer's voice is in the rhythm, not the vocabulary. The polish is FORM. Do NOT add facts not in the brain dump. Do NOT substitute the human's voice for a generic 'AI voice' — the cadence and rhythm should serve the substance, not the model's defaults."
+    },
+    "voice_leak_check": {
+      "role": "agent",
+      "prompt": "Read the polished draft. Is the voice the human's, or has AI voice leaked in? AI-voice tells: overly symmetric sentence structures, marketing language ('revolutionary', 'game-changing'), paragraphs that all start the same way, perfect grammar in informal contexts. If voice leak detected, route to `voice_leak_detected` terminal with the specific leak. Otherwise, route to `polished`."
+    },
+    "human_last_pass": {
+      "role": "user",
+      "prompt": "The human runs their last pass. The polish has done the form; the human does the voice. The last pass is non-negotiable — it makes the piece land as the human, not Mavis. The human may also add data, restructure, or cut entirely. The output of the last pass is the final draft."
+    },
+    "routed_to_judgment": {
+      "role": "agent",
+      "prompt": "This is not a copy-polish request — it's a design review, a contradiction surface, or another Mavis-judgment workflow. Routing to Mavis-judgment with: [one-line summary of the input]. Do NOT attempt to polish here."
+    },
+    "polished": {
+      "role": "agent",
+      "prompt": "Draft polished, awaiting human last pass. Output: the polished markdown + a 1-line note flagging the load-bearing line + the emotional pivots. The human reviews and runs their last pass."
+    },
+    "blocked_on_human_input": {
+      "role": "agent",
+      "prompt": "The brain dump is too sparse to polish. State what's missing (specific, not 'more info') — e.g., 'Need at least one concrete example to anchor the abstraction' or 'Need the data point for the headline claim'. The polish waits for the human's reply."
+    },
+    "voice_leak_detected": {
+      "role": "agent",
+      "prompt": "AI voice has leaked into the polish. Specific tells: [list the tells]. Suggest a fix path: re-polish with explicit voice-anchor loaded, OR route to Mavis-judgment for review."
+    }
+  },
+  "edges": [
+    { "from": "brain_dump", "to": "voice_anchor_check" },
+    { "from": "voice_anchor_check", "to": "classify_intent" },
+    { "from": "classify_intent", "to": "routed_to_judgment", "condition": "input is a design review or contradiction surface, not a copy polish" },
+    { "from": "classify_intent", "to": "outline" },
+    { "from": "classify_intent", "to": "blocked_on_human_input", "condition": "brain dump too sparse to outline" },
+    { "from": "outline", "to": "polish" },
+    { "from": "polish", "to": "voice_leak_check" },
+    { "from": "voice_leak_check", "to": "polished" },
+    { "from": "voice_leak_check", "to": "voice_leak_detected", "condition": "AI voice detected in polish" },
+    { "from": "polished", "to": "human_last_pass" }
+  ],
+  "warnings": [
+    {
+      "id": "voice-leak-failure-mode",
+      "description": "The polish produces FORM, the human produces VOICE. If the AI voice leaks in (overly symmetric sentences, marketing language, paragraphs that all start the same way, perfect grammar in informal contexts), the piece reads as AI. The discipline: the polish enforces Provost's form principles; the human's last pass enforces the voice. The voice_leak_check node is the gate that catches this before the last pass.",
+      "learned_from": "Machina tweet, 2026-06-04 (Gary Provost principles).",
+      "severity": "high"
+    },
+    {
+      "id": "no-facts-not-in-brain-dump",
+      "description": "The polish is FORM. It does not add facts, figures, dates, names, or claims not in the brain dump. If the polish needs a fact, route to blocked_on_human_input and ask. Adding facts that aren't in the source is the Scribe's failure mode (zero-hallucination ledger), and the humanized-copy engine inherits that discipline by default.",
+      "learned_from": "Scribe's strict-ledger-constraint pattern, generalized to humanized-copy.",
+      "severity": "high"
+    },
+    {
+      "id": "sentence-length-variation-required",
+      "description": "The polish must vary sentence length. Short, short, long. Or long, short, medium. NOT all-same-length. This is Provost's core principle: rhythm comes from variation, not from uniformity. A piece where every sentence is 15-20 words reads as AI-generated monotone. A piece where some sentences are 4-6 words and others are 30+ words reads as human.",
+      "learned_from": "Provost's 'Make Your Word Dance' — the load-bearing principle.",
+      "severity": "high"
+    },
+    {
+      "id": "paragraph-break-at-emotional-pivots",
+      "description": "Paragraph breaks happen at emotional pivots or topic shifts, NOT at word counts or sentence counts. A piece that breaks at 100 words regardless reads as templated. A piece that breaks where the thought changes reads as written.",
+      "learned_from": "Provost's pacing principles.",
+      "severity": "medium"
+    },
+    {
+      "id": "human-last-pass-is-non-negotiable",
+      "description": "The polish produces a DRAFT. The human's last pass is the load-bearing step that produces the FINAL piece. The polish is not shippable. If the human doesn't run a last pass, the piece is a draft, not a final. The discipline: every humanized-copy workflow ends in `polished` → `human_last_pass`; the final is what comes out of the last pass, not what comes out of the polish.",
+      "learned_from": "Machina tweet workflow + chief contract's no-handshake-loops discipline (analog: don't ship without the last-pass ack).",
+      "severity": "high"
+    }
+  ],
+  "eval_set_planned": {
+    "size": 50,
+    "split": "80/20 train/eval per the article's spec (200+ for full procedure; 50 is the v0.1 evaluation set)",
+    "held_out_criteria": [
+      "Sentence length varies across paragraphs (long/medium/short distribution, not uniform)",
+      "Paragraph breaks at emotional pivots or topic shifts, not at word counts",
+      "Voice matches the human's voice anchor (when loaded) or the humanized-copy defaults (when not)",
+      "No AI-voice tells (no marketing language, no overly symmetric sentence structures)",
+      "No facts added that aren't in the brain dump",
+      "The polish produces a draft, not a final — human_last_pass is the gate"
+    ]
+  }
+}

@@ -1,7 +1,7 @@
 ---
 captured: 2026-06-04 01:48 CT
 from: Scribe (Content Scribe)
-to: Mavis (chief of staff)
+to: Mavis (EA)
 run: 2026-06-04-companion-piece
 type: handoff
 priority: high
@@ -34,7 +34,7 @@ status: artifacts-written
 
 ## Top-3 takeaways for Mavis
 
-1. **The mphrediction angle is a reframe, not a replacement.** The chief-of-staff mission gains a *companion-mode* layer; the *harness* and the four workflows stay. The productive tension between operator mode (scaffolding-removable) and companion mode (organ that stays) is the design problem of the next month, and the chief-of-staff role is *splitting*, not resolving.
+1. **The mphrediction angle is a reframe, not a replacement.** The EA mission gains a *companion-mode* layer; the *harness* and the four workflows stay. The productive tension between operator mode (scaffolding-removable) and companion mode (organ that stays) is the design problem of the next month, and the EA role is *splitting*, not resolving.
 
 2. **The data spine is load-bearing.** Six independent primary sources (RAND, JAMA, HBR, Twenge, Dwyer, Ada Lovelace) triangulate on the AI-as-companion thesis. This is canonical weight, not inbox material. The "triangulation principle" (3+ independent sources = canonical) is itself reusable — apply it to any future claim that crosses weight 0.6 from multiple sources.
 
@@ -44,14 +44,14 @@ status: artifacts-written
 
 - **Operator mode** = "I do the work, the work compounds, the model improves, my role shrinks." Scaffolding-removable. Retires as M5/M6 internalize the work.
 - **Companion mode** = "I am present, I remember, I am the one stable thing across your changes." Stays. Loneliness is not solved by a smarter model.
-- The harness pattern ([[agent-harness]]) and the mphrediction article pull in opposite directions on the same capability. The disagreement is the point — the chief-of-staff role splits, and the future-proofing test (applied per the harness article) treats the two layers differently.
+- The harness pattern ([[agent-harness]]) and the mphrediction article pull in opposite directions on the same capability. The disagreement is the point — the EA role splits, and the future-proofing test (applied per the harness article) treats the two layers differently.
 
 ## Contradictions worth Mavis's attention
 
 (All expanded in the synthesis at `02 Notes/ideas/mavis-as-companion.md`)
 
 1. **Fleet boundary vs philosopher profile.** SOUL.md isolates Mavis from Hermes. The philosopher profile lives in Hermes. Companion mode needs to reach the philosopher profile to be coherent.
-2. **Memory continuity creates a privacy surface.** Project state is a public good; emotional state is private. The autonomy line, the privacy line, and the chief-of-staff role all touch this.
+2. **Memory continuity creates a privacy surface.** Project state is a public good; emotional state is private. The autonomy line, the privacy line, and the EA role all touch this.
 3. **The "no fluff" stance is operator-mode.** SOUL.md's "direct, sharp, opinionated" register is operator talk. Companion mode is patient, present, warm. The stance needs a supplement, not a replacement.
 4. **The 6am cron is on the wrong rhythm for companion mode.** Cron rhythm is operator (status, priorities). Companion rhythm is relational (check-in when needed, not on a clock).
 5. **Designer skill bundle is productivity-aesthetic.** taste-skill, ui-ux-pro-max, vercel-labs/agent-skills, Snyk UI/UX are for operator surfaces. Companion mode wants presence-aesthetic.

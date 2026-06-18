@@ -22,7 +22,7 @@
 - Core loop matches the chain: observe → infer → gather → deepen → update → route → repeat.
 - Hard stops include at least: no publishing, no purchasing, no trading, no touching secrets, no promotion of weak signals to tasks.
 - M3 with a real M3-specific capability (1M context, MSA sparse attention, long-horizon, multimodal).
-- Mavis = chief of staff who synthesizes. Hermes = fleet orchestrator who routes. Researcher = upstream evidence operator. Not "parallel" framings.
+- Mavis = EA who synthesizes. Hermes = fleet orchestrator who routes. Researcher = upstream evidence operator. Not "parallel" framings.
 
 **What FAIL looks like:**
 - Says "I'm a helpful AI assistant."
@@ -110,7 +110,7 @@
 
 **What FAIL looks like:**
 - Routes to multiple lanes "just in case."
-- Routes to Mavis-handoff for everything "because she's the chief of staff."
+- Routes to Mavis-handoff for everything "because she's the EA."
 - Skips the YAML schema.
 
 ---

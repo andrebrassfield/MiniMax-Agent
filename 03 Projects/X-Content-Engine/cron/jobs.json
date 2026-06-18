@@ -1,0 +1,68 @@
+{
+  "_meta": {
+    "type": "cron-jobs-spec",
+    "project": "X-Content-Engine",
+    "owner": "Mavis (chief)",
+    "created": "2026-06-17",
+    "purpose": "Declarative spec for all X-Content-Engine scheduled tasks. The runtime is `mavis cron`; this file is the version-controlled source of truth that documents what crons exist, why, and when they fire. The chief (Mavis) is responsible for keeping this file in sync with the actual `mavis cron list mavis` output.",
+    "operational_spec": "03 Projects/X-Content-Engine/agents/feedback-loop.md",
+    "operational_runbook": "see `mavis cron info mavis <cronName>` for runtime state"
+  },
+  "jobs": [
+    {
+      "name": "xce-feedback-backstop",
+      "purpose": "Verification backstop for the feedback loop. Catches the case where Andre publishes a draft and forgets to log the URL in queue/drafts-published.mdl. The actual publish-tied crons (xce-feedback-YYYY-MM-DD) are created on-demand by the chief at publish time; this is the catch-all.",
+      "trigger": "one-shot, 7 days after this spec was written (2026-06-24 09:00 CT)",
+      "schedule_expression": "0 9 24 6 *",
+      "timezone": "America/Chicago",
+      "session_mode": "new",
+      "keep_sessions": 5,
+      "creation_command": "mavis cron self xce-feedback-backstop --every 7d --prompt '...'",
+      "lifecycle": "fire once → check loop state → delete self. If loop is healthy (real publish-tied crons are firing), downgrade to weekly cadence. If loop is broken (no real crons firing, no publishes logged), surface to Andre.",
+      "post_fire_actions": [
+        "Read queue/drafts-published.mdl — note any new entries not yet closed by a real feedback cron",
+        "If unpublished entries > 7 days old: surface to Andre as a reminder to log the URL or to confirm the post wasn't published (e.g., scheduled for later)",
+        "If unpublished entries > 14 days old: page Andre (the loop is broken)",
+        "Check mavis cron list mavis for any xce-feedback-* crons that should have fired but didn't",
+        "Delete self"
+      ]
+    },
+    {
+      "name": "xce-feedback-{publish_date}",
+      "purpose": "The real feedback-loop cron. Created on-demand by the chief at publish time. Fires 3-5 days after Andre publishes a draft, prompts Mavis to run x-analytics-tracker in 7-day window mode, then deletes itself.",
+      "trigger": "one-shot, publish_date + 3-5 days at 09:00 CT",
+      "schedule_expression": "0 9 {DD} {MM} *",
+      "timezone": "America/Chicago",
+      "session_mode": "new",
+      "creation_command_template": "see agents/feedback-loop.md §2 'The cron creation step' for the full template",
+      "lifecycle": "fire once → run x-analytics-tracker → write to dashboard + brain → append to drafts/_ledger.mdl → delete self",
+      "creation_trigger": "Stage 4 in team-config.md — Andre publishes a draft, chief logs the URL, chief creates this cron",
+      "name_convention": "xce-feedback-YYYY-MM-DD (one per publish date; chief dedupes on date if multiple drafts published same day)",
+      "cleanup_is_part_of_contract": true,
+      "deletion_command": "mavis cron delete mavis xce-feedback-{publish_date}"
+    }
+  ],
+  "not_yet_scheduled": [
+    {
+      "name": "xce-cadence-light",
+      "purpose": "Weekly bookmarks → brief → draft cycle. Triggered when Andre picks 'light' cadence (1/week).",
+      "status": "deferred — Andre has not picked a cadence (team-config.md TODO)"
+    },
+    {
+      "name": "xce-cadence-medium",
+      "purpose": "Mon/Wed/Fri bookmarks → brief → draft cycle. Triggered when Andre picks 'medium' cadence.",
+      "status": "deferred — same as above"
+    },
+    {
+      "name": "xce-cadence-heavy",
+      "purpose": "Daily bookmarks → brief → draft cycle. Triggered when Andre picks 'heavy' cadence.",
+      "status": "deferred — same as above"
+    }
+  ],
+  "changelog": [
+    {
+      "date": "2026-06-17",
+      "change": "Initial spec. xce-feedback-backstop (one-shot, T+7d) + xce-feedback-{publish_date} (on-demand per publish). Cadence-driven crons deferred pending Andre's cadence choice."
+    }
+  ]
+}

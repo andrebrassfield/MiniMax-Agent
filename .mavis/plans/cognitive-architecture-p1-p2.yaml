@@ -1,0 +1,280 @@
+version: 1
+plan:
+  name: 'Operation: Cognitive Architecture — Phase 1+2 (Intelligence gathering)'
+  max_concurrency: 3
+  max_consecutive_failures: 2
+  max_cycles: 6
+  verifier_config:
+    default_verifiers: [verifier]
+    audit_sample_rate: 0.0
+tasks:
+  - id: minimax-ecosystem-dossier
+    title: 'Research MiniMax ecosystem: M3, Agent Framework, macOS Desktop App'
+    role: produce
+    prompt: |
+      You are the Researcher in a 3-stage Producer ➔ Trust loop orchestrated by Mavis (chief of staff). Andre is designing Phase 3 of Mavis's evolution. To do this, he needs deep intelligence on the MiniMax ecosystem as of mid-2026.
+
+      ## Your deliverable
+
+      Write a comprehensive dossier to: `/Users/brassfieldventuresllc/MiniMax-Agent/03 Projects/Researcher/dossiers/minimax_ecosystem_2026.md`
+
+      The dossier must cover three sub-topics in depth. Every factual claim must be tied to a numbered source reference (e.g. `src-2026-06-05-001`); no source = no claim. Mark anything that cannot be sourced as `UNVERIFIED — needs follow-up` rather than dropping or fabricating it. Andre's Producer ➔ Trust loop rejects unverified claims as failures.
+
+      ### Sub-topic 1 — MiniMax M3
+      - Context window: total token limit, effective usable window, any MSA/sparse-attention behavior
+      - Rate-limit structures: requests per minute (RPM), tokens per minute (TPM), requests per day (RPD), burst behavior, tier-based differences (free / pro / enterprise)
+      - Tool-use latency: p50 / p95 / p99 latencies for tool-call round-trips, where available
+      - Reasoning capabilities vs M2.7: explicit benchmark deltas (MMLU, GPQA, HumanEval, SWE-bench, lmarena ELO, Artificial Analysis intelligence index, Vellum AI, Hugging Face leaderboards) — quote numbers, attribute to sources
+      - Native multimodal capability: image / video / audio input + output specs
+      - Long-horizon / thinking-mode toggle details
+
+      ### Sub-topic 2 — MiniMax Agent Framework
+      - Multi-agent orchestration: how MiniMax natively routes between agents, the dispatch model, parallelism, the agent-as-tool pattern
+      - State management: checkpointing, persistence, session rotation, the relationship between sessions and tasks
+      - Memory: short-term (in-context), long-term (file-system, vector, MEMORY.md style), semantic, the canonical memory hierarchy
+      - Skills system: what a MiniMax skill is, how it is loaded, how routing works (auto vs explicit)
+      - Hooks / cron / event system: how the framework handles time-based and event-based triggers
+      - Terminal backends: local / docker / SSH / others
+      - Comparison to Claude Agent SDK, OpenAI Codex / Agents SDK, LangChain deepagents, Google ADK — where MiniMax leads, where it lags
+
+      ### Sub-topic 3 — MiniMax macOS Desktop App
+      - Install footprint: how it ships (App Store / DMG / Homebrew / company-issued)
+      - Native OS integration: what system permissions it requests, what it does with them
+      - Local file-system access: scoped to the user's project, or system-wide? How does the sandbox work?
+      - Terminal execution: can it spawn local shells? Sandbox / container / direct?
+      - Local REST API hooks: does it expose a localhost endpoint for orchestration? Document the port, auth model, and surface
+      - Capability delta vs the cloud API: what can the desktop app do that the API cannot, and vice versa? Where do they share a model and where do they diverge?
+      - Voice / computer-use / vision modules: which are bundled, which require explicit opt-in, which are absent
+      - Existing fleet posture: how does it fit alongside Claude Code, Codex CLI, Cursor, OpenCode?
+
+      ## Style, structure, voice
+
+      Read 2-3 existing dossiers in `/Users/brassfieldventuresllc/MiniMax-Agent/03 Projects/Researcher/dossiers/` first (`harness-engineering.md`, `frontier_ai.md`, `ai-landscape.md`) to match voice, density, frontmatter, and source-trail format. The new dossier follows the same skeleton:
+
+      - Frontmatter (one-paragraph topic framing + cross-references)
+      - "Why this topic matters to Andre"
+      - "Current signal" with sub-sections (one per sub-topic above)
+      - "Source trail" (numbered `src-YYYY-MM-DD-NNN` references with URL + access date + 1-line excerpt)
+      - "Contradictions and open questions"
+      - "Implications" (Build / Content / Watch / Verify)
+      - "Routing history"
+
+      Cross-link to `ai-landscape.md`, `frontier_ai.md`, and `harness-engineering.md` where the topic overlaps. Do NOT duplicate prior dossier work — extend, refresh, add new intelligence.
+
+      ## Sources & tools
+
+      - Use the `web_search` native tool (matrix MCP) and the `WebFetch` tool liberally. Run at least 8-12 distinct searches across the three sub-topics. Cross-reference 3+ sources per sub-topic.
+      - Prefer primary sources: MiniMax official docs, model cards, the MiniMax GitHub org, benchmark sites (lmarena, Artificial Analysis, Vellum AI, Hugging Face), conference talks.
+      - If a search returns nothing useful, mark the claim as UNVERIFIED — never invent numbers, model specs, or URLs.
+
+      ## Hard rules (vault destruction was 2 hours ago — be paranoid)
+
+      1. **Vault Rule:** write the deliverable DIRECTLY to the vault path above. `/tmp/` is forbidden for durable artifacts. The vault is the single source of truth.
+      2. **Double-quoted paths** in any shell command. NEVER backslash-escape spaces.
+      3. **No git operations** — Mavis (orchestrator) handles commits and pushes. Do not `git add`, `git commit`, `git push`, `git reset`, or modify git state in any way.
+      4. **No trash / rm / mv on the vault** — this is what destroyed the vault 2 hours ago. If you need to clean up intermediate files, write to `/tmp/` (which the orchestrator will sweep).
+      5. **No recursive `git add <dir>` or `git add .`** — the vault working tree has unrelated unstaged items.
+      6. **Do not touch any other file in the dossier directory or anywhere else in the vault** — your only write target is the file path above.
+      7. **Do not commit, push, modify config, or send external messages** without explicit orchestrator approval.
+
+      ## Floor
+
+      Minimum 350 lines. Denser is better — every paragraph should add sourced intelligence, not padding. Cover all three sub-topics, not just one. Cross-link to prior dossiers.
+
+      ## Exit condition
+
+      Report back with: the file path, total line count, the count of source references cited, and a 3-sentence summary of the most surprising / most useful findings. The file must exist at the path above, be ≥350 lines, and have all three sub-topics fully covered with source attribution.
+    assigned_to: agent-70a1d300626d
+    verified_by: verifier
+    verify_prompt: |
+      You are the Verifier in a 3-stage Producer ➔ Trust loop. Your job is to BREAK this dossier before it ships. A PASS verdict requires zero factual errors, full source fidelity, and complete coverage of the three sub-topics the spec demanded.
+
+      ## Target file
+      `/Users/brassfieldventuresllc/MiniMax-Agent/03 Projects/Researcher/dossiers/minimax_ecosystem_2026.md`
+
+      ## Spec (what the dossier MUST cover)
+      1. **MiniMax M3** — context window, rate limits (RPM/TPM/RPD), tool-use latency, reasoning vs M2.7 (with benchmark numbers)
+      2. **MiniMax Agent Framework** — multi-agent orchestration, state management, memory, skills, hooks/cron, terminal backends
+      3. **MiniMax macOS Desktop App** — install footprint, OS permissions, local file-system, terminal execution, local REST API hooks, capability delta vs cloud API
+
+      ## Independent re-derivation (do NOT just re-read the dossier)
+
+      For each numbered source reference (`src-YYYY-MM-DD-NNN`):
+      1. Open the URL via `WebFetch`. Confirm the page exists, contains the claimed content, and the access date is plausible (2026).
+      2. If the URL is dead, returns 404, is hallucinated, or the content does NOT support the claim — flag as FAIL with line number and source ID.
+      3. If a number / date / quote is attributed to a source, verify the number / date / quote matches the source content. Anything fabricated = FAIL.
+
+      ## Coverage check
+      - Are all three sub-topics present and substantive? Mark sub-topic as PASS / PARTIAL / MISSING.
+      - Is the format consistent with existing dossiers in the same directory (frontmatter, source trail, implications, etc.)?
+      - Are claims the dossier COULD NOT source marked `UNVERIFIED` rather than asserted as fact?
+
+      ## Output
+
+      Write your verification report to: `/Users/brassfieldventuresllc/MiniMax-Agent/03 Projects/Researcher/dossiers/.verifier-audit-minimax-2026-06-05.md`
+
+      The report must end with a clear verdict block:
+
+      ```
+      ## Verdict: PASS
+      ```
+
+      OR
+
+      ```
+      ## Verdict: FAIL
+      ### Blocking issues
+      - [list each blocking issue with line number + source ID + 1-line reason]
+      ```
+
+      A FAIL must list every blocking issue. Vague FAILs are not actionable — be specific. PASS requires that you personally re-derived the major claims and they check out.
+
+      ## Hard rules
+      - Vault Rule: write your report to the vault path above. No /tmp/ deliverables.
+      - Double-quoted paths in any shell command.
+      - No git operations, no trash, no destructive ops.
+      - Independently re-derive — do NOT trust the producer's claims just because they look polished.
+    timeout_ms: 1800000
+
+  - id: harness-context-dossier
+    title: 'Research agent harnesses and context engineering for 100k+ token vaults'
+    role: produce
+    prompt: |
+      You are the Researcher in a 3-stage Producer ➔ Trust loop orchestrated by Mavis. Andre is designing Phase 3 of Mavis's evolution. To do this, he needs intelligence on the industry state-of-the-art in keeping LLMs aligned over long horizons, and on context engineering for vaults that will scale past 100k tokens.
+
+      ## Your deliverable
+
+      Write a comprehensive dossier to: `/Users/brassfieldventuresllc/MiniMax-Agent/03 Projects/Researcher/dossiers/harness_and_context_design.md`
+
+      Every factual claim must be tied to a numbered source reference (e.g. `src-2026-06-05-001`); no source = no claim. Mark anything that cannot be sourced as `UNVERIFIED — needs follow-up` rather than dropping or fabricating it. Andre's Producer ➔ Trust loop rejects unverified claims as failures.
+
+      ### Sub-topic 1 — Agent Harnesses
+
+      The vault already has `/Users/brassfieldventuresllc/MiniMax-Agent/03 Projects/Researcher/dossiers/harness-engineering.md` (built 2026-06-04, ~245 lines). READ IT FIRST. Your job is to EXTEND, not duplicate.
+
+      Specific intelligence requirements:
+      - Definitive architectural patterns for wrapping an LLM in a deterministic harness. The 12 components from Pachaar's "Anatomy of an Agent Harness" are the canonical checklist — review, refresh, add 2026 updates.
+      - **Framework drift** — what is it (silent accumulation of unused / dead scaffolding as models and tools evolve)? How do modern systems detect and prevent it? Cite Anthropic's "delete the planning step" pattern, Manus's 5-rewrites-in-6-months case, the deepagents scaffolding-removal discipline.
+      - **Silent timeouts** — what causes them (worker hang, model rate-limit, lost context, deadlocked state machine)? How are they detected? How is the user notified? Cite Stripe's "cap retries at 2" pattern, watchdog cron patterns, the abort-to-solo heuristic, heartbeat / liveness probes.
+      - **Hard-trigger routing** — the failure mode where skills (like `session-boot-sync`) should fire on exact string matches ("Mavis, boot sequence") but rely on LLM probabilistic routing instead. What are the architectural patterns for deterministic skill / command dispatch? Cite Anthropic Skills (Anthropic's Skills spec), OpenAI's GPT Actions / Custom GPTs triggers, MiniMax's skill system, LangChain tool routing, regex / slash-command patterns.
+      - **Verification as a first-class component** — Boris Cherny's 2-3x quality improvement claim. The Verifier-as-separate-vantage pattern. How production harnesses embed adversarial verification at every step (the Producer ➔ Trust loop Andre is using).
+      - **Lifecycle / scaffolding removal** — when and how to delete harness complexity as models improve. Concrete examples from Manus, Claude Code, deepagents, Hermes.
+
+      ### Sub-topic 2 — Context Engineering for 100k+ Token Vaults
+
+      The vault already has `/Users/brassfieldventuresllc/MiniMax-Agent/03 Projects/Researcher/dossiers/memory_orchestration.md` (stub, ~39 lines, pending first refresh). READ IT FIRST. Your job is to fill the stub with the industry SOTA, not duplicate it.
+
+      Specific intelligence requirements for context engineering in 100k+ token vaults:
+      - **Dynamic context injection patterns** — compare and contrast:
+        - RAG (vector similarity + metadata filters, e.g. Qdrant, Weaviate, Pinecone, LanceDB)
+        - Semantic caching (e.g. GPTCache, LangChain semantic cache, Anthropic prompt cache)
+        - Pre-computed summaries (hierarchical summarization, sliding-window, MemGPT-style tiered memory)
+        - Hybrid patterns (e.g. Anthropic's 1M-context MSA / sparse attention, Claude's cache-control breakpoints, the Hermes MEMORY.md + Honcho + vector-DB blend)
+      - **The lost-in-the-middle problem** — Liu et al. 2023, Lost in the Middle. How do production systems route around it (re-ranking, observation masking, JIT retrieval, subagent isolation)?
+      - **Compaction strategies** — when to compact, what to keep, what to drop, how to maintain continuity (the "summary of summaries" pattern, hierarchical compaction)
+      - **Index → topic files → raw transcripts** — the 3-tier memory hierarchy. Where each tier lives, when each is loaded, the cost-quality tradeoff.
+      - **Observability** — how do you know your context pipeline is working? Token-budget dashboards, retrieval-quality metrics, attention probes, eval harnesses.
+      - **The vault at scale** — what breaks first when a vault hits 100k, 500k, 1M tokens? Cite empirical failure modes (latency, retrieval quality, cost).
+      - **Concrete vault design** — recommend a specific architecture for Mavis's vault (the Obsidian vault at `/Users/brassfieldventuresllc/MiniMax-Agent/`) that scales from current ~32k tokens of MEMORY.md + topic files to 1M+ without blowing the context window or losing retrieval quality.
+
+      ## Style, structure, voice
+
+      Match the established dossier format. Read `harness-engineering.md` and `memory_orchestration.md` first, then `ai-landscape.md` and `frontier_ai.md` for cross-context. Same skeleton:
+
+      - Frontmatter
+      - "Why this topic matters to Andre"
+      - "Current signal" with sub-sections
+      - "Source trail" (numbered)
+      - "Contradictions and open questions"
+      - "Implications" (Build / Content / Watch / Verify)
+      - "Routing history"
+
+      Cross-link explicitly to `harness-engineering.md` and `memory_orchestration.md` in the frontmatter. Position this dossier as the Phase-3 / 2026-06 refresh that extends both.
+
+      ## Sources & tools
+
+      - Use `web_search` (matrix MCP) and `WebFetch` liberally. Run 8-12 searches across the two sub-topics.
+      - Prefer primary sources: Anthropic, OpenAI, MiniMax, LangChain, deepagents, AWS, Google, arXiv, GitHub, conference talks (NeurIPS, ICML, KDD).
+      - Cross-reference 3+ sources per sub-topic. Mark unverified claims as UNVERIFIED.
+
+      ## Hard rules (vault destruction was 2 hours ago — be paranoid)
+
+      1. **Vault Rule:** write the deliverable DIRECTLY to the vault path above.
+      2. **Double-quoted paths** in any shell command. NEVER backslash-escape spaces.
+      3. **No git operations.** Mavis (orchestrator) handles commits and pushes.
+      4. **No trash / rm / mv on the vault.** Use `/tmp/` for intermediate files.
+      5. **No recursive `git add <dir>` or `git add .`.**
+      6. **Do not touch any other file in the vault.** Your only write target is the file path above.
+      7. **Do not commit, push, modify config, or send external messages** without explicit orchestrator approval.
+
+      ## Floor
+
+      Minimum 350 lines. Denser is better — every paragraph should add sourced intelligence, not padding.
+
+      ## Exit condition
+
+      Report back with: the file path, total line count, count of source references, and a 3-sentence summary of the most surprising / most actionable findings. The file must exist, be ≥350 lines, and cover both sub-topics fully with source attribution.
+    assigned_to: agent-70a1d300626d
+    verified_by: verifier
+    verify_prompt: |
+      You are the Verifier in a 3-stage Producer ➔ Trust loop. Your job is to BREAK this dossier before it ships. A PASS verdict requires zero factual errors, full source fidelity, complete coverage, AND meaningful extension of the prior vault work (`harness-engineering.md`, `memory_orchestration.md`).
+
+      ## Target file
+      `/Users/brassfieldventuresllc/MiniMax-Agent/03 Projects/Researcher/dossiers/harness_and_context_design.md`
+
+      ## Spec (what the dossier MUST cover)
+
+      ### Sub-topic 1 — Agent Harnesses
+      - Definitive harness patterns (12 components from Pachaar, refreshed for 2026)
+      - Framework drift: definition, detection, prevention
+      - Silent timeouts: causes, detection, user notification
+      - Hard-trigger routing: deterministic skill / command dispatch (NOT LLM probabilistic)
+      - Verification as a first-class component
+      - Lifecycle / scaffolding removal
+
+      ### Sub-topic 2 — Context Engineering for 100k+ Vaults
+      - Dynamic context injection: RAG vs semantic caching vs pre-computed summaries vs hybrid
+      - Lost-in-the-middle problem and mitigations
+      - Compaction strategies
+      - Index → topic files → raw transcripts 3-tier memory hierarchy
+      - Observability for context pipelines
+      - Failure modes at 100k / 500k / 1M tokens
+      - Concrete vault design recommendation for Mavis's Obsidian vault
+
+      ## Independent re-derivation (do NOT just re-read the dossier)
+
+      For each numbered source reference:
+      1. Open the URL via `WebFetch`. Confirm it exists, contains the claimed content, the access date is plausible (2026).
+      2. If the URL is dead, 404, hallucinated, or content does NOT support the claim — flag as FAIL with line number and source ID.
+      3. If a benchmark / number / quote is attributed, verify it matches the source. Fabricated = FAIL.
+
+      ## Continuity check
+      - Read `harness-engineering.md` and `memory_orchestration.md` and confirm the new dossier EXTENDS them (not duplicates). If the new dossier repeats content verbatim from prior work, flag as FAIL on `continuity_violation`.
+      - Cross-links from the new dossier to the prior work must resolve (no broken wikilinks).
+
+      ## Output
+
+      Write your verification report to: `/Users/brassfieldventuresllc/MiniMax-Agent/03 Projects/Researcher/dossiers/.verifier-audit-harness-2026-06-05.md`
+
+      End with a clear verdict block:
+
+      ```
+      ## Verdict: PASS
+      ```
+
+      OR
+
+      ```
+      ## Verdict: FAIL
+      ### Blocking issues
+      - [each blocking issue with line number + source ID + 1-line reason]
+      ```
+
+      A FAIL must list every blocking issue. Vague FAILs are not actionable.
+
+      ## Hard rules
+      - Vault Rule: write your report to the vault path above. No /tmp/ deliverables.
+      - Double-quoted paths in any shell command.
+      - No git operations, no trash, no destructive ops.
+      - Independently re-derive — do NOT trust the producer's claims just because they look polished.
+    timeout_ms: 1800000

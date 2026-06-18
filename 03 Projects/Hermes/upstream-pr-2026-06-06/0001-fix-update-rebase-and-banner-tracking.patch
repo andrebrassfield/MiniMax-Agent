@@ -1,0 +1,168 @@
+diff --git a/hermes_cli/banner.py b/hermes_cli/banner.py
+index 1955b009d..1896217ab 100644
+--- a/hermes_cli/banner.py
++++ b/hermes_cli/banner.py
+@@ -144,8 +144,51 @@ def _check_via_rev(local_rev: str) -> Optional[int]:
+     return 0 if upstream_rev == local_rev else UPDATE_AVAILABLE_NO_COUNT
+ 
+ 
++def _resolve_tracking_ref(repo_dir: Path) -> Optional[str]:
++    """Return the current branch's upstream tracking ref (e.g. ``origin/feat-x``)
++    or ``None`` if there is no tracking branch / the working tree is on
++    ``main``/detached HEAD.
++
++    On ``main`` we deliberately return ``None`` so callers fall back to
++    ``origin/main`` (the standard meaning of "behind").  On any other
++    branch, we use the branch's own tracking ref so the "X commits behind"
++    count is the distance to *that* branch's upstream, not the
++    repo-wide default.
++    """
++    try:
++        branch = subprocess.run(
++            ["git", "rev-parse", "--abbrev-ref", "HEAD"],
++            capture_output=True, text=True, timeout=5,
++            cwd=str(repo_dir),
++        ).stdout.strip()
++    except Exception:
++        return None
++    if not branch or branch == "HEAD":
++        return None
++    if branch == "main":
++        # ``main`` is the canonical reference — measuring distance to
++        # ``origin/main`` is correct here, no need to resolve @-upstream.
++        return None
++    try:
++        upstream = subprocess.run(
++            ["git", "rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}"],
++            capture_output=True, text=True, timeout=5,
++            cwd=str(repo_dir),
++        ).stdout.strip()
++    except Exception:
++        return None
++    return upstream or None
++
++
+ def _check_via_local_git(repo_dir: Path) -> Optional[int]:
+-    """Count commits behind origin/main in a local checkout."""
++    """Count commits behind upstream in a local checkout.
++
++    On ``main``, distance to ``origin/main`` (the historical behavior).
++    On any other branch with an upstream tracking ref, distance to that
++    tracking ref — so a feature branch shows "X commits behind
++    origin/feat-x" instead of "333 commits behind origin/main", which
++    is the bug that bit users on long-lived feature branches.
++    """
+     try:
+         subprocess.run(
+             ["git", "fetch", "origin", "--quiet"],
+@@ -155,9 +198,11 @@ def _check_via_local_git(repo_dir: Path) -> Optional[int]:
+     except Exception:
+         pass  # Offline or timeout — use stale refs, that's fine
+ 
++    tracking = _resolve_tracking_ref(repo_dir)
++    compare_ref = tracking or "origin/main"
+     try:
+         result = subprocess.run(
+-            ["git", "rev-list", "--count", "HEAD..origin/main"],
++            ["git", "rev-list", "--count", f"HEAD..{compare_ref}"],
+             capture_output=True, text=True, timeout=5,
+             cwd=str(repo_dir),
+         )
+@@ -343,13 +388,15 @@ def get_git_banner_state(repo_dir: Optional[Path] = None) -> Optional[dict]:
+             pass
+         return None
+ 
+-    upstream = _git_short_hash(repo_dir, "origin/main")
++    upstream_ref = _resolve_tracking_ref(repo_dir) or "origin/main"
++    upstream = _git_short_hash(repo_dir, upstream_ref)
+     local = _git_short_hash(repo_dir, "HEAD")
+     if not upstream or not local:
+         # Live-git lookup failed (e.g. shallow clone without origin/main).
+         # Fall back to the baked build SHA if available.
+         try:
+             from hermes_cli.build_info import get_build_sha
++
+             baked = get_build_sha(short=8)
+             if baked:
+                 return {"upstream": baked, "local": baked, "ahead": 0}
+@@ -360,7 +407,7 @@ def get_git_banner_state(repo_dir: Optional[Path] = None) -> Optional[dict]:
+     ahead = 0
+     try:
+         result = subprocess.run(
+-            ["git", "rev-list", "--count", "origin/main..HEAD"],
++            ["git", "rev-list", "--count", f"{upstream_ref}..HEAD"],
+             capture_output=True,
+             text=True,
+             timeout=5,
+diff --git a/hermes_cli/main.py b/hermes_cli/main.py
+index 4c0c73344..3429df54c 100644
+--- a/hermes_cli/main.py
++++ b/hermes_cli/main.py
+@@ -10593,6 +10593,67 @@ def _cmd_update_impl(args, gateway_mode: bool):
+                         input_fn=gw_input_fn,
+                     )
+ 
++        # If we moved off the user's branch to pull ``branch`` (default: main),
++        # switch back and rebase their feature branch onto the new tip.
++        # Without this, ``hermes update`` updates ``main`` but leaves a
++        # long-lived feature branch stale — so the next TUI check still
++        # reports the same "X commits behind" and the user thinks the
++        # update was a no-op.
++        if update_succeeded and current_branch not in {branch, "HEAD"}:
++            print(
++                f"  → Returning to '{current_branch}' and rebasing onto the new {branch}..."
++            )
++            checkout_back = subprocess.run(
++                git_cmd + ["checkout", current_branch],
++                cwd=PROJECT_ROOT,
++                capture_output=True,
++                text=True,
++            )
++            if checkout_back.returncode == 0:
++                rebase_result = subprocess.run(
++                    git_cmd + ["rebase", f"origin/{branch}"],
++                    cwd=PROJECT_ROOT,
++                    capture_output=True,
++                    text=True,
++                )
++                if rebase_result.returncode != 0:
++                    # Rebase conflict. Abort and warn — don't fail the
++                    # entire update, since the user already has a fresh
++                    # main checked out and the syntax guard passed.
++                    print(
++                        f"  ⚠ Rebase of '{current_branch}' onto {branch} hit conflicts."
++                    )
++                    print(
++                        f"    Resolve manually: cd {PROJECT_ROOT} && git rebase {branch}"
++                    )
++                    print(
++                        f"    Or skip the rebase: cd {PROJECT_ROOT} && git rebase --abort"
++                    )
++                    if rebase_result.stderr.strip():
++                        for line in rebase_result.stderr.strip().splitlines()[:6]:
++                            print(f"      {line}")
++                    # Best-effort: leave the user on main so the next
++                    # ``hermes update`` runs against a clean tree.
++                    subprocess.run(
++                        git_cmd + ["rebase", "--abort"],
++                        cwd=PROJECT_ROOT,
++                        capture_output=True,
++                        text=True,
++                        check=False,
++                    )
++                    subprocess.run(
++                        git_cmd + ["checkout", branch],
++                        cwd=PROJECT_ROOT,
++                        capture_output=True,
++                        text=True,
++                        check=False,
++                    )
++            else:
++                print(
++                    f"  ⚠ Could not check out '{current_branch}' after update: "
++                    f"{checkout_back.stderr.strip().splitlines()[0] if checkout_back.stderr.strip() else 'unknown error'}"
++                )
++
+         _invalidate_update_cache()
+ 
+         # Clear stale .pyc bytecode cache — prevents ImportError on gateway

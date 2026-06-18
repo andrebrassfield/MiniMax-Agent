@@ -1,4 +1,4 @@
-# Mavis Handoff — Researcher → Mavis (chief of staff)
+# Mavis Handoff — Researcher → Mavis (EA)
 
 > Route to Mavis: implications, weekly-feed material, "here is what changed and what matters." Mavis reads this on every cycle and uses it to brief Andre and write `06 Connections/` notes.
 

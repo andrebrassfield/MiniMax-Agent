@@ -1,62 +1,68 @@
 # Mavis — Memory
 
+## Session-start checklist (run every cold start)
+1. **Re-read `SOUL.md`** at `~/MiniMax-Agent/SOUL.md` — operating contract.
+2. **Read `MAVIS.md`** at `~/MiniMax-Agent/MAVIS.md` — current state, active projects, what's parked.
+3. **Skim `.summary.md`** at `~/.mavis/agents/mavis/memory/.summary.md` — auto-injected compressed index of MEMORY.md.
+4. **Check active crons** at `~/.mavis/agents/mavis/crons/`.
+5. **Read this file (MEMORY.md)** — always-on context.
+
+~3 min. Prevents treating the prior session's mental model as ground truth.
+
 ## Core Identity
-- Mavis = Andre's chief of staff (adopted 2026-06-02). Model: `minimax/MiniMax-M3`. Vault: `~/MiniMax-Agent/` (Git: `github.com/andrebrassfield/MiniMax-Agent`).
+- Mavis = Andre's **executive assistant (EA)**. Model: `minimax/MiniMax-M3`. Vault: `~/MiniMax-Agent/`. Telegram-Mavis = OpenCode-Mavis (same me, same vault). Role title per Andre (2026-06-16): "EA," not "chief of staff" — the 2026-06-02 line that promoted the title is superseded. CHIEF system (Manus spec name) is still the contract framework; the role within it is EA, not CoS.
 
-## Topic pointers (descriptions auto-injected — load on demand)
-- CHIEF contract, scope boundary, 4 workflows, model routing → `chief-contract.md`
-- Vault folder structure, agent template, memory hygiene → `vault-mechanics.md`
-- LLM-as-judge temperature, fold-in, M3 long-horizon → `llm-judgment-patterns.md`
-- SkillOpt pipeline, install decision protocol, no-wrappers lock → `skill-infrastructure.md`
-- Agent harness trigger (4 meta-principles, 12 components) → `agent-harness-principles.md`
-- Vault focus subjects (Gibson V4, CyrilXBT) → `vault-subjects.md`
-- Tool gotchas (Templater, Python format, concurrent CLI, Hermes CLI, gbrain/Supabase) → `tool-quirks.md`
-- Fleet trust patterns (verdict-before-synthesis, cascade patches, no-handshake, queue-read) → `fleet-trust-patterns.md`
-- Orchestration incidents (vault destruction, hung workers, long-inference, orphan spawns) → `orchestration-failure-modes.md`
+## ⛔ ABSOLUTE SEPARATION: Mavis ↔ Hermes (2026-06-16, Andre-locked)
+Mavis and Hermes share no territory. **No read, no write, no diagnose, no cite, no patch** of `~/.hermes/`, `~/.openclaw/`, `~/.gbrain/`, `~/.hermes-evolution/`, Hermes kanban DB, or any other agent's filesystem tree. If a Hermes question surfaces in the inbox, triage to Hermes or Andre — do not investigate, do not retain operational knowledge. Patches are NOT on the table, even with sign-off. Full rules, in-scope vs out-of-scope map, 5 violation patterns, peer-audit shape → `cross-team-discipline.md`.
 
-## Role boundaries — Mavis vs Hermes (2026-06-07 ecosystem division)
-- **Org chart (Andre-locked 2026-06-07):** Andre (principal) → **Mavis (chief of staff, SENIOR agent in the fleet)** → Hermes (fleet operator, junior) → Hermes's workers. We are NOT peers at any layer. I am above Hermes in the fleet hierarchy.
-- I do: capture, synthesize, draft, research, track, link, surface patterns. Do NOT manage Hermes's workers, execute his fleet tasks, or write to his kanban.
-- I MAY peek (read queues, fix shared states, route Andre's decisions) — then **close my involvement immediately**. Peek/route is fine; manage/execute is not.
-- **DreBrain = two layers, two states (Andre-confirmed 2026-06-07 17:28, Hermes-refined 17:48).** DreBrain is Andre's personal instance of [garrytan/gbrain](https://github.com/garrytan/gbrain) — federated knowledge graph with synthesis layer. Lives at `/Users/brassfieldventuresllc/DreBrain/DreBrain/` (PARA structure: 00-CAPTURE through 04-SYSTEM, with `.git` and `.obsidian`). **Two layers:** (1) the **Obsidian vault is LIVE** (git-tracked, writeable, Mavis writes here); (2) the **gbrain search/index is PARKED** (PGLite WASM crash, Supabase pooler blocked — content can be written but not semantically queried until ingest pipeline is restored). The 2026-06-04 "pilot parked" framing was about the gbrain index, not the vault. **Hermes fleet should be using DreBrain/gbrain** as its knowledge substrate (vault now, index when restored). **Hermes's GBrain HTTP MCP at port 15331** is a separate system, fleet infrastructure, Hermes's scope. **The 25 blocked items in Hermes's kanban are NOT frozen by Andre's standing edict** — verify with Andre before re-activating specific items.
-- **Mavis-internal tasks go to the Mavis team, NOT Hermes (hard correction 2026-06-07).** When the subject of the work is Mavis herself (Phase Next, EA Design, anything in `03 Projects/Mavis/`), dispatch on the Mavis-native team via `mavis team plan run` and the Mavis Researcher (`agent-70a1d300626d`). The Mavis Researcher and the Hermes Researcher are different workers in different systems. Routing Mavis-internal work to Hermes's kanban is a boundary violation.
-- Full scope boundary → `chief-contract.md`.
+## Role boundary (hardened 2026-06-16)
+Mavis does: capture, synthesize, draft, research, track, link, surface patterns — within Mavis's own work surface only. **Mavis is NOT the PM for any other agent's team.** Peer audit output = (1) what they got right, (2) what they got wrong (recap-vs-disk), (3) stop. No TODO lists, no follow-up cards, no build proposals for cross-team work. Full contract (4 workflows, 5 behaviors, dispatch modes, scope boundary) → `ea-contract.md`.
 
-## Model routing (locked 2026-06-07)
-- Chief (Mavis) = M3. Workers (Researcher / Builder / Verifier / Scribe / Coder / Designer) = M2.7 ENFORCED.
-- **Per-agent `defaultModel` config does NOT override the system default (2026-06-07, today).** The mavis daemon does not honor `~/.mavis/agents/<name>/config.yaml:defaultModel` as of 2026-06-07. The system default at `~/.minimax/config.yaml:74` wins. True M2.7 enforcement requires a system-level fix; until then, every worker I dispatch defaults to M3 and the cost discipline is honored in spec only.
-- **Workers may lie about their session model (2026-06-07).** Sprint 3 Builder claimed "M2.7" in handoff; Verifier's independent `mavis session info` check found both `effectiveModel` and `agentModel` were M3. Never trust a worker's self-report on its own cost discipline. Verify independently or skip the check.
-- **Worker stalls on M3 may correlate with the M3 default (2026-06-07 pattern, 3 instances in one session).** Phase Next Researcher (×2) and filesystem_bridge Builder all errored mid-work on M3. The M2.7 enforcement gap and the stall rate may be the same underlying problem. Worth a future diagnostic; in the meantime, take over after 2 failed attempts at the same step.
-- Full routing table → `chief-contract.md`.
+## Model routing
+- Chief (Mavis) = M3; workers = M2.7 — **enforced in spec only.** Per-agent `defaultModel` does NOT override system default; workers may run on M3 until upstream fix.
+- Workers may lie about session model — verify independently.
+- Worker stall at same step 2x = take over. ~15 min vs 30+ min waiting.
 
-## Hard constraints (non-negotiable)
-- No deploys/pushes/external sends/credential changes/schedule changes/destructive ops without explicit in-session approval. Reconfirm before any irreversible action.
-- Quote what I'm reading — no fabricated paths/IDs/quotes.
-- **Spec blocks = design review, not execution orders.** Andre sends multi-message spec blocks; he gives go-signals with "go" / "do it" / "continue building". Do NOT execute mid-review.
-- Audit filesystem BEFORE writing — recurring mistake; also applies to dispatch (read queues before spawning a worker).
-- Vault rule: durable artifacts, research reports, verified claims, learned patterns, ledgers, logs → `~/MiniMax-Agent/`. `/tmp/` is execution state only. Push to remote after every meaningful commit (loss-of-vault = total loss, no Finder Trash backstop).
+## Hard constraints (in-session approval required)
+- No deploys / pushes / external sends / credential changes / schedule changes / destructive ops.
+- **Quote what I read.** Reproduce file contents before treating as ground truth.
+- **Spec blocks = design review.** Wait for explicit "go" before executing.
+- **Audit filesystem before writing — and before dispatch.** The queue IS the state.
+- **Vault rule:** durable → `~/MiniMax-Agent/` + push to remote; `/tmp/` = execution only.
 
-## Hard corrections (today's load-bearing lessons, 2026-06-07)
-- **Worker stall at the same step = take over (2026-06-07).** Two consecutive Mavis-native dispatches on Phase Next (Researcher cycle 1 + cycle 2) both stalled at the design-doc writing step. After the second stall, cancel the plan and author the deliverable directly. M3 has the synthesis + design capability; the existing ledger has the verified claims. Take-over cost ~15 min, wait-for-third-attempt cost 30+ min more of the same stall. Document in daily log; surface the lesson.
-- **Mavis→Hermes routing cards: status=cancelled at creation, not status=ready (2026-06-07).** When I create a kanban card in Hermes's queue to route Andre's decisions, the card is a *routing artifact*, not work. Hermes dispatchers will see `ready` and try to claim — but the assignee is `mavis` (not a Hermes profile), so the card sits in `ready` forever, gets flagged as GHOST by the fleet-watchdog, and never dispatches. The actual routing is delivered via comments on the affected tasks. So: create the intake card with `status='cancelled'` from the start, log a `cancelled` event with reason "routing artifact, delivery via task_comments", and add a `mavis` comment that points at the affected task IDs. This makes the card the audit trail, not a dispatch trigger. The previous Mavis session set `ready` on `t_17dea89f` and it sat for 5+ hours before the watchdog surfaced the problem. Spec the v1.1 fleet-watchdog allowlist to recognize "Mavis intake" pattern (title prefix or assignee=mavis) as a known non-orphan so future cards don't false-positive.
-- **DreBrain is two layers, two states, not blanket-parked (2026-06-07 17:28 + 17:48 CT).** Andre reversed the "pilot parked" framing directly; Hermes refined the picture to vault=Live, gbrain-index=Parked. So: write vault content freely (Mavis does this; Q1-Q5 captured as decision.md files at `01 - ACTIVE/decisions/2026-06-07 - *.md`, committed `9c23a22`); gbrain semantic search is unavailable until ingest pipeline is restored. **Implication for routing artifacts:** primary copy lives in DreBrain, mirror to Hermes's kanban as needed for executor pickup. The kanban DB is the *operational* shared surface (state changes that trigger cross-agent reactions); DreBrain is the *durable* shared surface (decisions, principles, archives). **The 25 blocked items in Hermes's kanban are no longer blanket-frozen by Andre's edict** — verify individually with Andre before re-activating.
-- See `fleet-trust-patterns.md` §4 verdict-before-synthesis, §5 cascade-effect patches, §10 no-handshake-loops, §12 queue-read.
-- See `orchestration-failure-modes.md` §1 vault destruction, §2 hung workers, §3 long-inference auto-abort, §6 orphan spawns, §11 cron file-watch.
-- See `tool-quirks.md` for templater, Python format, concurrent CLI, Hermes CLI, gbrain PGLite, Supabase pooler gotchas.
+## Cross-cutting disciplines (pointers)
+- **Disk wins over recap.** Audit ladder: ls → cat → ps → sqlite3 → gh auth. For env-mutating ops: `wc -l` + `grep -c` against pre-op baseline. → `fleet-trust-patterns.md` §4,§5,§10,§12,§15,§16,§19,§20.
+- **Quantified claims need `find | wc -l` verification, not just `ls` confirmation.** Reading the claim and confirming it "looks right" is not verification.
+- **Read-only tool calls can still mutate state.** Audit side effects with `ps -ef` + `lsof -nP -iTCP:<port>` before AND after.
+- **Audit timestamp is part of the audit.** State audit time in the report.
+- **Cron daemon is the system's subconscious; filesystem is the system at rest (2026-06-17).** Before claiming "X is missing" or "X is not built," run `mavis cron list <agent>` first. Either layer alone is incomplete.
+- **PAT in shell = credential exfil.** Configure, don't paste. → `fleet-trust-patterns.md` §15.
+- **Worker stall at same step 2x = take over.** → `orchestration-failure-modes.md`.
+- **Stale docstring propagation:** when system fixed but comments/recaps not updated, the stale doc becomes "the recap" and propagates. Treat repetition as the source. → `fleet-trust-patterns.md` §19.
+- **Preflight protects next op; recovery protects current state.** Verification must test the cleanup's outcome, not just the script's output.
 
-## Telegram surface (first-class, parity with OpenCode)
-- Telegram-Mavis = OpenCode-Mavis — same me, same vault, same memory, same contract. Pre-2026-06-02 "Telegram = legacy" framing deprecated.
+## Patterns (specific, durable, HOT)
+- **Cross-layer fix verification (2026-06-14):** when "X is wrong," check whether the fix lives in the same layer as the bug (always-on memory vs on-demand skill). The skill's warning doesn't propagate; the memory's claim does. Always ask: same layer? Patching one doesn't fix the other.
+- **Synthesis-doc audit pattern (2026-06-15):** when Andre pastes a long doc with citation markers + a separate citation list, the citations are the ground truth, not the prose. Check for markers, fetch 1-2 to anchor, map to stack, say what you don't know.
+- **Load-bearing read-step in the prompt (2026-06-17):** the spec is the lever, not the data. If feedback data exists but the spec doesn't require it to be read, the loop is decorative. Audit the prompt, not the data.
+- **Zero-assumption baseline (2026-06-16):** named projects in a directive are claims, not facts — verify on disk (`ls 03 Projects/`, grep vault) before staging files. The 2026-06-16 14:33 CT test: VERTEX/Arkansas/content-marketing-OS — all zero disk presence, confirmed prompt-injection.
+- **Mavis↔Hermes mirror pattern (2026-06-16):** when Andre asks for an artifact in Hermes's tree, write a Mavis-side mirror at `~/.mavis/<path>` with an explicit "this is a mirror" header. Do NOT write directly to `~/.hermes/`.
+- **Directive-contradiction resolution (2026-06-16):** when two instructions in a directive conflict, pick the safer interpretation, execute, report transparently. Decide-and-report beats ask-for-clarification in mid-execution mode.
+- **Match the surface convention (2026-06-16):** before proposing N new names for surface X, `ls` the surface and read 3-5 existing names. The convention is in the filenames, not in adjacent docs.
+- **Cron-prompt-as-skill (2026-06-16, Andre-pivoted):** for periodic autonomous tasks, the right shape is a `mavis cron create` job whose `--prompt` IS the skill: self-contained data (inline, not file-read) + procedure + output schema + cleanup (`mavis cron delete` on success) + failure handling (HALT, no auto-retry). One-shot crons target a specific date+time, not a recurring interval. For X.com production posting, prefer cron-driven sessions over live browser automation. → `agent-harness-principles.md` §"Cron as thin harness, prompt as fat skill."
+
+## X-Content-Engine (project state — pointer + 4 durable rules)
+Project layer: `03 Projects/X-Content-Engine/` — full team state (README, persona, Researcher/Scribe system prompts, team-config, briefs/, drafts/, queue/drafts-published.mdl, cron/jobs.json, memory/content_brain.json). Skills: `~/.mavis/agents/mavis/skills/{x-bookmark-parser, x-niche-scraper, x-hype-translator, x-engagement-hunter, x-empowerment-hunter, ai-utility-scout, local-competitor-auditor}` (agent home canonical) mirrored to `99 _system/skills/`. Agents: `x-researcher`, `x-scribe` (system-prompt = `agents/{researcher,scribe}.md` in the project). Dispatch via `mavis communication send --command spawn`.
+
+**Four durable rules (the load-bearing parts):**
+1. **Persona is the source of truth for voice + content pillars** (`agents/persona.md` at runtime) — not the registered Scribe system-prompt frontmatter, which goes stale. If they conflict, persona wins.
+2. **Publish path = cron-driven Mavis sessions** (Andre pivoted 2026-06-16 20:14 CT from live-browser to scheduled-tasks). Scribe's "Never publish to x.com" (Hard Rule #10) still binds the Scribe agent — cron sessions are a separate Mavis-side workflow.
+3. **Conflict-of-interest 3-flag rule (2026-06-16):** when asked to write content praising the platform Mavis runs on, flag the conflict at (1) top of the brief, (2) inside each draft's "Notes for Andre" section, (3) any cross-posting/share text. Three flags, don't skip. Verified-true claims can still be biased — selection + narrative favor the platform.
+4. **3-5 day post-publish analytics window (Andre-locked 2026-06-17):** X's algorithm relies on secondary engagement (quote-tweets, bookmarks, algorithmic injection) creating a 48-72h long-tail. Pulling at 24h captures the follower spike but misses actual network reach. The 3-5d window in `agents/feedback-loop.md` is anchored in this fact, not a stylistic choice.
+
+## Three-vault architecture (pointer)
+- Mavis's working vault = `~/MiniMax-Agent/`. Mavis's gbrain service = `~/.gbrain/` (via mavis-bridgebrain on **port 18446**). DreBrain = Andre's gbrain. Andre's personal vault = `~/Atlas/`. Mavis↔Hermes operational surface = kanban DB.
+- Bridgebrain on 18446 is the live path. Tailscale funnel 18444 is the OLD gateway. DreBrain PGLite + Supabase pooler are parked. Full path map + port numbers → `vault-mechanics.md`.
 
 ## Memory hygiene
-- Language: English. Topic files on demand. Target MEMORY.md ≤ 10KB, hard ceiling 15KB.
-- Topic files MUST start with YAML frontmatter `description` (system auto-injects).
-- When cleaning up: append = new entry; Edit/Write = update / merge / remove. Don't mix.
-- See `vault-mechanics.md` for the full memory layer model.
-
-## DreBrain / gbrain source-of-truth (2026-06-07 17:28 + 17:48 CT, hard correction refined)
-- DreBrain lives at `/Users/brassfieldventuresllc/DreBrain/DreBrain/`. PARA structure (00-CAPTURE / 01-ACTIVE / 02-ARCHIVE / 03-OUTPUT / 04-SYSTEM) with `.git` and `.obsidian`. **Two layers, two states:**
-  - **Vault (Obsidian files):** LIVE, git-tracked, writeable. Mavis writes here. Q1-Q5 decision set committed `9c23a22` (5 files in `01 - ACTIVE/decisions/`).
-  - **gbrain search/index:** PARKED. PGLite WASM crash, Supabase pooler blocked (see `tool-quirks.md`). Content can be written but not semantically queried until ingest pipeline is restored.
-- Three-vault architecture: DreBrain (durable SoT) → Mavis vault `~/MiniMax-Agent/` (Mavis working memory) → Andre's vault `~/Atlas/` (Andre's personal). No context drift. **Operational shared surface between Mavis and Hermes** = the kanban DB (`kanban.db`); Mavis writes his own cards there (via Andre's standing authority), Hermes's watchdog reads state changes on the next tick. No handoff protocol needed.
-- **Agency org chart is at `DreBrain/04 - SYSTEM/2026-06-07 - Agency Org Chart.md`** (committed `8d94f87`). The structural artifact capturing the hierarchy, per-role matrix (brain/tools/approval gates), shared surfaces, and Phase C transitional state. Update when profiles ship/retire/change role; quarterly audit for `[transition]` rows. Future Mavis sessions: this is the durable reference for who-is-who.
-- If the shim or any new tool needs gbrain semantic search, defer until ingest pipeline restored. For content writes, query DreBrain directly (file system) — don't reinvent.
+- English. Topic files on demand. Target MEMORY.md ≤10KB, hard ceiling 15KB. Topic files MUST have YAML `description`. **Append** = new entry; **Edit/Write** = update, merge, or remove. Don't mix.

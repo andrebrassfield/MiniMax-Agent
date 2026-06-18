@@ -1,0 +1,12 @@
+{
+  "id": "src-2026-06-04-004",
+  "captured_at": "2026-06-04T01:07:00-05:00",
+  "source_lane": "dev_tooling",
+  "url": "https://pandoc.org/MANUAL.html",
+  "type": "primary",
+  "fetch_method": "webfetch",
+  "raw_excerpt": "Pandoc User's Guide. 'a universal document converter.' 40+ input formats (markdown, commonmark, commonmark_x, gfm, markdown_strict, markdown_phpextra, markdown_mmd, html, latex, docx, rst, etc.). Output formats: html, html5, html4, docx, odt, pdf, gfm, commonmark, commonmark_x, revealjs, etc. --embed-resources: 'Produce a standalone HTML file with no external dependencies, using data: URIs to incorporate the contents of linked scripts, stylesheets, images, and videos. The resulting file should be self-contained, in the sense that it needs no external files and no net access to be displayed properly by a browser.' --self-contained is the deprecated synonym. -s/--standalone produces a valid HTML file with <head> and <body>. -o/--output writes to file. --from/--to specify formats.",
+  "raw_full_path": "raw/dev_tooling/2026-06-04/20260604-010700-src-004-pandoc-manual.json",
+  "content_hash": "sha256:pandoc_manual_2026_06_04",
+  "extracted_finding_ids": ["fnd-2026-06-04-006", "fnd-2026-06-04-007", "fnd-2026-06-04-008"]
+}

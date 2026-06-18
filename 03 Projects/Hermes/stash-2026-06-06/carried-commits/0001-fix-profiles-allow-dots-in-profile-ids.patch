@@ -1,0 +1,28 @@
+From 8dc0b42a1712c552318cada60d484907662ce109 Mon Sep 17 00:00:00 2001
+From: Andre Brassfield <andre@brassfield.ai>
+Date: Wed, 3 Jun 2026 09:29:32 -0500
+Subject: [PATCH 01/11] fix(profiles): allow dots in profile ids
+
+One-character fix to the profile-id regex so v2 profiles containing dots
+(used in some fleet ID conventions) pass the validator. Carried over from
+a prior session; isolated on this branch to keep the band-2 history clean.
+---
+ hermes_cli/profiles.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/hermes_cli/profiles.py b/hermes_cli/profiles.py
+index 31dbf8dfb..eeebc4ed7 100644
+--- a/hermes_cli/profiles.py
++++ b/hermes_cli/profiles.py
+@@ -32,7 +32,7 @@ from typing import List, Optional
+ 
+ from agent.skill_utils import is_excluded_skill_path
+ 
+-_PROFILE_ID_RE = re.compile(r"^[a-z0-9][a-z0-9_-]{0,63}$")
++_PROFILE_ID_RE = re.compile(r"^[a-z0-9][a-z0-9_.-]{0,63}$")
+ 
+ # Directories bootstrapped inside every new profile
+ _PROFILE_DIRS = [
+-- 
+2.54.0
+

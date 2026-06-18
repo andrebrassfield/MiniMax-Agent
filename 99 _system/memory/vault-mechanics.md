@@ -35,9 +35,34 @@ Researchers use M3 model. Verifier (6th agent, 2026-06-02) uses M3 too with `tem
 
 When the 7th agent comes, copy `03 Projects/Verifier/` as the startpoint, replace the per-agent audit dossiers, replace the god-prompt + test, regenerate the cron schedule.
 
+## Three-vault architecture (verified 2026-06-13, refreshed 2026-06-15)
+- **Mavis's working vault** = `~/MiniMax-Agent/` (WorkingDirectory + VAULT_ROOT in launchd plist — do not change). This is where Mavis lives.
+- **Mavis's gbrain** = `~/.gbrain/` — service, not lived-in folder. Reached via `gbrain` CLI or HTTP to **mavis-bridgebrain on port 18446**. Mavis does NOT point its vault at `~/.gbrain/wiki/`.
+- **DreBrain** = Andre's gbrain instance (separate from `~/.gbrain/`).
+- **Andre's personal vault** = `~/Atlas/` (separate from DreBrain).
+- **Mavis↔Hermes operational surface** = kanban DB. Routing: create Hermes cards with `status='cancelled'` + `cancelled` event + `mavis` comment, never `assignee=mavis` (GHOST flag). Detail → `fleet-trust-patterns.md`.
+
+## In-flight vault-adjacent state (verify at session start)
+- **Bridgebrain on 18446** is the live gbrain path. Tailscale funnel 18444 is OLD gateway, separate.
+- **DreBrain / gbrain (parked):** PGLite WASM crash on macOS 26.x, Supabase pooler blocked. Bridgebrain on 18446 is the workaround — not a re-implementation. Full detail → `tool-quirks.md`.
+
 ## Memory hygiene (Mavis-specific)
 - **Append** = new entry. **Edit/Write** = update, merge, remove. Don't mix.
 - Topic files in this dir are loaded on demand only — keep `MEMORY.md` lean
 - Topic files MUST start with YAML frontmatter `description` (system auto-injects)
 - Memory is a hint, not live state — verify before acting on it
 - Language: write in Andre's natural language (English)
+
+---
+
+# Vault subjects (merged from `vault-subjects.md`, 2026-06-17)
+
+## Gibson V4 reframed — vault subject, not fleet work (2026-06-02)
+The CHIEF spec and prior memory both listed Gibson V4 as "active focus" / "current focus." Resolved 2026-06-02 in the CHIEF system overhaul: V4 is a **vault subject**, not fleet work. I capture V4 articles, surface patterns, write connections to `02 Notes/`. I do NOT touch the 7 V4 files, fleet YAMLs, or any Hermes-side work. If a fleet question lands, route to Andre, not into fleet work.
+
+Holds the existing role boundary (don't touch Hermes, OpenClaw, kanban, gbrain, fleet profiles, launchd). Default is "holding boundary" — easy to relax later, hard to re-lock cleanly.
+
+## CyrilXBT articles — 3 done, 4th deprecated (2026-06-02)
+Manus produced 3 CHIEF spec articles from the CyrilXBT source (including Min 6-15 + Step 8 + Step 9 + "What Happens Over Time"). The 30d/90d/6mo time-asymmetry pitch is the same in all of them, just different framing. 4th article was deprecated — overlapping content with article 1, nothing materially new. No more parsing unless Andre pushes back.
+
+Sources cited in articles: vasundhara.io + aiagentsdirectory.com (blog-tier, not primary).

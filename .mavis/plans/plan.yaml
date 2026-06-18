@@ -1,0 +1,270 @@
+version: 1
+plan:
+  name: "Hermes macOS Worldclass Build-Out"
+  description: "Execute 10 masterclass hacks + 5 native features for Hermes Agent macOS app. Source truth: ~/.hermes/ CLI, plugins, skills, bundles, profiles, gateway, webhooks, cron. NOT the Hermes Desktop app binary."
+  max_concurrency: 5
+  max_consecutive_failures: 2
+  max_cycles: 8
+
+tasks:
+  # ─── PHASE 1: Foundation ───────────────────────────────────────────────────
+
+  - id: a1-gateway
+    title: "Gateway + Webhooks + Per-Profile Telegram"
+    prompt: |
+      Configure Hermes gateway infrastructure end-to-end.
+
+      CURRENT STATE (audit first):
+      - hermes gateway status → running on default profile only
+      - 3 webhooks exist: notion-card-move, github-pr-open, competitor-rss (all deliver=log)
+      - Only default profile has a running gateway
+      - Telegram Topics: not enabled
+
+      WORK TO DO:
+      1. Run `hermes gateway setup` — configure Telegram Topics (not just default gateway). Enable per-profile gateway routing so general-executor and secure-executor each get their own Telegram topic.
+      2. Add 3 new webhook subscriptions:
+         - kanban-add: triggers on kanban task creation, deliver to origin
+         - cron-finish: triggers on cron completion event, deliver to origin
+         - skill-installed: triggers when a new skill is installed, deliver to origin
+         Use `hermes webhook subscribe --help` to find the right syntax.
+      3. For each of the 3 new webhooks, verify the subscription was created with `hermes webhook list`.
+      4. Verify all profiles show gateway status with `hermes gateway list`.
+
+      OUTPUT: Report the full `hermes webhook list` and `hermes gateway list` output confirming all 6 webhooks and per-profile gateway status.
+    assigned_to: general
+    verify_skip_reason: "CLI output is self-verifying — hermes webhook list and gateway list are deterministic. Final gate will confirm."
+    max_retries: 1
+
+  - id: a2-dashboard
+    title: "Enable Mission Control Dashboard Plugin"
+    prompt: |
+      Enable the openclaw-dashboard plugin and verify Mission Control is live.
+
+      CURRENT STATE:
+      - Plugin: openclaw-dashboard is present at ~/.hermes/plugins/openclaw-dashboard/
+      - Plugin status: DISABLED
+      - Backend port: 18080 (configured in plugin.yaml)
+      - Routes: /openclaw-dashboard → "Mission Control"
+      - Sidebar label: "OpenClaw Dashboard", icon: layout-dashboard
+
+      WORK TO DO:
+      1. Enable the plugin: `hermes plugins enable openclaw-dashboard`
+      2. Start the backend: `cd ~/.hermes/plugins/openclaw-dashboard && hermes plugins run openclaw-dashboard` OR check if hermes daemon auto-starts it
+      3. Verify the backend is listening: `curl -s http://127.0.0.1:18080/health` (expect 200)
+      4. Check if Mission Control appears in the Hermes Desktop app sidebar (you can use `open http://127.0.0.1:18080/openclaw-dashboard` to verify the webview)
+      5. If the backend needs to be built (no ./dashboard/dist/), check plugin.yaml dev_server:true — note it as a finding
+
+      OUTPUT: Report plugin status, backend health check result, and whether Mission Control webview loads. Flag any build step needed.
+    assigned_to: general
+    verified_by: verifier
+    verify_prompt: |
+      Run these independently:
+      1. `hermes plugins list | grep openclaw-dashboard` → expect status=enabled
+      2. `curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:18080/health` → expect 200
+      3. `curl -s http://127.0.0.1:18080/` → should return HTML or JSON (not 404)
+      Report PASS/FAIL for each check.
+    max_retries: 2
+
+  - id: a3-bundles
+    title: "Author 15-20 Named Skill Bundles"
+    prompt: |
+      Group Hermes's 385 skills into 15-20 named bundles by functional category.
+
+      CURRENT SKILL LIST (from hermes skills list):
+      Categories already visible: apple, autonomous-ai-agents, content-engine, content-factory, creative, mlops, note-taking, operations, policy, productivity, research, sales, smart-home, social-media, software-development
+      385 skills total, 2 existing bundles: /dose-content-day (4 skills), /gepa (5 skills)
+
+      WORK TO DO:
+      1. Read the full skills list: `hermes skills list` (full output)
+      2. Group skills into bundles. Suggested bundle structure (adapt based on actual skills):
+         - /ops-command-center: kanban, cron, webhook, memory, insights, security
+         - /research-stack: arxiv, blogwatcher, llm-wiki, polymarket, research-paper-writer
+         - /content-production: content-factory, dose-of-proof-content, data-fidelity-scribe, video-processor, clip-extractor
+         - /creative-studio: architecture-diagram, ascii-art, ascii-video, baoyu-*, image-craft
+         - /code-squad: claude-code, codex, opencode, test-driven-developer, debugging-hermes-*, git-stash-*
+         - /ai-agent-fleet: hermes-agent, hermes-agent-distribution, kanban-codex-lane, openclaw, goose, claude-code-minion
+         - /devops: hermes-s6-container, node-inspect-debugger, python-debugpy, isolated-feature-validator
+         - /productivity: airtable, google-workspace, notion, linear, apple-notes, apple-reminders
+         - /speech-audio: audiocraft-audio-generation, macos-computer-use
+         - /ml-engineering: dspy, huggingface-hub, llama-cpp, serving-llms-vllm, weights-and-biases
+         - /crm-sales: twenty-crm, crm-pipeline, affiliate-program-automation
+         - /vibes: godmode, self-evolution-loop, spike
+         - /safety: agent-safety-protocol, mixed-prompt-handling, prompt-injection-intake, verify-before-authorize
+         - /hermes-internals: hermes-skill-optimization, hermes-terminal-tools, hermes-plugin-authoring, debugging-hermes-tutorial
+         - /scaffolding: scaffold-drop-persistence, wire-trace-blackbox, state-handoff-verification
+         - /memory-brain: session-recall, vault-graph-analysis, source-monitor, last30days
+      3. For each bundle, run `hermes bundles create <name> --skills <skill1,skill2,...>` with actual skill names from the list
+      4. Verify all bundles created: `hermes bundles list`
+
+      OUTPUT: Full `hermes bundles list` output showing all 15-20 new bundles. Report any skills that couldn't be bundled (not found).
+    assigned_to: general
+    verified_by: verifier
+    verify_prompt: |
+      Run `hermes bundles list` and verify:
+      1. At least 15 bundles exist (2 existing + 15 new = 17+ total)
+      2. Each bundle has at least 3 skills listed
+      3. No bundle creation errored silently
+      Report count and any gaps.
+    max_retries: 2
+
+  - id: a4-profiles
+    title: "Activate Executor Profiles (Model + Gateway + Soul + Tools)"
+    prompt: |
+      Configure the 2 non-default executor profiles with full orchestrator-layer settings.
+
+      CURRENT STATE:
+      - default: running, nvidia/nemotron-3-ultra:free, gateway=running
+      - general-executor: stopped, deepseek-v4-flash, no gateway
+      - secure-executor: stopped, deepseek-v4-flash, no gateway
+
+      WORK TO DO:
+      1. For each executor profile, set model: `hermes profile update <name> --model deepseek-v4-flash` (or whatever the right flag is — check `hermes profile update --help`)
+      2. Start gateway for each: `hermes gateway start --profile <name>`
+      3. Check if profiles support soul/memory/toolset config — look at `hermes profile describe <name>` output
+      4. For each profile, write a soul.md stub in its profile dir (~/.hermes/profiles/<name>/soul.md) describing the profile's persona
+      5. Document profile matrix in DreBrain: write to `04 - SYSTEM/2026-06-08 - Hermes Profile Matrix.md` with columns: Profile | Model | Gateway | Soul | Tools | Status
+
+      OUTPUT:
+      - `hermes profile list` output showing all 3 profiles
+      - `hermes gateway list` output
+      - Soul files created
+      - DreBrain file committed
+    assigned_to: general
+    verify_skip_reason: "CLI output is self-verifying. DreBrain write is tracked separately."
+    max_retries: 1
+
+  # ─── PHASE 2: Workflow (depends on Phase 1) ─────────────────────────────
+
+  - id: b1-crons
+    title: "Add 5 New Cron Jobs"
+    prompt: |
+      Add 5 new scheduled jobs to Hermes cron. Run `hermes cron create --help` to find syntax first.
+
+      CRON JOBS TO CREATE:
+      1. morning-brief: every weekday 8:30am CT (30 13 * * 1-5) — skill: session-recall + source-monitor → deliver to origin
+      2. x-scan: every 4 hours (0 */4 * * *) — skill: source-monitor → deliver to origin
+      3. content-audit: every Sunday 6pm CT (0 18 * * 0) — skill: drebrain → deliver to origin
+      4. weekly-synthesis: every Monday 9am CT (0 14 * * 1) — skill: vault-graph-analysis + goal-playbook → deliver to origin
+      5. competitor-watch: every weekday 9am CT (0 14 * * 1-5) — skill: source-monitor → deliver to origin
+
+      For each, run: `hermes cron create --name "<name>" --schedule "<cron>" --skills <skills> --deliver origin`
+      Use skill names from the existing skill list.
+
+      OUTPUT: `hermes cron list` output showing all 10 cron jobs (5 existing + 5 new).
+    assigned_to: general
+    depends_on: [a1-gateway]
+    verify_skip_reason: "CLI output is self-verifying."
+    max_retries: 1
+
+  - id: b2-goal-skill
+    title: "Author goal-runner Skill"
+    prompt: |
+      Create a new skill that wraps the 5-step /goal structured prompt template.
+
+      SKILL NAME: goal-runner
+      LOCATION: ~/.hermes/skills/goal-runner/
+
+      WHAT IT DOES:
+      Takes a structured goal input (TARGET, DEADLINE, SUCCESS_CRITERIA, CONSTRAINTS, STAKEHOLDERS) and runs it through a 5-step pipeline:
+      1. Clarify — restate the goal, flag ambiguity
+      2. Decompose — break into 3-5 concrete sub-tasks
+      3. Assign — route each sub-task (human / AI / cron / external)
+      4. Track — write sub-tasks to kanban with status=backlog
+      5. Review — deadline check, escalate if behind
+
+      SKILL FORMAT: Must be a valid Hermes skill with SKILL.md and a prompts/ directory.
+      Follow the pattern of existing local skills in ~/.hermes/skills/ (look at goal-playbook or drebrain as reference).
+      Include: description in frontmatter, trigger phrases, step-by-step instructions, example invocation.
+
+      OUTPUT:
+      - Skill directory at ~/.hermes/skills/goal-runner/ with SKILL.md
+      - Install it: `hermes skills install ~/.hermes/skills/goal-runner/` (or appropriate install command)
+      - Verify: `hermes skills list | grep goal-runner`
+      - DreBrain write: commit a copy to ~/DreBrain/DreBrain/03 - OUTPUT/hermes-skills/goal-runner.md
+    assigned_to: general
+    verify_skip_reason: "Skill install + hermes skills list output is self-verifying. DreBrain commit is tracked separately."
+    max_retries: 1
+
+  - id: b3-swarm-playbook
+    title: "Document Sub-Agent Swarm Playbook"
+    prompt: |
+      Write a playbook that makes the kanban swarm the default pattern for multi-stream research.
+
+      PLAYBOOK LOCATION: ~/DreBrain/DreBrain/04 - SYSTEM/Hermes Swarm Playbook.md
+
+      CONTENT TO COVER:
+      1. When to use swarm (multi-stream research, parallel analysis, competing hypotheses)
+      2. How to create a swarm: spawn N workers on kanban, each writing to a separate card
+      3. How to merge results: supervisor agent reads all worker cards, synthesizes
+      4. Anti-patterns: don't swarm for single-threaded tasks, don't swarm more than 5 agents
+      5. Monitoring: fleet-watchdog watches for stalled workers
+      6. Example invocation: a research brief that needs 3 angles (market, technical, competitive) → 3-agent swarm with supervisor
+
+      FORMAT: markdown, use callouts, include a flowchart-style ASCII diagram of the swarm pattern.
+      Reference the existing fleet-watchdog and kanban in the text.
+
+      OUTPUT:
+      - File written to DreBrain
+      - Git commit with message "docs: add Hermes sub-agent swarm playbook"
+    assigned_to: general
+    verify_skip_reason: "File exists + git log confirms commit. Final gate checks DreBrain."
+    max_retries: 1
+
+  # ─── PHASE 3: Hygiene ────────────────────────────────────────────────────
+
+  - id: c1-scheduler
+    title: "Schedule Security + Backup + ACP Server"
+    prompt: |
+      Set up three hygiene tasks:
+
+      1. HERMES SECURITY: Schedule weekly OSV.dev supply-chain audit
+         `hermes security --help` → find scheduling or cron equivalent
+         If hermes has built-in scheduling: schedule for Sunday 4am CT (cron: 0 4 * * 0)
+         If not: create a cron job `hermes security` → add via `hermes cron create`
+
+      2. HERMES BACKUP: Schedule weekly backup
+         `hermes backup --help` → find scheduling or cron equivalent
+         Schedule for Sunday 5am CT (cron: 0 5 * * 0)
+
+      3. HERMES ACP SERVER: Expose Hermes as a service
+         `hermes acp --help` → find how to start the ACP server
+         Start it and verify it listens on expected port
+         Document the ACP endpoint in DreBrain
+
+      OUTPUT:
+      - `hermes cron list` (confirm security + backup crons)
+      - `hermes acp status` or equivalent output
+      - DreBrain note on ACP endpoint committed
+    assigned_to: general
+    verify_skip_reason: "CLI output self-verifying. DreBrain write tracked separately."
+    max_retries: 1
+
+  # ─── VERIFICATION ─────────────────────────────────────────────────────────
+
+  - id: v-all
+    title: "Verify All 10 Hacks Live"
+    role: verify-as-task
+    prompt: |
+      Run through the 10 masterclass hacks and score each one PASS/FAIL.
+
+      HACK 1 — Mission Control: `curl -s http://127.0.0.1:18080/health` → 200 = PASS
+      HACK 2 — Event Triggers: `hermes webhook list` → expect 6 subscriptions (3 original + 3 new) = PASS
+      HACK 3 — Cron Jobs: `hermes cron list` → expect 10+ jobs = PASS
+      HACK 4 — /goal Structure: `hermes skills list | grep goal-runner` → found = PASS
+      HACK 5 — Sub-Agent Swarm: DreBrain file `Hermes Swarm Playbook.md` exists = PASS
+      HACK 6 — Telegram Topics: `hermes gateway list` → all 3 profiles show running = PASS
+      HACK 7 — Kanban: kanban board accessible (mcp query or `hermes kanban list`) = PASS
+      HACK 8 — Bundles: `hermes bundles list` → 17+ bundles = PASS
+      HACK 9 — Webhooks: same as HACK 2 = PASS
+      HACK 10 — Separate Profiles: `hermes profile list` → all 3 have model + gateway status shown = PASS
+
+      BONUS — Native features:
+      - hermes acp status → running = PASS
+      - hermes security (weekly scheduled) = PASS
+      - hermes backup (weekly scheduled) = PASS
+
+      OUTPUT: Scorecard table — Hack | Expected | Actual | PASS/FAIL
+      If any FAIL, report what was found vs expected.
+    assigned_to: verifier
+    depends_on: [a1-gateway, a2-dashboard, a3-bundles, a4-profiles, b1-crons, b2-goal-skill, b3-swarm-playbook, c1-scheduler]
+    max_retries: 1

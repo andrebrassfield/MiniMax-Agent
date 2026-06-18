@@ -1,0 +1,12 @@
+{
+  "id": "src-2026-06-04-022",
+  "captured_at": "2026-06-04T01:26:00-05:00",
+  "source_lane": "dev_tooling",
+  "url": "https://almanac.httparchive.org/en/2025/page-weight",
+  "type": "primary",
+  "fetch_method": "webfetch",
+  "raw_excerpt": "HTTP Archive Web Almanac 2025: Page Weight (Chapter 14, written by Richard Barret and Jamie Indigo, reviewed by Dave Smart, published 2026-01-15). 'In 2025, the median desktop home page used: 22 KB of HTML resources; 82 KB of CSS resources; 139 KB of fonts; 697 KB of JavaScript; 1,058 KB of images' (total ~2.86MB). 'In 2025, the median mobile home page used: 22 KB HTML, 77 KB CSS, 122 KB fonts, 632 KB JS, 911 KB images' (total ~2.56MB). 'Year over year, the median home page size grew 7.8% to 2.7 MB. The median mobile home page is 2.6 MB, growing 8.4% from 2.4 MB in 2024. In 2025, the median desktop page size reached 2.9 MB, up 7.3% from 2024.' 90th percentile desktop: 9,179 KB. 'All key information should be present in the initial raw HTML, since AI crawlers do not render JavaScript.'",
+  "raw_full_path": "raw/dev_tooling/2026-06-04/20260604-012600-src-022-http-archive-page-weight-2025.json",
+  "content_hash": "sha256:http_archive_page_weight_2025",
+  "extracted_finding_ids": ["fnd-2026-06-04-041", "fnd-2026-06-04-042", "fnd-2026-06-04-043"]
+}

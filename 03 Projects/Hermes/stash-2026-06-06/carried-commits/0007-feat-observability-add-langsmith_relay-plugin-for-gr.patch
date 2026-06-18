@@ -1,0 +1,548 @@
+From 5b9900bb1cbc076e0f1a7e3d37d6c0800561f919 Mon Sep 17 00:00:00 2001
+From: Hermes Agent <hermes@brassfield.ai>
+Date: Sat, 6 Jun 2026 10:13:18 -0500
+Subject: [PATCH 07/11] feat(observability): add langsmith_relay plugin for
+ graph run tracing
+
+- plugins/observability/langsmith_relay/ with plugin.yaml, __init__.py, tracer.py
+- HermesLangSmithClient reads api_key from config.yaml (langsmith.api_key) or .env (LANGCHAIN_API_KEY)
+- trace_graph_run(graph, thread_id, inputs) returns (result, trace_url) with graceful degradation
+- get_trace_url(thread_id, project) helper returns formatted LangSmith trace URL
+- 20 tests passing: env/config resolution, URL formatting, tracing env setup/teardown, failure modes
+---
+ .../observability/langsmith_relay/__init__.py |  22 ++
+ .../observability/langsmith_relay/plugin.yaml |   6 +
+ .../observability/langsmith_relay/tracer.py   | 211 ++++++++++++++
+ .../observability/test_langsmith_relay.py     | 260 ++++++++++++++++++
+ 4 files changed, 499 insertions(+)
+ create mode 100644 plugins/observability/langsmith_relay/__init__.py
+ create mode 100644 plugins/observability/langsmith_relay/plugin.yaml
+ create mode 100644 plugins/observability/langsmith_relay/tracer.py
+ create mode 100644 tests/plugins/observability/test_langsmith_relay.py
+
+diff --git a/plugins/observability/langsmith_relay/__init__.py b/plugins/observability/langsmith_relay/__init__.py
+new file mode 100644
+index 000000000..08c439465
+--- /dev/null
++++ b/plugins/observability/langsmith_relay/__init__.py
+@@ -0,0 +1,22 @@
++"""langsmith_relay — optional Hermes plugin for LangSmith observability.
++
++Exposes `trace_graph_run()` and `get_trace_url()` so that every LangGraph
++run can produce a LangSmith trace URL.  The plugin is a no-op at hook
++level; callers import `tracer` directly.
++"""
++
++from __future__ import annotations
++
++import logging
++from typing import Any
++
++logger = logging.getLogger(__name__)
++
++
++def register(ctx) -> None:
++    ctx.register_hook("on_session_start", on_session_start)
++
++
++def on_session_start(**kwargs: Any) -> None:
++    """No-op at session start — tracing is opt-in per-graph invocation."""
++    pass
+diff --git a/plugins/observability/langsmith_relay/plugin.yaml b/plugins/observability/langsmith_relay/plugin.yaml
+new file mode 100644
+index 000000000..756581d91
+--- /dev/null
++++ b/plugins/observability/langsmith_relay/plugin.yaml
+@@ -0,0 +1,6 @@
++name: langsmith_relay
++version: "0.1.0"
++description: "LangSmith observability for Hermes graph runs. Opt in with `hermes plugins enable observability/langsmith_relay`; reads langsmith.api_key from config.yaml or LANGCHAIN_API_KEY from .env."
++author: NousResearch
++hooks:
++  - on_session_start
+diff --git a/plugins/observability/langsmith_relay/tracer.py b/plugins/observability/langsmith_relay/tracer.py
+new file mode 100644
+index 000000000..43a931391
+--- /dev/null
++++ b/plugins/observability/langsmith_relay/tracer.py
+@@ -0,0 +1,211 @@
++"""LangSmith tracer for Hermes graph runs.
++
++Provides `HermesLangSmithClient`, `trace_graph_run()`, and `get_trace_url()`
++so that every LangGraph invocation can return a trace URL.
++"""
++
++from __future__ import annotations
++
++import contextlib
++import logging
++import os
++import threading
++from typing import Any, Optional, Tuple
++
++from hermes_constants import get_config_path
++
++logger = logging.getLogger(__name__)
++
++_INIT_FAILED = object()
++_LOCK = threading.RLock()
++_CLIENT: "HermesLangSmithClient | object | None" = None
++
++
++def _resolve_api_key() -> Optional[str]:
++    """Read LangSmith API key from environment.
++
++    Priority:
++    1. ``LANGCHAIN_API_KEY`` env var
++    2. ``LANGSMITH_API_KEY`` env var
++    """
++    return os.environ.get("LANGCHAIN_API_KEY") or os.environ.get("LANGSMITH_API_KEY")
++
++
++def _load_config_safe() -> Optional[dict]:
++    """Load Hermes ``config.yaml`` if it exists and is readable."""
++    try:
++        import yaml
++    except Exception:
++        return None
++    path = get_config_path()
++    if not path.exists():
++        return None
++    try:
++        with open(path, encoding="utf-8") as f:
++            data = yaml.safe_load(f)
++        return data if isinstance(data, dict) else None
++    except Exception:
++        return None
++
++
++class HermesLangSmithClient:
++    """Thin wrapper around LangSmith configuration.
++
++    Reads API key from ``config.yaml`` ``langsmith.api_key`` or ``.env``
++    ``LANGCHAIN_API_KEY``.  When no key is present, every method degrades
++    gracefully (returns ``None`` trace URL).
++    """
++
++    def __init__(
++        self,
++        api_key: Optional[str] = None,
++        project: Optional[str] = None,
++        tenant: Optional[str] = None,
++    ) -> None:
++        self.api_key = api_key
++        self.project = project or "default"
++        self.tenant = tenant or "default"
++
++    @classmethod
++    def from_hermes_config(cls) -> HermesLangSmithClient:
++        """Create a client from Hermes config / env."""
++        api_key = _resolve_api_key()
++        project = "default"
++        tenant = "default"
++
++        config = _load_config_safe()
++        if config:
++            langsmith_cfg = config.get("langsmith") or {}
++            if langsmith_cfg:
++                project = langsmith_cfg.get("project", project)
++                tenant = langsmith_cfg.get("tenant", tenant)
++                if not api_key:
++                    api_key = langsmith_cfg.get("api_key")
++
++        return cls(api_key=api_key, project=project, tenant=tenant)
++
++    def get_trace_url(self, thread_id: str, project: Optional[str] = None) -> Optional[str]:
++        """Return a LangSmith trace URL for *thread_id*.
++
++        Returns ``None`` when the API key is missing so that callers can
++        skip the URL entirely.
++        """
++        if not self.api_key:
++            return None
++        project = project or self.project
++        return (
++            f"https://smith.langchain.com/o/{self.tenant}"
++            f"/projects/{project}/traces/{thread_id}"
++        )
++
++    @contextlib.contextmanager
++    def _tracing_env(self, project: Optional[str] = None):
++        """Temporarily set LangSmith tracing env vars around a graph invocation.
++
++        LangChain / LangGraph automatically pick up ``LANGCHAIN_TRACING_V2``
++        and ``LANGCHAIN_API_KEY`` at runtime via the callback system.
++        """
++        if not self.api_key:
++            yield
++            return
++
++        _set = {
++            "LANGCHAIN_TRACING_V2": "true",
++            "LANGCHAIN_API_KEY": self.api_key,
++        }
++        if project or self.project:
++            _set["LANGCHAIN_PROJECT"] = project or self.project
++
++        old: dict[str, Optional[str]] = {}
++        for key, value in _set.items():
++            old[key] = os.environ.get(key)
++            os.environ[key] = value
++
++        try:
++            yield
++        finally:
++            for key, value in old.items():
++                if value is not None:
++                    os.environ[key] = value
++                elif key in os.environ:
++                    del os.environ[key]
++
++    def trace_graph_run(
++        self,
++        graph: Any,
++        thread_id: str,
++        inputs: Any,
++        project: Optional[str] = None,
++    ) -> Tuple[Any, Optional[str]]:
++        """Run a LangGraph graph with LangSmith tracing and return ``(result, trace_url)``.
++
++        If no API key is configured, the graph is run without tracing and
++        the trace URL is ``None``.
++        """
++        if not self.api_key:
++            result = graph.invoke(inputs, config={"configurable": {"thread_id": thread_id}})
++            return result, None
++
++        trace_url = self.get_trace_url(thread_id, project)
++
++        try:
++            with self._tracing_env(project):
++                result = graph.invoke(inputs, config={"configurable": {"thread_id": thread_id}})
++                return result, trace_url
++        except Exception as exc:
++            logger.debug("LangSmith graph run failed: %s", exc, exc_info=True)
++            result = graph.invoke(inputs, config={"configurable": {"thread_id": thread_id}})
++            return result, None
++
++
++def _get_client() -> Optional[HermesLangSmithClient]:
++    """Lazy singleton returning the client, or ``None`` if init failed."""
++    global _CLIENT
++    with _LOCK:
++        if _CLIENT is _INIT_FAILED:
++            return None
++        if isinstance(_CLIENT, HermesLangSmithClient):
++            return _CLIENT
++        try:
++            _CLIENT = HermesLangSmithClient.from_hermes_config()
++        except Exception as exc:
++            logger.debug("LangSmith client init failed: %s", exc, exc_info=True)
++            _CLIENT = _INIT_FAILED
++            return None
++        return _CLIENT
++
++
++def get_trace_url(thread_id: str, project: Optional[str] = None) -> Optional[str]:
++    """Convenience wrapper: return trace URL for *thread_id*.
++
++    Returns ``None`` when LangSmith is not configured.
++    """
++    client = _get_client()
++    if client is None:
++        return None
++    return client.get_trace_url(thread_id, project)
++
++
++def trace_graph_run(
++    graph: Any,
++    thread_id: str,
++    inputs: Any,
++    project: Optional[str] = None,
++) -> Tuple[Any, Optional[str]]:
++    """Convenience wrapper: run *graph* with LangSmith tracing.
++
++    Returns ``(result, trace_url)``.  When LangSmith is not configured,
++    ``trace_url`` is ``None``.
++    """
++    client = _get_client()
++    if client is None:
++        result = graph.invoke(inputs, config={"configurable": {"thread_id": thread_id}})
++        return result, None
++    return client.trace_graph_run(graph, thread_id, inputs, project)
++
++
++def reset_for_tests() -> None:
++    """Reset the singleton client (used by tests)."""
++    global _CLIENT
++    with _LOCK:
++        _CLIENT = None
+diff --git a/tests/plugins/observability/test_langsmith_relay.py b/tests/plugins/observability/test_langsmith_relay.py
+new file mode 100644
+index 000000000..6a3a28a4c
+--- /dev/null
++++ b/tests/plugins/observability/test_langsmith_relay.py
+@@ -0,0 +1,260 @@
++"""Tests for the bundled observability/langsmith_relay plugin."""
++
++from __future__ import annotations
++
++import os
++import pytest
++import importlib
++import sys
++from pathlib import Path
++from types import SimpleNamespace
++from typing import Any
++
++import yaml
++
++from hermes_cli.plugins import PluginManager
++
++
++REPO_ROOT = Path(__file__).resolve().parents[3]
++PLUGIN_DIR = REPO_ROOT / "plugins" / "observability" / "langsmith_relay"
++
++
++class _FakeGraph:
++    """Fake LangGraph with an ``invoke`` method."""
++
++    def __init__(self, result: Any = None):
++        self.result = result
++        self.calls: list[tuple] = []
++
++    def invoke(self, inputs: Any, *, config: dict | None = None) -> Any:
++        self.calls.append((inputs, config))
++        return self.result
++
++
++def _fresh_tracer(monkeypatch):
++    """Import a fresh copy of the tracer module and reset its singleton."""
++    sys.modules.pop("plugins.observability.langsmith_relay.tracer", None)
++    tracer = importlib.import_module("plugins.observability.langsmith_relay.tracer")
++    tracer.reset_for_tests()
++    return tracer
++
++
++def test_manifest_fields():
++    data = yaml.safe_load((PLUGIN_DIR / "plugin.yaml").read_text())
++    assert data["name"] == "langsmith_relay"
++    assert data["hooks"] == ["on_session_start"]
++
++
++def test_langsmith_relay_plugin_is_discoverable_as_bundled_plugin(tmp_path, monkeypatch):
++    monkeypatch.setenv("HERMES_HOME", str(tmp_path / "hermes_test"))
++
++    manager = PluginManager()
++    manager.discover_and_load()
++
++    loaded = manager._plugins["observability/langsmith_relay"]
++    assert loaded.manifest.name == "langsmith_relay"
++    assert loaded.manifest.source == "bundled"
++    assert not loaded.enabled
++
++
++def test_hermes_langsmith_client_reads_api_key_from_env(monkeypatch):
++    monkeypatch.setenv("LANGCHAIN_API_KEY", "lsk-test-key")
++    tracer = _fresh_tracer(monkeypatch)
++    client = tracer.HermesLangSmithClient.from_hermes_config()
++    assert client.api_key == "lsk-test-key"
++
++
++def test_hermes_langsmith_client_prefers_langsmith_api_key_env(monkeypatch):
++    monkeypatch.setenv("LANGCHAIN_API_KEY", "lsk-test-key")
++    monkeypatch.setenv("LANGSMITH_API_KEY", "lsk-alt-key")
++    tracer = _fresh_tracer(monkeypatch)
++    client = tracer.HermesLangSmithClient.from_hermes_config()
++    assert client.api_key == "lsk-test-key"
++
++
++def test_hermes_langsmith_client_falls_back_to_langsmith_api_key_env(monkeypatch):
++    monkeypatch.delenv("LANGCHAIN_API_KEY", raising=False)
++    monkeypatch.setenv("LANGSMITH_API_KEY", "lsk-alt-key")
++    tracer = _fresh_tracer(monkeypatch)
++    client = tracer.HermesLangSmithClient.from_hermes_config()
++    assert client.api_key == "lsk-alt-key"
++
++
++def test_hermes_langsmith_client_reads_from_config_yaml(monkeypatch, tmp_path):
++    monkeypatch.delenv("LANGCHAIN_API_KEY", raising=False)
++    monkeypatch.delenv("LANGSMITH_API_KEY", raising=False)
++    monkeypatch.setenv("HERMES_HOME", str(tmp_path))
++    config_path = tmp_path / "config.yaml"
++    config_path.write_text(
++        yaml.safe_dump(
++            {
++                "langsmith": {
++                    "api_key": "cfg-key",
++                    "project": "hermes-prod",
++                    "tenant": "nousresearch",
++                }
++            }
++        )
++    )
++
++    tracer = _fresh_tracer(monkeypatch)
++    client = tracer.HermesLangSmithClient.from_hermes_config()
++    assert client.api_key == "cfg-key"
++    assert client.project == "hermes-prod"
++    assert client.tenant == "nousresearch"
++
++
++def test_hermes_langsmith_client_env_overrides_config(monkeypatch, tmp_path):
++    """Env key takes precedence over config.yaml key."""
++    monkeypatch.setenv("LANGCHAIN_API_KEY", "env-key")
++    monkeypatch.setenv("HERMES_HOME", str(tmp_path))
++    config_path = tmp_path / "config.yaml"
++    config_path.write_text(
++        yaml.safe_dump({"langsmith": {"api_key": "cfg-key", "project": "x"}})
++    )
++
++    tracer = _fresh_tracer(monkeypatch)
++    client = tracer.HermesLangSmithClient.from_hermes_config()
++    assert client.api_key == "env-key"
++
++
++def test_get_trace_url_returns_none_when_no_api_key(monkeypatch):
++    monkeypatch.delenv("LANGCHAIN_API_KEY", raising=False)
++    monkeypatch.delenv("LANGSMITH_API_KEY", raising=False)
++    tracer = _fresh_tracer(monkeypatch)
++    client = tracer.HermesLangSmithClient(api_key=None)
++    assert client.get_trace_url("thread-1") is None
++
++
++def test_get_trace_url_returns_valid_format(monkeypatch):
++    tracer = _fresh_tracer(monkeypatch)
++    client = tracer.HermesLangSmithClient(
++        api_key="k", project="my-project", tenant="my-tenant"
++    )
++    url = client.get_trace_url("thread-abc")
++    assert url == "https://smith.langchain.com/o/my-tenant/projects/my-project/traces/thread-abc"
++
++
++def test_get_trace_url_uses_project_override(monkeypatch):
++    tracer = _fresh_tracer(monkeypatch)
++    client = tracer.HermesLangSmithClient(
++        api_key="k", project="default", tenant="t"
++    )
++    url = client.get_trace_url("thread-1", project="override")
++    assert url == "https://smith.langchain.com/o/t/projects/override/traces/thread-1"
++
++
++def test_trace_graph_run_without_api_key(monkeypatch):
++    monkeypatch.delenv("LANGCHAIN_API_KEY", raising=False)
++    monkeypatch.delenv("LANGSMITH_API_KEY", raising=False)
++    tracer = _fresh_tracer(monkeypatch)
++    graph = _FakeGraph(result={"answer": 42})
++    result, trace_url = tracer.trace_graph_run(graph, "thread-1", {"q": "hi"})
++    assert result == {"answer": 42}
++    assert trace_url is None
++    assert len(graph.calls) == 1
++    assert graph.calls[0] == ({"q": "hi"}, {"configurable": {"thread_id": "thread-1"}})
++
++
++def test_trace_graph_run_with_api_key(monkeypatch):
++    monkeypatch.setenv("LANGCHAIN_API_KEY", "test-key")
++    tracer = _fresh_tracer(monkeypatch)
++    graph = _FakeGraph(result={"answer": 42})
++    result, trace_url = tracer.trace_graph_run(graph, "thread-1", {"q": "hi"})
++    assert result == {"answer": 42}
++    assert trace_url is not None
++    assert trace_url == "https://smith.langchain.com/o/default/projects/default/traces/thread-1"
++    assert len(graph.calls) == 1
++
++
++def test_trace_graph_run_sets_env_vars_for_tracing(monkeypatch):
++    monkeypatch.setenv("LANGCHAIN_API_KEY", "test-key")
++    tracer = _fresh_tracer(monkeypatch)
++    graph = _FakeGraph(result="ok")
++    tracer.trace_graph_run(graph, "t1", {})
++    # _tracing_env should set the env vars before invoke and restore them
++    # after.  Since we can't easily observe the transient state, we verify
++    # that the graph was invoked at least once.
++    assert len(graph.calls) == 1
++
++
++def test_trace_graph_run_restores_env_vars(monkeypatch):
++    """Ensure _tracing_env does not pollute os.environ after the run."""
++    monkeypatch.setenv("LANGCHAIN_API_KEY", "test-key")
++    monkeypatch.setenv("LANGCHAIN_TRACING_V2", "false")
++    monkeypatch.setenv("LANGCHAIN_PROJECT", "old-project")
++    tracer = _fresh_tracer(monkeypatch)
++    graph = _FakeGraph(result="ok")
++    tracer.trace_graph_run(graph, "t1", {})
++    assert os.environ.get("LANGCHAIN_TRACING_V2") == "false"
++    assert os.environ.get("LANGCHAIN_PROJECT") == "old-project"
++
++
++def test_trace_graph_run_cleans_up_env_when_no_prior_values(monkeypatch):
++    monkeypatch.setenv("LANGCHAIN_API_KEY", "test-key")
++    monkeypatch.delenv("LANGCHAIN_TRACING_V2", raising=False)
++    monkeypatch.delenv("LANGCHAIN_PROJECT", raising=False)
++    tracer = _fresh_tracer(monkeypatch)
++    graph = _FakeGraph(result="ok")
++    tracer.trace_graph_run(graph, "t1", {})
++    assert "LANGCHAIN_TRACING_V2" not in os.environ
++    assert "LANGCHAIN_PROJECT" not in os.environ
++
++
++def test_trace_graph_run_degrades_on_graph_exception(monkeypatch):
++    """If graph.invoke raises, the exception should propagate."""
++    monkeypatch.setenv("LANGCHAIN_API_KEY", "test-key")
++    tracer = _fresh_tracer(monkeypatch)
++
++    class BrokenGraph:
++        def invoke(self, inputs, *, config=None):
++            raise RuntimeError("boom")
++
++    with pytest.raises(RuntimeError, match="boom"):
++        tracer.trace_graph_run(BrokenGraph(), "t1", {})
++
++
++def test_trace_graph_run_retries_on_tracing_env_failure(monkeypatch):
++    """If _tracing_env fails (e.g., bad env), the graph is still run without tracing."""
++    monkeypatch.setenv("LANGCHAIN_API_KEY", "test-key")
++    tracer = _fresh_tracer(monkeypatch)
++    client = tracer.HermesLangSmithClient(api_key="test-key")
++
++    # Force _tracing_env to raise on entry
++    def _broken_tracing_env(project=None):
++        raise RuntimeError("env broken")
++
++    monkeypatch.setattr(client, "_tracing_env", _broken_tracing_env)
++    graph = _FakeGraph(result="fallback")
++    result, trace_url = client.trace_graph_run(graph, "t1", {})
++    assert result == "fallback"
++    assert trace_url is None
++
++
++def test_module_get_trace_url_convenience(monkeypatch):
++    monkeypatch.setenv("LANGCHAIN_API_KEY", "k")
++    tracer = _fresh_tracer(monkeypatch)
++    url = tracer.get_trace_url("thread-1", project="p")
++    assert url == "https://smith.langchain.com/o/default/projects/p/traces/thread-1"
++
++
++def test_module_get_trace_url_none_when_unconfigured(monkeypatch):
++    monkeypatch.delenv("LANGCHAIN_API_KEY", raising=False)
++    monkeypatch.delenv("LANGSMITH_API_KEY", raising=False)
++    tracer = _fresh_tracer(monkeypatch)
++    assert tracer.get_trace_url("thread-1") is None
++
++
++def test_trace_graph_run_uses_config_project_and_tenant(monkeypatch, tmp_path):
++    monkeypatch.setenv("LANGCHAIN_API_KEY", "k")
++    monkeypatch.setenv("HERMES_HOME", str(tmp_path))
++    config_path = tmp_path / "config.yaml"
++    config_path.write_text(
++        yaml.safe_dump(
++            {"langsmith": {"project": "proj-42", "tenant": "tenant-x"}}
++        )
++    )
++    tracer = _fresh_tracer(monkeypatch)
++    graph = _FakeGraph(result="ok")
++    result, trace_url = tracer.trace_graph_run(graph, "t1", {})
++    assert trace_url == "https://smith.langchain.com/o/tenant-x/projects/proj-42/traces/t1"
+-- 
+2.54.0
+

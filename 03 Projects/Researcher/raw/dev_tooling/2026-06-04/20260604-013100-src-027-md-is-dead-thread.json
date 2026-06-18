@@ -1,0 +1,12 @@
+{
+  "id": "src-2026-06-04-027",
+  "captured_at": "2026-06-04T01:31:00-05:00",
+  "source_lane": "dev_tooling",
+  "url": "https://news.qq.com/rain/a/20260512A05SIC00",
+  "type": "secondary",
+  "fetch_method": "websearch",
+  "raw_excerpt": "Tencent News (secondary coverage of Anthropic engineer Thariq's viral thread 'MD is dead, long live HTML', May 12, 2026). Thariq argues: (1) Information density: HTML supports tables, CSS styles, SVG, JS interaction, canvas, absolute positioning — Markdown can only do headings, bold, lists, code blocks. (2) Readability: 'MD, sex appeal is exhausted' (paraphrased from Chinese coverage). Files over 100 lines of MD, he doesn't read. (3) HTML5 brings back control. (4) AI agents output HTML more naturally. (5) HTML closes the gap between AI and human authoring. Karpathy endorsed. Implication for our pipeline: long-form AI outputs may converge to HTML, not Markdown. Our rendering layer is on the leading edge of this pattern. Secondary source — original Thariq thread on X not directly fetched. Watching for further corroboration from other AI labs.",
+  "raw_full_path": "raw/dev_tooling/2026-06-04/20260604-013100-src-027-md-is-dead-thread.json",
+  "content_hash": "sha256:md_is_dead_2026_06_04",
+  "extracted_finding_ids": ["fnd-2026-06-04-053", "fnd-2026-06-04-054"]
+}

@@ -1,0 +1,12 @@
+{
+  "id": "src-2026-06-04-008",
+  "captured_at": "2026-06-04T01:12:00-05:00",
+  "source_lane": "dev_tooling",
+  "url": "https://www.11ty.dev/",
+  "type": "primary",
+  "fetch_method": "webfetch",
+  "raw_excerpt": "Eleventy (11ty) v3.1.6 stable, v4.0.0-alpha.7 canary. 'a simpler static site generator.' Build benchmark: Building 4000 Markdown Files — Eleventy 1.93s, Astro 22.90s, Gatsby 29.05s, Next.js 70.65s. Production-ready: NASA, CERN, TC39, W3C, Google, Microsoft, Mozilla, Font Awesome, Apache, freeCodeCamp. 18,730,735 downloads, 82,000+ dependent repos. Full control over output (no injected markup). Multiple template languages: HTML, Markdown, WebC, JS, Liquid, Nunjucks, Handlebars, Mustache, EJS, Haml, Pug, TypeScript, JSX, MDX, Sass, Custom. Zero client-side JavaScript by default. No telemetry. Incrementally adoptable.",
+  "raw_full_path": "raw/dev_tooling/2026-06-04/20260604-011200-src-008-eleventy.json",
+  "content_hash": "sha256:eleventy_2026_06_04",
+  "extracted_finding_ids": ["fnd-2026-06-04-016", "fnd-2026-06-04-017"]
+}

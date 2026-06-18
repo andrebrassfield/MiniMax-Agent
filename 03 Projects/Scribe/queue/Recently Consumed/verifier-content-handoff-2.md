@@ -3,7 +3,7 @@
 > Source: `03 Projects/Researcher/dossiers/artemis_program.md`
 > Verifier verdict (dossier): `vrd-2026-06-03-010` (dossier-level PASS, weighted score 0.8560)
 > Verifier verdict (Scribe Run #1): PASS at 0.975, 309-word executive briefing
-> Routed by: Mavis (chief of staff) on 2026-06-03, in response to Andre Directive 4 (Revised).
+> Routed by: Mavis (EA) on 2026-06-03, in response to Andre Directive 4 (Revised).
 
 ## The stress test
 

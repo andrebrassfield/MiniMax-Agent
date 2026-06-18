@@ -1,0 +1,12 @@
+{
+  "id": "src-2026-06-04-023",
+  "captured_at": "2026-06-04T01:27:00-05:00",
+  "source_lane": "dev_tooling",
+  "url": "https://web.dev/articles/vitals",
+  "type": "primary",
+  "fetch_method": "webfetch",
+  "raw_excerpt": "Web Vitals (web.dev canonical, May 4, 2020, last updated 2024-10-31 by Philip Walton). Core Web Vitals are the subset of Web Vitals that apply to all web pages. Three metrics, all Stable: Largest Contentful Paint (LCP) measures loading - 'To provide a good user experience, LCP should occur within 2.5 seconds of when the page first starts loading.' Interaction to Next Paint (INP) measures interactivity - 'pages should have a INP of 200 milliseconds or less.' Cumulative Layout Shift (CLS) measures visual stability - 'pages should maintain a CLS of 0.1. or less.' 'To ensure you're hitting the recommended target for most of your users, a good threshold to measure is the 75th percentile of page loads, segmented across mobile and desktop devices.' INP became stable in 2024, replacing FID. web-vitals JS library: `import {onCLS, onINP, onLCP} from 'web-vitals'` for in-field measurement.",
+  "raw_full_path": "raw/dev_tooling/2026-06-04/20260604-012700-src-023-web-dev-vitals.json",
+  "content_hash": "sha256:web_dev_vitals_2026_06_04",
+  "extracted_finding_ids": ["fnd-2026-06-04-044", "fnd-2026-06-04-045", "fnd-2026-06-04-046"]
+}

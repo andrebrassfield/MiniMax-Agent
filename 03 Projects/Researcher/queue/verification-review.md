@@ -1,6 +1,6 @@
 # Verification Review Queue
 
-> Claims that are interesting but under-evidenced. They get triaged by Mavis (chief of staff) before being promoted to dossiers or routed to handoffs.
+> Claims that are interesting but under-evidenced. They get triaged by Mavis (EA) before being promoted to dossiers or routed to handoffs.
 
 ## Convention
 

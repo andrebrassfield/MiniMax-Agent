@@ -18,7 +18,7 @@ This module implements L1 only. L2 and L3 are stubs that raise NotImplementedErr
 
 Execution lanes (§4.1 outputs):
   - capture     — write to inbox/notes
-  - synthesize  — chief-of-staff synthesis
+  - synthesize  — EA synthesis
   - dispatch    — file-based handoff to a worker queue
   - observe     — read-only inspection
   - ask_first   — route back to user with a clarifying question (fail-closed default)

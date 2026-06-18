@@ -1,0 +1,12 @@
+{
+  "id": "src-2026-06-04-019",
+  "captured_at": "2026-06-04T01:23:00-05:00",
+  "source_lane": "dev_tooling",
+  "url": "https://edwardtufte.github.io/tufte-css/",
+  "type": "primary",
+  "fetch_method": "webfetch",
+  "raw_excerpt": "Tufte CSS by Dave Liepmann (Edward Tufte project). 'provides tools to style web articles using the ideas demonstrated by Edward Tufte's books and handouts. Tufte's style is known for its simplicity, extensive use of sidenotes, tight integration of graphics with text, and carefully chosen typography.' Derived from Tufte-LaTeX and R Markdown's Tufte Handout format. Elements: article > section > p with subtitle. h1 = title, h2 = section, h3 = low-level. Quote: 'It is notable that the Feynman lectures (3 volumes) write about all of physics in 1800 pages, using only 2 levels of hierarchical headings: chapters and A-level heads in the text. It also uses the methodology of sentences which then cumulate sequentially into paragraphs, rather than the grunts of bullet points.' (Edward Tufte). Colors: #fffff8 off-white, #111111 off-black. ETBook serif font with Palatino/Georgia fallback. Sidenotes (margin notes that don't force reader to jump to bottom of page), full-width figures, newthought span for first few words of section in small caps. 'The web is not print. Webpages are not books. Therefore, the goal of Tufte CSS is not to say websites should look like this interpretation of Tufte's books but rather here are some techniques Tufte developed that we've found useful in print.'",
+  "raw_full_path": "raw/dev_tooling/2026-06-04/20260604-012300-src-019-tufte-css.json",
+  "content_hash": "sha256:tufte_css_2026_06_04",
+  "extracted_finding_ids": ["fnd-2026-06-04-035", "fnd-2026-06-04-036", "fnd-2026-06-04-037"]
+}

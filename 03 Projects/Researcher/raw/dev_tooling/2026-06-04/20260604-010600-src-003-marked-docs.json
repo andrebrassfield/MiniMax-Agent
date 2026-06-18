@@ -1,0 +1,12 @@
+{
+  "id": "src-2026-06-04-003",
+  "captured_at": "2026-06-04T01:06:00-05:00",
+  "source_lane": "dev_tooling",
+  "url": "https://marked.js.org/",
+  "type": "primary",
+  "fetch_method": "webfetch",
+  "raw_excerpt": "Marked documentation. 'built for speed' - low-level markdown compiler for parsing markdown without caching or blocking. 100% Markdown 1.0, 98% CommonMark 0.31, 97% GFM 0.29. CLI and in-browser. Warning: 'Marked does not sanitize the output HTML. If you are processing potentially unsafe strings, it's important to filter for possible XSS attacks. Some filtering options include DOMPurify (recommended), js-xss, sanitize-html and insane on the output HTML.' Tools using marked: zero-md (markdown web component), texme, StrapDown.js, raito, Homebrewery, marked_reader.",
+  "raw_full_path": "raw/dev_tooling/2026-06-04/20260604-010600-src-003-marked-docs.json",
+  "content_hash": "sha256:marked_docs_2026_06_04",
+  "extracted_finding_ids": ["fnd-2026-06-04-004", "fnd-2026-06-04-005"]
+}

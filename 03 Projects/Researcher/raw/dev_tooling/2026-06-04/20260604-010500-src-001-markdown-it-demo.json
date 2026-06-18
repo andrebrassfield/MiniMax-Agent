@@ -1,0 +1,12 @@
+{
+  "id": "src-2026-06-04-001",
+  "captured_at": "2026-06-04T01:05:00-05:00",
+  "source_lane": "dev_tooling",
+  "url": "https://markdown-it.github.io/",
+  "type": "primary",
+  "fetch_method": "webfetch",
+  "raw_excerpt": "markdown-it demo page. 100% Markdown 1.0, 100% CommonMark 0.31, full GFM. Plugin system: emoji, subscript, superscript, ins, mark, footnotes, definition lists, abbreviations, custom containers (::: classname). Token stream parser. Configurable html / xhtmlOut / breaks / linkify / typographer / highlight. CommonMark strict toggle.",
+  "raw_full_path": "raw/dev_tooling/2026-06-04/20260604-010500-src-001-markdown-it-demo.json",
+  "content_hash": "sha256:demo_md_it_2026_06_04",
+  "extracted_finding_ids": ["fnd-2026-06-04-001", "fnd-2026-06-04-002", "fnd-2026-06-04-003"]
+}

@@ -1,0 +1,436 @@
+From b55eac40709d9633e3660e67846490251568bbd9 Mon Sep 17 00:00:00 2001
+From: Hermes Agent <hermes@brassfield.ai>
+Date: Sat, 6 Jun 2026 10:07:06 -0500
+Subject: [PATCH 05/11] feat(agent/langgraph): package skeleton with
+ graph_builder, checkpointer, hitl, time_travel, middleware, budget
+
+---
+ agent/langgraph/__init__.py      |  11 +++
+ agent/langgraph/budget.py        |  49 ++++++++++++
+ agent/langgraph/checkpointer.py  | 133 +++++++++++++++++++++++++++++++
+ agent/langgraph/graph_builder.py |  25 ++++++
+ agent/langgraph/hitl.py          |  38 +++++++++
+ agent/langgraph/middleware.py    |  65 +++++++++++++++
+ agent/langgraph/time_travel.py   |  47 +++++++++++
+ 7 files changed, 368 insertions(+)
+ create mode 100644 agent/langgraph/__init__.py
+ create mode 100644 agent/langgraph/budget.py
+ create mode 100644 agent/langgraph/checkpointer.py
+ create mode 100644 agent/langgraph/graph_builder.py
+ create mode 100644 agent/langgraph/hitl.py
+ create mode 100644 agent/langgraph/middleware.py
+ create mode 100644 agent/langgraph/time_travel.py
+
+diff --git a/agent/langgraph/__init__.py b/agent/langgraph/__init__.py
+new file mode 100644
+index 000000000..049aac759
+--- /dev/null
++++ b/agent/langgraph/__init__.py
+@@ -0,0 +1,11 @@
++"""LangGraph infrastructure for Hermes agent.
++
++Provides checkpointing, graph construction, HITL, time-travel, and
++budget/middleware primitives for LangGraph-based agent workflows.
++"""
++
++from agent.langgraph.checkpointer import HermesPostgresSaver
++
++__all__ = [
++    "HermesPostgresSaver",
++]
+diff --git a/agent/langgraph/budget.py b/agent/langgraph/budget.py
+new file mode 100644
+index 000000000..2604aab9e
+--- /dev/null
++++ b/agent/langgraph/budget.py
+@@ -0,0 +1,49 @@
++"""Budget tracking for LangGraph agent loops.
++
++Wraps the existing Hermes ``iteration_budget`` concept so it can be
++enforced inside a LangGraph graph execution.
++"""
++
++from typing import Any
++
++
++class GraphBudget:
++    """Budget guard for LangGraph node execution.
++
++    Tracks iterations and raises ``GraphBudgetExceeded`` when the
++    configured limit is reached.
++    """
++
++    def __init__(self, max_iterations: int = 90) -> None:
++        self.max_iterations = max_iterations
++        self.iterations = 0
++
++    def consume(self, node_name: str | None = None) -> None:
++        """Consume one iteration unit.
++
++        Args:
++            node_name: Optional node name for logging.
++
++        Raises:
++            GraphBudgetExceeded: If the budget is exhausted.
++        """
++        self.iterations += 1
++        if self.iterations > self.max_iterations:
++            raise GraphBudgetExceeded(
++                f"Graph budget exceeded after {self.iterations} iterations"
++                f" (node={node_name})."
++            )
++
++    def remaining(self) -> int:
++        """Return the number of iterations remaining."""
++        return max(0, self.max_iterations - self.iterations)
++
++    def reset(self) -> None:
++        """Reset the iteration counter."""
++        self.iterations = 0
++
++
++class GraphBudgetExceeded(Exception):
++    """Raised when a LangGraph execution exceeds its iteration budget."""
++
++    pass
+diff --git a/agent/langgraph/checkpointer.py b/agent/langgraph/checkpointer.py
+new file mode 100644
+index 000000000..18a291a42
+--- /dev/null
++++ b/agent/langgraph/checkpointer.py
+@@ -0,0 +1,133 @@
++"""Checkpointing adapter wrapping langgraph-checkpoint-postgres.
++
++Reads Supabase / Hermes Postgres connection config and exposes a
++HermesPostgresSaver that can be used with LangGraph graphs.
++"""
++
++from __future__ import annotations
++
++import os
++from contextlib import contextmanager
++from typing import Any, Iterator
++
++from langgraph.checkpoint.postgres import PostgresSaver
++
++
++class HermesPostgresSaver:
++    """LangGraph PostgresSaver that sources connection config from Hermes.
++
++    Wraps ``PostgresSaver`` (langgraph-checkpoint-postgres) and adds a
++    ``from_hermes_config()`` factory that reads the connection string from
++    the canonical Hermes configuration sources:
++
++    1. ``SUPABASE_DATABASE_URL`` environment variable
++    2. ``SUPABASE_URL`` + ``SUPABASE_SERVICE_ROLE_KEY`` env vars
++    3. ``~/.hermes/config.yaml`` ``database.url`` key
++    4. Falls back to a local postgres default for dev/test
++
++    Example::
++
++        with HermesPostgresSaver.from_hermes_config() as saver:
++            graph = builder.compile(checkpointer=saver)
++    """
++
++    def __init__(self, saver: PostgresSaver) -> None:
++        self._saver = saver
++
++    def __getattr__(self, name: str) -> Any:
++        """Delegate all attribute access to the wrapped PostgresSaver."""
++        return getattr(self._saver, name)
++
++    @classmethod
++    @contextmanager
++    def from_hermes_config(
++        cls, **kwargs: Any
++    ) -> Iterator["HermesPostgresSaver"]:
++        """Create a PostgresSaver from Hermes / Supabase configuration.
++
++        Args:
++            **kwargs: Additional arguments forwarded to
++                ``PostgresSaver.from_conn_string``.
++
++        Yields:
++            A configured ``HermesPostgresSaver`` instance.
++
++        Raises:
++            RuntimeError: If no valid connection configuration is found.
++        """
++        conn_string = _resolve_connection_string()
++        if conn_string is None:
++            raise RuntimeError(
++                "No Postgres connection config found. Set SUPABASE_DATABASE_URL, "
++                "or SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY, or database.url in "
++                "~/.hermes/config.yaml"
++            )
++        with PostgresSaver.from_conn_string(conn_string, **kwargs) as saver:
++            yield cls(saver)
++
++
++def _resolve_connection_string() -> str | None:
++    """Resolve the best available Postgres connection string for Hermes.
++
++    Checks in priority order:
++    1. ``SUPABASE_DATABASE_URL`` env var
++    2. ``SUPABASE_URL`` + ``SUPABASE_SERVICE_ROLE_KEY`` env vars
++    3. ``~/.hermes/config.yaml`` ``database.url``
++    4. Local dev fallback
++
++    Returns:
++        A psycopg2-compatible connection string, or ``None`` if nothing is found.
++    """
++    # 1. Direct database URL
++    direct_url = os.getenv("SUPABASE_DATABASE_URL")
++    if direct_url:
++        return direct_url
++
++    # 2. Supabase project URL + service role key
++    supabase_url = os.getenv("SUPABASE_URL")
++    supabase_key = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
++    if supabase_url and supabase_key:
++        # Supabase connection string format: postgresql://postgres:***@<host>:<port>/<database>
++        # The service role key is the password for the postgres user
++        # We need to extract the host from the Supabase URL
++        # Format: https://<project_ref>.supabase.co
++        # Host: db.<project_ref>.supabase.co
++        if supabase_url.startswith("https://"):
++            host = supabase_url.replace("https://", "")
++            # Remove trailing slash if present
++            host = host.rstrip("/")
++            # Supabase default postgres host is db.<project_ref>.supabase.co
++            db_host = f"db.{host}"
++            return f"postgresql://postgres:***@{db_host}:5432/postgres"
++
++    # 3. Hermes config file
++    conn_info = _load_from_hermes_config()
++    if conn_info:
++        return conn_info
++
++    # 4. Dev fallback
++    local_fallback = os.getenv("HERMES_POSTGRES_URL")
++    if local_fallback:
++        return local_fallback
++
++    return None
++
++
++def _load_from_hermes_config() -> str | None:
++    """Load database.url from ~/.hermes/config.yaml if present."""
++    config_path = os.path.expanduser("~/.hermes/config.yaml")
++    if not os.path.exists(config_path):
++        return None
++
++    try:
++        import yaml
++
++        with open(config_path, encoding="utf-8") as f:
++            data = yaml.safe_load(f)
++        if data and isinstance(data, dict):
++            db = data.get("database")
++            if isinstance(db, dict):
++                return db.get("url")
++    except Exception:
++        pass
++    return None
+diff --git a/agent/langgraph/graph_builder.py b/agent/langgraph/graph_builder.py
+new file mode 100644
+index 000000000..6143042d3
+--- /dev/null
++++ b/agent/langgraph/graph_builder.py
+@@ -0,0 +1,25 @@
++"""Graph builder utilities for LangGraph-based agent workflows.
++
++Placeholder for graph construction helpers that will be fleshed out in
++subsequent tasks.
++"""
++
++from typing import Any
++
++
++class GraphBuilder:
++    """Constructs LangGraph graphs from Hermes agent configurations."""
++
++    def __init__(self) -> None:
++        pass
++
++    def build(self, config: dict[str, Any]) -> Any:
++        """Build a LangGraph graph from a configuration dict.
++
++        Args:
++            config: Agent configuration dict.
++
++        Returns:
++            A compiled LangGraph graph (placeholder).
++        """
++        raise NotImplementedError("GraphBuilder.build() is not yet implemented.")
+diff --git a/agent/langgraph/hitl.py b/agent/langgraph/hitl.py
+new file mode 100644
+index 000000000..cacf86372
+--- /dev/null
++++ b/agent/langgraph/hitl.py
+@@ -0,0 +1,38 @@
++"""Human-in-the-loop (HITL) primitives for LangGraph graphs.
++
++Provides interrupt points where a human can review and approve / reject
++agent actions before the graph continues execution.
++"""
++
++from typing import Any
++
++
++class HITLInterrupt(Exception):
++    """Represents a HITL pause point in a LangGraph execution.
++
++    When raised inside a graph node, the graph suspends and waits for
++    human approval before continuing.
++    """
++
++    def __init__(self, message: str, payload: dict[str, Any] | None = None) -> None:
++        self.message = message
++        self.payload = payload or {}
++
++    def __str__(self) -> str:
++        return f"HITLInterrupt: {self.message}"
++
++
++def hitl_approve(node_name: str, payload: dict[str, Any] | None = None) -> None:
++    """Request human approval before continuing past a node.
++
++    Args:
++        node_name: The node that is requesting approval.
++        payload: Serializable data for the human reviewer to inspect.
++
++    Raises:
++        HITLInterrupt: Always, to suspend the graph.
++    """
++    raise HITLInterrupt(
++        message=f"Approval required for node '{node_name}'",
++        payload=payload,
++    )
+diff --git a/agent/langgraph/middleware.py b/agent/langgraph/middleware.py
+new file mode 100644
+index 000000000..30cd852e9
+--- /dev/null
++++ b/agent/langgraph/middleware.py
+@@ -0,0 +1,65 @@
++"""LangGraph middleware hooks for Hermes.
++
++Provides lifecycle hooks (pre-node, post-node, pre-graph, post-graph)
++that integrate with Hermes logging, budget, and telemetry.
++"""
++
++from typing import Any
++
++
++class HermesMiddleware:
++    """Middleware adapter that plugs Hermes primitives into LangGraph.
++
++    Hooks:
++    - ``before_node`` / ``after_node`` — log + budget tracking
++    - ``before_graph`` / ``after_graph`` — session setup / teardown
++    """
++
++    def __init__(self, agent: Any | None = None) -> None:
++        self.agent = agent
++
++    def before_node(self, node_name: str, state: dict[str, Any]) -> dict[str, Any]:
++        """Called before a node executes.
++
++        Args:
++            node_name: Name of the node about to run.
++            state: Current graph state.
++
++        Returns:
++            Potentially modified state.
++        """
++        return state
++
++    def after_node(self, node_name: str, state: dict[str, Any]) -> dict[str, Any]:
++        """Called after a node executes.
++
++        Args:
++            node_name: Name of the node that just ran.
++            state: Current graph state.
++
++        Returns:
++            Potentially modified state.
++        """
++        return state
++
++    def before_graph(self, state: dict[str, Any]) -> dict[str, Any]:
++        """Called before the graph starts.
++
++        Args:
++            state: Initial graph state.
++
++        Returns:
++            Potentially modified state.
++        """
++        return state
++
++    def after_graph(self, state: dict[str, Any]) -> dict[str, Any]:
++        """Called after the graph finishes.
++
++        Args:
++            state: Final graph state.
++
++        Returns:
++            Potentially modified state.
++        """
++        return state
+diff --git a/agent/langgraph/time_travel.py b/agent/langgraph/time_travel.py
+new file mode 100644
+index 000000000..284baa49a
+--- /dev/null
++++ b/agent/langgraph/time_travel.py
+@@ -0,0 +1,47 @@
++"""Time-travel debugging utilities for LangGraph checkpoints.
++
++Provides rewind, replay, and branch inspection helpers that work on top
++of the HermesPostgresSaver checkpoint layer.
++"""
++
++from typing import Any
++
++
++def list_checkpoints(thread_id: str, saver: Any) -> list[dict[str, Any]]:
++    """List all checkpoints for a thread.
++
++    Args:
++        thread_id: The thread identifier.
++        saver: A PostgresSaver-compatible checkpoint instance.
++
++    Returns:
++        A list of checkpoint metadata dicts.
++    """
++    raise NotImplementedError("list_checkpoints() is not yet implemented.")
++
++
++def rewind_to(thread_id: str, checkpoint_id: str, saver: Any) -> dict[str, Any]:
++    """Rewind a thread to a specific checkpoint.
++
++    Args:
++        thread_id: The thread identifier.
++        checkpoint_id: The checkpoint to rewind to.
++        saver: A PostgresSaver-compatible checkpoint instance.
++
++    Returns:
++        The checkpoint state dict.
++    """
++    raise NotImplementedError("rewind_to() is not yet implemented.")
++
++
++def replay(thread_id: str, saver: Any) -> Any:
++    """Replay a thread from its earliest checkpoint.
++
++    Args:
++        thread_id: The thread identifier.
++        saver: A PostgresSaver-compatible checkpoint instance.
++
++    Returns:
++        A generator or iterator over the replayed steps.
++    """
++    raise NotImplementedError("replay() is not yet implemented.")
+-- 
+2.54.0
+

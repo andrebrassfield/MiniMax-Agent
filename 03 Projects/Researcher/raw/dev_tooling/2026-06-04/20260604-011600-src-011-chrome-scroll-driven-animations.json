@@ -1,0 +1,12 @@
+{
+  "id": "src-2026-06-04-011",
+  "captured_at": "2026-06-04T01:16:00-05:00",
+  "source_lane": "dev_tooling",
+  "url": "https://developer.chrome.com/docs/css-ui/scroll-driven-animations",
+  "type": "primary",
+  "fetch_method": "webfetch",
+  "raw_excerpt": "Chrome for Developers: 'Animate elements on scroll with Scroll-driven animations' by Bramus (May 5, 2023). 'From Chrome version 115 there is a new set of APIs and concepts that you can use to enable declarative scroll-driven animations: Scroll Timelines and View Timelines.' Two new types: Scroll Progress Timeline (linked to scroll position of a scroll container along a particular axis) and View Progress Timeline (linked to relative position of a particular element within its scroll container). 'These new concepts integrate with the existing Web Animations API (WAAPI) and CSS Animations API, allowing them to inherit the advantages these existing APIs bring. That includes the ability to have scroll-driven animations run off the main thread. Yes, read that correctly: you can now have silky smooth animations, driven by scroll, running off the main thread, with just a few lines of extra code.' Browser support: Chrome 115+, Edge 115+, Firefox 'behind a flag' (per page badge), Safari 26.",
+  "raw_full_path": "raw/dev_tooling/2026-06-04/20260604-011600-src-011-chrome-scroll-driven-animations.json",
+  "content_hash": "sha256:chrome_scroll_driven_bramus_2026_06_04",
+  "extracted_finding_ids": ["fnd-2026-06-04-023", "fnd-2026-06-04-024", "fnd-2026-06-04-025"]
+}

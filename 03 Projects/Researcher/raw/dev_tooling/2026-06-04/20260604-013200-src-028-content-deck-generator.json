@@ -1,0 +1,12 @@
+{
+  "id": "src-2026-06-04-028",
+  "captured_at": "2026-06-04T01:32:00-05:00",
+  "source_lane": "dev_tooling",
+  "url": "https://www.mavis/skills/content-deck-generator/SKILL.md",
+  "type": "primary",
+  "fetch_method": "filesystem-read",
+  "raw_excerpt": "Mavis skill: content-deck-generator v1.0.0. Reads ~/.mavis/fleet/*-draft.md files, parses X (tweet thread) and LinkedIn (longform) buckets, renders standalone dark-theme HTML content deck with numbered tweet cards and a LinkedIn block — each with working Copy Text buttons and 60s auto-refresh. Output: ~/.mavis/fleet/outbound/content-deck.html. Theme: 'Tony Stark / Dark Arc Reactor' — --bg #0d0d0d, --card-bg #1a1a2e, --accent #00aaff, --accent2 #ff3d00. Card structure: <div class='card'> <div class='card-num'>N</div> <div class='tweet-text'>...</div> <button class='copy-btn'>Copy</button> </div>. Auto-refresh: <meta http-equiv='refresh' content='60'> + inline countdown setInterval. Copy JS: navigator.clipboard.writeText + 'Copied!' feedback. 1.7 line-height for LinkedIn. Mobile responsive (1-col below 700px).",
+  "raw_full_path": "raw/dev_tooling/2026-06-04/20260604-013200-src-028-content-deck-generator.json",
+  "content_hash": "sha256:content_deck_generator_2026_06_04",
+  "extracted_finding_ids": ["fnd-2026-06-04-055", "fnd-2026-06-04-056"]
+}

@@ -1,0 +1,12 @@
+{
+  "id": "src-2026-06-04-026",
+  "captured_at": "2026-06-04T01:30:00-05:00",
+  "source_lane": "dev_tooling",
+  "url": "https://www.perplexity.ai/hub/blog/perplexity-pages",
+  "type": "primary",
+  "fetch_method": "websearch",
+  "raw_excerpt": "Perplexity blog: 'Introducing Perplexity Pages' (May 30, 2024). 'Meet Perplexity Pages, your new tool for easily transforming research into visually stunning, comprehensive content.' Features: (1) quick content generation, (2) highly customizable, (3) media insertion, (4) information validation with source management, (5) sharing and search optimization. Targeted at content creators, educators, students, business owners. Compared to Wikipedia-style citation. Pro users initially, then rolled out to all users. The 'AI Wikipedia' framing. Secondary Chinese coverage (站长之家, UCloud) confirmed the announcement date and feature set.",
+  "raw_full_path": "raw/dev_tooling/2026-06-04/20260604-013000-src-026-perplexity-pages.json",
+  "content_hash": "sha256:perplexity_pages_2026_06_04",
+  "extracted_finding_ids": ["fnd-2026-06-04-051", "fnd-2026-06-04-052"]
+}

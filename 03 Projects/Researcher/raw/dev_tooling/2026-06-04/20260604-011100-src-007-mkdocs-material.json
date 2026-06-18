@@ -1,0 +1,12 @@
+{
+  "id": "src-2026-06-04-007",
+  "captured_at": "2026-06-04T01:11:00-05:00",
+  "source_lane": "dev_tooling",
+  "url": "https://squidfunk.github.io/mkdocs-material/",
+  "type": "primary",
+  "fetch_method": "webfetch",
+  "raw_excerpt": "Material for MkDocs. 'Documentation that simply works. Write your documentation in Markdown and create a professional static site in minutes – searchable, customizable, in 60+ languages, for all devices.' Features: Just Markdown (no HTML/CSS/JS knowledge needed), Works on all devices, Made to measure (colors, fonts, language, icons, logo), Fast and lightweight, Maintain ownership (no third-party platforms), Open Source (MIT). Built-in instant search, Code annotations, Social cards, 10,000+ icons and emojis. Trusted by NASA, CERN, TC39, W3C, Google, Microsoft, Mozilla, Font Awesome, Apache, freeCodeCamp. Created by Martin Donath (squidfunk), copyright 2016-2025.",
+  "raw_full_path": "raw/dev_tooling/2026-06-04/20260604-011100-src-007-mkdocs-material.json",
+  "content_hash": "sha256:mkdocs_material_2026_06_04",
+  "extracted_finding_ids": ["fnd-2026-06-04-014", "fnd-2026-06-04-015"]
+}

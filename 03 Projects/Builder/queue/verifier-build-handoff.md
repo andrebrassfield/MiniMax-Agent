@@ -2,7 +2,7 @@
 
 > Source: `03 Projects/Builder/drafts/mavis_harness_blueprint.md` §3.3 (Dynamic token multiplier configuration) + §5 (Build sequencing, Sprint 2)
 > Phase: 3 — Operation: Cognitive Architecture, Sprint 2
-> Authored: 2026-06-06 by Mavis (chief of staff)
+> Authored: 2026-06-06 by Mavis (EA)
 > Sprint 1 was verified PASS (command_router.py shipped 2026-06-06). Sprint 2 is independent and can run in parallel with Sprint 1's Verifier audit.
 
 ## Strategic context

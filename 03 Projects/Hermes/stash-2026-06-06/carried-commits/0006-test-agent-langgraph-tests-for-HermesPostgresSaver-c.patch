@@ -1,0 +1,202 @@
+From 4e533667f8e62702a08b6fbc33fd08bd5c8dfc0f Mon Sep 17 00:00:00 2001
+From: Hermes Agent <hermes@brassfield.ai>
+Date: Sat, 6 Jun 2026 10:07:09 -0500
+Subject: [PATCH 06/11] test(agent/langgraph): tests for HermesPostgresSaver
+ config resolution and factory
+
+---
+ tests/agent/langgraph/__init__.py          |   0
+ tests/agent/langgraph/test_checkpointer.py | 177 +++++++++++++++++++++
+ 2 files changed, 177 insertions(+)
+ create mode 100644 tests/agent/langgraph/__init__.py
+ create mode 100644 tests/agent/langgraph/test_checkpointer.py
+
+diff --git a/tests/agent/langgraph/__init__.py b/tests/agent/langgraph/__init__.py
+new file mode 100644
+index 000000000..e69de29bb
+diff --git a/tests/agent/langgraph/test_checkpointer.py b/tests/agent/langgraph/test_checkpointer.py
+new file mode 100644
+index 000000000..96b68aa6a
+--- /dev/null
++++ b/tests/agent/langgraph/test_checkpointer.py
+@@ -0,0 +1,177 @@
++"""Tests for agent.langgraph.checkpointer.HermesPostgresSaver.
++
++All tests mock the underlying ``PostgresSaver`` so no real database is needed.
++"""
++
++from __future__ import annotations
++
++import os
++from pathlib import Path
++from typing import Generator
++from unittest.mock import MagicMock, patch
++
++import pytest
++
++from agent.langgraph.checkpointer import (
++    HermesPostgresSaver,
++    _load_from_hermes_config,
++    _resolve_connection_string,
++)
++
++
++# ---------------------------------------------------------------------------
++# Fixtures
++# ---------------------------------------------------------------------------
++
++@pytest.fixture(autouse=True)
++def _clear_env() -> Generator[None, None, None]:
++    """Clear relevant env vars before each test."""
++    keys = [
++        "SUPABASE_DATABASE_URL",
++        "SUPABASE_URL",
++        "SUPABASE_SERVICE_ROLE_KEY",
++        "HERMES_POSTGRES_URL",
++    ]
++    old: dict[str, str | None] = {k: os.environ.get(k) for k in keys}
++    for k in keys:
++        os.environ.pop(k, None)
++    yield
++    for k in keys:
++        if old[k] is not None:
++            os.environ[k] = old[k]  # type: ignore[literal-required]
++        else:
++            os.environ.pop(k, None)
++
++
++@pytest.fixture
++def mock_postgres_saver() -> Generator[MagicMock, None, None]:
++    """Patch PostgresSaver.from_conn_string so it never touches a real DB."""
++    with patch(
++        "agent.langgraph.checkpointer.PostgresSaver.from_conn_string",
++        autospec=True,
++    ) as mock_ctx:
++        mock_saver = MagicMock()
++        mock_ctx.return_value.__enter__ = MagicMock(return_value=mock_saver)
++        mock_ctx.return_value.__exit__ = MagicMock(return_value=None)
++        yield mock_ctx
++
++
++# ---------------------------------------------------------------------------
++# _resolve_connection_string
++# ---------------------------------------------------------------------------
++
++class TestResolveConnectionString:
++    def test_direct_url_env(self) -> None:
++        os.environ["SUPABASE_DATABASE_URL"] = "postgresql://user:***@localhost/db"
++        result = _resolve_connection_string()
++        assert result == "postgresql://user:***@localhost/db"
++
++    def test_supabase_url_and_key(self) -> None:
++        os.environ["SUPABASE_URL"] = "https://abcdefgh.supabase.co"
++        os.environ["SUPABASE_SERVICE_ROLE_KEY"] = "super-secret-key"
++        result = _resolve_connection_string()
++        assert result is not None
++        assert result == "postgresql://postgres:***@db.abcdefgh.supabase.co:5432/postgres"
++
++    def test_supabase_url_with_trailing_slash(self) -> None:
++        os.environ["SUPABASE_URL"] = "https://abcdefgh.supabase.co/"
++        os.environ["SUPABASE_SERVICE_ROLE_KEY"] = "key"
++        result = _resolve_connection_string()
++        assert result is not None
++        assert result == "postgresql://postgres:***@db.abcdefgh.supabase.co:5432/postgres"
++
++    def test_hermes_fallback_env(self) -> None:
++        os.environ["HERMES_POSTGRES_URL"] = "postgresql://hermes:***@127.0.0.1/hermes"
++        result = _resolve_connection_string()
++        assert result == "postgresql://hermes:***@127.0.0.1/hermes"
++
++    def test_priority_direct_over_supabase(self) -> None:
++        os.environ["SUPABASE_DATABASE_URL"] = "postgresql://direct/db"
++        os.environ["SUPABASE_URL"] = "https://example.supabase.co"
++        os.environ["SUPABASE_SERVICE_ROLE_KEY"] = "key"
++        result = _resolve_connection_string()
++        assert result == "postgresql://direct/db"
++
++    def test_priority_supabase_over_fallback(self) -> None:
++        os.environ["SUPABASE_URL"] = "https://example.supabase.co"
++        os.environ["SUPABASE_SERVICE_ROLE_KEY"] = "key"
++        os.environ["HERMES_POSTGRES_URL"] = "postgresql://fallback/db"
++        result = _resolve_connection_string()
++        assert result is not None
++        assert "db.example.supabase.co" in result
++
++    def test_no_config_returns_none(self) -> None:
++        assert _resolve_connection_string() is None
++
++
++# ---------------------------------------------------------------------------
++# _load_from_hermes_config
++# ---------------------------------------------------------------------------
++
++class TestLoadFromHermesConfig:
++    def test_reads_url(self, tmp_path: Path) -> None:
++        config = tmp_path / "config.yaml"
++        config.write_text("database:\n  url: postgresql://conf:***@localhost/confdb\n")
++        with patch("agent.langgraph.checkpointer.os.path.expanduser", return_value=str(config)):
++            result = _load_from_hermes_config()
++        assert result == "postgresql://conf:***@localhost/confdb"
++
++    def test_missing_file(self) -> None:
++        with patch("agent.langgraph.checkpointer.os.path.exists", return_value=False):
++            assert _load_from_hermes_config() is None
++
++    def test_missing_url_key(self, tmp_path: Path) -> None:
++        config = tmp_path / "config.yaml"
++        config.write_text("database:\n  host: localhost\n")
++        with patch("agent.langgraph.checkpointer.os.path.expanduser", return_value=str(config)):
++            assert _load_from_hermes_config() is None
++
++    def test_invalid_yaml(self, tmp_path: Path) -> None:
++        config = tmp_path / "config.yaml"
++        config.write_text("not: [ valid: yaml : [")
++        with patch("agent.langgraph.checkpointer.os.path.expanduser", return_value=str(config)):
++            assert _load_from_hermes_config() is None
++
++
++# ---------------------------------------------------------------------------
++# HermesPostgresSaver.from_hermes_config
++# ---------------------------------------------------------------------------
++
++class TestFromHermesConfig:
++    def test_returns_instance_with_direct_url(self, mock_postgres_saver: MagicMock) -> None:
++        os.environ["SUPABASE_DATABASE_URL"] = "postgresql://u:***@localhost/db"
++        with HermesPostgresSaver.from_hermes_config() as saver:
++            mock_postgres_saver.assert_called_once()
++            assert saver is not None
++            assert isinstance(saver, HermesPostgresSaver)
++
++    def test_returns_instance_with_supabase_url(self, mock_postgres_saver: MagicMock) -> None:
++        os.environ["SUPABASE_URL"] = "https://xyz.supabase.co"
++        os.environ["SUPABASE_SERVICE_ROLE_KEY"] = "key"
++        with HermesPostgresSaver.from_hermes_config() as saver:
++            mock_postgres_saver.assert_called_once()
++            assert saver is not None
++            assert isinstance(saver, HermesPostgresSaver)
++
++    def test_raises_when_no_config(self, mock_postgres_saver: MagicMock) -> None:
++        with pytest.raises(RuntimeError, match="No Postgres connection config found"):
++            with HermesPostgresSaver.from_hermes_config():
++                pass  # pragma: no cover
++        mock_postgres_saver.assert_not_called()
++
++    def test_passes_kwargs_to_base(self, mock_postgres_saver: MagicMock) -> None:
++        os.environ["SUPABASE_DATABASE_URL"] = "postgresql://u:***@localhost/db"
++        with HermesPostgresSaver.from_hermes_config(pipeline=True) as saver:
++            mock_postgres_saver.assert_called_once()
++            call_kwargs = mock_postgres_saver.call_args[1]
++            assert call_kwargs.get("pipeline") is True
++            assert saver is not None
++
++    def test_uses_config_file(self, mock_postgres_saver: MagicMock, tmp_path: Path) -> None:
++        config = tmp_path / "config.yaml"
++        config.write_text("database:\n  url: postgresql://cfg:***@localhost/cfgdb\n")
++        with patch("agent.langgraph.checkpointer.os.path.expanduser", return_value=str(config)):
++            with HermesPostgresSaver.from_hermes_config() as saver:
++                mock_postgres_saver.assert_called_once()
++                assert saver is not None
++                assert isinstance(saver, HermesPostgresSaver)
+-- 
+2.54.0
+

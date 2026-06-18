@@ -1,0 +1,12 @@
+{
+  "id": "src-2026-06-04-029",
+  "captured_at": "2026-06-04T01:33:00-05:00",
+  "source_lane": "dev_tooling",
+  "url": "https://www.mavis/skills/html-presentation-generator/SKILL.md",
+  "type": "primary",
+  "fetch_method": "filesystem-read",
+  "raw_excerpt": "Mavis skill: html-presentation-generator. Generates professional multi-page HTML presentations exportable to PDF/PPTX. 5 slide types: cover, TOC, section divider, content pages, summary/closing. Fixed 960x540 dimensions per slide. Font mandatory: Times New Roman for both Chinese and English. Files: slides/slide-NN.html, slides/imgs/. All CSS must be inline (no <style> blocks, no external stylesheets, no CSS classes). 'No animations: No CSS animations, transitions, hover effects, or SVG animations.' SVG for decorative shapes. Page number badge mandatory on all slides except cover. Image generation mandatory for cover pages and content pages. Color palette from a fixed set, no gradients except opacity variations. Verification via screenshot after each slide.",
+  "raw_full_path": "raw/dev_tooling/2026-06-04/20260604-013300-src-029-html-presentation-generator.json",
+  "content_hash": "sha256:html_presentation_generator_2026_06_04",
+  "extracted_finding_ids": ["fnd-2026-06-04-057", "fnd-2026-06-04-058"]
+}

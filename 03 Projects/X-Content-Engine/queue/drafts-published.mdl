@@ -1,0 +1,32 @@
+---
+type: publish-ledger
+created: 2026-06-17
+owner: Mavis (chief)
+generator: stage-4-publish-tracker
+schema_contract: 03 Projects/X-Content-Engine/agents/feedback-loop.md
+---
+
+# Drafts Published — @DreTheSalesGuy
+
+<!-- Append-only. One line per published draft. Written by the chief after Andre publishes a draft manually on x.com. Consumed by the chief when scheduling the analytics feedback cron. Older entries roll off (keep last 30). -->
+
+<!--
+Format per line (enforced by `tools/validate-publish-ledger.py` once shipped, eyeball-enforced until then):
+
+- YYYY-MM-DD HH:MM CT — <draft_file_path> → <x.com_post_url> | <pillar> | <idea_index_in_brain> | <publish_platform>
+
+Examples:
+
+- 2026-06-17 14:22 CT — drafts/machine-batch-2026-06-16-v2.md draft 1 → https://x.com/DreTheSalesGuy/status/1234567890 | P4 | idea[22] | x.com
+- 2026-06-17 14:25 CT — drafts/machine-batch-2026-06-16-v2.md draft 2 → https://x.com/DreTheSalesGuy/status/1234567891 | P4 | idea[23] | x.com
+
+Notes:
+- `idea_index_in_brain` is the position of the corresponding `ideas_backlog` entry in content_brain.json (used to write the `hook_used` field back into performance_log).
+- `publish_platform` is `x.com` for now; if Andre posts the same draft to LinkedIn or Threads, add a separate line per platform.
+- The chief reads this file when scheduling the analytics cron (Stage 4 → Stage 5 in team-config.md).
+-->
+
+<!-- Published entries below — append new lines at the end, do not edit prior lines. -->
+
+
+- 2026-06-17 18:48 CT — drafts/machine-batch-2026-06-17.md R3-D3 (P4 Build Logs stress test) → https://x.com/DreTheSalesGuy/status/2067394237851636104 | P4 | idea[37] | x.com

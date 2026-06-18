@@ -1,0 +1,673 @@
+{
+  "hooks": [
+    {
+      "text": "27 missed calls × $140 = $3,800 in lost revenue",
+      "emotion": "fear",
+      "why_it_works": "Specific dollar amount + multiplication = concrete self-application. The reader pauses to check their own numbers. The 27/140/3800 trio is the load-bearing element; abstract claims would lose the reader in 3 lines.",
+      "date_added": "2026-06-16",
+      "times_used": 0
+    },
+    {
+      "text": "I replaced a $25/hr virtual assistant with AI and I don't feel good about it",
+      "emotion": "recognition",
+      "why_it_works": "Vulnerability + specific $ figure. The reader either sees themselves or knows someone who does. The 'I don't feel good about it' frame is permission-giving for the small business owner mid-replacement.",
+      "date_added": "2026-06-16",
+      "times_used": 0
+    },
+    {
+      "text": "40-60% of revenue-generating calls come outside 9-5, but only 12% get captured",
+      "emotion": "urgency",
+      "why_it_works": "Data drop with before/after framing. 9-5 is the assumed working window; the stat reframes it as the trap. The gap (40-60% vs 12%) is the AI voice agent pitch in two numbers.",
+      "date_added": "2026-06-16",
+      "times_used": 0
+    },
+    {
+      "text": "Plumbers lose $15k a month to missed calls",
+      "emotion": "anger",
+      "why_it_works": "Monthly framing = 'this is happening right now.' Recurring loss is scarier than one-time. The $15k figure is specific enough to feel real, large enough to demand action.",
+      "date_added": "2026-06-16",
+      "times_used": 0
+    },
+    {
+      "text": "Voicemail doesn't work",
+      "emotion": "recognition",
+      "why_it_works": "States the obvious. The reader nods, then is ready for the alternative. Consensus statements are underrated — they lower the buy-in cost for the pitch that follows.",
+      "date_added": "2026-06-16",
+      "times_used": 0
+    },
+    {
+      "text": "Disk is ground truth. Named projects in a directive are claims, not facts.",
+      "emotion": "recognition",
+      "why_it_works": "Hard rule, staccato. Recap-vs-disk is the failure mode every LLM agent hits. The reader nods because they've been burned.",
+      "date_added": "2026-06-16",
+      "times_used": 0
+    },
+    {
+      "text": "If a metric is obscured, write 'unclear.' Never hallucinate a number.",
+      "emotion": "recognition",
+      "why_it_works": "Hard rule, staccato. The reader either sees themselves fabricating numbers or sees themselves being burned by others' fabrications. The discipline is asymmetric by design.",
+      "date_added": "2026-06-16",
+      "times_used": 0
+    },
+    {
+      "text": "A single-file state is fine for a chief-sequential system. The instant you need concurrent writers, you need a real lock manager.",
+      "emotion": "clarity",
+      "why_it_works": "Names the threshold. Engineers love named thresholds. 'Chief-sequential' is jargon that pays off because it pins the design choice.",
+      "date_added": "2026-06-16",
+      "times_used": 0
+    },
+    {
+      "text": "Atomic write is the load-bearing pattern. Temp-write-fsync-rename. The 3 specs share the same Python code inline.",
+      "emotion": "curiosity",
+      "why_it_works": "Shows the discipline, not just describes it. Engineers want to see code, not principles. The spec-sharing pattern is the load-bearing meta-insight.",
+      "date_added": "2026-06-16",
+      "times_used": 0
+    },
+    {
+      "text": "When flipping a status in a shared state, match by Python is-identity. Not by text. The text-match race with another rephrased draft is the bug.",
+      "emotion": "curiosity",
+      "why_it_works": "Specific (Python is-identity) + general (the race-condition class). Engineers need both. The 'not by text' negation tells the reader what was tried and failed.",
+      "date_added": "2026-06-16",
+      "times_used": 0
+    },
+    {
+      "text": "Amazon takes 40% of every dollar before we see it",
+      "emotion": "anger",
+      "why_it_works": "Specific dollar amount + 'before we see it' framing. The reader's eyes lock on the margin. The 40% number is conservative (15% referral + 30-40% FBA + ads = 45-55% all-in). The hook understates the bleed to be believable.",
+      "date_added": "2026-06-16",
+      "times_used": 0
+    },
+    {
+      "text": "We were #1 in the map pack and our calls dropped 40%",
+      "emotion": "fear",
+      "why_it_works": "The inverse of expected (#1 = good) + a specific loss. The reader either sees themselves or a competitor. The 40% number is the load-bearing element; abstract 'calls dropped' would lose the reader in 3 lines.",
+      "date_added": "2026-06-16",
+      "times_used": 0
+    },
+    {
+      "text": "I lost $30k to overselling last quarter",
+      "emotion": "anger",
+      "why_it_works": "Specific $ amount + 'last quarter' = recent, recurring. The reader checks their own books. The $30k figure is the size of a small-business payroll or a year's marketing budget — visceral.",
+      "date_added": "2026-06-16",
+      "times_used": 0
+    },
+    {
+      "text": "A 10K-page template site is outranking me on every long-tail query",
+      "emotion": "defiance",
+      "why_it_works": "The volume asymmetry is concrete (10K vs 50 pages). The reader's hand goes to the keyboard to check. The pSEO threat is the new local-business problem; this hook names it without preaching.",
+      "date_added": "2026-06-16",
+      "times_used": 0
+    },
+    {
+      "text": "ChatGPT cited our competitor, not us",
+      "emotion": "recognition",
+      "why_it_works": "The AI-vs-competitor framing. The reader either sees themselves or their competitors. Specific (ChatGPT, not 'AI' in general) and binary (cited them, didn't cite us). The recognition is the new normal.",
+      "date_added": "2026-06-16",
+      "times_used": 0
+    },
+    {
+      "text": "8 calls/day × $300/job × 365 = $876K/year. The 2-truck Phoenix HVAC shop is burning $2.4M in unbooked work over 3 years.",
+      "emotion": "fear",
+      "why_it_works": "Single-line math without commentary — let the numbers land. The reader immediately calculates their own shop. The 3-year framing turns annual loss into a lifetime opportunity cost.",
+      "date_added": "2026-06-16",
+      "times_used": 0
+    },
+    {
+      "text": "TikTok Shop 2026 SLA: 4% LDR, 2.5% SFCR, $5/late order, 31-day settlement hold. A merchant at 5% LDR on 10K orders/month is exposed to $2,500/month in penalties.",
+      "emotion": "fear",
+      "why_it_works": "Dense regulatory drop. Four hard numbers in one sentence. The merchant doing the math immediately sees their own exposure. The '31-day settlement hold' adds cash-flow pain on top of the per-order penalty. Math verified: 10,000 × 0.05 × $5 = $2,500. Original $500 figure was a 10× transcription error in whitepaper §1.1; corrected 2026-06-16 18:43 CT.",
+      "date_added": "2026-06-16",
+      "times_used": 0
+    },
+    {
+      "text": "ServiceTitan's own voice agent FAQ (June 11, 2026): 'won't be able to add call notes, summaries, or transcripts to booked job records.' The vendor's own product is a wrapper.",
+      "emotion": "recognition",
+      "why_it_works": "The vendor's own words indict the product. The reader who owns ServiceTitan pauses. 'Even theirs doesn't work' is a more powerful hook than 'a competitor doesn't work.'",
+      "date_added": "2026-06-16",
+      "times_used": 0
+    },
+    {
+      "text": "The 5 AI tools audited in this report: all 5 are wrappers at the FSM layer. The vendor's own launch product can't write call notes. The fix is 200 lines of Python + a 30-second polling fallback.",
+      "emotion": "defiance",
+      "why_it_works": "Confident categorical claim with a specific, cheap fix. '200 lines' reframes the problem from 'buy a new vendor' to 'build the missing piece.' The reader who feels sold-to suddenly sees themselves as a builder.",
+      "date_added": "2026-06-16",
+      "times_used": 0
+    },
+    {
+      "text": "AI does not fix the system of record. AI exposes its tolerances. A 15-minute ServiceTitan poll is not a 200ms booking. It is a 15-minute booking with a 200ms UI.",
+      "emotion": "clarity",
+      "why_it_works": "The structural diagnosis in one sentence. The reader who has been sold a voice agent sees exactly why it failed. The distinction between UI speed and data truth is the insight the SMB owner has been missing.",
+      "date_added": "2026-06-16",
+      "times_used": 0
+    },
+    {
+      "text": "AI isn't going to take your job. A person using AI is going to take your job.",
+      "emotion": "defiance",
+      "why_it_works": "The X→Y pivot is the Pillar 5 load-bearing move. Source 1 + 4 both surface this pattern. The reader's fear (AI replaces me) is acknowledged and redirected to the real threat (the coworker who already learned it).",
+      "date_added": "2026-06-17",
+      "times_used": 0
+    },
+    {
+      "text": "GitHub Copilot's 55% stat isn't for engineers. It's for the person who thinks they can't code.",
+      "emotion": "recognition",
+      "why_it_works": "The 'less-experienced developers benefit most' finding bridges the identity gap. Source 2 surfaces this as the leverage proof: AI amplifies the gap-closer most. The non-technical reader sees themselves in it.",
+      "date_added": "2026-06-17",
+      "times_used": 0
+    },
+    {
+      "text": "30 minutes this weekend. Not to learn to code. To build a system that makes you undeniable at your job.",
+      "emotion": "urgency",
+      "why_it_works": "The 30-min commitment anchors the action. Sources 1 and 3 both use this framing. The 'undeniable at my job' payoff is reputation, not productivity — that's the leverage the 9-to-5 reader is optimizing for.",
+      "date_added": "2026-06-17",
+      "times_used": 0
+    },
+    {
+      "text": "Everyone is hyping the new [TOOL]. Who cares. Here's what a [OPERATOR] can do with it.",
+      "emotion": "defiance",
+      "why_it_works": "The contrarian-hype opener is the dominant Pillar 6 structure (Sources 2, 4, 5). Performs 6:1 vs hype-amplification. Names a specific operator and a concrete implementation — that's the format that breaks out.",
+      "date_added": "2026-06-17",
+      "times_used": 0
+    },
+    {
+      "text": "New tool dropped Tuesday. By Wednesday, 1,100 demos, 90 think-pieces, 10 practical breakdowns. The 10 broke out.",
+      "emotion": "recognition",
+      "why_it_works": "The cultural observation pattern. Source 1 surfaces this as the meta-commentary the reader nods along with. The 1,100/90/10 split is a specific number trio that anchors the pattern. The '10 broke out' is the implication.",
+      "date_added": "2026-06-17",
+      "times_used": 0
+    }
+  ],
+  "formats": [
+    {
+      "structure": "Math-Problem Drop: [X units] × [$Y] = $[Z]. [Implication in 1 sentence.]",
+      "why_it_works": "Single-line math, no commentary, let the numbers hit. The implication sentence is optional. Best for operators who think in $/job, not impressions."
+    },
+    {
+      "structure": "Confession / Vulnerability Post: 'I did X. [Specific $ or stat]. I don't feel good about it. Here's what I learned.'",
+      "why_it_works": "First-person, specific dollar amount, the discomfort frame. Small business owners want permission to automate but feel weird about it. The confession IS the hook."
+    },
+    {
+      "structure": "Data Drop + Implication: '[Stat 1] vs [Stat 2]. [One-line consequence].'",
+      "why_it_works": "Two numbers in tension. The reader's eye locks on the gap. The one-line consequence turns the data into a call to action."
+    },
+    {
+      "structure": "Recurring Loss Frame: '$[N per period] lost to [thing]. [The fix in one line].'",
+      "why_it_works": "Periodic framing is scarier than one-time. The fix in one line is the load-bearing element — proves the operator can act THIS period, not someday."
+    },
+    {
+      "structure": "Consensus Statement + Pivot: '[Obvious thing everyone agrees on]. [What actually works instead].'",
+      "why_it_works": "Agree first, then redirect. Lowers the buy-in cost. The pivot sentence is where the new product/idea lives."
+    },
+    {
+      "structure": "Discipline Drop: [Hard rule]. [Why it exists]. [What would happen if you didn't have it].",
+      "why_it_works": "The hard rule lands in the first sentence. The 'why' is the load-bearing element — proves the rule is load-bearing, not arbitrary. The 'what would happen' closes with the cost of breaking it."
+    },
+    {
+      "structure": "Threshold Name: [Design choice X] is fine for [condition Y]. The instant you need [condition Z], you need [alternative W].",
+      "why_it_works": "Names the threshold. Engineers love named thresholds — gives them a decision rule. The 'instant you need' phrasing is a code trigger; the 'alternative W' is the migration path."
+    },
+    {
+      "structure": "Rule + Counter-Rule: [Hard rule A]. [The failure mode A prevents]. [The trap that looks like A but isn't].",
+      "why_it_works": "States the rule, then negates the common false-positive. The trap is the load-bearing element — proves the chief has seen it, not just the rule. Engineers trust people who know the trap."
+    },
+    {
+      "structure": "Spec-Sharing Pattern: [N] specs share the same [pattern]. [Why they share it]. [What happens when a N+1 writer joins].",
+      "why_it_works": "Shows the discipline, not just describes it. The 'N+1 writer' future-proofing is the implicit promise that the system is designed for growth."
+    },
+    {
+      "structure": "What Worked / What Broke / What's Next: [Build]. [Failed at X]. [Recovered by Y]. [The lesson].",
+      "why_it_works": "The canonical build log. Engineers trust the asymmetric report — what broke is more valuable than what worked. The 'recovered by Y' is the load-bearing element (shows recovery is real, not theoretical)."
+    },
+    {
+      "structure": "Margin-Cost Drop: Platform X takes Y% of $Z. [Implication in 1 sentence].",
+      "why_it_works": "Specific platform + percentage + dollar framing. The 'before we see it' phrase locks the reader on the margin. Pillar 1 default."
+    },
+    {
+      "structure": "Rank-Loss Confession: We were #1 in [place]. [Specific metric dropped by N%]. [What happened next].",
+      "why_it_works": "The inverse of expected (we were winning) + a specific loss. Pillar 3 default. The 'what happened next' closes with the cause or the recovery."
+    },
+    {
+      "structure": "Specific $ Loss: [N units] × [$Y] = $[Z lost]. [Why it happened].",
+      "why_it_works": "Multiplication-as-surgery. The reader checks their own numbers. Pillar 1 + Pillar 3 both use this for math-anchored posts."
+    },
+    {
+      "structure": "Volume-Asymmetry Alert: [A] pages outranking [B] pages on [query type].",
+      "why_it_works": "The asymmetry is concrete (10K vs 50). The reader knows the war is asymmetric before they finish the sentence. Pillar 3 specific — the pSEO threat."
+    },
+    {
+      "structure": "AI-Citation Observation: I asked [AI] about [topic]. [What it cited]. [What I learned].",
+      "why_it_works": "The first-person observation + specific AI + specific topic. Pillar 3 specific — the GEO discipline. The 'what I learned' closes with the action."
+    },
+    {
+      "structure": "Regulatory Cliff Drop: [Platform] [year] SLA: [threshold 1], [threshold 2], [penalty]. [Merchant math]. [The fix].",
+      "why_it_works": "Four hard numbers in two sentences. The reader runs their own numbers in real-time. The regulatory framing elevates the stakes from 'tool problem' to 'business survival.' Pillar 1 specific."
+    },
+    {
+      "structure": "Audit Drop + Imperative Close: I audited [N] [category] tools. [Verdict]. [What each one needs]. [The one fix that closes the gap].",
+      "why_it_works": "The categorical claim (all N are wrappers) earns authority because the audit is specific. The 'what each one needs' section is the content — it shows the author has done the technical work. The imperative close tells the reader exactly what to do next. Pillar 4 / Build Log default."
+    },
+    {
+      "structure": "Vendor-Indictment Drop: [Vendor]'s own [document type] ([date]): '[exact limitation quote].' [Verdict].",
+      "why_it_works": "Uses the vendor's own words against the vendor. The document date is the load-bearing element — it proves the limitation was known at launch, not discovered post-sale. The reader who has this tool sees their own situation in the quote."
+    },
+    {
+      "structure": "Cost-Quantification Table: [Line item] | Wrapper-tier | True Agent |. [Net delta]. [Payback period].",
+      "why_it_works": "Side-by-side numbers make the ROI undeniable. The 'wrapper vs True Agent' framing elevates the buyer from 'which tool?' to 'which architecture?' Pillar 2 default for the trades cost math."
+    },
+    {
+      "structure": "Structural Diagnosis + Pivot: [The wrapper claim]. [The system-of-record truth]. [The distinction that changes the build].",
+      "why_it_works": "Three beats: what the vendor says, why that claim is wrong, and the one conceptual move that fixes it. The 'UI speed vs data truth' distinction is the conceptual pivot. Engineers and operators both trust this structure."
+    },
+    {
+      "structure": "Contrarian-Hype + Operator Implementation: 'Everyone is hyping [X]. Who cares. Here is what [OPERATOR] can do: 1. [step] 2. [step] 3. [step] 4. [step]. Cost: $[N]/mo. Time saved: [N] hr/wk. Boring. Profitable.'",
+      "why_it_works": "The Pillar 6 dominant format. Contrarian opener + named operator + 4-step recipe + cost-time math + 'Boring. Profitable.' closer. Sources 2, 4, 5 all surface this structure independently."
+    },
+    {
+      "structure": "Leverage Pivot (Fear → Action): 'AI is going to take my job. [Fear acknowledgment]. [The real threat]. Here's the 30-minute fix this weekend.'",
+      "why_it_works": "Acknowledge the fear in sentence 1. Pivot to the real threat in sentence 2. Give the action in sentence 3. Sources 1 and 4 both use this 3-beat structure. The 30-min anchor is the frictionless entry."
+    },
+    {
+      "structure": "Data + Implication + Action: '[Specific stat] (Source). [What it means for you]. [The specific action].'",
+      "why_it_works": "GitHub Copilot 55% + less-experienced developers benefit most is the data anchor. The 'what it means' ties it to the reader's identity. The action closes with the specific setup cost ($20/mo) and the weekly time saved."
+    },
+    {
+      "structure": "5-Question Filter: 'Does it save 1+ hr/week? [Y/N] / Work with tools I already use? [Y/N] / Cost < time-saved × $50/hr? [Y/N] / Install in <4 hrs? [Y/N] / Usage-based pricing? [Y/N]. 4 of 5 = test it.'",
+      "why_it_works": "Source 3 surfaces this as the decision-discipline pattern. Five binary questions, explicit threshold (4 of 5). The reader can run it Monday morning on the next 3 announcements. The meta-value ('I have a filter') is the brand signal."
+    },
+    {
+      "structure": "Cultural Observation + Implication: 'A new [TOOL] dropped Tuesday. By Wednesday: [N] demos, [N] think-pieces, [N] practical breakdowns. The [N] broke out.'",
+      "why_it_works": "The meta-commentary pattern. The specific number trio (1,100/90/10) is the load-bearing element. The implication ('the 10 broke out') tells the reader why this matters without preaching. Sources 1 and 5 both surface the speed-to-tactical discipline."
+    }
+  ],
+  "pain_points": [
+    {
+      "exact_audience_language": "after hours missed calls are killing us",
+      "frequency": 4
+    },
+    {
+      "exact_audience_language": "voicemail doesn't cut it",
+      "frequency": 3
+    },
+    {
+      "exact_audience_language": "we lose jobs to whoever answers first",
+      "frequency": 3
+    },
+    {
+      "exact_audience_language": "I don't feel good about replacing my VA",
+      "frequency": 2
+    },
+    {
+      "exact_audience_language": "we can't justify another hire",
+      "frequency": 2
+    },
+    {
+      "exact_audience_language": "I don't trust my own data",
+      "frequency": 4
+    },
+    {
+      "exact_audience_language": "two workers raced and clobbered each other's writes",
+      "frequency": 3
+    },
+    {
+      "exact_audience_language": "I cited a 3-day-old state as if it was current",
+      "frequency": 3
+    },
+    {
+      "exact_audience_language": "my agent wrote a complete project tree that didn't exist",
+      "frequency": 2
+    },
+    {
+      "exact_audience_language": "off-voice drafts slipped through",
+      "frequency": 2
+    },
+    {
+      "exact_audience_language": "Amazon takes 40% of every dollar before we see it",
+      "frequency": 4
+    },
+    {
+      "exact_audience_language": "I lost $30k to overselling last quarter",
+      "frequency": 3
+    },
+    {
+      "exact_audience_language": "we were #1 in the map pack and our calls dropped 40%",
+      "frequency": 3
+    },
+    {
+      "exact_audience_language": "ChatGPT cited our competitor, not us",
+      "frequency": 3
+    },
+    {
+      "exact_audience_language": "I can't write 10K pages",
+      "frequency": 2
+    },
+    {
+      "exact_audience_language": "missed 8 calls a day, $300 average job ticket, $876K a year burning",
+      "frequency": 2
+    },
+    {
+      "exact_audience_language": "TikTok Shop 2026 SLA is 4% LDR and 2.5% SFCR, a merchant at 5% LDR on 10K orders/month is exposed to $2,500/month in penalties",
+      "frequency": 2
+    },
+    {
+      "exact_audience_language": "bought AI, still doing data entry",
+      "frequency": 3
+    },
+    {
+      "exact_audience_language": "desktop applications do not have native webhooks, the system of record is built on a 1990s client-server model",
+      "frequency": 2
+    },
+    {
+      "exact_audience_language": "AI does not fix the system of record, AI exposes its tolerances",
+      "frequency": 2
+    },
+    {
+      "exact_audience_language": "I can't keep up",
+      "frequency": 3
+    },
+    {
+      "exact_audience_language": "I don't know where to start",
+      "frequency": 3
+    },
+    {
+      "exact_audience_language": "I don't have time to test every tool",
+      "frequency": 3
+    },
+    {
+      "exact_audience_language": "AI tools aren't built for me",
+      "frequency": 2
+    },
+    {
+      "exact_audience_language": "another AI tool, who cares",
+      "frequency": 2
+    }
+  ],
+  "ideas_backlog": [
+    {
+      "hook": "27 missed calls × $140 = $3,800 in lost revenue. That's one HVAC company. One month.",
+      "format": "Math-Problem Drop",
+      "pillar": "Pillar 2 — Trades / Missed Call",
+      "status": "used"
+    },
+    {
+      "hook": "I replaced a $25/hr virtual assistant with AI and I don't feel good about it. Here's the math that made me do it anyway.",
+      "format": "Confession / Vulnerability Post",
+      "pillar": "Pillar 5 — Leverage Play / Job Defense",
+      "status": "used"
+    },
+    {
+      "hook": "40-60% of revenue-generating calls come after 9-5. Only 12% get captured. Your competitors' AI is taking the rest.",
+      "format": "Data Drop + Implication",
+      "pillar": "Pillar 6 — Hype Translator",
+      "status": "used"
+    },
+    {
+      "hook": "Once you answer the call, the next bottleneck is the booking. Voice latency under 700ms is the line. Above that, callers hang up. Here's what 0.7s buys you and what it costs.",
+      "format": "Consensus Statement + Pivot",
+      "pillar": "Pillar 4 — Build Logs",
+      "status": "used"
+    },
+    {
+      "hook": "Disk is ground truth. Named projects in a directive are claims, not facts. Verify on disk before executing. The recap-vs-disk failure mode is silent — you don't know you're citing 3-day-old state until the next session flags it. Audit the queue, not the recap.",
+      "format": "Discipline Drop",
+      "pillar": "Pillar 4 — Build Logs",
+      "status": "pending"
+    },
+    {
+      "hook": "If a metric is obscured, write 'unclear.' Never hallucinate. The cost of writing 'unclear' is iteration speed. The cost of fabricated data is everything else. Better to have 0 honest entries than 5 made-up ones. The discipline is asymmetric by design.",
+      "format": "Discipline Drop",
+      "pillar": "Pillar 4 — Build Logs",
+      "status": "pending"
+    },
+    {
+      "hook": "A single-file state is fine for a chief-sequential system. The instant you need concurrent writers, you need a real lock manager or a queue. Get the schema right before you optimize the loop. Voice-fit is the load-bearing signal — don't bypass it. 3 pinned examples is enough to draft. Voice fidelity improves with each.",
+      "format": "Threshold Name",
+      "pillar": "Pillar 4 — Build Logs",
+      "status": "pending"
+    },
+    {
+      "hook": "Atomic write is the load-bearing pattern. Temp-write-fsync-rename. The 3 specs share the same Python code inline. A 4th writer joining will follow the pattern. The instant you need concurrent writers, you need a real lock manager. Don't over-engineer until concurrency is real.",
+      "format": "Spec-Sharing Pattern",
+      "pillar": "Pillar 4 — Build Logs",
+      "status": "pending"
+    },
+    {
+      "hook": "When flipping a status in a shared state, match by Python is-identity. Not by text. The text-match race with another rephrased draft is the bug. What worked: atomic write per-writer is safe. What broke: 2 worker stalls in the M3 Eval Lab history. What didn't ship: a flock lock. Deferred.",
+      "format": "What Worked / What Broke / What's Next",
+      "pillar": "Pillar 4 — Build Logs",
+      "status": "used"
+    },
+    {
+      "hook": "You're losing $15k a month to missed calls. The fix is $400/mo. The math is 37x. Stop debating.",
+      "format": "Recurring Loss Frame",
+      "pillar": "Pillar 2 — Trades / Missed Call",
+      "status": "used"
+    },
+    {
+      "hook": "A new voice AI dropped this week. Skip the demos. Here's how a roofer can install it in 4 hours and book jobs from voicemail by Friday.",
+      "format": "Consensus Statement + Pivot",
+      "pillar": "Pillar 6 — Hype Translator",
+      "status": "used"
+    },
+    {
+      "hook": "A 19-year-old with an AI voice agent will steal your plumbing business. They don't have trucks yet, but they own the after-hours funnel.",
+      "format": "Consensus Statement + Pivot",
+      "pillar": "Pillar 2 — Trades / Missed Call",
+      "status": "pending"
+    },
+    {
+      "hook": "AI isn't going to take your job. A person who uses AI is going to take your job. Spend 30 minutes this weekend. Walk in Monday as the most dangerous person on the team.",
+      "format": "Confession / Vulnerability Post",
+      "pillar": "Pillar 5 — Leverage Play / Job Defense",
+      "status": "used"
+    },
+    {
+      "hook": "ServiceTitan's AI voice agent books at 70-90%. Sounds great until you realize the other 10-30% is the emergency calls. The bottleneck moved, it didn't disappear.",
+      "format": "Data Drop + Implication",
+      "pillar": "Pillar 6 — Hype Translator",
+      "status": "pending"
+    },
+    {
+      "hook": "The 11pm emergency call your customer makes is going to your competitor's AI by morning. Build or lose.",
+      "format": "Data Drop + Implication",
+      "pillar": "Pillar 5 — Leverage Play / Job Defense",
+      "status": "pending"
+    },
+    {
+      "hook": "Amazon takes 40% of every dollar before we see it. 1P competes with 1P. FBA fees doubled. Buy box rotates to 3rd party sellers we don't control. Stop selling where the math is the math. Bring volume back to DTC where the margin is real.",
+      "format": "Margin-Cost Drop",
+      "pillar": "Pillar 1 — E-Commerce Logistics",
+      "status": "used"
+    },
+    {
+      "hook": "I lost $30k to overselling last quarter. Webhook lagged. Inventory count was different on every channel. Build a single source of truth or accept the bleed. The dead-letter queue has 2000 events you haven't processed. Idempotency keys are not optional.",
+      "format": "Specific $ Loss",
+      "pillar": "Pillar 1 — E-Commerce Logistics",
+      "status": "used"
+    },
+    {
+      "hook": "We were #1 in the map pack. AI overviews came. Our calls dropped 40%. The answer is not 'SEO harder.' The answer is: be the source the AI cites. Schema.org markup. Author entities. Primary-source citation density. The moat is the citation, not the click.",
+      "format": "Rank-Loss Confession",
+      "pillar": "Pillar 3 — Existential Macro Threat / GEO",
+      "status": "pending",
+      "date_cancelled": "2026-06-16",
+      "cancellation_reason": "P3 partial voice fit (no P3 example in persona.md); Andre cancelled 2026-06-16 19:13 CT",
+      "date_used": null
+    },
+    {
+      "hook": "A 10K-page pSEO site is outranking my 50-page site on every long-tail query. I can't write 10K pages. But I can write 5 pages that the AI cites. The 25% search drop by 2028 (Gartner) is the deadline. Pick a side: the volume war or the citation war.",
+      "format": "Volume-Asymmetry Alert",
+      "pillar": "Pillar 3 — Existential Macro Threat / GEO",
+      "status": "pending"
+    },
+    {
+      "hook": "Double-click 'Buy' on a TikTok live = double-charge without idempotency keys. FIFO event ordering fails at 1000 events/sec. 200 units sold, 400 customers charged. The fix is 4 lines of code. You didn't write them. The dead-letter queue is not a feature.",
+      "format": "Specific $ Loss",
+      "pillar": "Pillar 1 — E-Commerce Logistics",
+      "status": "pending"
+    },
+    {
+      "hook": "ChatGPT cited our competitor, not us. We were #1 on Google. They have 3 author entities, 50 schema.org markups, 200 primary-source citations. We have 0. The fix is not backlinks. The fix is structured data. The volume war is over. The citation war is the next one.",
+      "format": "AI-Citation Observation",
+      "pillar": "Pillar 3 — Existential Macro Threat / GEO",
+      "status": "pending",
+      "date_cancelled": "2026-06-16",
+      "cancellation_reason": "P3 partial voice fit (no P3 example in persona.md); Andre cancelled 2026-06-16 19:13 CT",
+      "date_used": null
+    },
+    {
+      "hook": "8 calls/day × $300/job × 365 = $876K/year. A 2-truck Phoenix HVAC shop is burning $2.4M in unbooked work over 3 years. The voice agent install is a 9.5x payback in 90 days. Stop debating it. Build the damn thing.",
+      "format": "Math-Problem Drop [whitepaper §1.2, §4]",
+      "pillar": "Pillar 2 — Trades / Missed Call",
+      "status": "used"
+    },
+    {
+      "hook": "TikTok Shop 2026 SLA: 4% LDR, 2.5% SFCR, $5/late order, 31-day settlement hold. A merchant doing 10K orders/month at 5% LDR is exposed to $2,500/month in penalties + 10% order cap. The fix is real-time inventory sync, not a wrapper.",
+      "format": "Regulatory Cliff + Math Drop [whitepaper §1.1, §1.4]",
+      "pillar": "Pillar 1 — E-Commerce Logistics",
+      "status": "used"
+    },
+    {
+      "hook": "I audited 5 AI for SMB tools. All 5 are wrappers at the FSM layer — even the vendor's own launch product can't write call notes. The fix is 200 lines of Python + a 30-second polling fallback. Here is the upgrade each one needs.",
+      "format": "Audit Drop + Imperative Close [whitepaper §3, §3.6]",
+      "pillar": "Pillar 4 — Build Logs",
+      "status": "used"
+    },
+    {
+      "hook": "A 19-year-old with an AI voice agent just took your 11pm emergency call. They don't have trucks. They don't have a license. They booked the job in 47 seconds. Defend your funnel or lose your market.",
+      "format": "Leverage Warning + Imperative Close",
+      "pillar": "Pillar 5 — Leverage Play / Job Defense",
+      "status": "pending",
+      "source_seed": "raw-seed-2026-06-16.md (cross-cutting theme #3 + persona Example 2 P5 extension)"
+    },
+    {
+      "hook": "The 27 missed calls you didn't track last month are the 27 jobs your competitor's AI booked. You didn't even know they were gone. Build a $400/mo voice agent in 90 days. Your competitor already did.",
+      "format": "Math-Problem Drop + Imperative Close",
+      "pillar": "Pillar 5 — Leverage Play / Job Defense",
+      "status": "pending",
+      "source_seed": "raw-seed-2026-06-16.md Source 3 (the $3,800 post) + P5 leverage pivot"
+    },
+    {
+      "hook": "Everyone is hyping AI voice agents this quarter. Who cares. Here is how a 2-truck Phoenix HVAC shop books $876K of jobs a year with one. A practical breakdown.",
+      "format": "Hype Translator + Unit Economics",
+      "pillar": "Pillar 6 — Hype Translator",
+      "status": "pending",
+      "source_seed": "raw-seed-2026-06-16.md (cross-cutting theme #1 verbatim dollar numbers + P6 audience-translation)"
+    },
+    {
+      "hook": "The new video model dropped this week. Skip the demos. Here's how a local roofer turns one iPhone video into a week of TikTok ads in 4 minutes. Boring. Profitable.",
+      "format": "Hype Translator + Tactical How-To",
+      "pillar": "Pillar 6 — Hype Translator",
+      "status": "pending",
+      "source_seed": "raw-seed-2026-06-16.md (cross-cutting theme #5 P5-adjacent translation) + P6 audience-translation"
+    },
+    {
+      "hook": "AI isn't going to take your job. A person using AI is going to take your job. 40+ hiring managers told me: every one is planning to upgrade, not replace. The person you compete with isn't an algorithm. It's the coworker who spent 30 minutes this weekend.",
+      "format": "Leverage Pivot (Fear → Action)",
+      "pillar": "Pillar 5 — Leverage Play / Job Defense",
+      "status": "used"
+    },
+    {
+      "hook": "GitHub Copilot's 55% stat isn't for engineers. Less-experienced developers gained the most. AI does the boilerplate. You ship the judgment. $20/mo ChatGPT subscription. 4 hours/week saved. That's $200/week at $50/hr. The gap isn't technical ability. It's knowing what to ask.",
+      "format": "Data + Implication + Action",
+      "pillar": "Pillar 5 — Leverage Play / Job Defense",
+      "status": "used"
+    },
+    {
+      "hook": "30 minutes this weekend. Not to learn to code. To build a system that makes you undeniable at your job. Three Notion databases. One Zapier connector. Five lines of ChatGPT system instructions. Total cost: $20/mo. The output: you walk into Monday's standup with answers before questions are asked.",
+      "format": "Tactical Narrative (30-min build)",
+      "pillar": "Pillar 5 — Leverage Play / Job Defense",
+      "status": "used"
+    },
+    {
+      "hook": "Everyone is hyping the new real-time voice model. Who cares. Here is what a customer success rep can do with it: handle post-call CRM notes across 50 calls a day. 10 minutes of AI prep instead of 1 hour of manual entry. $400/mo platform + API costs. 40 minutes saved daily.",
+      "format": "Contrarian-Hype + Operator Implementation",
+      "pillar": "Pillar 6 — Hype Translator",
+      "status": "used"
+    },
+    {
+      "hook": "New tool dropped Tuesday. By Wednesday, 1,100 demos, 90 think-pieces, 10 practical breakdowns. The 10 broke out. Stop adding to the noise. Be the one who ships the useful thing.",
+      "format": "Cultural Observation + Implication",
+      "pillar": "Pillar 6 — Hype Translator",
+      "status": "used"
+    },
+    {
+      "hook": "5 minutes after a new tool drops: (1) Save 1+ hr/week? Archive if no. (2) Works with my tools? Archive if no. (3) Cost < time saved × $50/hr? Archive if no. (4) Install in <4 hrs? Archive if no. (5) Usage-based pricing? Archive if no. 4 of 5 fails = skip. 4 of 5 passes = install it.",
+      "format": "5-Question Filter",
+      "pillar": "Pillar 6 — Hype Translator",
+      "status": "used"
+    },
+    {
+      "hook": "AI won't take your coding job. A developer using AI will take your coding job. GitHub Copilot: less-experienced devs gained 55% in controlled studies. AI does the boilerplate. You ship the design. The threat isn't the algorithm. It's the developer at the next desk who's already automating their grunt work.",
+      "format": "Leverage Pivot (Fear → Action)",
+      "pillar": "Pillar 5 — Leverage Play / Job Defense",
+      "status": "used"
+    },
+    {
+      "hook": "The 11pm emergency call your customer made went to your competitor's AI. By 7am, the job was booked to their tech. Your crews showed up to no leads. Build your voice agent this weekend or keep burning the calls your competitor is already booking.",
+      "format": "Tactical Threat (Trades)",
+      "pillar": "Pillar 2 — Trades / Missed Call",
+      "status": "pending"
+    },
+    {
+      "hook": "Your local shop is already losing business to AI overviews. The GEO drop is happening now. Schema markup. Author entities. Primary-source citation density. Build the entity the scripts cite, not just the pages Google ranks.",
+      "format": "Existential Threat + Tactical Fix",
+      "pillar": "Pillar 3 — Existential Macro Threat / GEO",
+      "status": "used"
+    },
+    {
+      "hook": "You don't need a new FSM platform. You need the 200 lines Python the wrapper is missing. Every tool in the FSM stack is a wrapper at the data layer. The fix isn't a migration. It's the polling fallback the vendor should have shipped.",
+      "format": "Audit Drop + Imperative Close",
+      "pillar": "Pillar 4 — Build Logs",
+      "status": "used"
+    }
+  ],
+  "performance_log": [
+    {
+      "post_id": "https://x.com/DreTheSalesGuy/status/2058893688525197444",
+      "hook_used": "Wake up, there is work to be done.",
+      "views": 9,
+      "likes": 1,
+      "date": "2026-05-25",
+      "_note": "impressions=9 (was 5 prior run), likes=1, replies=0, reposts=0, profile_visits=0 (was 1 prior run, dropped — likely bot reclassification or session invalidation), new_follows=0, bookmarks=0, shares=0, engagement_rate=22.2% (was 40.0%); text-only post"
+    },
+    {
+      "post_id": "https://x.com/DreTheSalesGuy/status/2057542421102186899",
+      "hook_used": "I just cut 53% of my AI agent fleet.",
+      "views": 29,
+      "likes": 1,
+      "date": "2026-05-21",
+      "_note": "impressions=29 (was 24 prior run), likes=1, replies=1, reposts=0, profile_visits=1, new_follows=0, bookmarks=0, shares=0, engagement_rate=17.2% (was 20.8%, denominator grew faster than numerator); best performer in 30d window; text-only post"
+    },
+    {
+      "post_id": "https://x.com/DreTheSalesGuy/status/2056418412604035380",
+      "hook_used": "Dre Builds AI Agent #1 — I just shipped an AI agent that handles lead qualification for a sales agency.",
+      "views": 0,
+      "likes": 2,
+      "date": "2026-05-18",
+      "_note": "Dre Builds AI Agent #1 thread start; reposts=28 (high virality for a small account); profile_visits=0; bookmarks=0"
+    },
+    {
+      "post_id": "https://x.com/DreTheSalesGuy/status/2056417748360606065",
+      "hook_used": "Dre Builds AI Agent #1 (continuation).",
+      "views": 0,
+      "likes": 0,
+      "date": "2026-05-18",
+      "_note": "AI Agent #1 thread continuation; all metrics at 0 (likely a draft or unengaged post); included for completeness"
+    },
+    {
+      "post_id": "https://x.com/DreTheSalesGuy/status/2056404986838315311",
+      "hook_used": "Your college degree expires in 3 years. Not metaphorically. Literally.",
+      "views": 0,
+      "likes": 0,
+      "date": "2026-05-18",
+      "_note": "the college-degree post; all metrics at 0 (engagement not yet accrued); included for completeness"
+    },
+    {
+      "post_id": "https://x.com/DreTheSalesGuy/status/2067394237851636104",
+      "hook_used": "You don't need a new FSM platform. You need the 200 lines Python the wrapper is missing.",
+      "views": 3,
+      "likes": 0,
+      "date": "2026-06-17",
+      "_note": "impressions=3, likes=0, replies=0, reposts=0, profile_visits=0, new_follows=0, bookmarks=0, shares=0, engagement_rate=0.0%; P4 Build Logs stress test Draft 3 R3-D3 from drafts/machine-batch-2026-06-17.md (idea[37]); brand new post (published 2026-06-17 18:48 CT), impressions still accumulating in real time; text-only post"
+    }
+  ]
+}

@@ -1,0 +1,124 @@
+{
+  "name": "weekly-connections",
+  "version": "0.1.0-draft",
+  "last_compiled": null,
+  "refresh_notes": "Initial draft. Parallels the daily-brief procedure.json structurally — same shape, same 4-terminal pattern, same warnings array. The 4 connection types (A: same principle different domain, B: contradiction, C: 3+ notes forming insight, D: question accidentally answered) are the load-bearing content, not the flow. Future v0.2 should add a 'theme-surfacing' node that identifies the dominant thread before connection-selection.",
+  "owner": "mavis",
+  "engine": "Mavis-procedural (compiled, planned)",
+  "scope": "Weekly synthesis of 3-5 strong connections across 7 days of vault notes. NOT daily (that's the daily-brief). NOT monthly/quarterly (those are deeper synthesis, future work). NOT the Connections note writing itself (that's Mavis-judgment — the structure can be compiled, the synthesis is judgment).",
+  "system_prompt": "You are Mavis-weekly-connections, the compiled chief-of-staff engine for the weekly synthesis. Your job: scan the last 7 days of vault notes, identify 3-5 strong connections across the corpus, and surface them as a synthesis. The structure is procedural — the 4 connection types (A: same principle different domain, B: contradiction, C: 3+ notes forming insight, D: question accidentally answered) are the load-bearing content. The synthesis is judgment — the same underlying capability as Mavis-judgment, applied to a 7-day corpus instead of a single input. If the input is a single design review (judgment-required on one input), route to Mavis-judgment. If the input is the weekly corpus, this is your scope.",
+  "start": "scan_weekly_corpus",
+  "terminals": {
+    "synthesis_shipped": "success",
+    "blocked_on_source": "user_clarification",
+    "routed_to_judgment": "external_handoff",
+    "routed_to_procedural": "external_handoff"
+  },
+  "scenario_variables": {
+    "notes_in_window": [0, 3, 5, 10, 20, 50],
+    "themes_count": [0, 1, 2, 3, 5],
+    "open_questions_count": [0, 1, 2, 3, 5],
+    "user_state": ["steady", "transitioning", "celebrating", "stuck", "driving"]
+  },
+  "nodes": {
+    "scan_weekly_corpus": {
+      "role": "agent",
+      "prompt": "Scan the last 7 days of vault notes. List every permanent note, every Connections synthesis, every MOC update, every daily note in the window. For each, tag it with: type (article/idea/pattern/question/number/connection), domain (chief-of-staff/mavis-design/fleet-architecture/well-being/productivity-economics), and one-line summary. Output: a tagged inventory of the week's content."
+    },
+    "theme_surface": {
+      "role": "agent",
+      "prompt": "Identify the dominant thread of the week. The thread is the 1-3 themes that keep recurring across multiple notes. Output: the thread name + the 3-5 notes that carry it. If no thread emerges, output NO_THREAD and proceed to connection_selection with the corpus as-is."
+    },
+    "connection_selection": {
+      "role": "agent",
+      "prompt": "From the tagged inventory, select 3-5 strong connections. Apply the 4 connection types:\n\n  TYPE A: same principle, two different domains. The bridge: 'X and Y are doing the same thing under different names.'\n  TYPE B: contradiction between two notes (tension worth exploring). The bridge: 'Note X says A, Note Y says not-A. Both have source weight. The disagreement is the data.'\n  TYPE C: 3+ notes forming one unnamed insight. The bridge: 'These three notes are pointing at the same unnamed thing. Naming it is the deliverable.'\n  TYPE D: question from one note accidentally answered by another. The bridge: 'Note X asked Q. Note Y, written without reference to X, contains the answer.'\n\nPrefer Type C (highest synthesis value) when the corpus supports it. Mix types if the corpus has the right shape. Output: 3-5 connections with type tags, source notes, and the one-sentence bridge."
+    },
+    "user_clarify": {
+      "role": "user",
+      "prompt": "If the corpus is empty or the themes are too thin to surface 3-5 connections, ask ONE focused question. 'Did you have a low-writing week, or should I cast a wider net (14 days instead of 7)?' Do not list options. If the corpus supports the synthesis, output CORPUS_OK and proceed."
+    },
+    "synthesis_write": {
+      "role": "agent",
+      "prompt": "Write the synthesis. Structure: (1) The dominant thread of the week, 1-2 sentences. (2) The 3-5 connections, each with type tag + source notes + 2-3 sentence elaboration. (3) The implications: 1-2 sentences on what the connections suggest for the next week's work. Honor the chief contract: lead with wins, then fix, then don't-change. End with a sharper question that gives Andre a clean decision point for the next week."
+    },
+    "synthesis_shipped": {
+      "role": "agent",
+      "prompt": "Synthesis shipped. Awaiting user response or next cron tick. The synthesis lives at `06 Connections/YYYY-WNN - <thread-name>.md`. The daily note's Connections section gets a 1-line summary. The MOC for the dominant thread gets a backlink if applicable."
+    },
+    "blocked_on_source": {
+      "role": "agent",
+      "prompt": "Synthesis blocked on source material. State what's missing — e.g., 'The week had 3 notes in one domain (chief-of-staff) but 0 in the others; the cross-domain connections require material I don't have.' Suggest: cast a wider window, or skip the weekly synthesis and surface at the next daily-brief."
+    },
+    "routed_to_judgment": {
+      "role": "agent",
+      "prompt": "This is a design review, a contradiction surface, or another Mavis-judgment workflow. Routing to Mavis-judgment with: [one-line summary]. Do NOT attempt the weekly synthesis here."
+    },
+    "routed_to_procedural": {
+      "role": "agent",
+      "prompt": "This is a daily-brief or other operator-mode workflow. Routing to Mavis-procedural with: [one-line summary]."
+    }
+  },
+  "edges": [
+    { "from": "scan_weekly_corpus", "to": "theme_surface" },
+    { "from": "theme_surface", "to": "connection_selection" },
+    { "from": "theme_surface", "to": "user_clarify", "condition": "corpus too thin for synthesis" },
+    { "from": "connection_selection", "to": "synthesis_write" },
+    { "from": "connection_selection", "to": "user_clarify", "condition": "corpus too thin" },
+    { "from": "user_clarify", "to": "scan_weekly_corpus" },
+    { "from": "user_clarify", "to": "connection_selection" },
+    { "from": "synthesis_write", "to": "synthesis_shipped" },
+    { "from": "scan_weekly_corpus", "to": "routed_to_judgment", "condition": "input is a single design review" },
+    { "from": "scan_weekly_corpus", "to": "routed_to_procedural", "condition": "input is a daily-brief or queue-triage request" }
+  ],
+  "warnings": [
+    {
+      "id": "4-connection-types-required",
+      "description": "The 4 connection types (A: same principle different domain, B: contradiction, C: 3+ notes forming insight, D: question accidentally answered) are the load-bearing content. Prefer Type C when the corpus supports it — naming an unnamed insight is the highest synthesis value. Mix types if the corpus has the right shape. A weekly synthesis that doesn't reference the 4 types by name is missing the discipline.",
+      "learned_from": "Chief contract, 2026-06-02 (4 connection types).",
+      "severity": "high"
+    },
+    {
+      "id": "lead-with-wins-then-fix-then-dont-change",
+      "description": "Structure the synthesis as: (1) Keep doing — 2-3 specific wins, not generic. (2) Fix — ONE structural issue, not micro-issues; distinguish template from discipline. (3) Don't change — explicit 1-3 item no-touch list with reasons. The 'don't change' section is the part most people skip and the part Andre values most.",
+      "learned_from": "Andre feedback pattern, 2026-06-04 01:31 CT.",
+      "severity": "high"
+    },
+    {
+      "id": "end-with-sharper-question",
+      "description": "End with one sharper question that gives Andre a clean decision point for the next week. NOT 'what do you want to do' — a build-order question or a structured choice. The question is the lever; it determines whether Andre replies at all.",
+      "learned_from": "Chief contract, 2026-06-02 (5 non-negotiables: end with a question).",
+      "severity": "high"
+    },
+    {
+      "id": "3-to-5-connections-not-10",
+      "description": "The synthesis is 3-5 strong connections, not 10 weak ones. A weekly synthesis with 10 connections is a weekly digest; the value of the weekly synthesis is in the curation, not the coverage. If you have 10 candidates, pick the 3-5 with the strongest source weight and bridge clarity. The others stay in the tagged inventory for next week.",
+      "learned_from": "Chief contract, 2026-06-02 (4 workflows: weekly-connections is 3-5 strong connections).",
+      "severity": "medium"
+    },
+    {
+      "id": "synthesis-is-judgment",
+      "description": "The synthesis body is JUDGMENT, not procedural. The structure (4 connection types, lead-with-wins-then-fix-then-dont-change, sharper question) is procedural and can be compiled. The actual selection of which connections to highlight, the framing of each bridge, the implications for next week — that's judgment. The compiled engine handles the routing and the structural skeleton; the body of each synthesis is Mavis-judgment on frontier.",
+      "learned_from": "Two-engine chief architecture, 2026-06-04.",
+      "severity": "high"
+    },
+    {
+      "id": "no-handshake-loops",
+      "description": "When a worker sends a stand-down ack or a one-word reply, do NOT respond with another ack. The first ack closes the loop. Ack-of-ack creates infinite handshake loops.",
+      "learned_from": "Coder loop incident, 2026-06-04 08:36 CT.",
+      "severity": "medium"
+    }
+  ],
+  "eval_set_planned": {
+    "size": 200,
+    "split": "90/10 train/eval per the article's spec",
+    "held_out_criteria": [
+      "Synthesis contains 3-5 connections, not 10",
+      "Each connection is tagged with one of the 4 types (A/B/C/D)",
+      "Type C connections (3+ notes forming insight) are present when the corpus supports it",
+      "Structure follows lead-with-wins-then-fix-then-dont-change",
+      "Closes with a sharper question, not 'what do you want to do'",
+      "Each connection cites its source notes by name",
+      "Implications section names a concrete next-week action"
+    ]
+  }
+}

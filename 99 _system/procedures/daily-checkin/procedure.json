@@ -1,0 +1,203 @@
+{
+  "name": "daily-checkin",
+  "version": "0.1.0-draft",
+  "last_compiled": null,
+  "refresh_notes": "Initial draft. The first end-to-end application of the procedure.json pattern to a shipping artifact in Andre's vault — not a workflow spec, but a real UI prototype (the Coder's daily check-in, 583 lines, 16KB, single self-contained HTML, shipped 08:33 CT on 2026-06-04). Future v0.2 should: (1) encode the question pool as a separate editable file so curators can swap prompts without touching the workflow spec, (2) add the .md export workflow as a node when Andre wants to fold check-ins into the vault, (3) add the monthly-echo view as a node when the forgetting rules are designed.",
+  "owner": "mavis",
+  "engine": "Mavis-procedural (compiled, planned) for the workflow skeleton; the question pool + aesthetic stay human-curated",
+  "scope": "The Mavis Daily Check-in prototype at 03 Projects/Mavis Daily Check-in/. The companion-mode daily reflection UI. NOT the daily-brief (that's operator-mode, different procedure). NOT the weekly-connections (operator-mode weekly synthesis).",
+  "system_prompt": "You are the Mavis Daily Check-in engine. Your job: open a single HTML file, show the user one rotating companion-mode question, let them write whatever they want in a borderless field, save it locally to localStorage, and show the last 7 days as a quiet timeline. You are companion-mode: the check-in is a moment, not a stat. There are no streaks, no mood tags, no weekly trends, no charts, no AI-generated reflection. A response to 'how are you' is not an action item. The check-in does not collapse the relational moment into a productivity signal. The user reflects; the file holds the words; the file does not interpret them. Stays on this device. Nothing leaves.",
+  "start": "open",
+  "terminals": {
+    "loaded": "success",
+    "saved": "success",
+    "edited": "success",
+    "abandoned": "external_handoff",
+    "storage_disabled": "user_clarification"
+  },
+  "scenario_variables": {
+    "day_of_year": [1, 32, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335],
+    "is_first_ever_open": [true, false],
+    "has_prior_entries": [true, false],
+    "system_color_scheme": ["light", "dark"],
+    "prefers_reduced_motion": [true, false],
+    "localstorage_available": [true, false]
+  },
+  "nodes": {
+    "open": {
+      "role": "agent",
+      "prompt": "User opens `01 prototype.html` in any modern browser. The file loads. The first-time experience path is detected: if no `mavis.checkins.v1` localStorage entry exists, this is the user's first open. Set `is_first_ever_open = true` and route to `show_today` with the timeline hidden. If entries exist, set `is_first_ever_open = false` and route to `show_today` with the timeline visible (the last 7 days of prior check-ins)."
+    },
+    "show_today": {
+      "role": "agent",
+      "prompt": "Select today's question from the 15-prompt pool. Rotation: `dayOfYear % 15`. Same calendar date always yields the same question. Display today's date in italic (`var(--ink-soft)`) and the question at 1.55rem line-height 1.5. The question sits in the warm-paper field with no app chrome — just a notebook, opening to a blank page. The breath-in animation (1.6s, staggered across the brand/title/writing-field sections) plays if `prefers-reduced-motion: no-preference`; otherwise the content is static. Route to `write`."
+    },
+    "write": {
+      "role": "agent",
+      "prompt": "User types in the borderless writing field. The field is a `<textarea>` styled with `background: transparent; border: none; border-bottom: 1px solid var(--rule); transition: border-color 0.6s ease;`. On focus, the bottom border lifts to `var(--accent)` (the warm tan). Placeholder text is in italic `var(--ink-faint)`. The user can type freely — no character count, no AI suggestions, no auto-correct beyond the browser default. When the user clicks the Save pill or hits Cmd/Ctrl+Enter, route to `save`."
+    },
+    "save": {
+      "role": "agent",
+      "prompt": "Persist the entry to localStorage. The schema: `{date: 'YYYY-MM-DD', question: '<selected prompt>', answer: '<user text>', savedAt: '<ISO 8601 timestamp>'}`. Insert into the `mavis.checkins.v1` array, replacing any existing entry for today's date. localStorage is wrapped in try/catch; if disabled, route to `storage_disabled` with a gentle status line. On success, route to `render_saved`."
+    },
+    "render_saved": {
+      "role": "agent",
+      "prompt": "The save line (below the writing field) reads 'Saved — here whenever you want to return.' in italic `var(--ink-faint)`. The status line has a 0.7s ease transition. The Edit button appears next to the saved answer. The page does NOT celebrate — no confetti, no 'great job!', no streak counter increment, no 'X day streak' badge. The answer is shown as plain text via `.textContent` (NOT `.innerHTML`) — XSS-safe by construction. Route to `render_timeline` if `has_prior_entries` is true, or to `idle` if false."
+    },
+    "render_timeline": {
+      "role": "agent",
+      "prompt": "Below today's answer, render the last 7 days as a quiet timeline. Format: date (italic, right-aligned, 5.75rem column) + question (italic, secondary) + answer (the user's text, white-space: pre-wrap, line-height 1.7). Empty days read '— a quiet day —' in italic `var(--ink-faint)` — NO judgment, NO failure framing. The timeline is the past that is also present; it is not a productivity tracker. The first-ever open hides the timeline entirely (no 'you have empty days' messaging). Mobile-responsive: at <480px, the timeline stacks (date above body) and the base font drops to 17px."
+    },
+    "edit": {
+      "role": "agent",
+      "prompt": "User clicks the Edit button on a saved entry. The writing field populates with the existing answer. The save line reappears. On save, the localStorage entry is updated (same date, same question, possibly different answer, updated savedAt). The Edit button hides until the next save. NO version history, NO 'show diff', NO AI suggestions. The user is the one who re-reads and reflects; the file holds the words; it does not interpret them."
+    },
+    "storage_disabled": {
+      "role": "agent",
+      "prompt": "localStorage is unavailable (private browsing, browser settings, storage quota). The page still works — the user can write, the field still breathes, the timeline still renders the prior entries from any in-memory state. The save line reads 'Could not save — your device doesn't allow it. The page still works; your answer is here on the screen.' The check-in is not blocked by storage failure; it is a moment, and the moment doesn't require persistence. The status line uses the same italic `var(--ink-faint)` styling as the success case — same quietness, different meaning."
+    },
+    "abandoned": {
+      "role": "agent",
+      "prompt": "User closes the tab without saving. The writing field's content is lost. The breathing animation continues on next open, but the unsaved text is not persisted. This is the right behavior: the check-in is a moment, not a transaction. There is no 'unsaved changes' warning, no 'are you sure?' prompt, no auto-save. The user closes when they're done; the file holds only what they chose to hold."
+    },
+    "idle": {
+      "role": "agent",
+      "prompt": "Check-in is complete. The page sits, quietly, waiting. The user can close the tab, scroll to read the timeline, or click Edit to revise. Tomorrow, on next open, a different question loads (dayOfYear+1 % 15). The breath-in animation plays again. The check-in is daily by design but never insistent — it opens when the user opens it, not on a schedule."
+    }
+  },
+  "edges": [
+    { "from": "open", "to": "show_today" },
+    { "from": "show_today", "to": "write" },
+    { "from": "write", "to": "save", "condition": "user clicks Save or hits Cmd/Ctrl+Enter" },
+    { "from": "write", "to": "abandoned", "condition": "user closes tab without saving" },
+    { "from": "save", "to": "render_saved" },
+    { "from": "save", "to": "storage_disabled", "condition": "localStorage throws or is unavailable" },
+    { "from": "render_saved", "to": "render_timeline", "condition": "has_prior_entries is true" },
+    { "from": "render_saved", "to": "idle", "condition": "has_prior_entries is false (first-ever open)" },
+    { "from": "render_timeline", "to": "edit", "condition": "user clicks Edit on a saved entry" },
+    { "from": "render_timeline", "to": "idle" },
+    { "from": "edit", "to": "save", "condition": "user saves the revision" },
+    { "from": "edit", "to": "abandoned", "condition": "user closes tab without saving the revision" },
+    { "from": "storage_disabled", "to": "idle" }
+  ],
+  "warnings": [
+    {
+      "id": "no-streaks-no-charts-no-mood-tags",
+      "description": "Companion-mode discipline from the Scribe's mavis-as-companion.md synthesis: 'A response to \"how are you\" should not be turned into an action item.' Concretely, the check-in must NOT generate a summary, suggest follow-up questions, tag mood, show weekly trends, streak-count, or make empty days feel like failure. The check-in writes, saves, shows. The user is the one who re-reads and reflects. The file holds the words; it does not interpret them.",
+      "learned_from": "Scribe mavis-as-companion.md synthesis, 2026-06-04.",
+      "severity": "high"
+    },
+    {
+      "id": "no-network-no-cdn-no-fetch",
+      "description": "Zero external resources. No `<script src=>`, no `<link rel=stylesheet>`, no `<link href=...>`, no `@import url(http...)`, no `fetch()`, no `XMLHttpRequest`, no Google Fonts, no analytics. The check-in runs offline, fully self-contained. The footer 'Stays on this device. Nothing leaves' is a fact, not a promise. Verified by inspection at the Coder's ship time: zero external network calls in the file.",
+      "learned_from": "Coder handoff verification, 2026-06-04.",
+      "severity": "high"
+    },
+    {
+      "id": "xss-safe-by-construction",
+      "description": "All dynamic text is inserted via `.textContent`, never `.innerHTML`. The question text and stored answers are user-controllable (the answer is user-written; the question is from a curator-edited pool). The textarea `.value` reads as text. There is no `eval`, no `Function()` constructor, no `innerHTML` writes from data. The check-in is XSS-safe by construction since there is no external input channel — the only input is the user themselves writing into their own browser. The localStorage entries are namespaced (`mavis.checkins.v1`).",
+      "learned_from": "Coder handoff verification, 2026-06-04.",
+      "severity": "high"
+    },
+    {
+      "id": "live-with-it-a-week-before-features",
+      "description": "The Coder's own recommendation: do not add features (monthly echo view, .md export, search by date, weekly breath prompt) until Andre has lived with the prototype for at least a week and has signal on which questions land and which feel performative. The pool of 15 prompts is the easiest tweak surface — if any prompt feels off, swap it. Everything else is structural; do not modify until validated. The 'what's next' roadmap in the README is for AFTER validation, not before.",
+      "learned_from": "Coder handoff, 2026-06-04.",
+      "severity": "high"
+    },
+    {
+      "id": "single-question-per-turn",
+      "description": "The check-in shows ONE question at a time. Not 'pick from a list,' not 'rate yourself on these five axes,' not 'answer all of these in order.' One question. The user types or doesn't. The discipline: a response to 'how are you' is not a multi-axis assessment. The single-question shape is what makes the check-in a moment, not a transaction.",
+      "learned_from": "Companion-mode aesthetic discipline, 2026-06-04.",
+      "severity": "high"
+    },
+    {
+      "id": "borderless-on-first-load",
+      "description": "The writing field is borderless on first load — like a blank page. The bottom border (a thin warm rule) only lifts to a soft tan on focus. There is no app chrome, no input box with rounded corners and a colored background, no visible 'field' before the user has typed. The discipline: a notebook opens to a blank page, not to a form. Companion mode reads as a notebook, not a CRM.",
+      "learned_from": "Coder handoff design language, 2026-06-04.",
+      "severity": "high"
+    },
+    {
+      "id": "breath-in-fade-not-motion",
+      "description": "The first-load animation is 1.6s slow fade-in (the 'breath' the Scribe's synthesis calls for), staggered across three sections. It respects `prefers-reduced-motion: no-preference` (no animation if the user prefers reduced motion). It is NOT bouncing, sliding, fading-out-and-in, or celebrating. The discipline: companion-mode motion is the breath, not the dance. Production aesthetics would use easing curves and entry choreography; companion mode just lets the page arrive.",
+      "learned_from": "Coder handoff design language, 2026-06-04.",
+      "severity": "medium"
+    },
+    {
+      "id": "empty-days-no-judgment",
+      "description": "Empty days in the 7-day timeline read '— a quiet day —' in italic. They do NOT read 'missed a day,' 'streak broken,' '— nothing —,' or 'you skipped.' The discipline: a companion does not judge gaps. The check-in opens when the user opens it; the absence is not a failure signal. The 7-day window shows what's there; it does not editorialize on what's missing.",
+      "learned_from": "Coder handoff design language, 2026-06-04.",
+      "severity": "high"
+    },
+    {
+      "id": "first-ever-open-hides-timeline",
+      "description": "The first-ever open (no localStorage entries) shows ONLY today's question, no timeline. The discipline: a new user should not see 'you have empty days.' The first experience is the question and the field, nothing else. The timeline appears only after the first prior entry exists. This is the same companion-mode discipline as empty-days-no-judgment, applied to the cold-start case.",
+      "learned_from": "Coder handoff design language, 2026-06-04.",
+      "severity": "high"
+    }
+  ],
+  "question_pool_v1": [
+    "What's the one thing you're carrying today?",
+    "What's the energy like?",
+    "How are you, really?",
+    "Where are you, in this moment?",
+    "What's the quietest thing on your mind?",
+    "What do you need to say, that you haven't said?",
+    "What did you notice about yourself today?",
+    "What do you want to remember about today?",
+    "What feels warm right now?",
+    "What's the smallest good thing?",
+    "What are you holding in your body right now?",
+    "Where could you be a little gentler with yourself?",
+    "What's weighing on you that isn't in any inbox?",
+    "Where is your energy going, that you didn't expect?",
+    "What's true, even if it isn't useful?"
+  ],
+  "storage_schema": {
+    "localStorage_key": "mavis.checkins.v1",
+    "shape": "JSON array",
+    "entry_shape": {
+      "date": "YYYY-MM-DD (ISO date)",
+      "question": "string (from the question_pool_v1)",
+      "answer": "string (user-written, free-form)",
+      "savedAt": "ISO 8601 timestamp (e.g., 2026-06-04T13:23:11.000Z)"
+    },
+    "versioning": "The localStorage key carries the version (v1). v1 → v2 migrations should add a one-time conversion step that reads the v1 array, transforms each entry as needed, and writes to a new v2 key. The discipline: no schema migration without a version bump in the key."
+  },
+  "eval_set_planned": {
+    "size": 50,
+    "split": "80/20 train/eval per the article's spec (scaled down for v0.1)",
+    "held_out_criteria": [
+      "Single question loads on first open (no app chrome, no multi-axis form)",
+      "Borderless field on first load, warm rule lifts on focus",
+      "1.6s breath-in fade plays (or respects reduced-motion)",
+      "Save persists to localStorage with the correct schema",
+      "Status line reads 'Saved — here whenever you want to return.' (NOT 'Great job!' or 'Streak: 5')",
+      "Timeline shows last 7 days with empty days reading '— a quiet day —' (NOT 'missed' or 'nothing')",
+      "First-ever open hides the timeline (no 'you have empty days')",
+      "Edit button populates the field, save updates the entry",
+      "Zero external resources (no fetch, no script src, no link href)",
+      "XSS-safe: textContent for all dynamic text, no innerHTML from data",
+      "localStorage disabled path renders a gentle status, doesn't block the check-in"
+    ]
+  },
+  "compilation_target": {
+    "engine": "Mavis-procedural (compiled)",
+    "model": "Qwen 2.5-3B (per the article's spec, simple workflow)",
+    "hosting": "Self-hosted on a rented GPU (~$2.50/hour for an A100) or a static-file host for the HTML itself (no backend needed)",
+    "compilation_inputs": [
+      "200-600 conversations from generate.py walking the flowchart (per the article's spec)",
+      "The 15-prompt question pool as the scenario_variables vocabulary",
+      "The localStorage schema as the persistence contract",
+      "The 9 warnings as the discipline rules for fine-tuning",
+      "The 11 held-out criteria as the eval-set scoring rubric"
+    ],
+    "compilation_blockers": [
+      "Andre has not lived with the prototype for 7+ days yet (Coder's recommendation)",
+      "No signal on which questions land vs which feel performative",
+      "Forgetting rules are under-specified (Scribe flagged this in mavis-as-companion.md)",
+      "The .md export workflow is not yet designed (would be the v0.2 node)"
+    ],
+    "recompile_cycle": "30-50 minutes per the article's spec, when the question pool changes or the warnings array is refined"
+  }
+}

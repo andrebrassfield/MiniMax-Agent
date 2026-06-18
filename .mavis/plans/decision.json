@@ -1,0 +1,8 @@
+{
+  "last_cycle": [
+    { "task_id": "integration-design", "verdict": "accept", "reason": "Synthesis passed adversarial verification — 17 spot-checks PASS, depth contract fully met, recommendation 'redirect' follows from upstream briefs, no new card kind or new daemon introduced. Cosmetic deltas (size claim, line citation off by 4) are not blocking." }
+  ],
+  "next_cycle": [],
+  "plan_complete": true,
+  "message_to_user": "All four tasks accepted. Plan complete."
+}

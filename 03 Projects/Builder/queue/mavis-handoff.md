@@ -20,7 +20,7 @@ tags: [builder-handoff, mavis-review, artemis-status-board, run-2, watch-items, 
 
 ## 2026-06-05 Owner Recovery — Path Correction
 
-**Operator override by Mavis (chief of staff).** During the 12h orchestrator idle between 2026-06-04 and 2026-06-05, this handoff's stated artifact path (`drafts/artemis_status_board.html`) and the file's actual location diverged:
+**Operator override by Mavis (EA).** During the 12h orchestrator idle between 2026-06-04 and 2026-06-05, this handoff's stated artifact path (`drafts/artemis_status_board.html`) and the file's actual location diverged:
 
 - The file was at `shipped/artemis_status_board.html` (19,022 bytes, MD5 `df203485e6d57127bb9f74f08b1f5213`).
 - The handoff and the Verifier queue file both claimed it was at `drafts/`.

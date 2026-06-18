@@ -1,0 +1,12 @@
+{
+  "id": "src-2026-06-04-033",
+  "captured_at": "2026-06-04T01:37:00-05:00",
+  "source_lane": "dev_tooling",
+  "url": "https://developer.mozilla.org/en-US/docs/Web/API/Web_Animations_API",
+  "type": "primary",
+  "fetch_method": "websearch",
+  "raw_excerpt": "MDN: Web Animations API. The framework underneath all of CSS animations, scroll-driven animations, and View Transitions. Element.animate() method, Animation interface, KeyframeEffect, AnimationTimeline, DocumentTimeline. Provides the JS-level control over animations that mirror the CSS @keyframes + animation properties. Trust 0.95.",
+  "raw_full_path": "raw/dev_tooling/2026-06-04/20260604-013700-src-033-mdn-web-animations-api.json",
+  "content_hash": "sha256:mdn_web_animations_api_2026_06_04",
+  "extracted_finding_ids": ["fnd-2026-06-04-064"]
+}

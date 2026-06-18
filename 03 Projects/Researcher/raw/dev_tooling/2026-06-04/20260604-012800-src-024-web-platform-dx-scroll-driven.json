@@ -1,0 +1,12 @@
+{
+  "id": "src-2026-06-04-024",
+  "captured_at": "2026-06-04T01:28:00-05:00",
+  "source_lane": "dev_tooling",
+  "url": "https://github.com/web-platform-dx/web-features/blob/main/features/scroll-driven-animations.yml.dist",
+  "type": "primary",
+  "fetch_method": "websearch",
+  "raw_excerpt": "web-platform-dx features registry (Chrome Status). scroll-driven-animations.yml feature status: 'baseline: false. support: chrome: 115.' Confirms the Chrome 115+ baseline, with Firefox and Safari support via the feature status tracker. Independent confirmation of the baseline claim from MDN/Chrome DevRel.",
+  "raw_full_path": "raw/dev_tooling/2026-06-04/20260604-012800-src-024-web-platform-dx-scroll-driven.json",
+  "content_hash": "sha256:web_platform_dx_scroll_2026_06_04",
+  "extracted_finding_ids": ["fnd-2026-06-04-047"]
+}

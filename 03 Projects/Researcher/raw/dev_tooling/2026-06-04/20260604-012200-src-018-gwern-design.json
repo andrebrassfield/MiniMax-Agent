@@ -1,0 +1,12 @@
+{
+  "id": "src-2026-06-04-018",
+  "captured_at": "2026-06-04T01:22:00-05:00",
+  "source_lane": "dev_tooling",
+  "url": "https://gwern.net/design",
+  "type": "primary",
+  "fetch_method": "webfetch",
+  "raw_excerpt": "Gwern.net 'Design Of This Website' (modified 2023-04-20). 'Gwern.net is implemented as a static website compiled via Hakyll from Pandoc Markdown and hosted on a dedicated server.' 4 design principles: aesthetically-pleasing minimalism, accessibility/progressive-enhancement, speed, and 'a semantic zoom approach to hypertext use.' 'Semantic zoom' = progressive disclosure as the reader requests more. 'JavaScript is not required for the core reading experience, only for (mostly) optional features: popups & transclusions, table-sorting, sidenotes.' Inspirations: English Wikipedia, Project Xanadu, Tufte, Robert Bringhurst, Christopher Alexander, Susan Kare, Donald Knuth, Markdeep, Andy Matuschak's evergreen notes, Dieter Rams, Jakob Nielsen. 'Festina lente: speed is the 2nd-most important feature after correctness.' Tufte influence: 'the 4 design principles, well, my god it's the first paragraph here that I always want to point people to.'",
+  "raw_full_path": "raw/dev_tooling/2026-06-04/20260604-012200-src-018-gwern-design.json",
+  "content_hash": "sha256:gwern_design_2026_06_04",
+  "extracted_finding_ids": ["fnd-2026-06-04-032", "fnd-2026-06-04-033", "fnd-2026-06-04-034"]
+}

@@ -150,7 +150,7 @@ The user is almost certainly running through Hermes Agent or a similar multi-age
 
 **Reliability:** Authoritative (Hermes's own docs, last built 2026). **Confidence:** high on the existence and behavior of these primitives.
 
-**Judgment:** the chief-of-staff-level wins for the user are:
+**Judgment:** the EA-level wins for the user are:
 1. Audit every Hermes session: is the system prompt + tool list stable enough to cache hit? If not, the biggest single win is prefix discipline.
 2. Replace serial multi-step flows with `delegate_task` parallel flows where possible. The main session gets *summaries* back, not full transcripts.
 3. Set a session memory size cap and enforce it. Memory bloat is the slow poison.

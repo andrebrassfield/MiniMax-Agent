@@ -4,7 +4,7 @@ status: APPROVED
 approved_at: 2026-06-07 12:55 CT
 approved_by: Andre
 created: 2026-06-07 12:46 CT
-author: Mavis (chief-of-staff) — synthesized from Mavis-native Researcher ledger
+author: Mavis (EA) — synthesized from Mavis-native Researcher ledger
 for: Andre
 model: M3
 related_plans: [plan_cbc0bb0b (cancelled, ledger preserved)]
@@ -135,12 +135,12 @@ Mavis's three-component harness (command_router, context_loader, scaffolding_rev
 
 **Inputs:** raw user text + (optionally) recent-turn context for disambiguation.
 **Outputs:** classified intent + payload + confidence score.
-**Execution lanes:** `capture` (write to inbox/notes), `synthesize` (chief-of-staff synthesis), `dispatch` (file-based handoff to a worker queue), `observe` (read-only inspection), `ask-first` (route back to user with a clarifying question).
+**Execution lanes:** `capture` (write to inbox/notes), `synthesize` (EA synthesis), `dispatch` (file-based handoff to a worker queue), `observe` (read-only inspection), `ask-first` (route back to user with a clarifying question).
 **Failure modes:**
 - Ambiguous match (L2 + L3 disagree) → default to ask-first with the two candidates shown
 - Never-match → ask-first
 - Over-match (regex fires for unintended input) → strict ordering of L1 rules; rule order is reviewable in the scaffolding_review cron
-- The dispatch lane routes to a *file-based handoff* (queue/decision.md), not a worker-spawn. The Mavis-vs-Hermes boundary (Mavis may peek, may not manage) means command_router never directly spawns a worker; it writes a routing note (clm-2026-06-07-009).
+- The dispatch lane routes to a *file-based handoff* (queue/decision.md), not a worker-spawn. command_router never directly spawns a worker; it writes a routing note that a Mavis-side worker picks up on the next poll (clm-2026-06-07-009). Dispatch is fully internal to Mavis's team — no cross-agent routing.
 
 **Model routing (Local-Compute Pivot, 2026-06-07 14:18 CT; revised 2026-06-07 15:04 CT — 12B as L3):** L1 is regex (no model, unchanged). L2 is local Ollama `gemma4:e4b-it-qat` (fast edge-tier). L3 is local Ollama `gemma4:12b-it-qat` (logic-tier, QAT). Mavis (the chief) reads L2/L3 outputs and orchestrates the dispatch lane — but the inference itself never leaves the local machine. See Section 4.0 for the full routing table and rationale.
 
@@ -190,7 +190,7 @@ Mavis's three-component harness (command_router, context_loader, scaffolding_rev
 
 **Desktop app presence vs chat-surface simplicity — Mavis is both, but the mode-switching rule matters.** Mode-switching: if the user is in the chat surface, Mavis is in chat-mode (text I/O, command_router). If the user is in a desktop app context (menu bar, file action), Mavis is in desktop-mode (computer use, file I/O, on-device state). The transition rule: Mavis defaults to chat-mode unless the request originates from a desktop context (right-click on a file → "ask Mavis" → desktop-mode for that request). This is a design decision, not a hard conflict, but it needs to be explicit.
 
-**Mavis-vs-Hermes boundary in the dispatch lane.** command_router's "dispatch" lane writes to a file-based handoff (queue/decision.md), not a worker-spawn. This is structurally sound (clm-2026-06-07-009) and locks the harness's interface surface. The trade-off: dispatch latency is bounded by the file-system roundtrip + the dispatcher's poll interval, not by direct spawning. For a chief-of-staff pattern where the user is waiting for a response, this is acceptable (file-writes are sub-10ms; the dispatcher polls every 1-5s).
+**Dispatch lane (internal to Mavis's team).** command_router's "dispatch" lane writes to a file-based handoff (queue/decision.md), not a worker-spawn. This is structurally sound (clm-2026-06-07-009) and locks the harness's interface surface. The trade-off: dispatch latency is bounded by the file-system roundtrip + the dispatcher's poll interval, not by direct spawning. For an EA pattern where the user is waiting for a response, this is acceptable (file-writes are sub-10ms; the dispatcher polls every 1-5s). The dispatch lane is purely internal to Mavis's own team under the 2026-06-16 ABSOLUTE SEPARATION rule — no cross-agent routing.
 
 ## 6. Open questions for Andre
 

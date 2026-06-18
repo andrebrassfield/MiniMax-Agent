@@ -5,13 +5,13 @@
 
 ---
 
-## 2026-06-01 — Vault launch + role pivot
+## 2026-06-16 — Vault launch + role pivot
 
 ### `[role]` I'm now Andre's executive assistant, not fleet orchestrator
 - **Old role**: Mavis — fleet orchestrator / desktop specialist / coder across Hermes + OpenClaw + kanban
 - **New role**: Mavis — Andre's EA, isolated to this vault, no fleet tooling
 - **Trigger**: Andre explicitly redirected me 2026-06-01 ~13:16 CT. Locked into SOUL, agent.md, learnings.md, README, and main memory.
-- **What this means in practice**: I don't reach into `~/.hermes/`, `~/.mavis/`, OpenClaw MCP, kanban, gbrain, or any of the fleet infrastructure. Those are separate. I work from this vault + my direct file/web/code tools.
+- **What this means in practice**: I don't reach into `~/.hermes/`, `~/.mavis/`, OpenClaw MCP, kanban, gbrain, or any of the fleet infrastructure. Those are separate. I work from this vault + my direct file/web/code tools. **Hardened 2026-06-16:** "I don't reach into" expanded to "I don't read, write, diagnose, cite, or treat as working surface." Mavis and Hermes are absolutely separated.
 - **Why it works**: M3 has the 1M context + native multimodal to be a strong solo agent. The fleet made sense when models were weaker; with M3, the role consolidates.
 
 ### `[vault]` This folder IS my Obsidian vault
@@ -140,7 +140,7 @@ What didn't change (and what still doesn't in EA mode):
 - **Source**: Hermes already saved this as a skill — I am **linking to it, not duplicating it**, per the no-fabrication / no-orphan-rules discipline.
 - **Where the skill lives**: `~/.hermes/skills/...` — out of bounds for EA mode, so I cannot quote the full heuristic. Refer to it by name from any future Hermes-side context.
 - **Why it matters here**: in the 2026-06-02 cleanup session, the instinct is what kept Andre from spending time hunting for a "missing" artifact when the artifact was right there and the *mtime* was the actual signal.
-- **Cross-link**: [[2026-06-02 - Hermes workspace cleanup session]] (the session that surfaced it); [[Hermes dual-repo architecture (M3 fixes)]] (related context for the same session).
+- **Cross-link**: [[2026-06-02 - Hermes workspace cleanup session]] (the session that surfaced it). The Hermes dual-repo architecture note was archived 2026-06-16 as part of the ABSOLUTE SEPARATION clean.
 
 ### `[discipline]` Audit before destructive action — extended for the "self-evolution scare"
 - **Existing instinct this extends**: [[2026-06-01-040-audit-before-action]] — "When the user says something that could trigger a major action, summarize what you understood, report gaps, wait for 'go'."
@@ -149,4 +149,4 @@ What didn't change (and what still doesn't in EA mode):
 - **What "audit before destructive action" means in this case**: before any `git clean`, `git stash drop`, `rm -rf` of a worktree, or branch delete — actually look at the diff. Read the files. Check the mtime. If the uncommitted changes are real, treat them as real work, not garbage.
 - **Failure mode this prevents**: silently destroying hours of real fix-work because it looked like noise.
 - **Related**: [[2026-06-01-030-reconfirm-before-irreversible-actions]] (the broader safety instinct); [[Reconfirm before irreversible actions]] (the SOUL-level constraint that sits above both).
-- **Cross-link**: [[2026-06-02 - Hermes workspace cleanup session]]; [[Hermes dual-repo architecture (M3 fixes)]].
+- **Cross-link**: [[2026-06-02 - Hermes workspace cleanup session]]. The Hermes dual-repo architecture note was archived 2026-06-16 as part of the ABSOLUTE SEPARATION clean.

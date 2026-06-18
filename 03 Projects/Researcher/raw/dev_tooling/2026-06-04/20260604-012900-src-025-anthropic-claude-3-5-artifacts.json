@@ -1,0 +1,12 @@
+{
+  "id": "src-2026-06-04-025",
+  "captured_at": "2026-06-04T01:29:00-05:00",
+  "source_lane": "dev_tooling",
+  "url": "https://www.anthropic.com/news/claude-3-5-sonnet",
+  "type": "primary",
+  "fetch_method": "webfetch",
+  "raw_excerpt": "Anthropic: 'Introducing Claude 3.5 Sonnet' (Jun 21, 2024). Claude 3.5 Sonnet GA. 'We're also introducing Artifacts on Claude.ai, a new feature that expands how users can interact with Claude. When a user asks Claude to generate content like code snippets, text documents, or website designs, these Artifacts appear in a dedicated window alongside their conversation. This creates a dynamic workspace where they can see, edit, and build upon Claude's creations in real-time, seamlessly integrating AI-generated content into their projects and workflows. This preview feature marks Claude's evolution from a conversational AI to a collaborative work environment. It's just the beginning of a broader vision for Claude.ai, which will soon expand to support team collaboration.' Cost: $3/M input, $15/M output, 200K context. ASL-2 safety. Made generally available Aug 28, 2024.",
+  "raw_full_path": "raw/dev_tooling/2026-06-04/20260604-012900-src-025-anthropic-claude-3-5-artifacts.json",
+  "content_hash": "sha256:anthropic_claude_3_5_artifacts_2026_06_04",
+  "extracted_finding_ids": ["fnd-2026-06-04-048", "fnd-2026-06-04-049", "fnd-2026-06-04-050"]
+}

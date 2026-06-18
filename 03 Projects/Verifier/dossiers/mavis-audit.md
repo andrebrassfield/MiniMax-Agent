@@ -4,7 +4,7 @@
 
 ## Why this agent is audited
 
-Mavis is Andre's chief of staff. She synthesizes the Researcher's dossiers into `06 Connections/`, briefs Andre, and routes work across the fleet. A chief of staff who smudges — confident prose without source, or connections built on unverified claims — poisons every downstream decision.
+Mavis is Andre's EA. She synthesizes the Researcher's dossiers into `06 Connections/`, briefs Andre, and routes work across the fleet. An EA who smudges — confident prose without source, or connections built on unverified claims — poisons every downstream decision.
 
 ## What Mavis does well
 *Populated by AUDIT — observed chain-compliance, source-citation discipline, briefing quality.*

@@ -1,0 +1,12 @@
+{
+  "id": "src-2026-06-04-021",
+  "captured_at": "2026-06-04T01:25:00-05:00",
+  "source_lane": "dev_tooling",
+  "url": "https://webkit.org/blog/16547/better-typography-with-text-wrap-pretty/",
+  "type": "primary",
+  "fetch_method": "websearch",
+  "raw_excerpt": "WebKit blog: 'Better typography with text-wrap pretty' (2025). 'Basically, the text-wrap: balance rule tells the browser to wrap in such places to make every line be about the same length as the others.' WebKit implementation of text-wrap: pretty for avoiding orphans. Independent implementation confirming the cross-browser support pattern (Chrome 117+, Safari/WebKit, Firefox 121+).",
+  "raw_full_path": "raw/dev_tooling/2026-06-04/20260604-012500-src-021-webkit-text-wrap-pretty.json",
+  "content_hash": "sha256:webkit_text_wrap_pretty_2026_06_04",
+  "extracted_finding_ids": ["fnd-2026-06-04-040"]
+}

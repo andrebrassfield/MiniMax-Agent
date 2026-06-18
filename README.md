@@ -24,7 +24,7 @@ This is **Mavis's home** — Andre's executive assistant, running on MiniMax-M3,
 | `04 Resources/` | Reference material, organized by topic. |
 | `05 Archive/` | Completed / obsolete (nothing deleted). |
 | `06 Connections/` | **Synthesized insights** from 2+ notes. Populated by `weekly-connections` workflow. |
-| `07 Vellum/` | **Intelligence layer**: `workflows/`, `eval-logs/`, `weekly-context/`. |
+| `07 Vellum/` | **Intelligence layer (legacy)**: `eval-logs/`, `weekly-context/`. `workflows/` archived 2026-06-17 — see `99 _system/skills/` for the active EA skill library. |
 | `99 _system/` | Templates, dashboards, scripts, meta. |
 
 ## Vault at a glance
@@ -36,7 +36,7 @@ Mavis's vault = /Users/brassfieldventuresllc/MiniMax-Agent
   ├─ Knowledge: 02 Notes (_MOCs/ + articles/ + ideas/ + patterns/ + questions/ + numbers/)
   ├─ Action:    03 Projects, 06 Connections
   ├─ Long-term: 04 Resources, 05 Archive
-  ├─ AI:        07 Vellum (workflows/, eval-logs/, weekly-context/)
+  ├─ AI:        07 Vellum (eval-logs/, weekly-context/ — workflows/ archived 2026-06-17, active EA skills at 99 _system/skills/)
   └─ Meta:      99 _system (templates/, dashboards/, scripts/)
   └─ Backup:    git@github.com:andrebrassfield/MiniMax-Agent.git
 ```
@@ -49,9 +49,20 @@ The 2026-06-01 refactor adopted the CHIEF + Vellum pattern from the source artic
 
 The most important file in the system. It is the **VELLUM.md equivalent**: the context file Mavis reads first on every session. It contains: who I am, what I'm working on, what Andre is reading/thinking, what Andre wants from me, open questions, hard constraints, and the live vault structure. **Update cadence: Monday morning, 5 minutes.** Stale context = stale output.
 
-### 2. `07 Vellum/workflows/` — 4 saved prompts, called by trigger phrase
+### 2. `07 Vellum/workflows/` — 4 saved prompts (ARCHIVED 2026-06-17)
 
-| Workflow | Trigger | What it does |
+These 4 workflows were the precursor to the current EA skill library. As of 2026-06-17, the active spec lives at `~/.mavis/agents/mavis/skills/ea-*/` (canonical) and `99 _system/skills/ea-*/` (vault mirror). The 4 archived files are kept in `07 Vellum/Archive/` for historical reference.
+
+| Archived workflow | Active replacement |
+|-------------------|---------------------|
+| `process-inbox` | `ea-decision-logger` + `ea-research-brief` workflow chain |
+| `daily-brief` | `ea-daily-brief` |
+| `weekly-connections` | `ea-weekly-connections` |
+| `deep-research [topic]` | `ea-research-brief` |
+
+**Historical reference (kept verbatim for the audit trail):**
+
+| Workflow | Trigger | What it does (historical) |
 |----------|---------|--------------|
 | `process-inbox` | "process my inbox" / "morning processing" | Moves raw captures from `00 Inbox/` to the right typed subfolder in `02 Notes/`, sharpening them. |
 | `daily-brief` | "give me my daily brief" | Surfaces 3 connections + 1 pattern + 1 question from the last 7 days. On-demand (6am cron held per hard constraint). |
@@ -108,7 +119,7 @@ git log --oneline    # recent commits
 
 > 1M context via MSA sparse attention, native image+video/audio input, drives a desktop, frontier coding, open-weight. **Built to hold an entire second brain in working memory.**
 
-Full capability breakdown in `learnings.md`. The chief-of-staff pattern requires M3 + MAVIS.md together — see the first `06 Connections/` note for why.
+Full capability breakdown in `learnings.md`. The EA pattern requires M3 + MAVIS.md together — see the first `06 Connections/` note for why.
 
 ---
 

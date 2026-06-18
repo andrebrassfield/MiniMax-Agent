@@ -1,0 +1,442 @@
+From 859ddb5c6bdb0ce4b5fa821754e3f22618d3daa5 Mon Sep 17 00:00:00 2001
+From: Hermes Agent <hermes@brassfield.ai>
+Date: Sat, 6 Jun 2026 10:14:21 -0500
+Subject: [PATCH 11/11] feat(langgraph): MiddlewareRegistry class + tests
+
+Decorator-based hook registry for before_agent, wrap_model_call,
+before_tools, after_tools. Includes apply_to_graph() for StateGraph
+builders and HermesMiddleware adapter.
+---
+ agent/langgraph/__init__.py              |  20 +++
+ agent/langgraph/middleware.py            | 190 ++++++++++++++++++++++-
+ tests/agent/langgraph/test_middleware.py | 178 +++++++++++++++++++++
+ 3 files changed, 387 insertions(+), 1 deletion(-)
+ create mode 100644 tests/agent/langgraph/test_middleware.py
+
+diff --git a/agent/langgraph/__init__.py b/agent/langgraph/__init__.py
+index 049aac759..50950b78c 100644
+--- a/agent/langgraph/__init__.py
++++ b/agent/langgraph/__init__.py
+@@ -4,8 +4,28 @@ Provides checkpointing, graph construction, HITL, time-travel, and
+ budget/middleware primitives for LangGraph-based agent workflows.
+ """
+ 
++from agent.langgraph.budget import DollarBudget, DollarBudgetExceeded, GraphBudget, GraphBudgetExceeded
+ from agent.langgraph.checkpointer import HermesPostgresSaver
++from agent.langgraph.hitl import (
++    HITLInterrupt,
++    approve_command,
++    parse_resume_value,
++    reject_command,
++)
++from agent.langgraph.middleware import HermesMiddleware, MiddlewareRegistry
++from agent.langgraph.time_travel import TimeTravelController
+ 
+ __all__ = [
++    "DollarBudget",
++    "DollarBudgetExceeded",
++    "GraphBudget",
++    "GraphBudgetExceeded",
++    "HermesMiddleware",
+     "HermesPostgresSaver",
++    "HITLInterrupt",
++    "MiddlewareRegistry",
++    "TimeTravelController",
++    "approve_command",
++    "parse_resume_value",
++    "reject_command",
+ ]
+diff --git a/agent/langgraph/middleware.py b/agent/langgraph/middleware.py
+index 30cd852e9..f6b890dc3 100644
+--- a/agent/langgraph/middleware.py
++++ b/agent/langgraph/middleware.py
+@@ -2,9 +2,18 @@
+ 
+ Provides lifecycle hooks (pre-node, post-node, pre-graph, post-graph)
+ that integrate with Hermes logging, budget, and telemetry.
++
++Also exposes a decorator-based :class:`MiddlewareRegistry` that can be
++applied to every node in a ``StateGraph`` builder.
+ """
+ 
+-from typing import Any
++from __future__ import annotations
++
++import functools
++import logging
++from typing import Any, Callable
++
++logger = logging.getLogger(__name__)
+ 
+ 
+ class HermesMiddleware:
+@@ -63,3 +72,182 @@ class HermesMiddleware:
+             Potentially modified state.
+         """
+         return state
++
++
++class MiddlewareRegistry:
++    """Decorator-based hook registry for LangGraph nodes.
++
++    Register hooks with ``@registry.before_agent``, ``@registry.wrap_model_call``,
++    ``@registry.before_tools``, or ``@registry.after_tools``.  Then apply
++    them to a ``StateGraph`` builder with ``registry.apply_to_graph(builder)``.
++
++    Example::
++
++        registry = MiddlewareRegistry()
++
++        @registry.before_tools
++        def log_tools(state, tool_name, tool_args):
++            logger.info("About to call %s", tool_name)
++            return state
++
++        @registry.wrap_model_call
++        def track_model(state, model_name, usage):
++            ...
++            return state
++
++        builder = StateGraph(State)
++        ...
++        registry.apply_to_graph(builder)
++        graph = builder.compile()
++    """
++
++    def __init__(self) -> None:
++        self._before_agent: list[Callable[[dict[str, Any]], dict[str, Any]]] = []
++        self._wrap_model_call: list[
++            Callable[[dict[str, Any], str, Any], dict[str, Any]]
++        ] = []
++        self._before_tools: list[
++            Callable[[dict[str, Any], str, Any], dict[str, Any]]
++        ] = []
++        self._after_tools: list[
++            Callable[[dict[str, Any], str, Any, Any], dict[str, Any]]
++        ] = []
++
++    # ------------------------------------------------------------------
++    # Decorators
++    # ------------------------------------------------------------------
++
++    def before_agent(
++        self, fn: Callable[[dict[str, Any]], dict[str, Any]]
++    ) -> Callable[[dict[str, Any]], dict[str, Any]]:
++        """Register a hook that runs before the agent node."""
++        self._before_agent.append(fn)
++        return fn
++
++    def wrap_model_call(
++        self,
++        fn: Callable[[dict[str, Any], str, Any], dict[str, Any]],
++    ) -> Callable[[dict[str, Any], str, Any], dict[str, Any]]:
++        """Register a hook that wraps around the LLM model call.
++
++        Signature: ``fn(state, model_name, usage_estimate) -> state``
++        """
++        self._wrap_model_call.append(fn)
++        return fn
++
++    def before_tools(
++        self,
++        fn: Callable[[dict[str, Any], str, Any], dict[str, Any]],
++    ) -> Callable[[dict[str, Any], str, Any], dict[str, Any]]:
++        """Register a hook that runs before each tool call.
++
++        Signature: ``fn(state, tool_name, tool_args) -> state``
++        """
++        self._before_tools.append(fn)
++        return fn
++
++    def after_tools(
++        self,
++        fn: Callable[[dict[str, Any], str, Any, Any], dict[str, Any]],
++    ) -> Callable[[dict[str, Any], str, Any, Any], dict[str, Any]]:
++        """Register a hook that runs after each tool call.
++
++        Signature: ``fn(state, tool_name, tool_args, tool_result) -> state``
++        """
++        self._after_tools.append(fn)
++        return fn
++
++    # ------------------------------------------------------------------
++    # Application
++    # ------------------------------------------------------------------
++
++    def apply_to_graph(self, builder: Any) -> None:
++        """Wrap every node in the ``StateGraph`` builder with all registered hooks.
++
++        This mutates the builder in-place by replacing each node's callable
++        with a wrapped version that invokes the hook chain.
++        """
++        # LangGraph exposes nodes via builder.nodes (dict[str, Any])
++        nodes: dict[str, Any] = getattr(builder, "nodes", {})
++        for node_name, node_spec in nodes.items():
++            original: Callable[[dict[str, Any]], dict[str, Any]] = getattr(
++                node_spec, "bound", node_spec
++            )
++            wrapped = self._wrap_node(node_name, original)
++            # Replace the bound callable on the node spec
++            if hasattr(node_spec, "bound"):
++                node_spec.bound = wrapped  # type: ignore[attr-defined]
++            else:
++                # If the builder allows dict replacement, update it directly.
++                # Some StateGraph versions store nodes as dict values.
++                nodes[node_name] = wrapped
++
++    def _wrap_node(
++        self, node_name: str, node_fn: Callable[[dict[str, Any]], dict[str, Any]]
++    ) -> Callable[[dict[str, Any]], dict[str, Any]]:
++        """Wrap a single node with the before_agent / after_tools chain."""
++
++        @functools.wraps(node_fn)
++        def _wrapped(state: dict[str, Any]) -> dict[str, Any]:
++            # before_agent
++            for hook in self._before_agent:
++                state = hook(state)
++
++            # Run the node
++            result = node_fn(state)
++            if result is None:
++                result = {}
++
++            # after_tools (applied to the result state as well)
++            for hook in self._after_tools:
++                result = hook(result, node_name, {}, None)
++
++            return result
++
++        return _wrapped
++
++    def wrap_node(
++        self, node_name: str, node_fn: Callable[[dict[str, Any]], dict[str, Any]]
++    ) -> Callable[[dict[str, Any]], dict[str, Any]]:
++        """Manually wrap a single node function (for one-off use)."""
++        return self._wrap_node(node_name, node_fn)
++
++    def wrap_model_call_fn(
++        self,
++        model_fn: Callable[[dict[str, Any], str, Any], Any],
++    ) -> Callable[[dict[str, Any], str, Any], Any]:
++        """Wrap a model-calling function with all ``wrap_model_call`` hooks."""
++
++        @functools.wraps(model_fn)
++        def _wrapped(state: dict[str, Any], model_name: str, usage: Any) -> Any:
++            for hook in self._wrap_model_call:
++                state = hook(state, model_name, usage)
++            return model_fn(state, model_name, usage)
++
++        return _wrapped
++
++    def wrap_tool_call_fn(
++        self,
++        tool_fn: Callable[..., Any],
++        tool_name: str,
++    ) -> Callable[..., Any]:
++        """Wrap a tool-calling function with ``before_tools`` / ``after_tools``."""
++
++        @functools.wraps(tool_fn)
++        def _wrapped(*args: Any, **kwargs: Any) -> Any:
++            # before_tools
++            state = kwargs.get("state", {})
++            for hook in self._before_tools:
++                state = hook(state, tool_name, {"args": args, "kwargs": kwargs})
++            kwargs["state"] = state
++
++            result = tool_fn(*args, **kwargs)
++
++            # after_tools
++            for hook in self._after_tools:
++                state = hook(state, tool_name, {"args": args, "kwargs": kwargs}, result)
++            kwargs["state"] = state
++
++            return result
++
++        return _wrapped
+diff --git a/tests/agent/langgraph/test_middleware.py b/tests/agent/langgraph/test_middleware.py
+new file mode 100644
+index 000000000..5641c6025
+--- /dev/null
++++ b/tests/agent/langgraph/test_middleware.py
+@@ -0,0 +1,178 @@
++"""Tests for agent.langgraph.middleware."""
++
++from __future__ import annotations
++
++from typing import Any
++from unittest.mock import MagicMock
++
++import pytest
++
++from agent.langgraph.middleware import HermesMiddleware, MiddlewareRegistry
++
++
++# ---------------------------------------------------------------------------
++# HermesMiddleware
++# ---------------------------------------------------------------------------
++
++class TestHermesMiddleware:
++    def test_before_node_returns_state(self) -> None:
++        mw = HermesMiddleware()
++        state = {"foo": "bar"}
++        assert mw.before_node("node_a", state) == state
++
++    def test_after_node_returns_state(self) -> None:
++        mw = HermesMiddleware()
++        state = {"foo": "bar"}
++        assert mw.after_node("node_a", state) == state
++
++    def test_before_graph_returns_state(self) -> None:
++        mw = HermesMiddleware()
++        state = {"foo": "bar"}
++        assert mw.before_graph(state) == state
++
++    def test_after_graph_returns_state(self) -> None:
++        mw = HermesMiddleware()
++        state = {"foo": "bar"}
++        assert mw.after_graph(state) == state
++
++
++# ---------------------------------------------------------------------------
++# MiddlewareRegistry
++# ---------------------------------------------------------------------------
++
++class TestMiddlewareRegistry:
++    def test_before_agent_decorator(self) -> None:
++        registry = MiddlewareRegistry()
++
++        @registry.before_agent
++        def add_flag(state: dict[str, Any]) -> dict[str, Any]:
++            state["flag"] = True
++            return state
++
++        assert len(registry._before_agent) == 1
++
++    def test_wrap_model_call_decorator(self) -> None:
++        registry = MiddlewareRegistry()
++
++        @registry.wrap_model_call
++        def track_model(state: dict[str, Any], model_name: str, usage: Any) -> dict[str, Any]:
++            state["model"] = model_name
++            return state
++
++        assert len(registry._wrap_model_call) == 1
++
++    def test_before_tools_decorator(self) -> None:
++        registry = MiddlewareRegistry()
++
++        @registry.before_tools
++        def log_tool(state: dict[str, Any], tool_name: str, tool_args: Any) -> dict[str, Any]:
++            state["last_tool"] = tool_name
++            return state
++
++        assert len(registry._before_tools) == 1
++
++    def test_after_tools_decorator(self) -> None:
++        registry = MiddlewareRegistry()
++
++        @registry.after_tools
++        def record_result(
++            state: dict[str, Any],
++            tool_name: str,
++            tool_args: Any,
++            tool_result: Any,
++        ) -> dict[str, Any]:
++            state["last_result"] = tool_result
++            return state
++
++        assert len(registry._after_tools) == 1
++
++    def test_wrap_node_applies_before_agent(self) -> None:
++        registry = MiddlewareRegistry()
++
++        @registry.before_agent
++        def add_flag(state: dict[str, Any]) -> dict[str, Any]:
++            state["flag"] = True
++            return state
++
++        def _node(state: dict[str, Any]) -> dict[str, Any]:
++            # Realistic node: returns the (possibly modified) state
++            return state
++
++        wrapped = registry.wrap_node("test_node", _node)
++        result = wrapped({})
++        assert result["flag"] is True
++
++    def test_wrap_node_applies_after_tools(self) -> None:
++        registry = MiddlewareRegistry()
++
++        @registry.after_tools
++        def record_result(
++            state: dict[str, Any],
++            tool_name: str,
++            tool_args: Any,
++            tool_result: Any,
++        ) -> dict[str, Any]:
++            state["after"] = True
++            return state
++
++        def _node(state: dict[str, Any]) -> dict[str, Any]:
++            return {"original": "value"}
++
++        wrapped = registry.wrap_node("test_node", _node)
++        result = wrapped({})
++        assert result["after"] is True
++
++    def test_apply_to_graph(self) -> None:
++        registry = MiddlewareRegistry()
++
++        @registry.before_agent
++        def add_flag(state: dict[str, Any]) -> dict[str, Any]:
++            state["flag"] = True
++            return state
++
++        builder = MagicMock()
++        original_a = MagicMock()
++        original_b = MagicMock()
++        node_a = MagicMock(bound=original_a)
++        node_b = MagicMock(bound=original_b)
++        builder.nodes = {"node_a": node_a, "node_b": node_b}
++
++        registry.apply_to_graph(builder)
++
++        # Both nodes should have been wrapped with new callables
++        assert callable(node_a.bound)
++        assert callable(node_b.bound)
++        assert node_a.bound is not original_a
++        assert node_b.bound is not original_b
++
++    def test_wrap_model_call_fn(self) -> None:
++        registry = MiddlewareRegistry()
++
++        @registry.wrap_model_call
++        def track_model(state: dict[str, Any], model_name: str, usage: Any) -> dict[str, Any]:
++            state["model"] = model_name
++            return state
++
++        def _model_fn(state: dict[str, Any], model_name: str, usage: Any) -> dict[str, Any]:
++            # Realistic model call: returns the (possibly modified) state
++            return state
++
++        wrapped = registry.wrap_model_call_fn(_model_fn)
++        result = wrapped({}, "gpt-4o", None)
++        assert result["model"] == "gpt-4o"
++
++    def test_wrap_tool_call_fn(self) -> None:
++        registry = MiddlewareRegistry()
++
++        @registry.before_tools
++        def log_tool(state: dict[str, Any], tool_name: str, tool_args: Any) -> dict[str, Any]:
++            state["last_tool"] = tool_name
++            return state
++
++        def _tool_fn(state: dict[str, Any]) -> str:
++            return "tool_result"
++
++        wrapped = registry.wrap_tool_call_fn(_tool_fn, "test_tool")
++        result = wrapped(state={"x": 1})
++        assert result == "tool_result"
++
+-- 
+2.54.0
+

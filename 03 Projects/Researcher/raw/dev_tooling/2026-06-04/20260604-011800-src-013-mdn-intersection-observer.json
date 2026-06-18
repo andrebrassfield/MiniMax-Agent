@@ -1,0 +1,12 @@
+{
+  "id": "src-2026-06-04-013",
+  "captured_at": "2026-06-04T01:18:00-05:00",
+  "source_lane": "dev_tooling",
+  "url": "https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API",
+  "type": "primary",
+  "fetch_method": "webfetch",
+  "raw_excerpt": "MDN: Intersection Observer API. 'Baseline Widely available. This feature is well established and works across many devices and browser versions. It's been available across browsers since March 2019.' 'The Intersection Observer API provides a way to asynchronously observe changes in the intersection of a target element with an ancestor element or with a top-level document's viewport.' Options: root (default null = viewport), rootMargin (CSS-style margins), scrollMargin (margins around nested scroll containers), threshold (number or array of intersection ratios 0.0-1.0, default 0), delay (min ms between notifications when trackVisibility is true, min 100), trackVisibility (boolean). IntersectionObserverEntry has boundingClientRect, intersectionRatio, intersectionRect, isIntersecting, rootBounds, target, time. 'Be aware that your callback is executed on the main thread. It should operate as quickly as possible.' Page last modified 2026-01-12.",
+  "raw_full_path": "raw/dev_tooling/2026-06-04/20260604-011800-src-013-mdn-intersection-observer.json",
+  "content_hash": "sha256:mdn_intersection_observer_2026_06_04",
+  "extracted_finding_ids": ["fnd-2026-06-04-026", "fnd-2026-06-04-027", "fnd-2026-06-04-028"]
+}

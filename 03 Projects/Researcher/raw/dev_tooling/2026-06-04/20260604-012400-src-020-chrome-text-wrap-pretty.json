@@ -1,0 +1,12 @@
+{
+  "id": "src-2026-06-04-020",
+  "captured_at": "2026-06-04T01:24:00-05:00",
+  "source_lane": "dev_tooling",
+  "url": "https://developer.chrome.com/blog/css-text-wrap-pretty",
+  "type": "primary",
+  "fetch_method": "websearch",
+  "raw_excerpt": "Chrome for Developers: 'CSS text-wrap: pretty' blog. 'text-wrap: pretty is for generally better line wrapping and text breaking, currently focused on orphans. In the future, text-wrap: pretty may offer more behavior.' Distinction: 'text-wrap: balance' is for headings and short blocks; 'text-wrap: pretty' is for paragraphs to avoid orphans on the last line. Available in Chrome 117+, WebKit/Safari. Part of the Baseline 2024 entry.",
+  "raw_full_path": "raw/dev_tooling/2026-06-04/20260604-012400-src-020-chrome-text-wrap-pretty.json",
+  "content_hash": "sha256:chrome_text_wrap_pretty_2026_06_04",
+  "extracted_finding_ids": ["fnd-2026-06-04-038", "fnd-2026-06-04-039"]
+}

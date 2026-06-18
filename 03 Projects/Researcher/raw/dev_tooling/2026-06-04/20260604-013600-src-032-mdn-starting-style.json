@@ -1,0 +1,12 @@
+{
+  "id": "src-2026-06-04-032",
+  "captured_at": "2026-06-04T01:36:00-05:00",
+  "source_lane": "dev_tooling",
+  "url": "https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/@starting-style",
+  "type": "primary",
+  "fetch_method": "websearch",
+  "raw_excerpt": "MDN: @starting-style CSS at-rule. Defines starting values for properties set on an element that you want to transition from when the element is first rendered. Required for elements that animate in (including from display: none). Now in Baseline (2024). Caveat: @starting-style rules must be placed AFTER the post-entry state declarations (as of Chrome 130). For v1, the @starting-style API is overkill — we can use plain @keyframes + animation-delay for first paint and IntersectionObserver for scroll-into-view.",
+  "raw_full_path": "raw/dev_tooling/2026-06-04/20260604-013600-src-032-mdn-starting-style.json",
+  "content_hash": "sha256:mdn_starting_style_2026_06_04",
+  "extracted_finding_ids": ["fnd-2026-06-04-063"]
+}

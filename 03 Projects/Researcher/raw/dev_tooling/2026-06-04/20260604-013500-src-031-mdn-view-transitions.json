@@ -1,0 +1,12 @@
+{
+  "id": "src-2026-06-04-031",
+  "captured_at": "2026-06-04T01:35:00-05:00",
+  "source_lane": "dev_tooling",
+  "url": "https://developer.mozilla.org/en-US/docs/Web/API/View_Transition_API",
+  "type": "primary",
+  "fetch_method": "websearch",
+  "raw_excerpt": "MDN: View Transition API. Same-document view transitions supported in Chrome 111+. Cross-document view transitions supported in Chrome 126+. Pattern: document.startViewTransition(() => { DOM mutation }). API captures old and new states as pseudo-elements ::view-transition, ::view-transition-group, ::view-transition-image-pair, ::view-transition-old, ::view-transition-new. view-transition-name is a CSS property that names a snapshot target. Currently cross-document transitions require opt-in via @view-transition rule in both source and destination documents. Limited Firefox support (same-document only as of mid-2024). Defer to v2 — v1 is one long page, not navigation between pages.",
+  "raw_full_path": "raw/dev_tooling/2026-06-04/20260604-013500-src-031-mdn-view-transitions.json",
+  "content_hash": "sha256:mdn_view_transitions_2026_06_04",
+  "extracted_finding_ids": ["fnd-2026-06-04-061", "fnd-2026-06-04-062"]
+}

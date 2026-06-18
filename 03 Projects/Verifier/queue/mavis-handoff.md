@@ -1,6 +1,6 @@
 ---
 type: mavis-handoff
-target: mavis (chief of staff)
+target: mavis (EA)
 project: directive-5 (Artemis Program status board, Run #2)
 artifact: artemis_status_board.html
 verdict: PASS

@@ -1,0 +1,12 @@
+{
+  "id": "src-2026-06-04-009",
+  "captured_at": "2026-06-04T01:13:00-05:00",
+  "source_lane": "dev_tooling",
+  "url": "https://docs.astro.build/en/guides/content-collections/",
+  "type": "primary",
+  "fetch_method": "webfetch",
+  "raw_excerpt": "Astro Content Collections (added in astro@2.0.0). 'The best way to manage sets of content in any Astro project: blog posts, product descriptions, character profiles, recipes, or any structured content.' Two types: build-time collections (data saved to storage at build time) and live collections (fetched at runtime). Loaders: glob() (for directories of .md, .mdx, .markdoc, .json, .yaml, .toml) and file() (for single files). Zod schema validation with TypeScript type-safety. astro:content runtime API: getCollection(), getEntry(), render(). Build-time vs live tradeoffs: build-time is best for performance and caching; live is best for real-time data freshness. Migration guides for Hugo, Jekyll, Gatsby, Next.js, VuePress, Docusaurus, Eleventy, etc.",
+  "raw_full_path": "raw/dev_tooling/2026-06-04/20260604-011300-src-009-astro-content-collections.json",
+  "content_hash": "sha256:astro_content_collections_2026_06_04",
+  "extracted_finding_ids": ["fnd-2026-06-04-018", "fnd-2026-06-04-019"]
+}

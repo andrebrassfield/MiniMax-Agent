@@ -1,0 +1,592 @@
+diff --git a/agent/agent_init.py b/agent/agent_init.py
+index 675130a88..4a7535ea0 100644
+--- a/agent/agent_init.py
++++ b/agent/agent_init.py
+@@ -1652,6 +1652,15 @@ def init_agent(
+             "is_anthropic_oauth": agent._is_anthropic_oauth,
+         })
+ 
++    # ── Cost router (disabled by default) ──
++    # Load once at init; the router is called per-turn in conversation_loop.
++    try:
++        from agent.cost_routing import load_cost_router
++        agent._cost_router = load_cost_router()
++    except Exception:
++        _ra().logger.debug("Cost router init failed, using disabled router", exc_info=True)
++        from agent.cost_routing import CostRouter
++        agent._cost_router = CostRouter({})
+ 
+ 
+ __all__ = ["init_agent"]
+diff --git a/agent/auxiliary_client.py b/agent/auxiliary_client.py
+index 961e30313..142e6791a 100644
+--- a/agent/auxiliary_client.py
++++ b/agent/auxiliary_client.py
+@@ -3888,7 +3888,7 @@ def resolve_provider_client(
+         return (_to_async_client(client, final_model, is_vision=is_vision) if async_mode
+                 else (client, final_model))
+ 
+-    elif pconfig.auth_type in {"oauth_device_code", "oauth_external"}:
++    elif pconfig.auth_type in {"oauth_device_code", "oauth_external", "oauth", "oauth_minimax"}:
+         # OAuth providers — route through their specific try functions
+         if provider == "nous":
+             return resolve_provider_client("nous", model, async_mode)
+@@ -3896,6 +3896,63 @@ def resolve_provider_client(
+             return resolve_provider_client("openai-codex", model, async_mode)
+         if provider == "xai-oauth":
+             return resolve_provider_client("xai-oauth", model, async_mode)
++        # `minimax-oauth` stores an access_token (+ refresh_token) embedded
++        # in auth.json providers.minimax-oauth. The access_token itself is
++        # a valid api_key against https://api.minimax.io/anthropic (the
++        # OpenAI-compatible path used by every other provider in this
++        # function), so build the client the same way the api_key branch
++        # does. The auth.json refresh flow (auto-refresh on stale token)
++        # lives in hermes_cli.auth.resolve_minimax_oauth_runtime_credentials;
++        # asking for `as_token_provider=True` returns a per-request
++        # callable so a single auxiliary client survives MiniMax's
++        # short-lived access tokens without re-construction.
++        if provider == "minimax-oauth":
++            try:
++                from hermes_cli.auth import (
++                    resolve_minimax_oauth_runtime_credentials,
++                )
++                creds = resolve_minimax_oauth_runtime_credentials(
++                    as_token_provider=True
++                )
++            except Exception as exc:  # noqa: BLE001
++                logger.warning(
++                    "resolve_provider_client: minimax-oauth credentials "
++                    "unresolvable (%s); run `hermes model` and select "
++                    "MiniMax (OAuth) to re-authenticate.",
++                    exc,
++                )
++                return None, None
++            access_token = creds.get("api_key")
++            if not access_token:
++                logger.warning(
++                    "resolve_provider_client: minimax-oauth returned no api_key"
++                )
++                return None, None
++            raw_base_url = str(creds.get("base_url", "")).strip().rstrip("/") \
++                or "https://api.minimax.io/anthropic"
++            base_url = _to_openai_base_url(raw_base_url)
++            if explicit_base_url:
++                base_url = _to_openai_base_url(
++                    explicit_base_url.strip().rstrip("/")
++                )
++            default_model = _get_aux_model_for_provider(provider)
++            final_model = _normalize_resolved_model(
++                model or default_model or "MiniMax-M2.7", provider
++            )
++            if final_model is None:
++                final_model = "MiniMax-M2.7"
++            # If the resolver returned a per-request callable, use it as
++            # a bearer hook (the OpenAI client supports a callable via
++            # the `api_key` parameter that re-reads each call). A static
++            # string works too — both paths produce a valid client.
++            client = OpenAI(api_key=access_token, base_url=base_url)
++            logger.debug(
++                "resolve_provider_client: minimax-oauth (%s)", final_model
++            )
++            return (
++                (_to_async_client(client, final_model, is_vision=is_vision)
++                 if async_mode else (client, final_model))
++            )
+         # Other OAuth providers not directly supported
+         logger.warning("resolve_provider_client: OAuth provider %s not "
+                        "directly supported, try 'auto'", provider)
+diff --git a/agent/conversation_loop.py b/agent/conversation_loop.py
+index 0cc842285..91e035b31 100644
+--- a/agent/conversation_loop.py
++++ b/agent/conversation_loop.py
+@@ -416,6 +416,10 @@ def run_conversation(
+     # No-op when _fallback_activated is False (gateway, first turn, etc.).
+     agent._restore_primary_runtime()
+ 
++    # Cost routing (disabled by default): resolve the effective model
++    # for this turn based on the user message difficulty.
++    _cost_routing_override = agent._apply_cost_routing(user_message, conversation_history)
++
+     # Sanitize surrogate characters from user input.  Clipboard paste from
+     # rich-text editors (Google Docs, Word, etc.) can inject lone surrogates
+     # that are invalid UTF-8 and crash JSON serialization in the OpenAI SDK.
+@@ -4829,6 +4833,9 @@ def run_conversation(
+     except Exception as exc:
+         logger.warning("on_session_end hook failed: %s", exc)
+ 
++    # Restore any cost-routing override so the next turn starts clean.
++    agent._restore_cost_routing()
++
+     return result
+ 
+ 
+diff --git a/agent/prompt_builder.py b/agent/prompt_builder.py
+index ef0393f2f..67d4785e3 100644
+--- a/agent/prompt_builder.py
++++ b/agent/prompt_builder.py
+@@ -263,6 +263,20 @@ TOOL_USE_ENFORCEMENT_GUIDANCE = (
+     "without acting are not acceptable."
+ )
+ 
++# Parallel tool call guidance — injected for all models that support parallel tool calls.
++# This is universal (not model-family-specific) because the underlying execution engine
++# already runs independent tool calls concurrently via ThreadPoolExecutor.
++PARALLEL_TOOL_CALL_GUIDANCE = (
++    "# Parallel tool calls\n"
++    "When you need to perform multiple independent operations in a single turn, "
++    "make ALL the tool calls in ONE response rather than sequentially. Examples:\n"
++    "- Reading several unrelated files → call read_file for all of them together\n"
++    "- Running multiple independent searches → call search_files/web_search together\n"
++    "- Checking system state across different dimensions → call them together\n"
++    "Only serialize when calls have dependencies (output of A is input to B) or "
++    "they target the same mutable resource (same file path, same process)."
++)
++
+ # Model name substrings that trigger tool-use enforcement guidance.
+ # Add new patterns here when a model family needs explicit steering.
+ TOOL_USE_ENFORCEMENT_MODELS = ("gpt", "codex", "gemini", "gemma", "grok", "glm", "qwen", "deepseek")
+diff --git a/agent/system_prompt.py b/agent/system_prompt.py
+index 559b66f48..fb8a9dbc3 100644
+--- a/agent/system_prompt.py
++++ b/agent/system_prompt.py
+@@ -33,6 +33,7 @@ from agent.prompt_builder import (
+     KANBAN_GUIDANCE,
+     MEMORY_GUIDANCE,
+     OPENAI_MODEL_EXECUTION_GUIDANCE,
++    PARALLEL_TOOL_CALL_GUIDANCE,
+     PLATFORM_HINTS,
+     SESSION_SEARCH_GUIDANCE,
+     SKILLS_GUIDANCE,
+@@ -163,7 +164,16 @@ def build_system_prompt_parts(agent: Any, system_message: Optional[str] = None)
+             _inject = any(p in model_lower for p in TOOL_USE_ENFORCEMENT_MODELS)
+         if _inject:
+             stable_parts.append(TOOL_USE_ENFORCEMENT_GUIDANCE)
++            # Universal parallel tool call guidance — the execution engine already
++            # runs independent calls concurrently via ThreadPoolExecutor. This
++            # steers models that support parallel tool calls to actually use them.
++            # All major modern families (Claude, GPT, Gemini, Grok, Qwen, DeepSeek)
++            # support parallel tool calls; we inject for the same set as
++            # TOOL_USE_ENFORCEMENT_MODELS minus models known to ignore it.
+             _model_lower = (agent.model or "").lower()
++            _parallel_capable = any(p in _model_lower for p in TOOL_USE_ENFORCEMENT_MODELS)
++            if _parallel_capable:
++                stable_parts.append(PARALLEL_TOOL_CALL_GUIDANCE)
+             # Google model operational guidance (conciseness, absolute
+             # paths, parallel tool calls, verify-before-edit, etc.)
+             if "gemini" in _model_lower or "gemma" in _model_lower:
+diff --git a/cron/scheduler.py b/cron/scheduler.py
+index 91671b46e..71ffba2da 100644
+--- a/cron/scheduler.py
++++ b/cron/scheduler.py
+@@ -1071,8 +1071,9 @@ def _build_job_prompt(job: dict, prerun_script: Optional[tuple] = None) -> str:
+                 if not output_files:
+                     continue  # silent skip — no output yet
+                 latest_output = output_files[0].read_text(encoding="utf-8").strip()
+-                # Truncate to 8K characters to avoid prompt bloat
+-                _MAX_CONTEXT_CHARS = 8000
++                # Truncate to avoid prompt bloat — increased from 8K to 32K
++                # for cron jobs that need more context (watchdog reports, etc.)
++                _MAX_CONTEXT_CHARS = 32000
+                 if len(latest_output) > _MAX_CONTEXT_CHARS:
+                     latest_output = latest_output[:_MAX_CONTEXT_CHARS] + "\n\n[... output truncated ...]"
+                 if latest_output:
+diff --git a/hermes_cli/config.py b/hermes_cli/config.py
+index 447d5dc85..35fc3ef57 100644
+--- a/hermes_cli/config.py
++++ b/hermes_cli/config.py
+@@ -1383,6 +1383,101 @@ DEFAULT_CONFIG = {
+         "copy_shortcut": "auto",  # "auto" (platform default) | "ctrl_c" | "ctrl_shift_c" | "disabled"
+     },
+ 
++    # Cost-based model routing — route requests by estimated difficulty to the
++    # cheapest capable model. This is the "cost discipline" pillar: never pay
++    # Opus rates for work Haiku can handle.
++    #
++    # Tiers are evaluated top-to-bottom; the first whose difficulty heuristic
++    # matches the request wins. If no tier matches, the main model (config.yaml
++    # model) is used. Heuristics are simple keyword/pattern checks on the
++    # user message and conversation history — no LLM call is spent classifying.
++    #
++    # Each tier maps to a provider+model+optional_base_url. The agent swaps
++    # the model for that turn only (not the session default). All pricing
++    # metadata is read from agent/usage_pricing.py for burn-calculation.
++    "cost_routing": {
++        "enabled": False,
++        # Maximum estimated USD per turn before hard-stopping with a warning.
++        # 0.0 = no limit. This is a safety rail, not a precise budget.
++        "burn_ceiling_usd": 0.0,
++        # Tiers in evaluation order (simplest first, fallback last).
++        "tiers": [
++            {
++                "name": "simple",
++                "description": "Simple lookups, single-file reads, trivial questions",
++                # Patterns that bump a request into this tier. All patterns are
++                # OR'd (any match triggers the tier). Empty list = never match.
++                "patterns": [
++                    "^read file",
++                    "^show me",
++                    "^what is",
++                    "^define",
++                    "^list",
++                    "^check (status|port|version)",
++                ],
++                "model": "claude-haiku-4-5",
++                "provider": "anthropic",
++                "base_url": "",
++                "api_key": "",
++                # Optional: cap max_tokens for this tier to keep costs bounded.
++                "max_tokens": 4096,
++            },
++            {
++                "name": "medium",
++                "description": "Most coding tasks, multi-step reasoning, file edits",
++                "patterns": [
++                    "^implement",
++                    "^build",
++                    "^create",
++                    "^refactor",
++                    "^debug",
++                    "^test",
++                    "^fix",
++                    "^write",
++                    "^update",
++                    "^add",
++                    "^remove",
++                ],
++                # No model set here → falls through to the main model (Sonnet default).
++                "model": "",
++                "provider": "",
++                "base_url": "",
++                "api_key": "",
++                "max_tokens": None,
++            },
++            {
++                "name": "hard",
++                "description": "Complex reasoning, architecture decisions, deep debugging",
++                "patterns": [
++                    "^design",
++                    "^architecture",
++                    "^optimize",
++                    "^analyze",
++                    "^evaluate",
++                    "^compare",
++                    "^deep dive",
++                    "^complex",
++                    "^hard",
++                ],
++                "model": "claude-opus-4-6",
++                "provider": "anthropic",
++                "base_url": "",
++                "api_key": "",
++                "max_tokens": 8192,
++            },
++        ],
++        # Batch API routing: for non-real-time work (cron, background jobs,
++        # eval runs), route to the batch endpoint if the provider supports it.
++        # Currently only OpenAI batch API is supported (50% discount).
++        "batch": {
++            "enabled": False,
++            "provider": "openai",
++            "model": "gpt-4.1",
++            "base_url": "",
++            "api_key": "",
++        },
++    },
++
+     # Web dashboard settings
+     "dashboard": {
+         "theme": "default",  # Dashboard visual theme: "default", "midnight", "ember", "mono", "cyberpunk", "rose"
+diff --git a/hermes_cli/kanban_db.py b/hermes_cli/kanban_db.py
+index e5dd5d770..7b7d9f021 100644
+--- a/hermes_cli/kanban_db.py
++++ b/hermes_cli/kanban_db.py
+@@ -2048,6 +2048,7 @@ def create_task(
+     initial_status: str = "running",
+     session_id: Optional[str] = None,
+     board: Optional[str] = None,
++    params: Optional[dict] = None,
+ ) -> str:
+     """Create a new task and optionally link it under parent tasks.
+ 
+@@ -2072,6 +2073,32 @@ def create_task(
+     ``kanban-worker``. Use this to pin a task to a specialist skill
+     (e.g. ``skills=["translation"]`` so the worker loads the
+     translation skill regardless of the profile's default config).
++
++    ``params`` is an optional ``{name: value}`` mapping applied as
++    ``${name}`` substitutions to both ``title`` and ``body`` before
++    they are written.  Substitutions use ``string.Template`` semantics:
++
++    - ``${name}`` is replaced by ``str(params[name])``
++    - ``$name`` (no braces) is also replaced, matching shell-style
++      single-letter vars; longer ``$identifier`` is left literal
++    - ``$$`` is replaced by a single ``$`` (literal escape)
++    - **Missing keys raise ``ValueError``** (strict mode, NOT
++      ``safe_substitute``) — a workflow that references
++      ``${dataset_name}`` but is dispatched without
++      ``params={"dataset_name": ...}`` fails loudly at creation
++      time, not silently at worker spawn time when the placeholder
++      would have been lost in the body.
++    - ``params`` values are coerced via ``str()``; nested dicts/lists
++      render as their ``repr``-ish Python ``str()`` form (e.g. a list
++      becomes ``"['a', 'b']"``).  For richer rendering, callers
++      should pre-format the value into a string before passing it.
++
++    Substitution is applied AFTER all other validation (title
++    non-empty, workspace_kind valid, etc.) so a bad params value
++    surfaces as a clean ``ValueError`` from ``Template.substitute``,
++    not as a confusing downstream error.  Substitution is applied
++    BEFORE the idempotency check so the body content written to the
++    DB is the post-interpolation body, not the template.
+     """
+     assignee = _canonical_assignee(assignee)
+     if not title or not title.strip():
+@@ -2091,6 +2118,46 @@ def create_task(
+         raise ValueError("branch_name is only valid for worktree workspaces")
+     parents = tuple(p for p in parents if p)
+ 
++    # --- ${var} interpolation ----------------------------------------
++    # Apply before the idempotency check so the on-disk body is the
++    # resolved form.  Strict substitution: a missing key in params
++    # raises ValueError pointing at the first unresolved placeholder,
++    # which is much friendlier than a silent half-rendered body that
++    # the worker would discover only at spawn time.
++    if params is not None:
++        from string import Template
++
++        if not isinstance(params, dict):
++            raise ValueError(
++                f"params must be a dict, got {type(params).__name__}"
++            )
++        # Stringify all values once.  Keys must be strings (Template
++        # already requires this, but we check explicitly so the error
++        # message names the offending key type).
++        str_params: dict[str, str] = {}
++        for k, v in params.items():
++            if not isinstance(k, str):
++                raise ValueError(
++                    f"params keys must be strings, got "
++                    f"{type(k).__name__} for key {k!r}"
++                )
++            str_params[k] = str(v)
++        try:
++            title = Template(title).substitute(str_params)
++        except (KeyError, ValueError) as exc:
++            raise ValueError(
++                f"params interpolation failed for title: {exc} "
++                f"(params keys: {sorted(str_params)})"
++            ) from exc
++        if body is not None:
++            try:
++                body = Template(body).substitute(str_params)
++            except (KeyError, ValueError) as exc:
++                raise ValueError(
++                    f"params interpolation failed for body: {exc} "
++                    f"(params keys: {sorted(str_params)})"
++                ) from exc
++
+     # Normalise + validate skills: strip whitespace, drop empties, dedupe
+     # (preserving order). Refuse commas inside a single name so we don't
+     # invisibly splatter a comma-joined string into one argv slot — the
+diff --git a/hermes_cli/main.py b/hermes_cli/main.py
+index 57dbaaf7c..0faef2805 100644
+--- a/hermes_cli/main.py
++++ b/hermes_cli/main.py
+@@ -331,7 +331,10 @@ def _apply_profile_override() -> None:
+     if profile_name is not None and consume == 2:
+         import re as _re
+ 
+-        if not _re.match(r"^[a-z0-9][a-z0-9_-]{0,63}$", profile_name):
++        # Allow namespaced profile ids (e.g. "specialist.extractor", "verifier.gateway")
++        # — the registry schema in registry-schema.json permits a single dot-separated
++        # namespace segment, so the CLI pre-parse has to match.
++        if not _re.match(r"^[a-z0-9][a-z0-9_-]{0,63}(\.[a-z0-9][a-z0-9_-]{0,63})?$", profile_name):
+             profile_name = None
+             consume = 0
+ 
+diff --git a/run_agent.py b/run_agent.py
+index d0d029343..5ab6dd505 100644
+--- a/run_agent.py
++++ b/run_agent.py
+@@ -3925,7 +3925,68 @@ class AIAgent:
+     def _restore_primary_runtime(self) -> bool:
+         """Forwarder — see ``agent.agent_runtime_helpers.restore_primary_runtime``."""
+         from agent.agent_runtime_helpers import restore_primary_runtime
+-        return restore_primary_runtime(self)
++        _restored = restore_primary_runtime(self)
++        # Also restore any cost-routing override from the previous turn.
++        self._restore_cost_routing()
++        return _restored
++
++    def _apply_cost_routing(self, user_message: str, conversation_history: List[Dict[str, Any]] = None) -> Dict[str, Any]:
++        """Resolve cost routing for this turn and return override dict.
++
++        If the cost router is disabled or no tier matches, returns {}.
++        The caller is responsible for restoring the original runtime
++        after the turn (see `_restore_cost_routing`).
++        """
++        router = getattr(self, "_cost_router", None)
++        if router is None:
++            self._cost_routing_override = {}
++            return {}
++        _model, _provider, _base_url, _api_key, _max_tokens = router.resolve(
++            user_message,
++            conversation_history,
++            default_model=self.model,
++            default_provider=self.provider or "",
++            default_base_url=self.base_url or "",
++            default_api_key=getattr(self, "api_key", "") or "",
++        )
++        # If the router returned defaults, nothing to override
++        if _model == self.model and _provider == (self.provider or "") and _base_url == (self.base_url or ""):
++            self._cost_routing_override = {}
++            return {}
++        override = {
++            "model": self.model,
++            "provider": self.provider,
++            "base_url": self.base_url,
++            "api_key": getattr(self, "api_key", ""),
++            "client_kwargs": dict(self._client_kwargs),
++            "max_tokens": self.max_tokens,
++        }
++        # Apply the override
++        self.model = _model
++        if _provider:
++            self.provider = _provider
++        if _base_url:
++            self.base_url = _base_url
++        if _api_key:
++            self.api_key = _api_key
++            self._client_kwargs["api_key"] = _api_key
++        if _max_tokens is not None:
++            self.max_tokens = _max_tokens
++        self._cost_routing_override = override
++        return override
++
++    def _restore_cost_routing(self) -> None:
++        """Restore the original runtime after a cost-routed turn."""
++        override = getattr(self, "_cost_routing_override", None)
++        if not override:
++            return
++        self.model = override.get("model", self.model)
++        self.provider = override.get("provider", self.provider)
++        self.base_url = override.get("base_url", self.base_url)
++        self.api_key = override.get("api_key", self.api_key)
++        self._client_kwargs = override.get("client_kwargs", self._client_kwargs)
++        self.max_tokens = override.get("max_tokens", self.max_tokens)
++        self._cost_routing_override = {}
+ 
+     def _try_recover_primary_transport(
+         self, api_error: Exception, *, retry_count: int, max_retries: int,
+diff --git a/tests/hermes_cli/test_kanban_db.py b/tests/hermes_cli/test_kanban_db.py
+index 94295f2b6..b4ab24646 100644
+--- a/tests/hermes_cli/test_kanban_db.py
++++ b/tests/hermes_cli/test_kanban_db.py
+@@ -218,6 +218,107 @@ def test_create_task_unknown_parent_errors(kanban_home):
+         kb.create_task(conn, title="orphan", parents=["t_ghost"])
+ 
+ 
++# ---------------------------------------------------------------------------
++# params interpolation (${var} substitution into title + body)
++# ---------------------------------------------------------------------------
++
++
++def test_create_task_params_interpolates_title_and_body(kanban_home):
++    """params={...} applies ${var} substitution to title and body
++    before the row is inserted, so the persisted form is the resolved
++    form (not the template)."""
++    with kb.connect() as conn:
++        tid = kb.create_task(
++            conn,
++            title="Analyze ${dataset} for ${audience}",
++            body="Audience tier: ${audience}\nDataset: ${dataset}",
++            params={"dataset": "nwa_ok_route_telemetry_Q2.csv", "audience": "internal"},
++        )
++        t = kb.get_task(conn, tid)
++    assert t is not None
++    assert t.title == "Analyze nwa_ok_route_telemetry_Q2.csv for internal"
++    assert t.body == "Audience tier: internal\nDataset: nwa_ok_route_telemetry_Q2.csv"
++
++
++def test_create_task_params_interpolates_title_only_when_body_none(kanban_home):
++    """Body=None + params should not crash; title interpolates, body stays None."""
++    with kb.connect() as conn:
++        tid = kb.create_task(
++            conn,
++            title="Run on ${dataset}",
++            body=None,
++            params={"dataset": "Q2.csv"},
++        )
++        t = kb.get_task(conn, tid)
++    assert t is not None
++    assert t.title == "Run on Q2.csv"
++    assert t.body is None
++
++
++def test_create_task_params_no_placeholders_is_noop(kanban_home):
++    """params={...} with no ${var} in title/body is a valid no-op."""
++    with kb.connect() as conn:
++        tid = kb.create_task(
++            conn,
++            title="static title",
++            body="static body",
++            params={"unused": "value"},
++        )
++        t = kb.get_task(conn, tid)
++    assert t is not None
++    assert t.title == "static title"
++    assert t.body == "static body"
++
++
++def test_create_task_params_missing_key_raises(kanban_home):
++    """Strict substitution: a ${var} in body that isn't in params
++    must raise ValueError, not silently leave the placeholder literal."""
++    with kb.connect() as conn, pytest.raises(ValueError, match="params interpolation failed"):
++        kb.create_task(
++            conn,
++            title="x",
++            body="Audience: ${audience}",
++            params={"dataset": "Q2.csv"},  # 'audience' missing
++        )
++
++
++def test_create_task_params_none_is_backward_compatible(kanban_home):
++    """params=None (the default) must NOT change behaviour for any
++    existing caller that doesn't know about it."""
++    with kb.connect() as conn:
++        tid = kb.create_task(
++            conn,
++            title="Static ${literal} in body",
++            body="Audience: ${literal} dollar sign $$",
++        )
++        t = kb.get_task(conn, tid)
++    assert t is not None
++    # Template didn't run, so ${literal} stays literal in the body.
++    assert t.title == "Static ${literal} in body"
++    assert t.body is not None and "Audience: ${literal}" in t.body
++
++
++def test_create_task_params_must_be_dict(kanban_home):
++    """Non-dict params must raise ValueError, not crash downstream."""
++    with kb.connect() as conn, pytest.raises(ValueError, match="params must be a dict"):
++        kb.create_task(conn, title="x", params="not a dict")  # type: ignore[arg-type]
++
++
++def test_create_task_params_stringifies_values(kanban_home):
++    """Non-string param values are coerced via str() before substitution."""
++    with kb.connect() as conn:
++        tid = kb.create_task(
++            conn,
++            title="Score: ${score}",
++            body="Records: ${count}",
++            params={"score": 0.95, "count": 1234},
++        )
++        t = kb.get_task(conn, tid)
++    assert t is not None
++    assert t.title == "Score: 0.95"
++    assert t.body == "Records: 1234"
++
++
+ def test_workspace_kind_validation(kanban_home):
+     with kb.connect() as conn, pytest.raises(ValueError, match="workspace_kind"):
+         kb.create_task(conn, title="bad ws", workspace_kind="cloud")

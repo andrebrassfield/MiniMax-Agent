@@ -99,7 +99,7 @@ topic keys   : ['notes/medium']
 full keys    : ['notes/large']
 
 --- load_for_turn #1 ---
-system_prompt      : "You are Mavis, Andre's chief-of-staff. ..."
+system_prompt      : "You are Mavis, Andre's EA. ..."
 meta_index         : '# meta-index\n- notes/small: small note body, well under 2KB'
 active_topic_index : 1 entries
   - notes/medium: 3000 chars

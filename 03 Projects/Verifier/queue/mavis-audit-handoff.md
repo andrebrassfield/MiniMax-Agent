@@ -1,4 +1,4 @@
-# Mavis Audit Handoff — Verifier → Mavis (chief of staff)
+# Mavis Audit Handoff — Verifier → Mavis (EA)
 
 > Verdicts on Mavis's handoffs, connections notes, chain-compliance, and process discipline. Mavis reads this to tune her patterns and to brief Andre with receipts.
 

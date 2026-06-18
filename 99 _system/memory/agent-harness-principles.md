@@ -61,3 +61,18 @@ LLM = CPU. Context window = RAM. Vault/databases = disk. Tools = device drivers.
 Vault: `02 Notes/patterns/agent-harness.md` (project memory — full 12 components, 7 decisions, Von Neumann frame, scaffolding-removal discipline, future-proofing test, Mavis's current implementation status). This topic file is the *trigger* to consult that pattern note.
 
 Source article: Akash Pachaar, "The Anatomy of an Agent Harness," Apr 6. Digested in vault `02 Notes/articles/akash-pachaar-anatomy-of-an-agent-harness.md`.
+
+---
+
+## Cron as thin harness, prompt as fat skill (2026-06-16, derived from the X-Content-Engine auto-publish pattern)
+
+The four meta-principles apply to scheduled tasks:
+
+1. **Cron = thin harness.** A `mavis cron create` job is the harness. It has a schedule, a timezone, a session-mode, and a prompt. ~30 lines of config. The thinness is the point.
+2. **Cron prompt = fat skill.** The `--prompt` contains: self-contained data (the post text inline), procedure (Final Audit, browser automation, halt conditions), output schema (atomic write to brain), cleanup (`mavis cron delete`), failure handling (HALT and report, no auto-retry). The fatness is the point — this is where the value lives.
+3. **Cron tick = model loop.** Each tick creates a new Mavis session (session-mode `new`) that runs the prompt through the LLM with full tool access. The session has the same memory files, locked constraints, and skill mirrors as any other Mavis session.
+4. **The cron tick is the test, not the cron itself.** If the prompt is wrong, every tick fails the same way. If the prompt is right, every tick succeeds. The cron is a deterministic test harness around a non-deterministic LLM call.
+
+**Why this matters:** the X-Content-Engine auto-publish pivot (2026-06-16) was the canonical application. The cron for `post-1-v2-2026-06-16` is ~3,500 chars of prompt — fat. The cron config is ~150 chars — thin. The 3,500 chars encode the entire post-publish workflow: Final Audit, browser automation, brain update, file move, failure halts, cleanup. If the LLM is right, every post lands correctly. If the LLM is wrong, every post fails the same way (and the cron self-deletes only on success, so a failing post leaves the cron in place for inspection).
+
+**Cross-reference:** `orchestration-failure-modes.md` §7 for the X-Content-Engine case study. `tooling-gotchas.md` for the mavis cron syntax.

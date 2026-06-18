@@ -554,7 +554,7 @@ class MavisHarness:
                         "content": (
                             f"You are the {worker} worker in Mavis's fleet. "
                             "Be precise, concise, and cite your reasoning. "
-                            "Output is consumed by the Mavis chief-of-staff."
+                            "Output is consumed by the Mavis EA."
                         ),
                     },
                     {"role": "user", "content": task},

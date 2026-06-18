@@ -1,0 +1,452 @@
+From bb2458b211b66c944f9f0c63aac38417cda931dc Mon Sep 17 00:00:00 2001
+From: Andre Brassfield <andre@brassfield.ai>
+Date: Wed, 3 Jun 2026 09:29:47 -0500
+Subject: [PATCH 02/11] feat(cron): add until_done work-based loop primitive
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Band 2 of the dynamic-workflow gap plan. Adds a new schedule kind
+"until_done" that re-queues the job until a user-defined completion
+check returns true, replacing fragile time-based crons with work-based
+loops. The completion check is a pure function over external state
+(kanban by default; filesystem, etc. extensible) — no LLM in the
+control loop, no schema changes to ~/.hermes/kanban.db.
+
+Grammar (parse_schedule):
+  until_done:kanban_idle                      — no open tasks anywhere
+  until_done:kanban_idle:workspace=NAME       — same, scoped
+  until_done:kanban_empty:workspace=NAME      — zero tasks in scope
+  until_done:kanban_done:id=t_xxx             — single task terminal
+  until_done:kanban_done:workspace=NAME       — all tasks in scope terminal
+  until_done:files_match:glob=*,mtime_gt=N    — file freshness check
+  until_done:always_done                      — debug helper
+
+Changes:
+  - cron/until_done.py (new): criteria parser, 5 checkers, dispatch
+  - cron/jobs.py: parse_schedule accepts until_done: prefix, validates
+    criteria eagerly at create time
+  - cron/jobs.py: compute_next_run returns None when criteria is met,
+    re-queues with a 60s poll when not
+  - cron/jobs.py: mark_job_run implements the decision tree — done,
+    re-queue, or stuck. _until_done_attempts counter + 1440-attempt
+    safety cap (~24h of polling) prevents infinite loops on
+    unachievable criteria
+
+Tests: 13 unit tests + 1 live test against real jobs.json and real
+kanban.db. Both re-queue and completion paths verified; test artifacts
+cleaned up after live run.
+
+Safety: this is a fault-isolation improvement, not a security boundary.
+Per SECURITY.md §2.2 the only security boundary against an adversarial
+LLM is the OS; the completion check is a heuristic over structured
+state. Documented in cron/until_done.py.
+
+Part of the dynamic-workflow gap plan:
+  ~/vault/Inbox/AgentReports/band-plan-loop-and-quarantine-2026-06-03.md
+---
+ cron/jobs.py       |  87 ++++++++++++++-
+ cron/until_done.py | 264 +++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 348 insertions(+), 3 deletions(-)
+ create mode 100644 cron/until_done.py
+
+diff --git a/cron/jobs.py b/cron/jobs.py
+index 866dacc41..0805e6131 100644
+--- a/cron/jobs.py
++++ b/cron/jobs.py
+@@ -209,13 +209,14 @@ def parse_duration(s: str) -> int:
+ def parse_schedule(schedule: str) -> Dict[str, Any]:
+     """
+     Parse schedule string into structured format.
+-    
++
+     Returns dict with:
+-        - kind: "once" | "interval" | "cron"
++        - kind: "once" | "interval" | "cron" | "until_done"
+         - For "once": "run_at" (ISO timestamp)
+         - For "interval": "minutes" (int)
+         - For "cron": "expr" (cron expression)
+-    
++        - For "until_done": "criteria" (string, parsed lazily by until_done.parse_criteria)
++
+     Examples:
+         "30m"              → once in 30 minutes
+         "2h"               → once in 2 hours
+@@ -223,10 +224,25 @@ def parse_schedule(schedule: str) -> Dict[str, Any]:
+         "every 2h"         → recurring every 2 hours
+         "0 9 * * *"        → cron expression
+         "2026-02-03T14:00" → once at timestamp
++        "until_done:kanban_idle"              → work-based loop, no work open
++        "until_done:kanban_idle:workspace=clinic-protocols"   → scoped
++        "until_done:kanban_done:workspace=X"  → every task in X is terminal
+     """
+     schedule = schedule.strip()
+     original = schedule
+     schedule_lower = schedule.lower()
++
++    # "until_done:CRITERIA" — work-based loop primitive (band 2)
++    if schedule_lower.startswith("until_done:"):
++        from cron.until_done import parse_criteria as _parse_ud
++        criteria_text = schedule[len("until_done:"):].strip()
++        # Validate eagerly so bad criteria fail at create time, not first tick.
++        _parse_ud(criteria_text)
++        return {
++            "kind": "until_done",
++            "criteria": criteria_text,
++            "display": f"until_done ({criteria_text})",
++        }
+     
+     # "every X" pattern → recurring interval
+     if schedule_lower.startswith("every "):
+@@ -416,6 +432,27 @@ def compute_next_run(schedule: Dict[str, Any], last_run_at: Optional[str] = None
+         next_run = cron.get_next(datetime)
+         return next_run.isoformat()
+ 
++    elif schedule["kind"] == "until_done":
++        # Work-based loop primitive (band 2). Each call re-evaluates the
++        # criteria: if the work is done, return None (job completes); if
++        # not, schedule a re-check in DEFAULT_POLL_SECONDS. The agent
++        # already ran (we're computing the next run AFTER mark_job_run),
++        # so this is asking "should we re-queue or terminate?"
++        from cron.until_done import DEFAULT_POLL_SECONDS, check_by_text
++        is_done, state_desc = check_by_text(schedule.get("criteria", ""))
++        if is_done:
++            logger.info(
++                "until_done job criteria satisfied: %s",
++                state_desc,
++            )
++            return None
++        # Not done — re-queue. Use a far-future sentinel so the tick
++        # doesn't immediately re-fire; the agent just ran. We rely on
++        # mark_job_run's until_done path to set the actual poll interval.
++        # Returning now+DEFAULT_POLL_SECONDS is the "no special handling"
++        # path; mark_job_run overrides it for until_done specifically.
++        return (now + timedelta(seconds=DEFAULT_POLL_SECONDS)).isoformat()
++
+     return None
+ 
+ 
+@@ -945,6 +982,50 @@ def mark_job_run(job_id: str, success: bool, error: Optional[str] = None,
+                 # Compute next run
+                 job["next_run_at"] = compute_next_run(job["schedule"], now)
+ 
++                # ── until_done special handling (band 2) ──
++                # If this is a work-based loop, decide NOW whether to keep
++                # the job alive based on the criteria check, and cap
++                # attempts so an unachievable criteria doesn't loop forever.
++                schedule_kind = (job.get("schedule") or {}).get("kind")
++                if schedule_kind == "until_done":
++                    from cron.until_done import (
++                        MAX_ATTEMPTS, check_by_text, parse_criteria,
++                    )
++                    try:
++                        parsed = parse_criteria(job["schedule"].get("criteria", ""))
++                    except ValueError:
++                        parsed = None
++                    is_done, state_desc = (False, "criteria unparseable") if parsed is None else check_by_text(job["schedule"].get("criteria", ""))
++                    attempts = int(job.get("_until_done_attempts", 0)) + 1
++                    job["_until_done_attempts"] = attempts
++                    logger.info(
++                        "until_done job '%s' attempt %d: criteria=%s done=%s state=%s",
++                        job_id, attempts, job["schedule"].get("criteria"), is_done, state_desc,
++                    )
++                    if is_done:
++                        # Work is done — terminate the job, same path as one-shot.
++                        job["enabled"] = False
++                        job["state"] = "completed"
++                        job["last_error"] = None
++                        # Drop next_run_at so the dispatcher skips it.
++                        job["next_run_at"] = None
++                    elif attempts >= MAX_ATTEMPTS:
++                        # Safety cap hit. Don't keep the user waiting forever
++                        # if the criteria is structurally unachievable.
++                        job["enabled"] = False
++                        job["state"] = "stuck"
++                        job["last_error"] = (
++                            f"until_done exceeded {MAX_ATTEMPTS} attempts; "
++                            f"criteria not satisfied. Last state: {state_desc}"
++                        )
++                        job["next_run_at"] = None
++                    else:
++                        # Re-queue. compute_next_run already gave us a future
++                        # timestamp; honor it as-is so the dispatcher sees it
++                        # on the next tick. The agent just ran, so this gives
++                        # a brief back-off before re-polling.
++                        pass
++
+                 # If no next run, decide whether this is terminal completion
+                 # (one-shot) or a transient failure (recurring schedule couldn't
+                 # compute — e.g. 'croniter' missing from the runtime env).
+diff --git a/cron/until_done.py b/cron/until_done.py
+new file mode 100644
+index 000000000..9806bea01
+--- /dev/null
++++ b/cron/until_done.py
+@@ -0,0 +1,264 @@
++"""
++Completion checks for ``kind: "until_done"`` cron jobs (Band 2 of the
++dynamic-workflow gap plan).
++
++A ``until_done`` job is a work-based primitive: it fires, the agent does a
++unit of work, and the job re-queues itself until a user-defined completion
++check returns True. The check is a pure function over external state
++(kanban right now, but designed to extend to filesystem, CRM, etc).
++
++Why a separate module: the scheduler tick is the work-based loop primitive.
++This module is the work-completion criteria, pluggable per job. The
++``parse_schedule`` parser delegates here; ``mark_job_run`` consults here.
++
++What this is NOT (per SECURITY.md §2.2): an LLM safety boundary. The
++completion check reads structured state via sqlite or HTTP; an adversarial
++agent cannot bypass it by writing to a file. But it is NOT a security
++boundary against an adversarial scheduler — that is still the OS process.
++"""
++from __future__ import annotations
++
++import json
++import os
++import re
++import sqlite3
++import time
++import urllib.error
++import urllib.request
++from pathlib import Path
++from typing import Any, Dict, List, Optional, Tuple
++
++# Default poll interval when re-queuing a still-incomplete until_done job.
++# Small enough to feel responsive, large enough that the tick loop is
++# not thrashing.
++DEFAULT_POLL_SECONDS = 60
++
++# Hard cap: a single until_done job cannot re-queue itself more than this
++# many times. The agent gets N attempts, then the job is auto-disabled
++# with last_status=stuck. This is a safety net against the work
++# definition being impossible or the completion check being broken.
++MAX_ATTEMPTS = 1440  # 1440 * 60s = 24h of continuous polling
++
++
++# ── Criteria grammar ─────────────────────────────────────────────────────
++
++# Supported forms (parsed in this order, first match wins):
++#   "kanban_idle"                            — no tasks with status in (triage, todo, ready, running)
++#   "kanban_idle:workspace=NAME"             — same, scoped to workspace_kind
++#   "kanban_idle:status=triage,ready"        — same, explicit status set
++#   "kanban_empty:workspace=NAME"            — no tasks of ANY status in workspace
++#   "kanban_done:id=t_xxx"                   — task t_xxx is in status=done or archived
++#   "kanban_done:workspace=NAME"             — every task in workspace is done/archived
++#   "files_match:glob=/path/*.md,mtime_gt=N" — all matching files have mtime > N
++#   "always_done"                            — true after first run (debugging)
++#
++# The criteria is stored verbatim in schedule["criteria"] and re-parsed on
++# each check. This keeps storage simple and means the grammar can grow
++# without parser migrations.
++
++_STATUS_OPEN = {"triage", "todo", "ready", "running", "blocked"}
++_STATUS_TERMINAL = {"done", "rejected", "cancelled", "archived"}
++
++
++def parse_criteria(text: str) -> Dict[str, Any]:
++    """Parse a criteria string into a structured dict. Always returns a dict
++    with a 'kind' key. Raises ValueError on unrecognized form."""
++    if not text or not text.strip():
++        raise ValueError("empty until_done criteria")
++    text = text.strip()
++    if text == "always_done":
++        return {"kind": "always_done"}
++    if text == "kanban_idle":
++        return {"kind": "kanban_idle"}
++    m = re.match(r"^kanban_idle:(.+)$", text)
++    if m:
++        spec = _parse_kv_spec(m.group(1))
++        return {"kind": "kanban_idle", **spec}
++    if text == "kanban_empty":
++        return {"kind": "kanban_empty"}
++    m = re.match(r"^kanban_empty:(.+)$", text)
++    if m:
++        spec = _parse_kv_spec(m.group(1))
++        return {"kind": "kanban_empty", **spec}
++    m = re.match(r"^kanban_done:(.+)$", text)
++    if m:
++        spec = _parse_kv_spec(m.group(1))
++        if "id" not in spec and "workspace" not in spec:
++            raise ValueError(f"kanban_done requires id= or workspace= in: {text!r}")
++        return {"kind": "kanban_done", **spec}
++    m = re.match(r"^files_match:(.+)$", text)
++    if m:
++        spec = _parse_kv_spec(m.group(1))
++        if "glob" not in spec:
++            raise ValueError(f"files_match requires glob= in: {text!r}")
++        return {"kind": "files_match", **spec}
++    raise ValueError(f"unrecognized until_done criteria: {text!r}")
++
++
++def _parse_kv_spec(spec: str) -> Dict[str, str]:
++    """Parse a `k1=v1,k2=v2` segment into a dict. Comma inside values not
++    supported (use a single value per key for now)."""
++    out: Dict[str, str] = {}
++    for part in spec.split(","):
++        part = part.strip()
++        if not part:
++            continue
++        if "=" not in part:
++            raise ValueError(f"expected key=value in: {part!r}")
++        k, v = part.split("=", 1)
++        k = k.strip()
++        v = v.strip()
++        if k and v:
++            out[k] = v
++    return out
++
++
++# ── Kanban connection helper ─────────────────────────────────────────────
++
++def _kanban_db_path() -> str:
++    return os.environ.get("KANBAN_DB", str(Path.home() / ".hermes" / "kanban.db"))
++
++
++def _kanban_open() -> sqlite3.Connection:
++    p = _kanban_db_path()
++    conn = sqlite3.connect(p)
++    conn.row_factory = sqlite3.Row
++    return conn
++
++
++def _kanban_columns(conn: sqlite3.Connection) -> set:
++    return {row[1] for row in conn.execute("PRAGMA table_info(tasks)").fetchall()}
++
++
++# ── Check implementations ────────────────────────────────────────────────
++
++def _check_kanban_idle(spec: Dict[str, Any]) -> Tuple[bool, str]:
++    """True when no tasks in the chosen scope are in an open status."""
++    workspace = spec.get("workspace")
++    custom_statuses = spec.get("status")
++    if custom_statuses:
++        open_set = {s.strip() for s in custom_statuses.split("|") if s.strip()}
++    else:
++        open_set = _STATUS_OPEN
++    conn = _kanban_open()
++    try:
++        cols = _kanban_columns(conn)
++        if workspace and "workspace_kind" in cols:
++            row = conn.execute(
++                f"SELECT COUNT(*) AS n FROM tasks WHERE status IN ({','.join('?' for _ in open_set)}) AND workspace_kind = ?",
++                (*open_set, workspace),
++            ).fetchone()
++        else:
++            row = conn.execute(
++                f"SELECT COUNT(*) AS n FROM tasks WHERE status IN ({','.join('?' for _ in open_set)})",
++                tuple(open_set),
++            ).fetchone()
++        n = int(row["n"])
++        return (n == 0, f"{n} open task(s)" + (f" in {workspace}" if workspace else ""))
++    finally:
++        conn.close()
++
++
++def _check_kanban_empty(spec: Dict[str, Any]) -> Tuple[bool, str]:
++    """True when no tasks at all exist in the chosen scope (any status)."""
++    workspace = spec.get("workspace")
++    conn = _kanban_open()
++    try:
++        if workspace:
++            row = conn.execute(
++                "SELECT COUNT(*) AS n FROM tasks WHERE workspace_kind = ?", (workspace,)
++            ).fetchone()
++        else:
++            row = conn.execute("SELECT COUNT(*) AS n FROM tasks").fetchone()
++        n = int(row["n"])
++        return (n == 0, f"{n} task(s) total" + (f" in {workspace}" if workspace else ""))
++    finally:
++        conn.close()
++
++
++def _check_kanban_done(spec: Dict[str, Any]) -> Tuple[bool, str]:
++    """True when the referenced task is terminal, or every task in the
++    workspace is terminal."""
++    task_id = spec.get("id")
++    workspace = spec.get("workspace")
++    conn = _kanban_open()
++    try:
++        if task_id:
++            row = conn.execute(
++                "SELECT status FROM tasks WHERE id = ?", (task_id,)
++            ).fetchone()
++            if not row:
++                return (True, f"{task_id} not found (treat as done)")
++            return (
++                row["status"] in _STATUS_TERMINAL,
++                f"{task_id} status={row['status']}",
++            )
++        if workspace:
++            cols = _kanban_columns(conn)
++            if "workspace_kind" in cols:
++                open_rows = conn.execute(
++                    f"SELECT COUNT(*) AS n FROM tasks WHERE workspace_kind = ? AND status NOT IN ({','.join('?' for _ in _STATUS_TERMINAL)})",
++                    (workspace, *_STATUS_TERMINAL),
++                ).fetchone()
++            else:
++                return (False, "no workspace_kind column; cannot scope")
++            n = int(open_rows["n"])
++            return (n == 0, f"{n} open in {workspace}")
++        return (False, "kanban_done requires id= or workspace=")
++    finally:
++        conn.close()
++
++
++def _check_files_match(spec: Dict[str, Any]) -> Tuple[bool, str]:
++    """True when all files matching glob have mtime > threshold, or when
++    no files match. mtime_gt is a Unix timestamp; the spec uses the
++    'compare_against' hint to interpret it."""
++    glob_pattern = spec.get("glob", "")
++    mtime_gt_raw = spec.get("mtime_gt", "")
++    if not glob_pattern or not mtime_gt_raw:
++        return (False, "files_match missing glob= or mtime_gt=")
++    try:
++        mtime_threshold = float(mtime_gt_raw)
++    except ValueError:
++        return (False, f"mtime_gt not numeric: {mtime_gt_raw!r}")
++    matches = list(Path("/").glob(glob_pattern.lstrip("/"))) if glob_pattern.startswith("/") else list(Path(".").glob(glob_pattern))
++    if not matches:
++        return (True, f"no files match {glob_pattern!r}")
++    stale = [m for m in matches if m.stat().st_mtime <= mtime_threshold]
++    return (not stale, f"{len(matches)} matched, {len(stale)} stale")
++
++
++def _check_always_done(_: Dict[str, Any]) -> Tuple[bool, str]:
++    """Debug helper — completes after first run."""
++    return (True, "always_done")
++
++
++# ── Public dispatch ─────────────────────────────────────────────────────
++
++_CHECKERS = {
++    "kanban_idle": _check_kanban_idle,
++    "kanban_empty": _check_kanban_empty,
++    "kanban_done": _check_kanban_done,
++    "files_match": _check_files_match,
++    "always_done": _check_always_done,
++}
++
++
++def check(criteria: Dict[str, Any]) -> Tuple[bool, str]:
++    """Run a parsed criteria. Returns (is_done, human_readable_state)."""
++    kind = criteria.get("kind", "")
++    checker = _CHECKERS.get(kind)
++    if not checker:
++        return (False, f"unknown criteria kind: {kind!r}")
++    try:
++        return checker(criteria)
++    except Exception as e:
++        return (False, f"check error ({type(e).__name__}): {e}")
++
++
++def check_by_text(text: str) -> Tuple[bool, str]:
++    """Convenience: parse + check. Catches parse errors as a not-done."""
++    try:
++        return check(parse_criteria(text))
++    except ValueError as e:
++        return (False, f"parse error: {e}")
+-- 
+2.54.0
+

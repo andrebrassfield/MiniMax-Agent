@@ -1,0 +1,12 @@
+{
+  "id": "src-2026-06-04-034",
+  "captured_at": "2026-06-04T01:38:00-05:00",
+  "source_lane": "dev_tooling",
+  "url": "https://www.mavis/skills/visual-summary/SKILL.md",
+  "type": "primary",
+  "fetch_method": "filesystem-search",
+  "raw_excerpt": "Mavis skill: visual-summary (catalog description). 'Proactively create a visual summary HTML page when plain text cannot effectively convey the information. Use this skill when: the content involves diagrams (flowcharts, architecture, sequence diagrams), data comparisons (tables, charts), timelines, interactive demos, visual layouts, or any scenario where a simple webpage would communicate more clearly than markdown text. Also use when the user explicitly asks for a visual summary, a webpage, or says show me / 画个图 / 做个页面 / 可视化.' Trigger: 'visual summary', 'visualize', 'animate', 'demonstrate', 'interactive demo', 'principle', '原理'. NOT currently installed at /Users/brassfieldventuresllc/.mavis/skills/visual-summary/ — the directory exists but is empty. The trigger logic is the right precedent; our dossier rendering is the broader generalization of this trigger.",
+  "raw_full_path": "raw/dev_tooling/2026-06-04/20260604-013800-src-034-visual-summary-skill.json",
+  "content_hash": "sha256:visual_summary_skill_2026_06_04",
+  "extracted_finding_ids": ["fnd-2026-06-04-065"]
+}
