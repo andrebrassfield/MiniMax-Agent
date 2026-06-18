@@ -160,59 +160,6 @@ The full procedure with bash commands in
    file with a "decisions" section, not 4 separate
    files.
 
-
-## Destructive Operations Pre-Flight
-
-**Trigger:** When the captured decision involves an irreversible action — `delete`, `rm -rf`, `force push`, `reset --hard`, `drop database/table`, `truncate`, `override remote`, or any operation where a failure mode cannot be undone by re-running. This applies whether the action is filesystem-level, git-level, database-level, cloud-level, or system-level.
-
-Before writing the decision file, Mavis MUST execute a 3-step pre-flight checklist and document each step in the decision record's **Expected impact** field. **No destructive decision is logged without all 3 steps documented.**
-
-### Pre-Flight Checklist (mandatory, in order)
-
-**Step 1 — Timestamped tar snapshot of affected directories.** Run `tar` with an ISO-timestamped backup path so the snapshot is identifiable and reversible. The exact backup path MUST be recorded in the decision file's Expected impact field.
-
-```sh
-# Example
-tar czvf /Users/<user>/.backups/pre-<decision-slug>-<ISO-timestamp>.tar.gz \
-  <affected-path-1> <affected-path-2> ...
-```
-
-If the affected scope is git-tracked, additionally capture a `git rev-parse HEAD` for the affected repo as a complementary restore anchor.
-
-**Step 2 — Explicit command string dry-run review.** State the exact command(s) that will be executed when the decision is acted on — verbatim, not paraphrased. The dry-run is the act of presenting the command to Andre for explicit review, NOT executing it with a `--dry-run` flag. Andre's review is the gate.
-
-```
-# Example: rm -rf /Users/.../production/test-data
-# Example: git push --force-with-lease origin feature-branch
-# Example: DROP TABLE prod.users;
-```
-
-For multi-command destructive chains, list each command separately and explicitly. If any command depends on prior commands' success, document the dependency.
-
-**Step 3 — Documented rollback path.** State the exact steps to reverse the action if it goes wrong. Reference the backup from Step 1 by path. Include verification commands to confirm the rollback succeeded.
-
-```sh
-# Example rollback:
-rm -rf /Users/.../production/test-data \
-  && tar xzvf /Users/.../.backups/pre-<decision-slug>-<ISO-timestamp>.tar.gz -C /
-```
-
-If rollback is non-trivial (e.g., requires manual reconciliation, has downtime, or has data loss window), document that explicitly so Andre can decide whether to proceed.
-
-### After Pre-Flight: standard 5-step procedure
-
-Only after all 3 steps are documented AND Andre approves the destructive action does Mavis proceed to log the decision per the standard 5-step procedure above. The pre-flight evidence becomes part of the decision record's Expected impact field, not a separate artifact.
-
-If Andre declines the destructive action, halt and surface alternatives (KEEP, delay, smaller-scope version of the action) — do NOT proceed to log a decision that won't be acted on.
-
-### Cross-references
-
-- **Hard constraints** (above): "Reconfirm before any irreversible action" — this section IS the operationalization of that rule.
-- **When the skill HALTs** (below): halt conditions include "Andre declines destructive action during pre-flight."
-- **ea-commitment-tracker**: once approved, the destructive action becomes a commitment with the documented rollback path as the contingency.
-- **ea-loop-audit Verify stage**: the 3-step checklist IS the verification gate. ea-loop-audit's "Verify" dimension passes when Steps 1-3 are documented.
-
-
 ## When the skill HALTs
 
 Halt and escalate to Andre when:

@@ -20,18 +20,6 @@ description: |
   gate. Do NOT load for one-off sessions with no extract, for ad-hoc
   memory writes (use the standard `mavis memory append` flow), or
   for skill work in other agents' trees (Mavis territory only).
-# === TPG (Cognitive Parameter Graph) layer - added 2026-06-17 ===
-# Phase 1 codification: schema-only, no SePO loop running yet.
-# Phase 2 will populate fitness_score, last_evaluated, etc. via sepo-runner.
-node_type: agent_parameter
-parameter_id: ea-skill-evolution
-generation: 1
-fitness_score: null
-last_optimized: null
-last_evaluated: 2026-06-18T05:03:24.828999Z
-mutation_count: 0
-schema_version: 1
-# purpose: GEPA-anchored skill mutation proposer; gates, never auto-commits
 ---
 
 # ea-skill-evolution

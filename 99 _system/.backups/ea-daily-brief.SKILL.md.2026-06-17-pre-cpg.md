@@ -17,18 +17,6 @@ description: |
   (ea-weekly-connections), for single-project status, for inbox
   filing (/process-inbox), or on days with <24h of new inbox
   activity (halt — no fabrication).
-# === TPG (Cognitive Parameter Graph) layer - added 2026-06-17 ===
-# Phase 1 codification: schema-only, no SePO loop running yet.
-# Phase 2 will populate fitness_score, last_evaluated, etc. via sepo-runner.
-node_type: agent_parameter
-parameter_id: ea-daily-brief
-generation: 1
-fitness_score: null
-last_optimized: null
-last_evaluated: null
-mutation_count: 0
-schema_version: 1
-# purpose: writes a 3-connection brief ending with a question, never a task list
 ---
 
 # ea-daily-brief

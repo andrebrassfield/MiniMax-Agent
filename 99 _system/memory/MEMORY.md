@@ -66,3 +66,21 @@ Project layer: `03 Projects/X-Content-Engine/` — full team state (README, pers
 
 ## Memory hygiene
 - English. Topic files on demand. Target MEMORY.md ≤10KB, hard ceiling 15KB. Topic files MUST have YAML `description`. **Append** = new entry; **Edit/Write** = update, merge, or remove. Don't mix.
+
+### Honest evaluation result > expected theatrical outcome (2026-06-17)
+Type: pattern
+
+When running an evaluation loop (SePO, audit, A/B test, any measurement), report what the evaluation actually found, not what the user/operator hoped to see. If the loop says 'no improvement needed' or 'skip,' that IS a successful run — it proves the harness isn't forcing mutations.
+
+**Phase 2 CPG test (this turn):** ea-decision-logger (F=0.900→skip) and ea-skill-evolution (F=0.894→skip) — both well-built skills, both correctly identified as sufficient. Tempting to fudge the score or lower the threshold to 'demonstrate the mutation path,' but that would invert the loop's purpose. The loop's job is to be honest; my job is to report honestly, even when the result doesn't match operator expectations.
+
+**Discipline rules:**
+1. Run the evaluation with the agreed rubric; do not adjust rubric mid-run to produce desired outcome
+2. Report scores + decision + rationale; let the operator decide if the threshold needs adjustment
+3. If the loop consistently produces skip on well-built inputs, that's a feature (correctly identifies sufficiency), not a bug (loop is broken)
+4. If operator wants to see the mutation path, options are: (a) lower decision threshold explicitly, (b) tighten rubric to probe specific gaps, (c) run on a deliberately weak skill — but do NOT fudge scores to 'force' a mutation
+5. The eval's authority comes from its honesty. Compromising that to 'show progress' is the failure mode.
+
+**Cross-project:** applies to any structured evaluation Mavis runs — quality scoring, A/B test results, audit reports, fitness scoring, regression tests. The principle is 'what the measurement says, not what the operator wants to hear.' Same discipline as direct quotes for 'what Andre said' vs paraphrase: the source-of-truth principle generalizes.
+
+**Test case for self-check:** if Mavis produces a result that matches operator expectations → good. If Mavis produces a result that DOESN'T match operator expectations AND the reasoning is sound → also good. If Mavis produces a result that DOESN'T match operator expectations AND the reasoning is weak → flag the reasoning, not the result.

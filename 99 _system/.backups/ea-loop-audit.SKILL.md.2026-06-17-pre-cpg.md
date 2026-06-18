@@ -14,18 +14,6 @@ description: |
   Agent-neutral: works for Mavis-side work, but the framework applies to any
   loop owner. Do NOT load for trivial single-step tasks. Mavis territory only
   for cross-team audits — state findings, don't fix.
-# === TPG (Cognitive Parameter Graph) layer - added 2026-06-17 ===
-# Phase 1 codification: schema-only, no SePO loop running yet.
-# Phase 2 will populate fitness_score, last_evaluated, etc. via sepo-runner.
-node_type: agent_parameter
-parameter_id: ea-loop-audit
-generation: 1
-fitness_score: null
-last_optimized: null
-last_evaluated: null
-mutation_count: 0
-schema_version: 1
-# purpose: 5-stage loop audit (Discover/Plan/Execute/Verify/Iterate); PASS/WARN/FAIL per dimension
 ---
 
 # ea-loop-audit

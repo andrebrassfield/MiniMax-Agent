@@ -23,18 +23,6 @@ description: |
   for third-party commitments mentioned in passing, for one-shot operational
   promises that complete within the same session, or for skill work in
   other agents' trees (Mavis territory only).
-# === TPG (Cognitive Parameter Graph) layer - added 2026-06-17 ===
-# Phase 1 codification: schema-only, no SePO loop running yet.
-# Phase 2 will populate fitness_score, last_evaluated, etc. via sepo-runner.
-node_type: agent_parameter
-parameter_id: ea-commitment-tracker
-generation: 1
-fitness_score: null
-last_optimized: null
-last_evaluated: null
-mutation_count: 0
-schema_version: 1
-# purpose: logs Mavis commitments to JSONL ledger + human-readable mirror
 ---
 
 # ea-commitment-tracker

@@ -28,7 +28,7 @@ parameter_id: ea-skill-evolution
 generation: 1
 fitness_score: null
 last_optimized: null
-last_evaluated: 2026-06-18T05:03:24.828999Z
+last_evaluated: null
 mutation_count: 0
 schema_version: 1
 # purpose: GEPA-anchored skill mutation proposer; gates, never auto-commits
