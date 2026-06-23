@@ -1,0 +1,19 @@
+{
+  "last_scan_at": "2026-06-23T01:30:27+00:00",
+  "last_update_id": 0,
+  "proposals": [
+    {
+      "draft_id": "fb-2-post-synthetic-001-5497be4d9c",
+      "source_file": "FB-Engine/drafts/2026-06-18-2055-t2-post-synthetic-001.md",
+      "draft_path": "/Users/brassfieldventuresllc/MiniMax-Agent/03 Projects/FB-Engine/drafts/2026-06-18-2055-t2-post-synthetic-001.md",
+      "typology": "T2",
+      "telegram_message_id": 79,
+      "proposed_at": "2026-06-18T20:56:36+00:00",
+      "response_status": "open",
+      "response_text": null,
+      "responded_at": null,
+      "acted_at": null,
+      "action": null
+    }
+  ]
+}

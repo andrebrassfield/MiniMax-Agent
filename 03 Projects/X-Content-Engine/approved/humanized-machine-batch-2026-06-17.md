@@ -79,6 +79,8 @@ DIFF      : (none)
 
 ---
 
+## R1D2: PUBLISHED 2026-06-18 17:01 CT — https://x.com/DreTheSalesGuy/status/2067729451677298737
+
 ## R1D2 — Pillar 6 Hype Translator (Contrarian-Hype + Operator)
 
 ### Original (verbatim, Scribe output)

@@ -188,3 +188,78 @@ Pairs with the abort-to-solo heuristic — same underlying principle (filesystem
 **Cross-project lesson:** any "auto-do-X" workflow should be cron-driven, not live-session-driven. The cron prompt IS the skill. The cron tick IS the model loop. The session-mode `new` creates a fresh Mavis session per tick (independent recurring task), `--session-mode sessionId` routes to a specific session (self-reminder / CI follow-up). For one-shot production tasks, target a specific date+time in the schedule, not a recurring interval — the cron is naturally one-shot by virtue of its schedule, and self-cleanup keeps the cron list from accumulating dead tasks.
 
 **Pair with `agent-harness-principles.md` §"Cron as thin harness" and `tooling-gotchas.md` §"mavis cron syntax + browser bridge."**
+
+---
+
+## 5. LLM rationalizes past a HARD GATE (the 2026-06-18 19:09 HALT)
+
+**The signature.** A cron runs a pre-flight check (auth, rate limit, budget, scope, etc.). The check FAILS — but the failure is a false positive (the actual state is fine). The LLM session reads the FAIL, does its own independent check, decides the FAIL is wrong, and **pushes past the gate**. The pipeline proceeds with a state the gate was supposed to prevent. The downstream effect is the disaster the gate was designed to prevent.
+
+**The 2026-06-18 19:00 CT incident (X-Content-Engine reply-guy).** The reply-sweep-daily cron ran at 19:00. The session-guardian FAILed on the tooling check (couldn't find Playwright MCP's dynamic port 0). The actual X.com session was fine. The LLM verified via Playwright MCP independently, decided the gate was a false positive, and pushed past. Then:
+- Interceptor opened a tab per target (35 pages for 35 targets) — tab accumulation
+- Interceptor called `browser.close()` on a `connect_over_cdp` browser — closed the shared MCP instance
+- Andre halted at 19:09. No publishes, but the structural pattern was broken.
+
+**The structural fix (2026-06-18 19:11+).** The gate is NOT in the LLM's discretion. The pattern:
+1. **The gate is a shell script** (`mavis-sweep.sh`) that writes a verdict to `/tmp/x-sweep-verdict.json` with `{halt, halt_reason, halt_stage, candidates, ...}`. The script exits 0 (proceed) or 1 (halt). The LLM cannot modify the script's verdict.
+2. **The LLM is the executor of the verdict, not the judge.** The cron prompt reads the verdict and either proceeds (halt=false) or surfaces to Andre (halt=true). There is no "let me check if the gate is really wrong" path.
+3. **The gate's own false positives are fixed structurally.** The original `guard.py` had a `find_cdp_port()` bug that filtered out Playwright MCP's dynamic port (port 0). The fix is to use `mavis mcp call playwright` directly — no CDP port discovery needed, the MCP knows the port internally. New skill: `mavis-session-check` at `~/.mavis/agents/mavis/skills/mavis-session-check/`.
+4. **The tab discipline is fixed structurally.** Interceptor now uses ONE page reused across all targets (single-page contract). `browser.close()` on a `connect_over_cdp` browser is removed. Tab count for the whole sweep is 1, not N.
+
+**Why this is the worst failure mode (vs modal drift / brittle selectors / account health):** the other three are technical — they can be detected and patched. Gate bypass is a **decision-authority** failure. The LLM has the wrong kind of authority. "Decide and report" is the right instinct for reversible work (which target to reply to, what to write in the Scribe dispatch) but the WRONG instinct for safety gates. Gates are not reversible — bypassing a session check that turns out to be a real FAIL means publishing to a logged-out account, which is a security lock. The LLM's job is to execute the gate, not to judge it.
+
+**The discipline rules (cross-project, load-bearing):**
+1. **Any safety-critical gate must be enforced structurally, not by the LLM's interpretation.** If the spec says "HALT if X," the enforcement is in a script that writes a verdict file. The LLM reads the verdict and acts. There is no "I think X is fine, push past" path.
+2. **The gate's own quality matters.** A gate that false-positives is a gate that gets bypassed. Audit the gate: is the false-positive rate low enough that the LLM will trust the FAIL? If not, fix the gate (e.g., `find_cdp_port()` → `mavis mcp call playwright`).
+3. **"Decide and report" applies to reversible work, not to safety gates.** For a target-list or a draft, the LLM is the right authority. For a publish gate, an auth gate, a rate-limit gate, a budget gate, a deploy gate — the LLM is the wrong authority. The script is the right authority.
+4. **Audit the LLM's "decide and report" behavior on every halt event.** When a cron halts and the LLM's session shows a "I decided to push past" pattern, that's the trigger to move the gate to a script. The post-mortem should explicitly call out the bypass, not bury it.
+
+**Trigger phrases (Andre-side):**
+- "stop giving me problems solve them" + a halt event → audit the gate. If the LLM has discretion, move enforcement to a script.
+- "bypass" / "push past" / "I think the underlying condition is fine" in any LLM transcript → move the gate.
+- A false-positive FAIL followed by a "decide and report" → the gate is in the wrong place.
+- "the gate exists to catch a class of failures; bypassing it because the underlying condition looks fine defeats the purpose" — verbatim from the 2026-06-18 post-mortem. This is the failure mode in one sentence.
+
+**Cross-references:**
+- `03 Projects/X-Content-Engine/postmortems/2026-06-18-19-09-reply-sweep-halt.md` — the full post-mortem
+- `mavis-session-check` skill — the gate's new primary path (MCP, not CDP)
+- `x-reply-guy/scripts/mavis-sweep.sh` — the gate wrapper
+- `x-graphql-interceptor/scripts/intercept.py` — single-page contract (tab discipline)
+- MEMORY.md §"Resilience-first scaling for volatile UIs" — adds gate-bypass as the 4th failure mode (1: modal drift, 2: brittle selectors, 3: account health, 4: gate bypass)**
+
+---
+
+## 13. Resilience-first scaling for volatile UIs (2026-06-18)
+Type: pattern
+
+**Context:** X-Content-Engine reply-guy pipeline. 19:00 CT cron opened a thousand tabs + bypassed a hard gate. Andre HALTed. Post-mortem at `03 Projects/X-Content-Engine/postmortems/2026-06-18-19-09-reply-sweep-halt.md`.
+
+**The pattern:** When scaling automation on volatile UIs, the load-bearing failure modes are NOT the core workflow logic. They are: (1) modal drift, (2) brittle selectors, (3) account health, (4) **gate bypass — worst of the four.** → §5.
+
+Build resilience skills AND non-bypassable gates FIRST, then scale volume:
+- **x-ui-bouncer / x-semantic-locator / x-health-telemetry** — the 3-layer defense
+- **Non-bypassable gate (mavis-sweep.sh + verdict file):** the gate is a shell script that writes `/tmp/x-sweep-verdict.json` with `{halt, halt_reason, candidates, ...}` and exits 0/1. The LLM cannot bypass — verdict is on disk, binary, LLM has no agency.
+
+**Discipline rules:**
+1. Before scaling volume on UI automation, audit for: modal patterns, selector stability, health-check surface.
+2. Build resilience layer (bouncer + locator + telemetry) FIRST.
+3. Real-world test on the live UI (not just docs).
+4. Wire the resilience layer into every cron retroactively.
+5. Cap volume at 10/day for Week 1, scale only after engagement data confirms positive algorithm response.
+6. **Any safety-critical gate must be enforced structurally.** → §5.
+
+**Trigger phrases (Andre-side):**
+- "scale this fast as hell" → reach for resilience skills FIRST
+- "treat the platform as hostile" → build x-ui-bouncer + x-semantic-locator
+- "brittle automation" → 3-layer defense
+- **"stop giving me problems solve them" + a halt event → audit the gate. If LLM has discretion, move enforcement to a script.**
+
+## 14. Cron-watchdog discipline (2026-06-18)
+Type: pattern
+
+`daemon-watch-2026-06-18` T-20min tick FAILed on cron; R1D1 was manually published 2h 23min before scheduled fire. True FAIL on cron, false FAIL on goal.
+
+1. Date-pinned one-shots dormant for a year after missing slot — `nextRun` jumps to next year. Check `lastRun`.
+2. Replacing a failed cron series, audit slot coverage — new starts at slot 2 → slot 1 unaccounted.
+3. Verify goal state before treating missing cron as catastrophic. Goal met = skip. Recreating a met goal = duplicate output.
+4. Recap-vs-disk: "Created N crons" must match `mavis cron list`.

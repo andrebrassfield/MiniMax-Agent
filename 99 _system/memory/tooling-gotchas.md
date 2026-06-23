@@ -370,3 +370,73 @@ sleep 5
 - If a future cron session reaches this state, escalate via `mavis communication send` to the chief (Mavis) with a duplication report; the chief decides whether to spin up a cu MCP session or fall back to intent URL or manual.
 
 **Source:** feedback-loop.md `publish-path` section in `03 Projects/X-Content-Engine/agents/feedback-loop.md` (added 2026-06-17 13:10 CT).
+
+---
+
+## TCC-locked bundles — invisible to every shell tool (2026-06-21)
+Type: pattern
+
+When a macOS path shows 0 bytes in `du`, `mdfind`, even `sudo du`, but the Storage panel counts it heavily — that is TCC (Transparency, Consent, and Control). CLI cannot read it. Only the owning app has scope.
+
+**Telltale signs (run all four to confirm):**
+- `du -sh <bundle>` returns `Operation not permitted`
+- `xattr -l <bundle>` shows `com.apple.fileprovider.ignore#P = -1` and `com.apple.quarantine = -1`
+- `mdfind -onlyin <bundle>` returns 0 results
+- `osascript -e "tell application \"<OwningApp>\" to ..."` succeeds — the app has its own TCC scope
+
+**Common TCC bundles:** `~/Pictures/Photos Library.photoslibrary` (Photos), `~/Library/Mobile Documents/com~apple~CloudDocs/Documents/` (iCloud Docs), `~/Library/Mail/V*/` (Mail), iCloud Drive per-app folders under `~/Library/Mobile Documents/iCloud~*/`.
+
+**What works:** Open the owning app to see actual size and clean from inside. Photos splash shows library size immediately; Photos Settings → General → Manage Storage for cleanup.
+
+**What does NOT work:** any CLI tool, any sudo variant, mavis-trash. Even root via osascript gets `Operation not permitted`. This is not a permission issue you can escalate past — it is by design.
+
+**Cross-project:** applies to every Mac clean work, every disk pressure triage. The Storage panel phantom ("Documents 35 GB but ~/Documents has 1 MB") is almost always TCC, not a hidden user file. Check TCC first before declaring a "missing" smoking gun.
+
+→ `mac-deepclean` SKILL.md "The two locked walls" section.
+
+## osascript GUI sudo batch — never pipe passwords in chat (2026-06-21)
+Type: pattern
+
+For sudo operations that need elevated privileges during a chat session: **never** accept or echo the user's password in chat, even when explicitly offered (e.g. "sudo 1313"). Piping passwords in chat is the anti-pattern regardless of who offers it.
+
+**Secure pattern:** batch all sudo work into one shell script, run via osascript with `with administrator privileges` — the OS GUI prompt pops once, the user authenticates, the script runs as root.
+
+```bash
+cat > /tmp/mavis-work.sh <<'EOF'
+#!/bin/bash
+sudo pmset -a sleep 0
+sudo rm -rf /private/var/folders/63/*
+...
+EOF
+chmod +x /tmp/mavis-work.sh
+osascript -e 'do shell script "bash /tmp/mavis-work.sh 2>&1" with administrator privileges with prompt "Mavis needs admin to ... Authenticate once."'
+```
+
+**Why this is right:**
+- Password never enters chat, never gets persisted, never gets echoed back.
+- User types into the standard macOS GUI auth dialog (the same one they trust for App Store installs).
+- One osascript call = one GUI auth = batched sudo. Multiple osascript calls require re-auth.
+- `with administrator privileges` works in non-TTY bash shells (where plain `sudo` hangs on "no tty present").
+
+**Why NOT `echo "$pass" | sudo -S`:** credentials in shell history, in the chat transcript, in any logger. Same anti-pattern as PAT-in-shell.
+
+**Cross-project:** any time a user pastes a password or offers to type one in chat, redirect them to the OS GUI prompt. The bash tool has no TTY, so plain `sudo -v` hangs waiting for one — the osascript wrapper solves this.
+
+→ `mac-deepclean` SKILL.md Step 5 ("Sudo operations" subsection).
+
+## M4 deep-clean + Hermes venv operational lessons (2026-06-21)
+Type: pattern
+
+5 load-bearing lessons from the V3 fleet bootstrap + M4 disk-clean session. Each cost ≥30 min the first time; now they cost 0.
+
+**1. Python 3.11 venv repair (uv-managed).** `uv python install 3.11` puts Python at `/Users/brassfieldventuresllc/.local/share/uv/python/cpython-3.11-macos-aarch64-none/bin/python3.11` — exactly where Hermes venv's symlinks expect it. Venv symlinks exist but point to a missing uv-managed Python; reinstalling fixes the chain. Don't `brew install python@3.11` (different path, breaks the symlink contract).
+
+**2. mavis-trash on `~/Library/Containers/com.apple.*` with 700+ siblings.** Enumeration timeout. Single-target call works (`mavis-trash ~/Library/Containers/com.apple.mediaanalysisd`); or skip — Apple containers are regenerable Apple system caches (mediaanalysisd, wallpaper.agent, parsec-fbf, etc.) and don't need manual cleanup. Don't loop trying to clear them all in one shot.
+
+**3. Profile dirs created via osascript sudo are root-owned.** This breaks per-profile `hermes config set` because the dotenv loader fails on unreadable `.env`. **Fix:** `chown -R brassfieldventuresllc:staff ~/.hermes/profiles/<name>` **immediately** after any profile create batch. Codify as a post-create hook on the profile-create runbook.
+
+**4. Preboot Cryptexes (`/System/Volumes/Preboot/Cryptexes/Incoming`) is SIP-locked even as root.** No CLI cleanup possible. Recovery Mode + `csrutil disable` is the only path — **not recommended without explicit understanding** of what the Cryptex is and whether it's still in use by a pending macOS update. When in doubt, leave it; OS reclaims on next successful boot or update.
+
+**5. APFS reclaim lag.** After big deletes (10+ GB), `df` doesn't move for 24-48h. APFS snapshots + container-level free-space accounting means the filesystem reports "still in use" until the snapshot coalesces. **Don't loop trying to make the number move** — read once, delete once, wait, read again. The number will drop on its own schedule.
+
+**Cross-project:** all five apply to any M-series Mac agent-harness work. The venv path + chown-after-sudo combo is the most likely to bite again on a clean install — bake both into the `agent-harness-mac-setup` skill as a verification gate.

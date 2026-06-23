@@ -64,3 +64,23 @@ Fleet-wide lock set by Andre 2026-06-02 22:33 CT: **no shitty wrappers, everythi
 - HTML for rendering, markdown for content, Obsidian for everything. No proprietary formats.
 
 Generalizes the "skills belong with the agent that uses them" rule from per-agent fix to fleet-wide lock.
+
+---
+
+## Working systems need directive register, not voice (2026-06-21)
+Type: pattern
+
+Wrote `pi`'s SOUL.md with roleplay framing — "carrier wave", "front line", "your seat at the front line". Then sent prompts in the same register. Default Hermes (the actual responder through Telegram) called it out directly mid-session: **"Strip the roleplay framing. It's voice, not signal."**
+
+**Rule for me:** when writing prompts for any working tool (Hermes, mavis, exec profiles, cron dictation), use **file paths, line counts, acceptance criteria**. Voice is decorative — it doesn't load into context, it just colors output.
+
+**Concrete prompt shape that works:**
+- Path: `~/Documents/Obsidian/MainVault/Kanban/cards/active/kanban-2026-06-21-001-compile-agent-notes.md`
+- Acceptance: `Reviews/ai-agent-overview-2026-06.md` exists, ≥800 words, ≥8 wikilinks, spec-taxonomy tag check passes
+- Next action: one sentence, imperative, no metaphor
+
+**Concrete prompt shape that fails:**
+- "Take the front line and synthesize the last 30 days of agent notes — your carrier wave is exactly the kind of..."
+- (Beautiful prose. Zero signal. Default-Hermes will push back.)
+
+**Cross-project:** applies to every system-prompt, every Telegram reply template, every cron dictation, every SOUL.md file. If the agent is doing work, talk in work. If the agent is performing, talk in voice. Don't mix.

@@ -93,3 +93,106 @@ created: 2026-06-16
 - Brain `performance_log` count: 5 before → 6 after (1 new entry for post 2067394237851636104, 2 existing entries updated in place: 2058893688525197444 views 5→9, 2057542421102186899 views 24→29; 3 out-of-window entries preserved)
 - Atomic write used (temp-write-fsync-rename)
 - Brain JSON valid: `python3 -m json.tool` exits 0
+
+---
+
+## Run: 2026-06-18 19:00 CT · window: last 30d (cron `x-analytics-tracker-daily`)
+
+**Source:** https://x.com/i/account_analytics/content?type=posts&sort=date&dir=desc&days=30 (navigation succeeded, page did not render content)
+**Generator:** Mavis (x-analytics-tracker), cron `x-analytics-tracker-daily`
+
+**HALT — no usable data this run.** Two safety halts fired back-to-back. The run is preserved in this section per T3 (gap is better than a missing record) and the brain write was **skipped** per T4 (we do not write metrics the dashboard did not capture, to avoid overwriting real prior metrics with nulls).
+
+### Per-post metrics
+
+| Post | Published | Impressions | Engagements | Bookmarks | Profile clicks | Likes | Retweets | Replies | Notes |
+|------|-----------|-------------|-------------|-----------|----------------|-------|----------|---------|-------|
+| unclear | unclear | unclear | unclear | unclear | unclear | unclear | unclear | unclear | Run halted — see operator notes below. No X post row rendered this run. |
+
+### Aggregate
+- Posts in window: unclear (X UI gated; no count could be observed)
+- Total impressions: unclear
+- Avg impressions/post: unclear
+- Total engagements: unclear
+- Avg engagement rate: unclear
+
+### Top 3 (by impressions)
+- unclear — no impressions observed this run.
+
+### Bottom 3 (by impressions)
+- unclear — no impressions observed this run.
+
+### Operator notes — HALT conditions fired
+
+- **H4 — X Premium analytics gate (HALT).** Page body text: `"Advanced analytics with X Premium — See your profile analytics, understand your audience and more. Upgrade to continue."` The `/i/account_analytics/content` page returns the X Premium upsell overlay for the current logged-in user, blocking all per-post metrics widgets. Per `tests/safety-halts.md` H4, do not click "Upgrade" or "Maybe later" — those are interaction affordances on a surface the skill does not navigate.
+- **H6 — Wrong account (HALT).** The X session nav-bar "Profile" link href in the accessibility snapshot is `https://x.com/DoseofProof`, not `@DreTheSalesGuy`. The `/i/account_analytics` URL pattern is the current logged-in user's analytics, so this would have been @DoseofProof's analytics, not @DreTheSalesGuy's. Per `tests/safety-halts.md` H6, the skill is scoped to @DreTheSalesGuy only — silent cross-account contamination is the failure mode this rule exists to prevent. The X session appears to have been switched to a different account between the 2026-06-17 19:00 CT run and this run. No `@DreTheSalesGuy` posts could be queried because we were not on that account.
+- **Resolution path for Andre:**
+  1. Open Chrome and confirm which X account is currently logged in (avatar → "Profile" → URL bar).
+  2. If on the wrong account, switch to @DreTheSalesGuy in the same browser (the mavis browser bridge preserves the cookie jar across sessions). Re-run the cron or invoke the skill manually.
+  3. If the analytics is still Premium-gated on @DreTheSalesGuy itself, the X Premium upsell is an account-level state — X requires Premium to view per-post metrics on this surface. The skill cannot bypass it (and should not, per H4). Long-term: subscribe to X Premium for @DreTheSalesGuy, or pivot this skill to a different data source (e.g., direct tweet-URL scraping via the FxTwitter API, or the X API v2 with a paid plan).
+- **Brain write was skipped (intentional, per T4).** The 11 prior `performance_log` entries in `content_brain.json` (mtime 1781820156, untouched) are preserved verbatim. The brain still holds the last known real metrics for the 2026-06-16 and 2026-06-17 runs. Do not interpret "no new entry" as "0 metrics" — the data is missing, not zero.
+- **Dashboard table is intentionally a single all-unclear row** (T3 format: a row of "unclear" cells is infinitely more useful than a row of made-up numbers). The Operator notes above are the load-bearing content of this run.
+
+### Verification
+- Brain `performance_log` count: 11 before → 11 after (write skipped, prior metrics preserved; mtime unchanged at 1781820156)
+- Brain JSON valid (not re-checked this run; no write)
+- Dashboard append successful (95 → 95 + section)
+- No X clicks executed (H4 + H6 halts respected)
+- No credentials typed (H2 contract honored)
+
+
+---
+
+## Run: 2026-06-22 19:01 CT · window: last 30d (cron `x-analytics-tracker-daily`)
+
+**Source:** https://x.com/i/account_analytics/content?type=posts&sort=date&dir=desc&days=30 (NOT NAVIGATED — mavis browser bridge offline)
+**Generator:** Mavis (x-analytics-tracker), cron `x-analytics-tracker-daily`
+
+**HALT — no usable data this run.** The mavis browser bridge returned `Native host: not connected` on `mavis browser status`. Per `tests/safety-halts.md` H1, this is a hard halt — do not fall back to auto-spawned Chromium for x.com (OAuth-hijack surface). The run is preserved in this section per T3 (a gap is better than a missing record), and the brain write was **skipped** per T4 (we do not write metrics the dashboard did not capture).
+
+### Per-post metrics
+
+| Post | Published | Impressions | Engagements | Bookmarks | Profile clicks | Likes | Retweets | Replies | Notes |
+|------|-----------|-------------|-------------|-----------|----------------|-------|----------|---------|-------|
+| unclear | unclear | unclear | unclear | unclear | unclear | unclear | unclear | unclear | Run halted — see operator notes below. No X post row rendered this run. |
+
+### Aggregate
+- Posts in window: unclear (browser bridge offline; no count could be observed)
+- Total impressions: unclear
+- Avg impressions/post: unclear
+- Total engagements: unclear
+- Avg engagement rate: unclear
+
+### Top 3 (by impressions)
+- unclear — no impressions observed this run.
+
+### Bottom 3 (by impressions)
+- unclear — no impressions observed this run.
+
+### Operator notes — HALT condition fired
+
+- **H1 — Browser bridge offline (HALT).** `mavis browser status` output:
+  ```
+  Browser Integration Status
+    Profile: default
+    Socket:  /Users/brassfieldventuresllc/.mavis/browser-broker.sock
+
+    Broker: running
+    Native host: not connected
+    Tab claims: none
+  ```
+  The broker is running but the Chrome native messaging host (the unpacked `Mavis Browser Bridge` extension) is not connected. Without it, the skill cannot drive the user's real Chrome session — and per H1, falling back to a fresh Chromium instance for x.com is forbidden (it would defeat the OAuth-cookie-jar protection the bridge provides).
+- **Resolution path for Andre:**
+  1. Open Chrome and re-load the unpacked extension via `mavis browser install` (drag the unpacked extension into `chrome://extensions`, verify the loaded extension ID matches, remove any stale "Mavis Browser Bridge" entry first).
+  2. Confirm `mavis browser status` shows `Native host: connected` before re-running the cron.
+  3. If the bridge still fails after re-install, this is likely a stale native-messaging-host manifest (`~/.mavis/browser-broker/native-host.json`) — needs a fresh `mavis browser install` after deleting the manifest.
+- **Prior halt context.** The 2026-06-18 run halted on **H4 (X Premium gate) + H6 (wrong account — @DoseofProof)** — that halt is still unresolved. Even if the bridge comes back, the next run will likely re-hit H4 / H6 unless Andre (a) confirms the X session is logged in as @DreTheSalesGuy, and (b) the account has X Premium or the Premium upsell is dismissed. The bridge fix is necessary but not sufficient.
+- **Brain write was skipped (intentional, per T4).** The 11 prior `performance_log` entries in `content_brain.json` (mtime 1782138562, untouched this run) are preserved verbatim. The brain still holds the last known real metrics for the 2026-06-16 and 2026-06-17 runs (the two runs that succeeded). The 2026-06-18 halt was a no-write, so the brain does not yet have a 2026-06-18 entry. Do not interpret "no new entry" as "0 metrics" — the data is missing, not zero.
+- **No X clicks executed, no credentials typed** (H1 + H2 contracts honored).
+
+### Verification
+- Brain `performance_log` count: 11 before → 11 after (write skipped, prior metrics preserved; mtime unchanged)
+- Brain JSON valid (not re-checked this run; no write)
+- Dashboard append successful (142 → 142 + section)
+- mavis browser bridge: native host disconnected (logged above)
+

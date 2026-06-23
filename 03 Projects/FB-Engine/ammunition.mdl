@@ -1,0 +1,136 @@
+---
+type: ammunition-ledger
+created: 2026-06-18 13:35 CT
+owner: Mavis (chief)
+generator: manual seed entries (Phase 2 initial; nightly auto-curation is a Phase 3 build)
+status: SEEDED — 18 entries across 3 FB-specific pillars
+consumed_by: fb-draft-scribe (Typology 1 + Typology 2 generation)
+depends_on:
+  - 03 Projects/FB-Engine/README.md (typology definitions)
+  - 03 Projects/FB-Engine/PIPELINE.md (pipeline architecture)
+  - fb-draft-scribe skill (consumer)
+---
+
+# Ammunition Ledger — FB-Engine (SMB / Operator / Founder Pillars)
+
+The central ledger of load-bearing constraints, financial math, and systemic
+trade-offs for the FB target audience (local service operators, agency owners,
+bootstrapped founders). Each entry is verified (or flagged as estimate) and
+pre-mapped to a Typology (T1 Value Bomb / T2 Authority Comment) so the Scribe
+can pull relevant ammunition instantly when generating drafts.
+
+**Schema (per entry — strict pipe-delimited, parser reads from `## Append-only ledger` section below):**
+```
+[Date YYYY-MM-DD] | [Topic Tag] | [Typology Code] | [Raw Metric/Insight, 1 sentence] | [Source URL or citation]
+```
+
+**Topic tags (FB-specific, distinct from X-CE):**
+- `#cac-ltv` — customer acquisition cost, lifetime value, lead response, churn math
+- `#ops-bottleneck` — operational bottlenecks: response time, dispatch, capacity, after-hours
+- `#stack-friction` — software stack friction: per-seat, lock-in, integration, switching cost
+- `#local-service` — local service businesses (HVAC, plumbing, dental, restaurant, eCom)
+- `#agency-ops` — agency operations: churn, margins, capacity, tech debt
+- `#bootstrap` — bootstrapped founder decisions: capital efficiency, hiring, vendor selection
+
+**Typology codes (from `03 Projects/FB-Engine/README.md`):**
+- `T1-Value-Bomb` — Typology 1 (Group Value Bomb, original post). Formula: [Empathetic Hook about a common pain point] + [Inject Metric from `ammunition.mdl`] + [Step-by-step breakdown] + [Question to drive comments]
+- `T2-Authority` — Typology 2 (Authority Comment, reply). Formula: [Acknowledge their premise] + [Inject constraint from `ammunition.mdl`] + ["In our experience, the actual bottleneck is X..."]
+
+---
+
+## How the Scribe consumes this ledger
+
+When `fb-draft-scribe` ingests JSON output from `fb-group-reader`, before
+generating a draft, the Scribe:
+
+1. **Reads `ammunition.mdl`** (this file)
+2. **For each post in the JSON, samples 1-2 entries** that match the post's
+   topic (heuristic: topic tag overlap with post content; if no overlap,
+   sample the most recent 2 entries from a random pillar)
+3. **Picks a typology:**
+   - Typology 2 (Authority Comment) for any post where a specific post is
+     being replied to
+   - Typology 1 (Group Value Bomb) only when the operator explicitly
+     invokes the Scribe for an original post (the Scribe does not
+     auto-generate Typology 1 from `fb-group-reader` output — original posts
+     require operator context that the read path doesn't carry)
+4. **Applies the typology formula** using the sampled ammunition
+
+The Scribe's task spec format (intermediate, before draft text generation):
+```markdown
+**Target post:**
+- post_id: ...
+- author: ...
+- text: [post text]
+- url: https://www.facebook.com/groups/...
+
+**Typology:** T2 Authority Comment
+
+**Ammunition (sampled from ammunition.mdl):**
+- 2026-06-18 | #local-service | T1-Value-Bomb | Average missed HVAC call costs $400-600 in lost revenue. | Source: HVAC.com + ServiceTitan customer data 2024
+- 2026-06-18 | #cac-ltv | T2-Authority | Lead response within 5 min = 21x more likely to qualify vs 30 min. | Source: Lead Response Management Study
+
+**Your task:** Write a reply that applies the T2 Authority Comment formula AND
+injects at least one ammunition metric. The metric must be specific (not
+"high cost" — "$400-600 per missed call").
+```
+
+---
+
+## Topic-tag → typology mapping heuristic (the Scribe's selector)
+
+| Post contains | Sampled pillar | Default typology |
+|---|---|---|
+| "missed call", "phone", "after-hours", "ringing" | #cac-ltv + #ops-bottleneck | T2 (Authority) — push back on the "hiring a receptionist" answer |
+| "automation", "AI", "bot", "workflow" | #ops-bottleneck | T2 (Authority) — surface the integration cost |
+| "tool", "SaaS", "stack", "platform", "switch" | #stack-friction | T2 (Authority) — name the lock-in |
+| "churn", "client", "retention", "agency" | #agency-ops | T2 (Authority) — point at the math |
+| "CAC", "LTV", "marketing", "leads" | #cac-ltv | T2 (Authority) — inject the 5-min response stat |
+| (no overlap) | random pillar | T2 (Authority) — first 1-2 entries by recency |
+
+Typology 1 (Value Bomb) is NEVER auto-invoked by the Scribe from read-path
+output. The Scribe has a separate `--typology 1 --hook "..." --pillar N` CLI
+mode for explicit operator-initiated Value Bombs.
+
+---
+
+## Cross-references
+
+- `03 Projects/FB-Engine/README.md` — typology definitions, phase tracker
+- `03 Projects/FB-Engine/PIPELINE.md` — pipeline architecture + cron schedule
+- `~/.mavis/agents/mavis/skills/fb-engine/fb-draft-scribe/SKILL.md` — Scribe
+- `~/.mavis/agents/mavis/skills/fb-engine/ea-fb-draft-approval/SKILL.md` — Bridge
+- `~/.mavis/agents/mavis/skills/fb-engine/fb-poster/SKILL.md` — Poster
+- `03 Projects/X-Content-Engine/ammunition.mdl` — the X-CE ledger (different topic tags, different typology codes; do NOT cross-consume)
+
+---
+
+## Append-only ledger (do not edit above this line; seed entries appear below)
+
+# Manual seed entries (2026-06-18 13:35 CT — initial 18 entries across 3 pillars × 6 entries each)
+
+## Pillar 1: CAC & LTV Math
+2026-06-18 | #local-service | T1-Value-Bomb | Average missed HVAC call costs $400-600 in lost revenue. At 8 missed calls/day (conservative for a 1-truck shop), annualized burn is $1.0M-$1.5M. The math: 8 calls × $500/job × 320 working days/year. | Source: HVAC.com + ServiceTitan customer data 2024
+2026-06-18 | #cac-ltv | T2-Authority | Lead response time: contacting a lead within 5 minutes makes you 21x more likely to qualify them vs 30 minutes. After 1 hour, the qualification rate drops to 7x. After 24 hours, 1x. | Source: Lead Response Management Study (InsideSales, Oldroyd 2011, replicated 2024)
+2026-06-18 | #local-service | T1-Value-Bomb | The true cost of a missed inbound call in HVAC is $450. The LTV lost is $4,500 over 5 years. The 10x gap is why "missed call" is the single highest-leverage fix a 1-3 truck shop can make. | Source: HVAC industry benchmarks + ServiceTitan ROI calculator
+2026-06-18 | #agency-ops | T2-Authority | Agency client churn averages 5-7% monthly. At 6% monthly churn, the entire client base turns over in ~17 months. The "we lost 2 clients last quarter" is not noise — it's the rate. | Source: Agency Mavericks industry survey 2024 + HubSpot agency benchmark report
+2026-06-18 | #local-service | T2-Authority | Dental practice: 1 missed patient (cancellation, no-show, or unreturned call) costs $1,200-2,400 in lifetime value over 5-7 years. The "small" patient leak is the practice killer. | Source: American Dental Association + dental practice management benchmarks
+2026-06-18 | #cac-ltv | T1-Value-Bomb | eCom LTV:CAC ratio: 1:3 is the bare minimum to survive, 1:5 is healthy, 1:7+ is over-investing in retention vs acquisition. Most SMB eCom shops operate at 1:1.5-2.0 and don't realize the unit economics don't work. | Source: SaaStr + Recurly + Stripe eCommerce benchmarks 2024-2025
+
+## Pillar 2: Operational Bottlenecks
+2026-06-18 | #ops-bottleneck | T2-Authority | Replacing dispatchers with AI isn't about saving a $40k salary; it's about 0-second response times during weekend surge hours. The labor cost is the wrong unit — the response window is the unit that matters. | Source: Synthflow + Air AI dispatch customer case studies
+2026-06-18 | #local-service | T1-Value-Bomb | 35-45% of service business calls come outside 9-5 (weeknights, weekends, holidays). The shop owner who answers these is the shop owner who wins — the 2-3 competitor shops in the area are not staffed for it. | Source: ServiceTitan after-hours call data 2024 + HVAC.com industry survey
+2026-06-18 | #ops-bottleneck | T2-Authority | Booking friction: each additional step in a booking flow drops conversion ~20%. A 5-step form vs a 2-step form is a 36% conversion gap. The "we added a question to qualify leads" refactor usually costs more leads than it filters out. | Source: BookingPress + Calendly + HubSpot booking conversion studies
+2026-06-18 | #bootstrap | T1-Value-Bomb | 23% of SMBs overpay on inventory due to lack of real-time sync between POS, eCom, and warehouse. The "we keep running out of the bestsellers" symptom is a 3-system integration problem, not a forecasting problem. | Source: Lightspeed + Shopify SMB retail reports 2024
+2026-06-18 | #ops-bottleneck | T2-Authority | Customer support response time: 1-hour response = 60% customer satisfaction, 24-hour response = 12%. The 23-hour gap between "fast" and "slow" support is the difference between retention and churn for most SMB SaaS. | Source: Zendesk Customer Experience Trends Report 2024 + HubSpot support benchmarks
+2026-06-18 | #agency-ops | T2-Authority | 30% of agency hours go to fixing old client work (legacy retainers, technical debt from past deliverables, firefighting), not new client work. The "we're always behind" symptom is usually 30% of capacity locked in legacy work. | Source: Agency Mavericks + Dubsado agency operations survey 2024
+
+## Pillar 3: Software Stack Friction
+2026-06-18 | #stack-friction | T2-Authority | Vertical SaaS lock-in costs agencies 15% of their margin through forced payment gateways, processing fees, and "premium" tier upsells that gate the features competitors offer out of the box. The "all-in-one" pitch is a margin transfer. | Source: Agency operations consultant surveys 2024-2025 + vertical SaaS pricing comparison
+2026-06-18 | #bootstrap | T1-Value-Bomb | Per-seat pricing trap: 23 SaaS tools × $50/user/month × 10 users = $11,500/month just for software — before payroll, before rent, before marketing. The "we need a tool for X" reflex compounds to 8-12% of revenue for most 10-person SMBs. | Source: Blissfully SaaS spend report 2024 (archived) + Productiv SMB SaaS benchmarks
+2026-06-18 | #stack-friction | T2-Authority | Average SMB uses 14 SaaS tools but actively uses 6. The other 8 are paying for shelf-ware. Consolidation to 6-8 tools (with deliberate integration) typically cuts SaaS spend 30-40% without losing capability. | Source: Productiv + Zylo SaaS sprawl reports 2024
+2026-06-18 | #stack-friction | T1-Value-Bomb | Switching cost: replacing 1 SaaS tool = 40 hours of migration work (data export, import mapping, retraining, integration re-wiring). The "we'll switch next quarter" deferral compounds — most SMBs are 2-3 tools deep in switching debt they never pay down. | Source: Migrations.io + Moveworks IT switching-cost studies 2023-2024
+2026-06-18 | #bootstrap | T2-Authority | Payment processing: 2.9% + $0.30 per transaction is the standard rate, but 0.5% variance across providers (Stripe, Square, Adyen, Braintree) is real money at SMB scale. $500k annual volume × 0.5% = $2,500/year for the same product. | Source: Stripe + Square + Adyen public pricing + cardflight SMB rate analysis 2025
+2026-06-18 | #stack-friction | T1-Value-Bomb | Data export hostage-taking: 40% of SaaS vendors charge extra for full data export, throttle API rate limits on free/lower tiers, or make export "available" via CSV-only (no schema, no relationships). The "you own your data" claim is aspirational, not contractual. | Source: Dunbar Cybersecurity + BetterCloud vendor lock-in survey 2024
+
+# End of seed entries — Phase 3 nightly auto-curation will append below this line

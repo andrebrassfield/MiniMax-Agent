@@ -1,0 +1,186 @@
+---
+name: second-self-morning-brief
+schedule: 0 6 * * *
+timezone: America/Chicago
+session:
+  mode: new
+  keepSessions: 5
+---
+
+# Second-Self Morning Brief — Daily Synthesis (06:00 CT)
+
+The daily reasoning layer that turns Andre's second-brain captures into second-self output. Reads 7 days of vault activity, produces a 4-section brief that surfaces non-obvious connections, cross-note patterns, active contradictions, and the single best capture to develop further. Per the 2026-06-22 Path A spec.
+
+**EXECUTE the procedure:**
+
+## Step 1 — Gather input set
+
+Read all vault notes modified in the last 7 days. Scope:
+- `01 Daily/` (all daily notes with mtime within 7d)
+- `02 Notes/ideas/` (all notes with mtime within 7d)
+- `02 Notes/patterns/` (all notes with mtime within 7d)
+- `02 Notes/questions/` (all notes with mtime within 7d)
+- `02 Notes/articles/` (all notes with mtime within 7d)
+- `02 Notes/numbers/` (all notes with mtime within 7d)
+
+Quick audit:
+```bash
+find ~/MiniMax-Agent/01\ Daily ~/MiniMax-Agent/02\ Notes/ideas ~/MiniMax-Agent/02\ Notes/patterns ~/MiniMax-Agent/02\ Notes/questions ~/MiniMax-Agent/02\ Notes/articles ~/MiniMax-Agent/02\ Notes/numbers \
+  -type f -name "*.md" -mtime -7 2>/dev/null | sort
+```
+
+**HALT** if total count < 3 (insufficient material; exit silently with `<mavis-progress>second-self-morning-brief: skipped — <N> notes in window</mavis-progress>`).
+
+## Step 1.5 — Reaction-discipline validation
+
+For every `02 Notes/articles/` note modified in the last 7 days, verify it contains a `## Reaction` section. The reaction is what makes a source note different from a highlight — it's Andre's voice on the source, not the source itself.
+
+```bash
+for f in $(find ~/MiniMax-Agent/02\ Notes/articles -type f -name "*.md" -mtime -7); do
+  if ! grep -qE "^## (Reaction|My Reaction|Reactions|My Take|My Reading)" "$f"; then
+    echo "MISSING-REACTION: $f"
+    # Move to Inbox for re-processing
+    mv "$f" ~/MiniMax-Agent/00\ Inbox/
+    echo "$(date): moved $f to Inbox (missing reaction)" >> ~/.mavis/state/reaction-discipline.log
+  fi
+done
+```
+
+If any notes moved to Inbox: include them in the brief's `Best Capture` section ("re-process these for the reaction discipline").
+
+## Step 2 — Read the input set
+
+Read every file in the gathered set. For each note, extract:
+- Title (first `# ` heading or filename)
+- Type (daily / idea / pattern / question / article / number)
+- Key claim or observation (1 sentence)
+- Date captured
+
+## Step 3 — Run the synthesis prompt (the load-bearing step)
+
+Use the article's exact prompt structure (do not summarise — synthesise):
+
+> Read these vault notes from the last 7 days. Do not summarise.
+>
+> Produce four sections:
+>
+> **Connections:** two non-obvious links between separately captured notes. Name both notes. If the connection is obvious, it does not qualify.
+>
+> **Pattern:** one theme appearing across three or more notes. One sentence.
+>
+> **Contradiction:** two notes where my positions conflict. Quote both. (If no contradiction found this week, write "No contradiction surfaced this week" and move on — do not fabricate.)
+>
+> **Best capture:** the single note most worth developing further and why.
+
+Apply Mavis judgment, not LLM reflex: skip connections that are merely topical. The bar is "I would not have made this link myself reading the notes one at a time."
+
+## Step 3.5 — Read calendar (live data, parallel to vault synthesis)
+
+Read Andre's Google Calendar for today + next 7 days via the `google-calendar` MCP server:
+
+```bash
+# Today's events (primary calendar, America/Chicago)
+TODAY=$(date +%Y-%m-%dT00:00:00-06:00)
+TOMORROW=$(date -v+1d +%Y-%m-%dT00:00:00-06:00)
+mavis mcp call google-calendar get_events "{\"user_google_email\":\"andrebrassfield@gmail.com\",\"calendar_id\":\"primary\",\"time_min\":\"$TODAY\",\"time_max\":\"$TOMORROW\",\"max_results\":20}"
+
+# Next 7 days at-a-glance (event count per day, no details)
+NEXT_WEEK=$(date -v+8d +%Y-%m-%dT00:00:00-06:00)
+mavis mcp call google-calendar get_events "{\"user_google_email\":\"andrebrassfield@gmail.com\",\"calendar_id\":\"primary\",\"time_min\":\"$TOMORROW\",\"time_max\":\"$NEXT_WEEK\",\"max_results\":50}"
+```
+
+**Halt conditions:**
+- MCP call fails (auth expired, network error, server down) → skip calendar section, log warning, continue
+- Empty result → write "No events today" / "Empty week ahead", continue
+- Calendar tool reports write scope requested → HALT, surface (shouldn't happen with --read-only)
+
+**What NOT to surface:** event attendees, event descriptions, private notes. Only event titles, start/end times, locations (if public).
+
+## Step 4 — Write the brief
+
+Output to `00 Inbox/brief-YYYY-MM-DD-synthesis.md` (mirror to `~/MiniMax-Agent/99 _system/briefs/brief-YYYY-MM-DD-synthesis.md`).
+
+```markdown
+---
+date: YYYY-MM-DD
+type: second-self-synthesis
+input_window: last 7 days
+notes_read: <N>
+calendar_integration: enabled
+---
+
+# Morning Synthesis — YYYY-MM-DD
+
+> Auto-generated by `second-self-morning-brief` cron. Surface this in the morning Telegram roundup if user is in execution mode; otherwise read on session start.
+
+## Connections
+
+1. **<Note A title>** ↔ **<Note B title>** — <2-3 sentence non-obvious link>
+2. **<Note C title>** ↔ **<Note D title>** — <2-3 sentence non-obvious link>
+
+## Pattern
+
+<One sentence: a theme appearing across 3+ notes.>
+
+## Contradiction
+
+<Quote from note X> vs <Quote from note Y> — <1 sentence on what the conflict is>
+
+(Or: "No contradiction surfaced this week.")
+
+## Best Capture
+
+**<Note title>** — <2-3 sentences on why this is worth developing further, with the specific next step.>
+
+## Today's calendar
+
+<Time-ordered list of today's events with start/end times. If empty: "No events scheduled.">
+
+- 09:00-10:00 — <Event title> (<Location if any>)
+- 14:00-15:00 — <Event title>
+
+## Next 7 days
+
+<Day-by-day count of events, no details. E.g., "Mon: 3 events / Tue: 0 events / Wed: 5 events...". If empty week: "Open week — no commitments.">
+
+---
+
+**Process notes:**
+- Input set: <N> notes across <folders>
+- Reaction-discipline check: <M> notes moved to Inbox for missing reaction
+- Calendar integration: <status> — <N> events today, <M> events next 7 days
+- Halt conditions checked: pass
+```
+
+## Step 5 — Surface (or don't)
+
+If today's date is a workday AND it's before 09:00 CT, send a Telegram nudge:
+> "Morning brief ready: `00 Inbox/brief-YYYY-MM-DD-synthesis.md` — <N> connections, 1 pattern, <0|1> contradiction, 1 best capture"
+
+Otherwise: silent. The brief is on disk for next-session pickup.
+
+## Hard constraints
+
+1. **Never summarise.** The article is explicit: "Do not summarise." If the brief reads like a summary, the cron is broken — halt and fix the prompt.
+2. **No fabrication.** If the input set has no real contradiction, write "No contradiction surfaced this week." Never invent one to fill the section.
+3. **Reaction discipline is enforced.** Step 1.5 runs every time. Notes without `## Reaction` go to Inbox.
+4. **HALT on insufficient input.** <3 notes in window = silent skip. Don't fabricate from thin air.
+5. **No cross-team reads.** All paths are Mavis-internal (`~/MiniMax-Agent/`, `~/.mavis/`).
+6. **Append to log.** Every run appends to `~/.mavis/state/second-self-morning-brief.log` with timestamp, notes-read count, sections-completed.
+
+## Failure modes
+
+| Failure | Detection | Recovery |
+|---|---|---|
+| `find` returns 0 files (vault not mounted, wrong path) | Step 1 audit returns 0 | HALT, surface — vault not accessible |
+| Reaction discipline check moves all notes | Brief's Best Capture references the moved notes | OK — the brief is still useful, the moves are the action item |
+| 4 sections all empty | Step 4 output file is essentially blank | Write the file with "INCOMPLETE — insufficient input" + HALT |
+| Telegram send fails | Step 5 errors out | Log to cron log, don't retry; brief is on disk |
+
+## Cross-references
+
+- Spec: `~/MiniMax-Agent/03 Projects/Mavis EA Design/specs/second-self-automation-2026-06-22.md`
+- Decision: `~/MiniMax-Agent/02 Notes/decisions/2026-06-22-two-track-model.md`
+- Companion: `~/.mavis/agents/mavis/crons/second-self-contradiction.md` (runs 07:00, more focused contradiction scan)
+- Companion: `~/.mavis/agents/mavis/crons/second-self-weekly-deep.md` (Sunday, the deeper pass)
+- Source skill (on-demand): `~/.mavis/agents/mavis/skills/ea-daily-brief/SKILL.md` (this cron replaces scheduled execution)

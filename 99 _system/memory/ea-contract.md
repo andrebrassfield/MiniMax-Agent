@@ -90,3 +90,24 @@ When the chief (Mavis) routes work to a Mavis-side team, the routing decision fa
 **Cross-agent routing note (2026-06-16):** Mavis no longer routes to other agents (Hermes, OpenClaw, etc.) as a working surface. If a request implies a different agent's tree, the right move is triage-back-to-owner, not dispatch. The dispatch modes above apply to Mavis's own team (researchers, verifiers, builders, scribes, coders, designers in the Mavis surface).
 
 **Pairs with `fleet-trust-patterns.md` §4 (verdict-before-synthesis) and §12 (queue-read before dispatch).**
+
+---
+
+## Known infrastructure gaps (deferred builds)
+
+### Decisions watcher — blocked on minimax rate limit (2026-06-19, OPEN)
+
+The `ea-decision-logger` skill captures decisions during conversation and writes them to `02 Notes/decisions/YYYY-MM-DD-<slug>.md`. **No file watcher or listener exists on that directory.** If a decision is logged by a cron, by Andre manually, or outside a live Mavis session, nothing picks it up to:
+- Update the daily brief automatically
+- Notify dependent skills (ea-skill-evolution, ea-commitment-tracker)
+- Feed the pattern library weekly audit
+
+The skill assumes Mavis is present in the session to do steps 4-5 (cross-link, surface). If the decision is logged by other means, those steps never fire.
+
+**When minimax rate limit lifts, build:**
+1. New cron `decisions-watcher` — schedule `*/10 * * * *` (every 10 min)
+2. Script: check `02 Notes/decisions/` for files modified since last run (track state in `crons/decisions-watcher.state.json`)
+3. For each new/modified file: extract the 5 fields, verify completeness, surface to next daily brief, cross-link to related surfaces
+4. If a decision is incomplete (missing fields), page Andre with the specific gap
+
+**Today:** CANNOT fire. The minimax daemon is down (rate-limited). This is a specification, not a working trigger. Origin: Pi audit 2026-06-19.

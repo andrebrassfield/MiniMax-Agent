@@ -209,6 +209,41 @@
       "why_it_works": "WEF Future of Jobs 2025 stat (replaces the 2013 Oxford 47% anchor) + the X→Y pivot that redirects fear from the algorithm to the coworker. The 12-tasks / 4-automatable / 8-undeniable structure is the Pillar 5 tactical frame. Pillar 5 specific.",
       "date_added": "2026-06-18",
       "times_used": 0
+    },
+    {
+      "text": "3-6 months to rank on Google. 1-4 weeks to get cited by ChatGPT. Same content. Different optimization stack. Build the GEO stack: schema, author entities, citation density.",
+      "emotion": "urgency",
+      "why_it_works": "Specific time-to-result contrast (3-6mo vs 1-4wk) — the reader checks their own SEO timeline. The 5x speed gap is the load-bearing element; abstract 'AI is changing search' would lose the reader in 3 lines. Pillar 3 specific.",
+      "date_added": "2026-06-22",
+      "times_used": 0
+    },
+    {
+      "text": "Google shipped AI Overviews. Google is now an answer engine. If you're still optimizing for the 10-blue-links, you're optimizing for a product Google is sunsetting.",
+      "emotion": "fear",
+      "why_it_works": "The vendor-of-SEO (Google) is now an answer engine. The reader's SEO agency is 18 months behind. The X→Y pivot (Google-the-search-engine → Google-the-answer-engine) is the rhetorical move. Pillar 3 specific.",
+      "date_added": "2026-06-22",
+      "times_used": 0
+    },
+    {
+      "text": "Prompt engineering gets you 70%. Runtime engineering gets you the other 30%. Most agent builders ship the prompt and skip the runtime. The prompt doesn't enforce safety boundaries. The runtime does.",
+      "emotion": "clarity",
+      "why_it_works": "The 70/30 split is the load-bearing element. The X→Y pivot (prompt → runtime) is the conceptual move. Source: BoxAgnts 'most agents fail in production because they lack a runtime.' Pillar 4 specific.",
+      "date_added": "2026-06-22",
+      "times_used": 0
+    },
+    {
+      "text": "AI coordinator is a real job title in 2026. No code required. Your job is to make 4 AI systems talk to each other. The salary: $80K-$120K. The barrier: knowing which AI does what.",
+      "emotion": "recognition",
+      "why_it_works": "The 'AI coordinator' formalization is the freshest Pillar 5 angle of the cycle. Source: 网易 '团队里开始出现AI协调员这类角色.' The salary range is the anchor; the 4-AI-systems bridge is the operational specificity. Pillar 5 specific.",
+      "date_added": "2026-06-22",
+      "times_used": 0
+    },
+    {
+      "text": "2026 is when AI moves from hype to pragmatism. TechCrunch just wrote it. The demos stop mattering. The deployable wins. The roofer who turns an iPhone video into a week of TikTok ads wins. The plumber who ships a sub-500ms voice agent wins. The HVAC shop that books 7 jobs/week from a $400/mo AI wins.",
+      "emotion": "defiance",
+      "why_it_works": "Names the year + the publication + 3 named operators. The TechCrunch 2026 thesis is the academic/media validation of Pillar 6's core claim. The 3 specific operator wins (roofer, plumber, HVAC) is the audience-specificity that converts the macro thesis to operator-level relevance. Pillar 6 specific.",
+      "date_added": "2026-06-22",
+      "times_used": 0
     }
   ],
   "formats": [
@@ -331,6 +366,26 @@
     {
       "structure": "Stat + Task-Audit Action: [Specific stat] (source). [The real threat isn't X — it's the coworker]. [Audit: 12 weekly tasks → 4 automatable → 8 undeniable]. [30-min weekend play].",
       "why_it_works": "WEF 40% is the data anchor. The implication redirects fear from the algorithm to the coworker. The 12-task audit is the Pillar 5 tactical frame — gives the reader a concrete checklist for the 30-min weekend play. Pillar 5 specific."
+    },
+    {
+      "structure": "Time-to-Result Contrast: [Old way: N months]. [New way: N weeks]. [Implication for the operator].",
+      "why_it_works": "Concrete speed comparison anchors the abstract shift (SEO → GEO). The 'N months vs N weeks' pair is the load-bearing element. Pillar 3 specific."
+    },
+    {
+      "structure": "Vendor-Inversion Threat: [Vendor] just shipped [new direction]. [What it means for buyers of their old product]. [The pivot required].",
+      "why_it_works": "The vendor of the old approach becomes the operator of the new one. The reader's existing investment (SEO agency, SEO stack) is now 18 months behind. Pillar 3 specific."
+    },
+    {
+      "structure": "Engineering-Layer Pivot: [Layer X] gets you [N%]. [Layer Y] gets you [the other N%]. [Why most builders stop at X].",
+      "why_it_works": "The 70/30 split is the load-bearing element. The X→Y pivot names the layer most builders skip. Pillar 4 specific — the layer-below-the-prompts framing."
+    },
+    {
+      "structure": "Job-Title Forecast: [Title] is a [year] job title. [Barrier]. [Salary range]. [What the job actually does].",
+      "why_it_works": "Formalizes an emerging role into a salary-anchored career path. The 'no code required' barrier-lowering is what makes it a Pillar 5 (Leverage Play) hook. Pillar 5 specific."
+    },
+    {
+      "structure": "Year-of-Pragmatism Thesis: '[Year] is when AI moves from [state A] to [state B].' [Source]. [3 named operators] win. [Boring. Profitable.]",
+      "why_it_works": "Names the macro thesis (hype → pragmatism) + source (TechCrunch / journalism study) + 3 concrete operator wins. The 'Boring. Profitable.' closer is the persona's voice anchor. Pillar 6 specific."
     }
   ],
   "pain_points": [
@@ -453,6 +508,26 @@
     {
       "exact_audience_language": "AI took the repetitive, now my boss wants more",
       "frequency": 3
+    },
+    {
+      "exact_audience_language": "true profit invisible, 55+ fees scattered across 5 systems",
+      "frequency": 1
+    },
+    {
+      "exact_audience_language": "3-6 months SEO vs 1-4 weeks GEO, my agency is 5x behind",
+      "frequency": 1
+    },
+    {
+      "exact_audience_language": "Google shipped AI Overviews, my SEO agency is 18 months behind",
+      "frequency": 1
+    },
+    {
+      "exact_audience_language": "most agents fail in production because they lack a runtime",
+      "frequency": 1
+    },
+    {
+      "exact_audience_language": "most 'AI second brain' tools still require you to save things manually",
+      "frequency": 1
     }
   ],
   "ideas_backlog": [
@@ -753,6 +828,76 @@
       "format": "Contrarian-Hype + Operator Implementation",
       "pillar": "Pillar 6 — Hype Translator",
       "status": "pending"
+    },
+    {
+      "hook": "TikTok Shop sunset seller-shipping Feb 25. Amazon MCF is the new compliance path. Here's the 4-step integration stack most sellers still don't have.",
+      "format": "Build Log / 4-Step Integration",
+      "pillar": "Pillar 1 — E-Commerce Logistics",
+      "status": "pending",
+      "source_seed": "daily-research-2026-06-22.md Pillar 1 Source 3 (Amazon MCF for TikTok Shop after 2026-02-25 seller-shipping sunset)"
+    },
+    {
+      "hook": "Singapore teams ship voice agents in 14 days. US HVAC shops are still on hold music. Why the latency gap? Three things: cache repeat questions, trim the system prompt 40%, swap to a quantized model. Sub-500ms is the new floor.",
+      "format": "Geographic-Asymmetry Drop",
+      "pillar": "Pillar 2 — Trades / Missed Call",
+      "status": "pending",
+      "source_seed": "daily-research-2026-06-22.md Pillar 2 Source 4 + Pillar 4 Source 3 (callsphere Singapore-ships-faster + 3 latency levers)"
+    },
+    {
+      "hook": "3-6 months to rank on Google. 1-4 weeks to get cited by ChatGPT. Same content. Different optimization stack. Build the GEO stack: schema, author entities, citation density. The 5x speed gap is the new moat.",
+      "format": "Time-to-Result Contrast",
+      "pillar": "Pillar 3 — Existential Macro Threat / GEO",
+      "status": "pending",
+      "source_seed": "daily-research-2026-06-22.md Pillar 3 Source 2 (IT之家 SEO 3-6mo vs GEO 1-4wk)"
+    },
+    {
+      "hook": "Google shipped AI Overviews. Google is now an answer engine. If you're still optimizing for the 10-blue-links, you're optimizing for a product Google is sunsetting. Your SEO agency isn't lying to you. They're just 18 months behind. Adapt or die.",
+      "format": "Vendor-Inversion Threat",
+      "pillar": "Pillar 3 — Existential Macro Threat / GEO",
+      "status": "pending",
+      "source_seed": "daily-research-2026-06-22.md Pillar 3 Source 5 (Progress Sitefinity: Google is now an answer engine)"
+    },
+    {
+      "hook": "The cascaded voice pipeline is the bottleneck. ASR → LLM → TTS in sequence = 1.2 seconds of dead air. The fix isn't faster models. It's semantic triggering. Start thinking when the caller pauses semantically, not when the VAD timer hits 600ms. Sub-500ms is the new floor.",
+      "format": "Engineering-Layer Pivot",
+      "pillar": "Pillar 4 — Build Logs",
+      "status": "pending",
+      "source_seed": "daily-research-2026-06-22.md Pillar 4 Source 2 (arXiv 2601.19952 LTS-VoiceAgent Listen-Think-Speak)"
+    },
+    {
+      "hook": "Prompt engineering gets you 70%. Runtime engineering gets you the other 30%. The prompt doesn't enforce safety boundaries. The runtime does. Most agent builders ship the prompt and skip the runtime. The 5% who build both ship to production.",
+      "format": "Engineering-Layer Pivot",
+      "pillar": "Pillar 4 — Build Logs",
+      "status": "pending",
+      "source_seed": "daily-research-2026-06-22.md Pillar 4 Source 4 (BoxAgnts runtime engineering)"
+    },
+    {
+      "hook": "AI coordinator is a real job title in 2026. No code required. Your job is to make 4 AI systems talk to each other. The salary: $80K-$120K. The barrier: knowing which AI does what. The playbook: list your 12 weekly tasks, mark the 4 AI can do, build the bridges between them.",
+      "format": "Job-Title Forecast",
+      "pillar": "Pillar 5 — Leverage Play / Job Defense",
+      "status": "pending",
+      "source_seed": "daily-research-2026-06-22.md Pillar 5 Source 3 (网易 AI coordinator job title)"
+    },
+    {
+      "hook": "Your second brain still needs you to save the link. The leverage play: spend 30 minutes wiring the auto-save so your brain does the work, not your fingers. Saturday morning. 1 hour. $20/mo ChatGPT + Zapier. Monday you walk in with answers before questions are asked.",
+      "format": "Leverage Pivot (Fear → Action)",
+      "pillar": "Pillar 5 — Leverage Play / Job Defense",
+      "status": "pending",
+      "source_seed": "daily-research-2026-06-22.md Pillar 5 Source 5 (screenpi.pe + BHyve second-brain friction)"
+    },
+    {
+      "hook": "2026 is when AI moves from hype to pragmatism. TechCrunch just wrote it. The demos stop mattering. The deployable wins. The roofer who turns an iPhone video into a week of TikTok ads wins. The plumber who ships a sub-500ms voice agent wins. The HVAC shop that books 7 jobs/week from a $400/mo AI wins. Boring. Profitable.",
+      "format": "Year-of-Pragmatism Thesis",
+      "pillar": "Pillar 6 — Hype Translator",
+      "status": "pending",
+      "source_seed": "daily-research-2026-06-22.md Pillar 6 Source 1 (TechCrunch 2026 hype→pragmatism)"
+    },
+    {
+      "hook": "Half the AI tools on the market are PPT decks pretending to be products. 2026 is when the buyer stops paying for demos. Build the tool that ships to production. Here is the procurement filter that separates demos from deployments: 1) Does it have paying customers in production? 2) Does it integrate with my stack? 3) Does it have a measurable ROI in 30 days? Two of three = pass. All three = buy.",
+      "format": "Year-of-Pragmatism Thesis + Tactical Filter",
+      "pillar": "Pillar 6 — Hype Translator",
+      "status": "pending",
+      "source_seed": "daily-research-2026-06-22.md Pillar 6 Source 2 (cnblogs 2026 AI PPT工具淘汰)"
     }
   ],
   "performance_log": [
@@ -872,6 +1017,19 @@
       "target_engagement_at_publish": "fresh post, 45m old at reply time",
       "target_text_excerpt": "Nearly half of all production code is now generated by AI. Checkmarx: companies that rely more on AI-generated code ship vulnerabilities at 3.4x the rate...",
       "_note": "Third reply in x-reply-guy test. P5 contrarian-extend on a fresh AI safety post. Target tier A (Santiago = mid-size AI educator). High upside if Santiago replies (his audience is AI devs, 75x compounding weight)."
+    },
+    {
+      "post_id": "https://x.com/DreTheSalesGuy/status/2067729451677298737",
+      "hook_used": "Everyone is hyping the new real-time voice model. Who cares. Here is what a customer success rep can do with it: 50 calls a day, AI handles the CRM notes. 10 minutes of prep instead of 1 hour of manual entry. $400/mo. 40 minutes saved daily.",
+      "views": 0,
+      "likes": 0,
+      "retweets": 0,
+      "replies": 0,
+      "date": "2026-06-18",
+      "publish_time": "17:01 CT",
+      "pillar": "P6",
+      "idea_index": 31,
+      "_note": "auto-published via mavis cron (Draft R1D2 of 9, 2026-06-17 batch, Playwright MCP page.fill() path) — P6 Hype Translator (Contrarian-Hype), byte-identical verified, no duplication, bouncer dismissed 2 generic close buttons pre-flight"
     }
   ]
 }
