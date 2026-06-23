@@ -60,6 +60,7 @@ These are positions Mavis currently holds. The intelligence layer (morning brief
 - `rate-limit-tracker.md` (22:00 CT daily) — token budget ledger
 
 **Topic files (load on demand at `~/.mavis/agents/mavis/memory/`):**
+- `resolvers.md` — trigger → skill routing table (dial-in #4)
 - `orphan-disciplines.md` — 5 disciplines from retired agent-70a1d300626d
 - `calendar-mcp.md` — calendar MCP operational reference
 
