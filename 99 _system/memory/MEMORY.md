@@ -44,11 +44,16 @@ These are positions Mavis currently holds. The intelligence layer (morning brief
 - Two-Track Operating Model: `~/MiniMax-Agent/03 Projects/Mavis EA Design/memory/two-track-model.md`
 - Second-Self Automation: `~/MiniMax-Agent/03 Projects/Mavis EA Design/memory/second-self-automation.md`
 
-**Skills (canonical at `~/.mavis/agents/mavis/skills/`):**
+**Skills (agent-private, canonical at `~/.mavis/agents/mavis/skills/`):**
 - `context-loader/SKILL.md` — Karpathy-pattern project scoping
 - `two-track-handoff/SKILL.md` — spec → Track 2 spawn procedure
 - `two-link-rule/SKILL.md` — soft enforcement of the connection discipline
 - `obsidian-local-rest-api-wiring/SKILL.md` — credential storage pattern
+- `ea-*` skills — the CHIEF system contract (daily-brief, weekly-connections, decision-logger, commitment-tracker, skill-evolution, etc.)
+
+**Skills (global, cross-agent, canonical at `~/.mavis/skills/`):**
+- **Marketing Skills v2.5.0** — 5 skills: `/offers`, `/pricing`, `/copywriting`, `/launch`, `/sales-enablement`. See `~/.mavis/skills/INDEX.md` for the full registry (triggers, upstream/downstream, versions). Any agent can read; only Mavis writes. A2A topology: **A-read + B-write** (locked 2026-06-23). Selection spec: `03 Projects/Marketing Skills/specs/selection-layer.md`.
+- **Marketing Skills v2.6 (calibration pending)** — target: **doseofproof.com** (Andre's personal brand, confirmed 2026-06-23). v2.5.0 was generic-operator-shaped; v2.6 recalibrates to personal-brand reality. Awaiting monetization-shape confirmation before dispatching the calibration. Plan in the v2.6 section of the selection spec.
 
 **Crons (canonical at `~/.mavis/agents/mavis/crons/`):**
 - `second-self-morning-brief.md` (06:00 CT daily) — 4-section synthesis + calendar
@@ -72,7 +77,34 @@ These are positions Mavis currently holds. The intelligence layer (morning brief
 
 ## Memory hygiene
 
-- **English. Topic files on demand. Target MEMORY.md ≤10KB, hard ceiling 15KB.** Currently ~5KB.
+- **English. Topic files on demand. Target MEMORY.md ≤10KB, hard ceiling 15KB.** Currently ~7KB (after 2026-06-23 harness-status entry).
 - **New long-term knowledge → vault first, MEMORY.md gets only a pointer.** This is the 4th active thesis. Discipline matters here.
 - **Topic files MUST have YAML `description`.** Load on demand, not auto-injected.
 - **Append = new entry; Edit/Write = update, merge, or remove.** Don't mix.
+
+### MiniMax Code harness: changelog + Computer Use status (2026-06-23)
+Type: harness
+
+**Changelog source of truth**: `https://agent.minimax.io/docs/changelog`
+- Desktop build has NO public GitHub releases — `MiniMax-AI/minimax-code` repo exists but its Releases tab is empty (only the opencode CLI source lives there).
+- The Squirrel CDN feed at `https://file.cdn.minimax.io/public/minimax-agent/release/` ships binary + sha512 only; `update-info.json` has no notes payload.
+- The docs page is the ONLY authoritative changelog. Check it whenever asked "what changed".
+
+**Baseline version observed**: 3.0.47 (build 74), installed 2026-06-23 08:47 via Squirrel auto-update.
+
+**Computer Use (cu MCP) status flag — IMPORTANT, recheck every cold-start**:
+- **Disabled as of v3.0.46** for "compatibility and user experience concerns" — explicit note in the changelog, expected to return in a future version.
+- Current observable state: `mavis mcp ls` shows `cu` with `authStatus: pending_auth` and `skillStatus: active`. Calls will fail until the desktop team ships the fix.
+- **Before promising desktop automation** (mouse / keyboard / clipboard / native macOS UI / full-screen capture work):
+  1. Run `mavis mcp ls` and confirm the `cu` server `authStatus`.
+  2. If still `pending_auth` → tell the user Computer Use is temporarily disabled, then propose fallbacks:
+     - Browser automation → `playwright` MCP (works today)
+     - Native macOS UI tasks → delegate to Andre (he is comfortable with desktop clicks)
+     - Reading screen state → still try `desktop_screenshot` once; if it returns auth error, switch to delegation
+  3. Do NOT burn tokens looping on cu calls that will fail.
+- Re-verification trigger: any cold-start, any task asking for desktop control, any `mavis mcp ls` output showing `pending_auth` flipping to a different value.
+
+**Update mechanism notes** (for future debugging):
+- Squirrel.Mac, provider: `generic`, update feed URL above.
+- Installer replaces `/Applications/MiniMax Code.app` in-place and does NOT retain a backup of the previous version. Local version diffing requires the docs page; do not look for a `.MMXCodeUpdate*` zip or prior `.app` on disk.
+- macOS Squirrel update race was fixed in 3.0.46; daemon health-check timeout raised to 60s in same release.

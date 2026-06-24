@@ -1,0 +1,13 @@
+{
+  "id": null,
+  "version": "2.5.0",
+  "name": "launch",
+  "updated_at": 1750705020000,
+  "platform": "minimax",
+  "category": "marketing-skills",
+  "release": "Marketing Skills v2.5.0",
+  "part_of": "Marketing Skills v2.5.0 (offers, pricing, copywriting, launch, sales-enablement)",
+  "description": "Launch sequence mechanics. PLF, audience, signature, evergreen. Pre-launch, cart open, mid-launch, cart close. Consumes /offers + /pricing + /copywriting.",
+  "upstream": ["offers", "pricing", "copywriting"],
+  "downstream": ["sales-enablement"]
+}

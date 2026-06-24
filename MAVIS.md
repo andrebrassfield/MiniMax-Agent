@@ -49,6 +49,7 @@ Active projects (see `[[03 Projects/]]` for full detail):
 - **Fleet consolidation (2026-06-07 decision)** — Hermes 11 → 5 profiles. "Complexity is the enemy of execution; depth of profile contract beats breadth."
 - **Vault scaling** — 100k+ token context. Hierarchical loading without losing latency or recall. Driven by mphrediction thesis.
 - **The token-budget reality** — confirmed bottleneck (Night Flight cascade 06-04). Cost eval criterion for next P5 round. See dial-in ledger.
+- **The 5-stage LLM pipeline** (2026-06-22) — "architecture is one paragraph; data + training + alignment + eval are where models are won." Mavis's 5-stage audit: vault quality (Stage 1), context chunking (Stage 2), session loop (Stage 3), SOUL+constraints (Stage 4), crons + Andre's feedback (Stage 5). 3 open gaps surfaced → spec at `03 Projects/Mavis EA Design/specs/mavis-as-llm-upgrades-2026-06-22.md`.
 
 ---
 
@@ -82,6 +83,7 @@ Active projects (see `[[03 Projects/]]` for full detail):
 2. **A second brain is good capture; a second self is active reasoning.** Without automation, the vault is excellent storage but passive.
 3. **Skills beat agents when the work is non-trivial and the harness is mature.** *(Thin-harness-fat-skills article confirms — 90% of value lives in skills, not model.)*
 4. **Long-term knowledge belongs in the vault, not in always-on context.** MEMORY.md is operational pointers; the vault holds durable knowledge.
+5. **Mavis is structurally isomorphic to an LLM.** The 5-stage pipeline (Data → Tokenization → Training → Alignment → Evaluation) is the build-side audit framework. Every design decision should pass the 5-stage audit. Source: `02 Notes/articles/2026-06-22 - 5-Stage-LLM-Pipeline.md` + `02 Notes/patterns/mavis-as-llm.md` + spec `03 Projects/Mavis EA Design/specs/mavis-as-llm-upgrades-2026-06-22.md`.
 
 ---
 

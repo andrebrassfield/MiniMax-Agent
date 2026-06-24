@@ -196,3 +196,58 @@ created: 2026-06-16
 - Dashboard append successful (142 → 142 + section)
 - mavis browser bridge: native host disconnected (logged above)
 
+---
+
+## Run: 2026-06-23 19:00 CT · window: last 30d (requested) — HALT
+
+**Source:** requested `https://x.com/i/account_analytics/content?type=posts&sort=date&dir=desc&days=30` (never reached — pre-flight H1 halt)
+**Generator:** Mavis (x-analytics-tracker), cron `x-analytics-tracker-daily`
+
+**Run status: HALTED — no usable data this run.**
+
+### Per-post metrics
+
+| Post | Published | Impressions | Engagements | Bookmarks | Profile clicks | Likes | Retweets | Replies | Notes |
+|------|-----------|-------------|-------------|-----------|----------------|-------|----------|---------|-------|
+| unclear | unclear | unclear | unclear | unclear | unclear | unclear | unclear | unclear | H1 halt before any X navigation |
+
+### Aggregate
+- Posts in window: unclear (browser bridge offline; no count could be observed)
+- Total impressions: unclear
+- Avg impressions/post: unclear
+- Total engagements: unclear
+- Avg engagement rate: unclear
+
+### Top 3 (by impressions)
+- unclear — no impressions observed this run.
+
+### Bottom 3 (by impressions)
+- unclear — no impressions observed this run.
+
+### Operator notes — HALT condition fired
+
+- **H1 — Browser bridge offline (HALT, recurring).** `mavis browser status` output:
+  ```
+  Browser Integration Status
+    Profile: default
+    Socket:  /Users/brassfieldventuresllc/.mavis/browser-broker.sock
+
+    Broker: running
+    Native host: not connected
+    Tab claims: none
+  ```
+  Same condition as the prior halt on 2026-06-19. The Chrome native messaging host (unpacked `Mavis Browser Bridge` extension) is still not connected. The skill cannot drive the user's real Chrome session — and per H1, falling back to a fresh Chromium instance for x.com is forbidden (it would defeat the OAuth-cookie-jar protection the bridge provides).
+- **Resolution path for Andre:**
+  1. Open Chrome and re-load the unpacked extension via `mavis browser install` (drag the unpacked extension into `chrome://extensions`, verify the loaded extension ID equals `ppnnfacnjgokfmbngkgbdgiigpbfgdba`, remove any stale "Mavis Browser Bridge" entry first).
+  2. Confirm `mavis browser status` shows `Native host: connected` before re-running the cron.
+  3. If the bridge still fails after re-install, this is likely a stale native-messaging-host manifest — `mavis browser install` after deleting the stale manifest will regenerate it.
+- **Prior halt context (still open).** The 2026-06-18 run halted on **H4 (X Premium gate) + H6 (wrong account — @DoseofProof)** — that halt is still unresolved. Even when the bridge comes back, the next run will likely re-hit H4 / H6 unless Andre (a) confirms the X session is logged in as @DreTheSalesGuy, and (b) the account has X Premium or the Premium upsell is dismissed. The bridge fix is necessary but not sufficient — see the 2026-06-18 halt section for full detail.
+- **Cascade: this cron is now at 3 consecutive halts** (2026-06-18 H4+H6 → 2026-06-19 H1 → 2026-06-23 H1). If the next run also halts, the brain's `performance_log` will be 4 days stale and the Researcher / next XCE feedback loop will not have fresh data. Worth surfacing as a hard-priority fix.
+- **Brain write was skipped (intentional, per T4).** The 11 prior `performance_log` entries in `content_brain.json` (mtime 1782138562, untouched this run) are preserved verbatim. The brain still holds the last known real metrics from the 2026-06-16 and 2026-06-17 runs. Do not interpret "no new entry" as "0 metrics" — the data is missing, not zero.
+- **No X clicks executed, no credentials typed** (H1 + H2 contracts honored).
+
+### Verification
+- Brain `performance_log` count: 11 before → 11 after (write skipped, prior metrics preserved; mtime unchanged)
+- Brain JSON valid (not re-checked this run; no write)
+- Dashboard append successful (198 → 198 + section)
+- mavis browser bridge: native host disconnected (logged above)

@@ -1,0 +1,13 @@
+{
+  "id": null,
+  "version": "2.5.0",
+  "name": "sales-enablement",
+  "updated_at": 1750705020000,
+  "platform": "minimax",
+  "category": "marketing-skills",
+  "release": "Marketing Skills v2.5.0",
+  "part_of": "Marketing Skills v2.5.0 (offers, pricing, copywriting, launch, sales-enablement)",
+  "description": "Sales enablement skill. Discovery framework, call structure, objection handling, proposals, case studies, follow-up. For high-ticket offers. Consumes /offers + /pricing.",
+  "upstream": ["offers", "pricing"],
+  "downstream": []
+}

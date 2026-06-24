@@ -75,3 +75,23 @@ topic: second-brain-vs-second-self
 **Source:** Obsidian Masterclass article + Mavis EA Design specs/2026-06-22 architecture pivot
 
 **Last updated:** 2026-06-22
+---
+# Thesis 5: Mavis is structurally isomorphic to an LLM; design decisions should pass the 5-stage audit
+
+**Statement:** Mavis's architecture (MiniMax-M3) is shared across every session. What differentiates one session from another is the same thing that differentiates one LLM from another: data quality (vault + memory + skills), training (the session loop), alignment (SOUL.md + hard constraints + EA tone), and evaluation (the crons + Andre's direct feedback). The 5-stage LLM pipeline (Data → Tokenization → Training → Alignment → Evaluation) is the build-side audit framework that complements the akash-pachaar runtime lens. **Every Mavis design decision should pass the 5-stage audit.**
+
+**Supporting evidence:**
+- `02 Notes/articles/2026-06-22 - 5-Stage-LLM-Pipeline.md` — the source article
+- `02 Notes/patterns/mavis-as-llm.md` — the codified pattern
+- `02 Notes/patterns/agent-harness.md` — the runtime counterpart (Von Neumann frame)
+- Dial-in cycle (56.6KB → 26.0KB always-on context) is a worked example of Stages 1+2 applied to MEMORY.md
+- The 5 LLM mistakes map 1:1 to 5 active Mavis failure modes (overstuffed skills, no RLHF-analog feedback loop, no formal benchmark suite)
+
+**Counter-evidence / complications:**
+- The isomorphism is structural, not literal. Mavis is not an LLM.
+- The 5 stages operate simultaneously, not sequentially. (Vault hygiene is ongoing, alignment is per-session, eval is per-cron.)
+- The 5 mistakes are heuristics, not laws. A Mavis can fail without doing any of them.
+
+**Source:** 5-stage pipeline article + `03 Projects/Mavis EA Design/specs/mavis-as-llm-upgrades-2026-06-22.md`
+
+**Last updated:** 2026-06-22

@@ -1,0 +1,13 @@
+{
+  "id": null,
+  "version": "2.5.0",
+  "name": "copywriting",
+  "updated_at": 1750705020000,
+  "platform": "minimax",
+  "category": "marketing-skills",
+  "release": "Marketing Skills v2.5.0",
+  "part_of": "Marketing Skills v2.5.0 (offers, pricing, copywriting, launch, sales-enablement)",
+  "description": "Copywriting skill. Long-form sales pages, headlines, CTAs, email sequences, subject lines, voice & tone. Consumes /offers + /pricing.",
+  "upstream": ["offers", "pricing"],
+  "downstream": ["launch", "sales-enablement"]
+}

@@ -273,3 +273,45 @@ mavis mcp call playwright browser_evaluate '{"function":"() => document.querySel
 **Affected skills:** the `x-publish` skill (`~/.mavis/agents/mavis/skills/x-publish/SKILL.md`) is built around this fact. The older `twitter-playwright-poster` (Hermes-side, Python+Playwright direct) was the original workaround path — the Playwright MCP `page.fill()` is now the canonical Mavis-side mechanism.
 
 **Why this is agent memory, not project memory:** the IPC bridge bug is at the tool layer, durable across every project that uses mavis browser `type` on a React-controlled editor.
+
+
+## mavis usage list --json — no dailyCap key (2026-06-23) [LIVE]
+The `mavis usage list --json` output does NOT contain a `dailyCap` or `dailyLimit` key. The actual keys are: `inputTokens`, `outputTokens`, `reasoningTokens`, `cacheReadTokens`, `cacheWriteTokens`, `totalTokens`, `costUsd`, `turns`. There is no `dailyCap` field anywhere in the response.
+
+**Effect:** any cron body or skill that reads `summary.dailyCap` (or `dailyLimit`) will silently get 0 and bypass the check. The budget gate in `fb-engine-loop.md` and `fb-engine-loop-pm.md` is currently broken for this reason — the gate silently passes because `DAILY=0`.
+
+**Correct budget gate approach:** use `mavis usage list --from <midnight UTC>` to get today's burn, then compare against a hardcoded heuristic (e.g., 30M tokens/day — close to yesterday's 21.8M). Example:
+```bash
+USAGE=$(mavis usage list --from "$(date -u -d 'today' +%Y-%m-%dT00:00:00Z)" --json 2>/dev/null)
+TODAY=$(echo "$USAGE" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('summary',{}).get('totalTokens','0'))")
+DAILY_HEURISTIC=30000000
+if [ "$TODAY" -gt "$DAILY_HEURISTIC" ]; then
+  echo "Budget gate HALT"
+fi
+```
+
+## mavis browser tool start — not a valid subcommand (2026-06-23) [LIVE]
+`mavis browser tool start` and `mavis browser tool start --managed` are NOT valid subcommands. The `mavis browser` command tree is:
+- `mavis browser status` — Chrome extension connection status
+- `mavis browser tools` — list available tools
+- `mavis browser tool <name> [args]` — invoke a named tool (the tool must be pre-registered)
+- `mavis browser install/uninstall` — manage extension registration
+
+The Chrome extension (native messaging host) must be online for the bridge to work. When the Chrome extension is offline (the exact failure state Layer 3 of `heal_substrate.py` handles), there is no `mavis browser tool start` to call.
+
+**The correct Layer 3 fallback:** direct Chrome launch:
+```bash
+"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" \
+  --remote-debugging-port=58632 \
+  --no-first-run \
+  --no-default-browser-check \
+  --user-data-dir=/tmp/chrome-fb-engine
+```
+This works even when the mavis browser bridge is fully offline. Used in `heal_substrate.py` Layer 3 Phase B. Verified 2026-06-23: Chrome launched and CDP responded on 58632.
+
+**Caveat:** the `--user-data-dir=/tmp/chrome-fb-engine` creates a clean profile (no FB session). The guardian will catch this and the Telegram ping fires once per 24h. This is the intended behavior — don't contaminate Andre's real Chrome profile with automated CDP sessions.
+
+## mavis cron register — 40904 stale-cache bug (2026-06-22, recurring) [LIVE]
+The `mavis cron create` command returns `40904 'Cron config already exists'` even when `mavis cron info` returns `404 not-found` for the same cron name. This is a daemon-level cache inconsistency — the daemon's in-memory state thinks the cron exists, but the filesystem state says it doesn't. The same bug occurred on 2026-06-22 with `rate-limit-tracker`.
+
+**Fix:** restart the desktop app (`killall "MiniMax Code"` from Activity Monitor or similar) to flush the daemon's cron cache. After restart, `mavis cron create` succeeds. Until the desktop restart, `mavis cron list` and `mavis cron create` will disagree.
