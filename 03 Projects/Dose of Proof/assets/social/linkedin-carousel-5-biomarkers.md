@@ -14,7 +14,7 @@
 
 **Visual:** Dre silhouette or initials. Dark navy background. Teal/cyan accent color.
 
-**Footer text:** Andre Brassfield · Dose of Proof · doseofproof.substack.com
+**Footer text:** Andre Brassfield · Dose of Proof · https://doseofproof.substack.com/
 
 ---
 
@@ -131,7 +131,7 @@ Includes:
 - What improved for me (specific numbers)
 - The terrain protocol I'm running
 
-**Download:** doseofproof.substack.com
+**Download:** https://doseofproof.substack.com/
 
 **Footer:** Andre Brassfield · Dose of Proof · I'm still in this process
 

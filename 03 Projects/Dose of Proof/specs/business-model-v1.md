@@ -113,7 +113,7 @@ The source identified 4 FDA "traps" (algorithmic cross-selling, SEO metadata, un
 
 ```
 Layer 1 (free):
-- Substack (doseofproof.substack.com)
+- Substack (`https://doseofproof.substack.com/`) — subdomain URL, owned
 - Podcast (doseofproof.com/podcast or wherever hosted)
 - YouTube channel
 - Skool community (free tier preview)

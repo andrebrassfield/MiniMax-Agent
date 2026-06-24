@@ -15,7 +15,7 @@
 
 **Visual:** Clean dark theme. PCAC acronym prominent.
 
-**Footer:** Andre Brassfield · Dose of Proof · doseofproof.substack.com
+**Footer:** Andre Brassfield · Dose of Proof · https://doseofproof.substack.com/
 
 ---
 
@@ -119,7 +119,7 @@ The numbers move. They don't arrive at a finish line.
 - The PCAC framework, operationalized
 - My raw updates from my own adjustments and labs
 
-**Subscribe:** doseofproof.substack.com
+**Subscribe:** https://doseofproof.substack.com/
 
 **Footer:** I'm still in this process.
 

@@ -107,7 +107,7 @@ HRV. TyTron. Tryptase + urine MCAS mediators. ESR + CRP + symptoms. Vitamin D + 
 
 The framework + the data + the protocol:
 
-doseofproof.substack.com
+https://doseofproof.substack.com/
 
 ---
 

@@ -48,7 +48,7 @@ supersedes: pcac-launch-sequence in prelaunch-content-calendar.md (now folded in
 >
 > The next review: [date]. I'll be live-tweeting the hearing.
 >
-> The framework is upstream of the regulatory decision. doseofproof.substack.com"
+> The framework is upstream of the regulatory decision. https://doseofproof.substack.com/"
 
 **Template B — "What the committee decides" educational:**
 > "The FDA PCAC committee makes non-binding recommendations.
@@ -60,7 +60,7 @@ supersedes: pcac-launch-sequence in prelaunch-content-calendar.md (now folded in
 >
 > The FDA then decides whether to follow.
 >
-> Whatever they decide, the framework doesn't change. The math is the math. doseofproof.substack.com"
+> Whatever they decide, the framework doesn't change. The math is the math. https://doseofproof.substack.com/"
 
 **Template C — "Why I'm building Dose of Proof" educational:**
 > "I'm building Dose of Proof because:
@@ -71,7 +71,7 @@ supersedes: pcac-launch-sequence in prelaunch-content-calendar.md (now folded in
 >
 > Same acronym as the FDA committee. Different meaning. Both matter.
 >
-> The framework: doseofproof.substack.com"
+> The framework: https://doseofproof.substack.com/"
 
 ### Pre-launch waitlist capture (Substack)
 
@@ -106,7 +106,7 @@ The Substack opt-in is positioned as "live coverage waitlist" during this phase:
 >
 > Committee member Dr. [Name] just cited [specific study/data point].
 >
-> My read: this suggests [interpretation]. The framework asks 'show me the data' — this is the data. doseofproof.substack.com"
+> My read: this suggests [interpretation]. The framework asks 'show me the data' — this is the data. https://doseofproof.substack.com/"
 
 **Pattern 2 — Brand PCAC translation:**
 > "FDA PCAC just discussed [peptide].
@@ -115,14 +115,14 @@ The Substack opt-in is positioned as "live coverage waitlist" during this phase:
 >
 > The regulatory environment shifts. The framework doesn't. The math is the math.
 >
-> doseofproof.substack.com"
+> https://doseofproof.substack.com/"
 
 **Pattern 3 — Honest speculation:**
 > "The committee is leaning [direction] on [compound]. Non-binding recommendation.
 >
 > My honest read: [specific interpretation]. I could be wrong. The framework is the same either way.
 >
-> The data will tell us. doseofproof.substack.com"
+> The data will tell us. https://doseofproof.substack.com/"
 
 **Post-morning-session (12:00-1:00pm ET):**
 - Substack "What This Means for You" summary (template below)
@@ -155,7 +155,7 @@ WHAT I'M DOING:
 - Watching for FDA's final decision (typically within 60-90 days of PCAC recommendation)
 - Translating any changes through the PCAC framework
 
-CTA: doseofproof.substack.com (subscribe for the Day 2 coverage + the Dose of Proof Protocol launch)
+CTA: https://doseofproof.substack.com/ (subscribe for the Day 2 coverage + the Dose of Proof Protocol launch)
 ```
 
 ### Day 1 — Afternoon session (1:00-4:00pm ET)
@@ -169,7 +169,7 @@ CTA: doseofproof.substack.com (subscribe for the Day 2 coverage + the Dose of Pr
 >
 > My read: this is good. The committee should challenge the data, not rubber-stamp it.
 >
-> The brand's PCAC framework asks the same thing: 'Prove it's working or change the approach.' doseofproof.substack.com"
+> The brand's PCAC framework asks the same thing: 'Prove it's working or change the approach.' https://doseofproof.substack.com/"
 
 ### Day 1 — End of day (4:00-6:00pm ET)
 
@@ -193,7 +193,7 @@ CTA: doseofproof.substack.com (subscribe for the Day 2 coverage + the Dose of Pr
 - ❌ "This means you can/should take X" (medical advice — banned)
 - ❌ "The FDA will now allow X" (predictive — committee recommendations are non-binding)
 - ❌ Sourcing language (no peptide supplier names)
-- ✅ All posts end with: "The framework is upstream of any regulatory decision. doseofproof.substack.com"
+- ✅ All posts end with: "The framework is upstream of any regulatory decision. https://doseofproof.substack.com/"
 
 ---
 
@@ -291,7 +291,7 @@ I'll be live-tweeting through the brand's PCAC lens for the next [X hours].
 
 The framework: "Show me the data. Show me the before and after."
 
-Subscribe for the daily recap: doseofproof.substack.com
+Subscribe for the daily recap: https://doseofproof.substack.com/
 ```
 
 ### Template 2 — Data reporting
@@ -302,7 +302,7 @@ My read: [interpretation].
 
 The math doesn't care about committee politics. The math is the math.
 
-Framework: doseofproof.substack.com
+Framework: https://doseofproof.substack.com/
 ```
 
 ### Template 3 — Brand PCAC translation
@@ -313,7 +313,7 @@ Through the brand's PCAC lens: this affects [what users care about].
 
 The regulatory environment shifts. The framework doesn't.
 
-doseofproof.substack.com
+https://doseofproof.substack.com/
 ```
 
 ### Template 4 — Honest speculation
@@ -322,7 +322,7 @@ My honest read on the committee's lean: [interpretation].
 
 I could be wrong. The framework is the same either way.
 
-The data will tell us. doseofproof.substack.com
+The data will tell us. https://doseofproof.substack.com/
 ```
 
 ### Template 5 — Sober pushback
@@ -333,7 +333,7 @@ This is good. The committee should challenge the data, not rubber-stamp it.
 
 The brand's PCAC asks the same thing: "Prove it's working or change the approach."
 
-doseofproof.substack.com
+https://doseofproof.substack.com/
 ```
 
 ### Template 6 — End of session
@@ -344,7 +344,7 @@ Full recap with "What This Means for You": [Substack link]
 
 Cart is open for the Dose of Proof Protocol. Founding-member pricing closes when the cart does.
 
-doseofproof.substack.com
+https://doseofproof.substack.com/
 ```
 
 ---

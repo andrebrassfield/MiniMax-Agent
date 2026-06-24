@@ -90,7 +90,7 @@ I'm still in this process myself. The recon math is upstream of any protocol dec
 
 The framework, the formulas, the app:
 
-doseofproof.substack.com
+https://doseofproof.substack.com/
 
 Show me the data. Show me the math. Prove it's working or change the approach.
 

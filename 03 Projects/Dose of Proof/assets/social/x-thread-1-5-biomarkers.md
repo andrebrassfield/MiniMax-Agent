@@ -101,7 +101,7 @@ These are the 5 biomarkers that actually moved the needle for me. I'm still in t
 
 If you want the full breakdown — how to track each one, what improved for me, and the terrain protocol I'm running — I put it in a free PDF.
 
-Download: doseofproof.substack.com
+Download: https://doseofproof.substack.com/
 
 Or just follow along. The full PCAC framework drops soon.
 

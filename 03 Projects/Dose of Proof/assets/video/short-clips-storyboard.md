@@ -41,7 +41,7 @@ purpose: Top-of-funnel reach on YouTube Shorts, IG Reels, TikTok, X video
 - Minimal cuts (1-2 cutaways max — hands on desk, looking away briefly)
 - On-screen text overlays for the key lines: "I stopped taking Adderall" / "Distant with friends" / "Failing as a friend and as a man"
 
-**End card:** "I'm still in this process. doseofproof.substack.com → 5 biomarkers PDF"
+**End card:** "I'm still in this process. https://doseofproof.substack.com/ → 5 biomarkers PDF"
 
 **Goal:** Stop the scroll with the "disappearing" hook. Drive to lead magnet PDF for the biomarker breakdown.
 
@@ -70,7 +70,7 @@ purpose: Top-of-funnel reach on YouTube Shorts, IG Reels, TikTok, X video
 - The "profiting from keeping me fragmented" line should land — slight pause after
 - On-screen text: "4 specialists · 5 diagnoses · 'Your labs are normal'" as a banner
 
-**End card:** "If you've been there, you're not broken. doseofproof.substack.com"
+**End card:** "If you've been there, you're not broken. https://doseofproof.substack.com/"
 
 **Goal:** Validate the audience's experience. Drive brand recognition for the "PCAC framework" + lead magnet.
 
@@ -132,7 +132,7 @@ purpose: Top-of-funnel reach on YouTube Shorts, IG Reels, TikTok, X video
 - The "I'm still in this process" line is the brand voice anchor — let it breathe
 - On-screen text: "I'm still in this process. The numbers move."
 
-**End card:** "Dose of Proof. doseofproof.substack.com. The numbers don't lie."
+**End card:** "Dose of Proof. https://doseofproof.substack.com/. The numbers don't lie."
 
 **Goal:** Land the brand voice. The honesty is the differentiator. Drive PDF downloads + course waitlist.
 

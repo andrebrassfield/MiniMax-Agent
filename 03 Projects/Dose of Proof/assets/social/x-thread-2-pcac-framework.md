@@ -93,7 +93,7 @@ You're not broken. You're not crazy. You just haven't had the right map yet.
 
 The full PCAC framework + my raw updates from my own adjustments and labs:
 
-doseofproof.substack.com
+https://doseofproof.substack.com/
 
 ---
 

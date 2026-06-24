@@ -652,7 +652,7 @@ Dre
 4. **ESR + CRP + Specific Symptoms Tracking** — standard inflammation markers + daily "guarding score" 1-10 + flushing/heat episodes. Connects mechanical fix to downstream inflammation.
 5. **Vitamin D + Magnesium Status** (Terrain Foundations) — 25-OH Vitamin D + RBC magnesium. Low levels make everything worse (ligament laxity, mast cell reactivity, vagal tone, muscle guarding).
 
-CTA in PDF: "Join me on Substack — let's build the right map together." Directs to `doseofproof.substack.com`.
+CTA in PDF: "Join me on Substack — let's build the right map together." Directs to `https://doseofproof.substack.com/`.
 
 **Alternative lead magnet (not shipped):** "The Terrain Recon Worksheet" — held for v2 if the biomarker PDF needs backup.
 

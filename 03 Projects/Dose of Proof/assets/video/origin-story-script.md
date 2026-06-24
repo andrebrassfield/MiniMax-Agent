@@ -172,7 +172,7 @@ I'm building this brand — Dose of Proof — because the system profits from ke
 
 If that's you, the 5 biomarkers that actually moved the needle for me are free in a PDF.
 
-**[Optional end-card: doseofproof.substack.com]**
+**[Optional end-card: https://doseofproof.substack.com/]**
 
 The full PCAC framework drops in a course in a few weeks.
 
@@ -185,7 +185,7 @@ I'll be transparent with you the whole way.
 **On-screen text (white on dark navy):**
 > **Dose of Proof**
 > Proof-Centered Approach to Craniocervical + Autoimmune Chaos
-> doseofproof.substack.com
+> https://doseofproof.substack.com/
 >
 > **I'm still in this process.**
 > The numbers move. They don't arrive at a finish line.

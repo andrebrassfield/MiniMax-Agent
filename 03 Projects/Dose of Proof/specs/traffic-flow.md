@@ -13,7 +13,7 @@ purpose: Exact language + CTAs per channel. Every piece drives to Substack opt-i
 
 | Destination | URL | Purpose | KPI |
 |------------|-----|---------|-----|
-| **Substack** | `doseofproof.substack.com` | Email list (the moat) | Subscribers |
+| **Substack** | `https://doseofproof.substack.com/` | Email list (the moat) | Subscribers |
 | **Skool free tier** | `skool.com/doseofproof` (or whatever the reserved URL is) | Community + retention | Members |
 
 Every CTA in every asset points to one of these two destinations. No third option. No "stay tuned." No "more coming soon." Destination or no destination.
@@ -23,23 +23,23 @@ Every CTA in every asset points to one of these two destinations. No third optio
 ## X (Twitter) — The Reach Channel
 
 **Profile setup:**
-- Bio: "Andre Brassfield. 30. CCI + hEDS + MCAS. Built PCAC to map the upstream drivers. Still in it. doseofproof.substack.com"
+- Bio: "Andre Brassfield. 30. CCI + hEDS + MCAS. Built PCAC to map the upstream drivers. Still in it. https://doseofproof.substack.com/"
 - Pinned tweet: Week 1 = X thread 1 (5 Biomarkers lead magnet). Week 4 = X thread 6 (PCAC dual framework). Launch week = cart-open announcement.
-- Link in bio: `doseofproof.substack.com`
+- Link in bio: `https://doseofproof.substack.com/`
 
 **CTA language (use these exact phrasings):**
 
 | Where | CTA | Why this language |
 |-------|-----|-------------------|
-| Thread end (Tweet 8 of every thread) | "The full breakdown + my raw updates: **doseofproof.substack.com**" | Direct, specific, no fake urgency |
+| Thread end (Tweet 8 of every thread) | "The full breakdown + my raw updates: **https://doseofproof.substack.com/**" | Direct, specific, no fake urgency |
 | Standalone tweet | "More on this in the full PDF. Link in bio." | Soft CTA, doesn't break thread rhythm |
-| Reply-to-reply | "Yeah — I track this daily. Full framework on Substack: **doseofproof.substack.com**" | Conversational, drives opt-in through value |
-| Profile bio | "Still in it. Building Dose of Proof. doseofproof.substack.com" | Always-on CTA |
+| Reply-to-reply | "Yeah — I track this daily. Full framework on Substack: **https://doseofproof.substack.com/**" | Conversational, drives opt-in through value |
+| Profile bio | "Still in it. Building Dose of Proof. https://doseofproof.substack.com/" | Always-on CTA |
 
 **Reply engagement (every reply in first 2 hours):**
-- If reply is a question: answer with Dre's voice, end with "More on this: doseofproof.substack.com"
+- If reply is a question: answer with Dre's voice, end with "More on this: https://doseofproof.substack.com/"
 - If reply is a thank-you: reply "Thanks — and if you want the framework, it's on Substack" + link
-- If reply is a hater: reply "Fair. Here's my data: doseofproof.substack.com" + link (Dre's voice, not defensive)
+- If reply is a hater: reply "Fair. Here's my data: https://doseofproof.substack.com/" + link (Dre's voice, not defensive)
 
 **Anti-patterns:**
 - No "link in bio" without the link actually being in the bio (Dre must update bio before publishing)
@@ -60,10 +60,10 @@ Every CTA in every asset points to one of these two destinations. No third optio
 
 | Where | CTA | Why |
 |-------|-----|-----|
-| Post end | "Full framework + my raw updates: **doseofproof.substack.com**" | Same as X — consistent destination |
-| First comment on every post | "Free PDF: doseofproof.substack.com → 5 biomarkers that actually moved the needle for me + how to track them" | LinkedIn de-prioritizes outbound links in posts; first comment is the workaround |
-| Carousel last slide | "Subscribe: doseofproof.substack.com" + "I'm still in this process" | Visual close on the carousel |
-| Profile About | "Dose of Proof — Proof-Centered Approach to Craniocervical + Autoimmune Chaos. doseofproof.substack.com" | Always-on |
+| Post end | "Full framework + my raw updates: **https://doseofproof.substack.com/**" | Same as X — consistent destination |
+| First comment on every post | "Free PDF: https://doseofproof.substack.com/ → 5 biomarkers that actually moved the needle for me + how to track them" | LinkedIn de-prioritizes outbound links in posts; first comment is the workaround |
+| Carousel last slide | "Subscribe: https://doseofproof.substack.com/" + "I'm still in this process" | Visual close on the carousel |
+| Profile About | "Dose of Proof — Proof-Centered Approach to Craniocervical + Autoimmune Chaos. https://doseofproof.substack.com/" | Always-on |
 
 **Engagement rules:**
 - Reply to every comment in first 2 hours with substantive thought (not "thanks!")
@@ -86,23 +86,23 @@ Every CTA in every asset points to one of these two destinations. No third optio
 
 **Channel setup:**
 - Channel name: "Dose of Proof"
-- Channel description: "Andre Brassfield. 30. CCI + hEDS + MCAS. Built the PCAC framework. Still in it. doseofproof.substack.com"
-- Channel banner: doseofproof.substack.com URL prominent
+- Channel description: "Andre Brassfield. 30. CCI + hEDS + MCAS. Built the PCAC framework. Still in it. https://doseofproof.substack.com/"
+- Channel banner: https://doseofproof.substack.com/ URL prominent
 - Channel keywords: PCAC, craniocervical instability, MCAS, biomarker tracking, peptide recon math
 
 **CTA language:**
 
 | Where | CTA | Why |
 |-------|-----|-----|
-| Video description (first 2 lines) | "The PCAC framework + my raw updates: **doseofproof.substack.com**" | Most viewers don't expand description |
-| Pinned comment | "Free PDF: 5 biomarkers that actually moved the needle for me → doseofproof.substack.com" | Drives engagement + opt-in |
+| Video description (first 2 lines) | "The PCAC framework + my raw updates: **https://doseofproof.substack.com/**" | Most viewers don't expand description |
+| Pinned comment | "Free PDF: 5 biomarkers that actually moved the needle for me → https://doseofproof.substack.com/" | Drives engagement + opt-in |
 | End screen (last 20 sec) | "Subscribe to the channel + the Substack for daily updates" | Dual CTA |
 | Mid-video verbal (90-sec mark) | "If you're tracking your own data, the framework is on Substack" | Soft CTA, doesn't break content |
 | Cards (YouTube feature) | Card to Substack when relevant | Visual cue |
 
 **Shorts/Reels/TikTok CTAs (when those are cut):**
 - End card: "Full framework in the long-form video. Link in bio."
-- Bio link: `doseofproof.substack.com`
+- Bio link: `https://doseofproof.substack.com/`
 
 **Engagement:**
 - Reply to every comment in first 2 hours
@@ -119,7 +119,7 @@ Every CTA in every asset points to one of these two destinations. No third optio
 ## Substack — The Owned Channel (The Moat)
 
 **Newsletter setup:**
-- Substack URL: `doseofproof.substack.com`
+- Substack URL: `https://doseofproof.substack.com/`
 - Welcome email: `assets/emails/substack-welcome-1.md` (already drafted, FINAL)
 - Welcome sequence: 7 emails (already drafted in `copywriting-v2.md`)
 - Paid tier: $7-12/mo or $70-120/yr (decision deferred until email list > 1,000)
@@ -182,19 +182,19 @@ Every CTA in every asset points to one of these two destinations. No third optio
 [Long-form Substack post]
     ↓
     ├─→ [X thread: compressed version, 8-12 tweets]
-    │       └─→ CTA: doseofproof.substack.com
+    │       └─→ CTA: https://doseofproof.substack.com/
     │
     ├─→ [LinkedIn post or carousel: professional angle]
-    │       └─→ CTA: doseofproof.substack.com (first comment)
+    │       └─→ CTA: https://doseofproof.substack.com/ (first comment)
     │
     ├─→ [YouTube video: long-form trust]
-    │       └─→ CTA: doseofproof.substack.com (description + pinned comment)
+    │       └─→ CTA: https://doseofproof.substack.com/ (description + pinned comment)
     │
     ├─→ [Skool pinned post: community discussion]
     │       └─→ CTA: Skool community (closed loop, no external link)
     │
     └─→ [Short vertical clip: top-of-funnel reach]
-            └─→ CTA: doseofproof.substack.com (end card)
+            └─→ CTA: https://doseofproof.substack.com/ (end card)
 ```
 
 **Every long-form piece creates 5 derivative pieces. Every derivative piece drives to Substack or Skool.**

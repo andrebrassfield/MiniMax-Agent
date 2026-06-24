@@ -85,7 +85,7 @@ The math is the math. The biomarkers are the biomarkers. The terrain is the terr
 
 The full PCAC framework + my live coverage + the pre-launch waitlist for the Dose of Proof Protocol:
 
-doseofproof.substack.com
+https://doseofproof.substack.com/
 
 When the FDA decides, I'll translate it through the PCAC lens within 4 hours.
 

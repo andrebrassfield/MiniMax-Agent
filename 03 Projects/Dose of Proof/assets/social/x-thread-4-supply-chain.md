@@ -86,7 +86,7 @@ The 5 biomarkers I track are upstream of any regulatory decision.
 
 The full PCAC framework + my macro-longevity analysis + the supply chain context:
 
-doseofproof.substack.com
+https://doseofproof.substack.com/
 
 I'll be live-tweeting the FDA PCAC hearing July 23-24 with the brand's PCAC framework lens.
 

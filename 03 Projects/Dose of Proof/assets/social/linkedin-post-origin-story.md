@@ -48,7 +48,7 @@ I'm building this brand — Dose of Proof — because the system profits from ke
 
 If that's you, the 5 biomarkers PDF is free:
 
-doseofproof.substack.com
+https://doseofproof.substack.com/
 
 (Link in first comment.)
 
@@ -64,7 +64,7 @@ doseofproof.substack.com
 - **Tone:** Personal, raw, professional-but-not-polished
 - **The "I'm still in this process" anchor** is the brand voice differentiator — most personal-brand operators position themselves as recovered/expert. Dre positions himself as mid-process + sharing the data.
 - **Hashtags (5 max):** #ChronicIllness #Autoimmune #Biomarkers #FunctionalMedicine #ProofOverHype
-- **First comment:** "Free PDF: doseofproof.substack.com → 5 biomarkers that actually moved the needle for me + how to track them."
+- **First comment:** "Free PDF: https://doseofproof.substack.com/ → 5 biomarkers that actually moved the needle for me + how to track them."
 - **Best time:** Tuesday-Thursday, 8-10am ET
 - **Engagement plan:** First 2 hours, reply to every comment with substantive thought (not "thanks!")
 - **Repurpose:** After LinkedIn post ages, convert to a Substack post (long-form) + a X thread (compressed)

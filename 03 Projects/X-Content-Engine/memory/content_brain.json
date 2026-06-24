@@ -244,6 +244,41 @@
       "why_it_works": "Names the year + the publication + 3 named operators. The TechCrunch 2026 thesis is the academic/media validation of Pillar 6's core claim. The 3 specific operator wins (roofer, plumber, HVAC) is the audience-specificity that converts the macro thesis to operator-level relevance. Pillar 6 specific.",
       "date_added": "2026-06-22",
       "times_used": 0
+    },
+    {
+      "text": "Bill Joplin's Air Conditioning and Heating books 90% of inbound calls with ServiceTitan AI Voice Agent. June 9, 2026 press release. One named operator. One named number. One named platform. The HVAC shop missing 8 calls a day is leaving the math on the table.",
+      "emotion": "recognition",
+      "why_it_works": "NAMED operator (Bill Joplin) + NAMED number (90%) + NAMED platform (ServiceTitan) + NAMED date (June 9, 2026) is the most quotable Pillar 2 case study format of the cycle. Source: ServiceTitan press release 2026-06-09. Pairs directly with persona's Example 1 ($450 missed call × 8 calls/day = $1M/year). The 70-90% gap between Bill's shop and the typical HVAC operator is the math the reader checks.",
+      "date_added": "2026-06-24",
+      "times_used": 0
+    },
+    {
+      "text": "Anthropic ran the math on millions of real Claude conversations. Programmers are 74.5% exposed. White-collar highest-paid are the most exposed — they make 47% more than AI-untouched roles. The threat isn't the algorithm. It's the coworker who's already using Claude.",
+      "emotion": "fear",
+      "why_it_works": "Vendor-credible empirical data (Anthropic used their own enterprise customer logs, not a survey) + the counterintuitive framing (highest-paid most exposed, not lowest-paid) + three named percentages (74.5%, 47%, 74.5%) + the X→Y pivot from algorithm to coworker. The '程序员 74.5%' figure is the load-bearing element for the technical reader. Pillar 5 specific.",
+      "date_added": "2026-06-24",
+      "times_used": 0
+    },
+    {
+      "text": "TikTok Shop settled $23.4B in 2026, beating Target. June 8, the platform narrowed what counts as 'seller's fault' — end-leg uncontrollable delays no longer count against you. If you're still routing through USPS because the rate card was a dollar cheaper, you've been over-paying for risk you didn't create.",
+      "emotion": "urgency",
+      "why_it_works": "$23.4B macro magnitude establishes the platform stakes + the June 8 OTDR revision is the freshest signal in the cycle + the verbatim '末端不可控延误不再影响指标' reframe + actionable re-routing insight with dollar impact. The macro-to-operational pivot (platform revenue → your routing decision) is the load-bearing move. Pillar 1 specific.",
+      "date_added": "2026-06-24",
+      "times_used": 0
+    },
+    {
+      "text": "95.11% of new-economy talent already uses AI. 47% of job postings require it. ByteDance design roles are 63% AI-tagged. You're in the 5%. The hiring filter has already re-ranked.",
+      "emotion": "urgency",
+      "why_it_works": "Three specific stats (95.11% / 47% / 63%) from the 脉脉 hiring-market report create compounding urgency. The 'you're in the 5%' minority framing flips the reader's identity from majority to excluded. The implication (the hiring filter has re-ranked) is the load-bearing element — abstract 'AI is everywhere' would lose the reader in 3 lines. Pillar 5 specific.",
+      "date_added": "2026-06-24",
+      "times_used": 0
+    },
+    {
+      "text": "LTS-VoiceAgent (arXiv 2601.19952): don't trigger LLM inference on a 200ms chunk. Trigger it on a semantic end-of-turn signal. First Synthflow test hit 920ms. Tuned to semantic triggering. Latency: 640ms. Sub-500ms is the 2026 floor. The math is the product.",
+      "emotion": "curiosity",
+      "why_it_works": "arXiv academic framework (LTS-VoiceAgent, Jan 26 2026) is the freshest signal of the cycle + the 920ms → 640ms latency changelog pairs directly with persona's Example 9 anchor + the semantic-triggering insight is the new architectural pattern (Listen-Think-Speak with end-of-turn prediction). The 'don't trigger on chunk, trigger on semantic boundary' is the load-bearing conceptual move. Pillar 4 specific.",
+      "date_added": "2026-06-24",
+      "times_used": 0
     }
   ],
   "formats": [
@@ -386,6 +421,26 @@
     {
       "structure": "Year-of-Pragmatism Thesis: '[Year] is when AI moves from [state A] to [state B].' [Source]. [3 named operators] win. [Boring. Profitable.]",
       "why_it_works": "Names the macro thesis (hype → pragmatism) + source (TechCrunch / journalism study) + 3 concrete operator wins. The 'Boring. Profitable.' closer is the persona's voice anchor. Pillar 6 specific."
+    },
+    {
+      "structure": "Named-Case Study Drop: '[Named operator] books [Named %] of [thing] with [Named platform] ([Date] press release). [The implication for [audience]].'",
+      "why_it_works": "NAMED trio (operator + number + platform + date) is the most quotable Pillar 2 format. Anchors the proof in a verifiable, public document — the reader can Google it and verify. Pillar 2 default for press-release-derived hooks. The 'one named X, one named Y, one named Z' triple is the rhetorical load."
+    },
+    {
+      "structure": "Vendor-Empirical Drop: '[Vendor] ran the math on [N] [data source]. [Named metric] = [N]%. [Counterintuitive finding]. [The implication].'",
+      "why_it_works": "Uses the vendor's own data as the authority anchor. The 'they analyzed themselves' framing eliminates the survey-bias objection (Anthropic ran math on Claude conversations, not a self-reported survey). The named percentage + the counterintuitive finding + the X→Y pivot is the load-bearing sequence. Pillar 5 default when vendor-credible data exists."
+    },
+    {
+      "structure": "Macro-Magnitude + Operational Reversal: '[Platform] settled $[N] [time period], [comparison to other player]. [The freshest operational reversal]. [The actionable insight].'",
+      "why_it_works": "Macro number establishes the stakes + the freshest operational reversal (regime change, policy update) provides the timeliness + the actionable insight converts the reversal to operator dollars. Pillar 1 default for regulatory/policy stories. The macro-to-operational pivot is the load-bearing rhetorical move."
+    },
+    {
+      "structure": "Three-Stat Hiring Filter: '[N1]% [action A]. [N2]% [action B]. [N3]% [action C at named company]. [The minority framing]. [The implication].'",
+      "why_it_works": "Three specific stats in sequence create compounding urgency. The 'you're in the X%' minority framing flips the reader's identity from majority to excluded. The named company (ByteDance design at 63%) is the load-bearing element — abstract 'AI is everywhere' would lose the reader in 3 lines. Pillar 5 default for hiring-market data."
+    },
+    {
+      "structure": "Academic-Framework + Latency Changelog: '[arXiv paper ID]: [framework name] — [N-component architecture]. [Specific lever]. [Before/after latency]. [The frontier number].'",
+      "why_it_works": "Academic arXiv citation provides intellectual credibility + the N-component architecture gives the reader a concrete model + the before/after latency changelog pairs with persona's Example 9 anchor + the frontier number (sub-500ms / sub-300ms) is the load-bearing element. Pillar 4 default for new academic frameworks."
     }
   ],
   "pain_points": [
@@ -527,6 +582,26 @@
     },
     {
       "exact_audience_language": "most 'AI second brain' tools still require you to save things manually",
+      "frequency": 1
+    },
+    {
+      "exact_audience_language": "Bill Joplin's HVAC books 90% of calls with ServiceTitan AI Voice Agent, the other 10-30% are emergency calls the AI can't handle",
+      "frequency": 1
+    },
+    {
+      "exact_audience_language": "74.5% 的任务覆盖率,程序员位居榜首,客服专员 70.1% 紧随其后",
+      "frequency": 1
+    },
+    {
+      "exact_audience_language": "末端不可控延误不再影响指标",
+      "frequency": 1
+    },
+    {
+      "exact_audience_language": "95.11% 已经在工作中使用 AI 工具,47% 的岗位都提出了 AI 相关要求",
+      "frequency": 1
+    },
+    {
+      "exact_audience_language": "提示词可以影响推理,但提示词无法强制执行安全边界",
       "frequency": 1
     }
   ],
@@ -898,6 +973,76 @@
       "pillar": "Pillar 6 — Hype Translator",
       "status": "pending",
       "source_seed": "daily-research-2026-06-22.md Pillar 6 Source 2 (cnblogs 2026 AI PPT工具淘汰)"
+    },
+    {
+      "hook": "Bill Joplin's Air Conditioning and Heating books 90% of inbound calls with ServiceTitan AI Voice Agent. June 9, 2026 press release. One named operator. One named number. One named platform. The HVAC shop missing 8 calls a day is leaving the math on the table. Build the voice agent or watch your competitor book your calls.",
+      "format": "Named-Case Study Drop",
+      "pillar": "Pillar 2 — Trades / Missed Call",
+      "status": "pending",
+      "source_seed": "daily-research-2026-06-24.md Pillar 2 Source 1 (ServiceTitan press release June 9, 2026)"
+    },
+    {
+      "hook": "Anthropic ran the math on millions of real Claude conversations. Programmers are 74.5% exposed. White-collar highest-paid are the most exposed — they make 47% more than AI-untouched roles. The threat isn't the algorithm. It's the coworker who's already using Claude. Spend 30 minutes this weekend. Walk in Monday as the most dangerous person in the room.",
+      "format": "Vendor-Empirical Drop + Leverage Pivot",
+      "pillar": "Pillar 5 — Leverage Play / Job Defense",
+      "status": "pending",
+      "source_seed": "daily-research-2026-06-24.md Pillar 5 Source 1 (Anthropic empirical study 2026)"
+    },
+    {
+      "hook": "TikTok Shop settled $23.4B in 2026, beating Target. June 8, the platform narrowed what counts as 'seller's fault.' End-leg uncontrollable delays no longer count against you. If you're still routing through USPS because the rate card was a dollar cheaper, you've been over-paying for risk you didn't create. Re-route to Amazon MCF and recover the margin.",
+      "format": "Macro-Magnitude + Operational Reversal",
+      "pillar": "Pillar 1 — E-Commerce Logistics",
+      "status": "pending",
+      "source_seed": "daily-research-2026-06-24.md Pillar 1 Sources 1 + 4 (OTDR June 8 revision + $23.4B GMV forecast)"
+    },
+    {
+      "hook": "95.11% of new-economy talent already uses AI. 47% of job postings require it. ByteDance design roles are 63% AI-tagged. You're in the 5%. The hiring filter has already re-ranked. Spend 30 minutes this weekend wiring the leverage play. Monday you walk in with answers before questions are asked.",
+      "format": "Three-Stat Hiring Filter + Leverage Pivot",
+      "pillar": "Pillar 5 — Leverage Play / Job Defense",
+      "status": "pending",
+      "source_seed": "daily-research-2026-06-24.md Pillar 5 Source 5 (网易 hiring-market data 95.11% / 47% / 63%)"
+    },
+    {
+      "hook": "LTS-VoiceAgent (arXiv 2601.19952): don't trigger LLM inference on a 200ms chunk. Trigger it on a semantic end-of-turn signal. First Synthflow test hit 920ms. Tuned to semantic triggering. Latency: 640ms. Sub-500ms is the 2026 floor. We hit 480ms last Tuesday. The math is the product.",
+      "format": "Academic-Framework + Latency Changelog",
+      "pillar": "Pillar 4 — Build Logs",
+      "status": "pending",
+      "source_seed": "daily-research-2026-06-24.md Pillar 4 Source 1 (arXiv 2601.19952 LTS-VoiceAgent)"
+    },
+    {
+      "hook": "Voice AI platform math: $400/mo × 12 = $4,800/yr. Per-call cost under $0.40. The CSR doing the same work is $46K/yr fully loaded. You're paying 10x for the same outcome. Bill Joplin books 90%. The cost of NOT switching is the 10x you already pay. Stop debating. Build the voice agent this quarter.",
+      "format": "Cost-Quantification Table + Imperative Close",
+      "pillar": "Pillar 2 — Trades / Missed Call",
+      "status": "pending",
+      "source_seed": "daily-research-2026-06-24.md Pillar 2 Sources 1 + 5 (ServiceTitan 90% + Mohamed $180K/yr ROI)"
+    },
+    {
+      "hook": "TikTok Shop did a U-turn. They mandated FBT. Then they partially reversed. Sellers who pre-invested in FBT integration capacity now sit on stranded costs. Platform-level policy volatility is permanent. Hedge accordingly: Amazon MCF + Shopify native fulfillment + TikTok FBT — not TikTok FBT alone. Three channels, one source of truth.",
+      "format": "Platform-Volatility-as-Permanent + Hedge Playbook",
+      "pillar": "Pillar 1 — E-Commerce Logistics",
+      "status": "pending",
+      "source_seed": "daily-research-2026-06-24.md Pillar 1 Sources 2 + 3 (FBT mandate + Easyship U-turn documentation)"
+    },
+    {
+      "hook": "Manchester and Groningen universities just published the academic study: AI journalism is shifting from 'hype amplification' to 'open-ended technological inevitability.' The framing is changing. TechCrunch says hype → pragmatism. Manchester says hype → drama. Either way: stop paying for demos. Start paying for deployments with paying customers. The 30-second filter that separates the two.",
+      "format": "Hype-Translator + Academic Counterweight + Procurement Filter",
+      "pillar": "Pillar 6 — Hype Translator",
+      "status": "pending",
+      "source_seed": "daily-research-2026-06-24.md Pillar 6 Sources 1 + 4 (TechCrunch 2026 + Manchester/Groningen journalism study)"
+    },
+    {
+      "hook": "GEO. AEO. AIRO. Three acronyms. One concept: get cited by LLMs. Whoever you're talking to, ask: 'What is our citation rate in ChatGPT, Perplexity, and DeepSeek this month?' That's the only KPI that matters in 2026. Gartner says 25% search drop. 慕课手记 says 38% AI-search. Either number, the answer is the same: be the source the AI cites.",
+      "format": "Vocabulary-Decoder + KPI Pivot",
+      "pillar": "Pillar 3 — Existential Macro Threat / GEO",
+      "status": "pending",
+      "source_seed": "daily-research-2026-06-24.md Pillar 3 Sources 1 + 2 + 5 (慕课手记 38% + IT之家 arXiv + GEO/AEO/AIRO vocabulary fragmentation)"
+    },
+    {
+      "hook": "BCG says 50-55% of US jobs reshaped by AI in 2-3 years. MIT says 11.7% replaced. Anthropic says white-collar highest-paid most exposed. Fudan says structural transformation, not displacement. Three different angles, one conclusion: the gap between AI users and AI abstainers is the only professional fault line in 2026. The 30-minute weekend is the move.",
+      "format": "Tri-Source Consensus + Leverage Pivot",
+      "pillar": "Pillar 5 — Leverage Play / Job Defense",
+      "status": "pending",
+      "source_seed": "daily-research-2026-06-24.md Pillar 5 Sources 1 + 2 + 3 (Anthropic + BCG + Fudan)"
     }
   ],
   "performance_log": [

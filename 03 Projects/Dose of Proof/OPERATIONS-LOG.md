@@ -1,136 +1,152 @@
 # OPERATIONS-LOG — Dose of Proof
 
-> Daily log of what's completed, what's blocked, and what needs Dre's input. Updated end-of-day or on completion of significant tasks. **Single source of truth** for the project.
+> Daily log of what's completed, what's blocked, and what needs Dre's input. **Single source of truth** for the project.
 
 ---
 
 ## Decisions Made — 2026-06-23
 
-> All decisions made today, locked and committed to memory. Updated: end of session.
-
 ### Decision 1 — Full authority delegation to Mavis
 - **What:** Dre granted Mavis full authority to execute text-first deployment without review gating on assets at 80%+ voice + compliance fit.
-- **Why:** Maintain momentum through the 30-day pre-launch window. The PCAC catalyst window doesn't wait.
-- **Implication:** Mavis refines in place + stages for deployment. Assets below 80% are flagged for Dre's review.
 - **Locked:** 2026-06-23 20:47 CT
 
 ### Decision 2 — Text-first deployment (video deferred)
 - **What:** Video recording deferred to later this week. Does not gate the launch sequence.
-- **Why:** Text assets (social posts, email, Substack) can drive top-of-funnel through July 23 without video.
-- **Implication:** Origin story video script + short clips storyboard are staged for Dre to record when ready. All text assets ship first.
 - **Locked:** 2026-06-23 20:47 CT
 
 ### Decision 3 — Locked pre-launch calendar as single execution plan
 - **What:** The 30-day calendar (June 24 → July 23) is locked with daily hooks, thread structures, and CTAs.
-- **Why:** Single source of truth for content production. No ambiguity about what ships when.
-- **Implication:** Days 1-17 (June 24 → July 10) are fully shippable with written assets. Days 18-30 use lighter standalone tweets (Dre finalizes in 5-10 min each).
-- **Locked:** 2026-06-23 20:47 CT
 - **Doc:** `specs/prelaunch-calendar-FINAL.md`
+- **Locked:** 2026-06-23 20:47 CT
 
 ### Decision 4 — Two-tool architecture (health-tracker + Dose Calc)
-- **What:** Brand operates two distinct tools, not one combined SaaS. health-tracker (existing CLI, free) + Dose Calc (planned SaaS, paid).
-- **Why:** Different jobs. health-tracker already exists and works. Combining too early risks Dose Calc feeling bloated.
-- **Implication:** health-tracker becomes a free/open-source trust asset. Dose Calc is the paid SaaS.
+- **What:** Brand operates two distinct tools, not one combined SaaS.
+- **Doc:** `business-model-v1.md` Section 3 (Tier 1 architecture note) + `assets/saas/dose-calc-prd.md` + `dose-calc-prd-v2.md`
 - **Locked:** 2026-06-23 20:04 CT
-- **Doc:** `business-model-v1.md` Section 3 (Tier 1 architecture note) + `assets/saas/dose-calc-prd.md`
 
 ### Decision 5 — Every piece of content drives to Substack OR Skool
-- **What:** No third destination. No dead ends. Every CTA is `doseofproof.substack.com` or the Skool community.
-- **Why:** Email list is the moat. Skool is the community. Every other destination dilutes.
-- **Implication:** All 4 channels (X, LinkedIn, YouTube, Skool) have specific CTA language per post type.
-- **Locked:** 2026-06-23 20:47 CT
+- **What:** No third destination. No dead ends.
 - **Doc:** `specs/traffic-flow.md`
+- **Locked:** 2026-06-23 20:47 CT
 
 ### Decision 6 — PCAC framework documented as brand methodology
-- **What:** Brand PCAC = Proof-Centered Approach to Craniocervical + Autoimmune Chaos. Coincides with FDA PCAC (Pharmacy Compounding Advisory Committee). Both leveraged intentionally.
-- **Why:** The FDA meeting drives search volume; the brand framework provides the post-event positioning.
-- **Implication:** Dre's exact PCAC language is in the brand voice file + the Substack Welcome Email 4 + the sales page.
-- **Locked:** 2026-06-23 19:00 CT (from earlier session)
+- **What:** Brand PCAC = Proof-Centered Approach to Craniocervical + Autoimmune Chaos. Same acronym as FDA's PCAC. Both leveraged intentionally.
+- **Locked:** 2026-06-23 19:00 CT
 - **Doc:** `copywriting-v2.md` Section 0.5
 
 ### Decision 7 — Proof section uses Dre as first case study
-- **What:** No third-party case studies or testimonials yet. The Proof section uses Dre's own biomarker data + published research backing each PCAC component.
-- **Why:** No real people exist to consent. The honest "I'm the first case study" framing matches Dre's voice.
-- **Implication:** First cohort becomes proof #2-N. Long-term real testimonials accumulate.
+- **What:** No third-party case studies yet. The Proof section uses Dre's own biomarker data + published research backing.
 - **Locked:** 2026-06-23 20:04 CT
 - **Doc:** `copywriting-v2.md` Section 1 (Proof section)
 
 ### Decision 8 — Strict compliance gates on every asset
-- **What:** No exceptions. If any asset risks compliance, kill it and replace.
-- **Why:** The brand's PCAC framework + the FDA PCAC regulatory environment demand structural compliance, not rule-of-thumb.
-- **Implication:** Every asset passes the 8-item compliance audit (no banned phrases, no sourcing, no cure/treat/heal, "my body not yours", no un-redacted testimonials, no fake urgency, no fake scarcity, no corporate sludge).
+- **What:** 8-item audit on every asset. No exceptions.
 - **Locked:** 2026-06-23 (recurring)
 
 ### Decision 9 — 3-pillar content rotation
-- **What:** Content rotates across 3 pillars — Lived Protocol, Macro-Longevity Economy, Reconstitution Utility.
-- **Why:** The brand has 3 distinct value propositions. Each pillar serves a different audience segment.
-- **Implication:** Weekly pillar mix rotates (Week 1 = 100% Lived, Week 2 = mixed, Week 3 = 33% each, Week 4 = Macro + Reconstitution focus).
+- **What:** Lived Protocol / Macro-Longevity Economy / Reconstitution Utility, rotated weekly.
 - **Locked:** 2026-06-23 20:47 CT
 - **Doc:** `specs/prelaunch-calendar-FINAL.md`
 
 ### Decision 10 — Live coverage cadence for FDA PCAC
 - **What:** Live-tweet every 15-20 minutes during FDA PCAC hearings. Substack "What This Means for You" summary after each session.
-- **Why:** Real-time coverage captures the search volume spike during the regulatory event.
-- **Implication:** All live-tweet templates pre-drafted in `specs/pcac-coverage-july-2026.md`. Ready to copy-paste.
 - **Locked:** 2026-06-23 20:47 CT
 - **Doc:** `specs/pcac-coverage-july-2026.md`
 
+### Decision 11 — Canonical Substack URL
+- **What:** Use `https://doseofproof.substack.com/` as the canonical CTA across all assets.
+- **Locked:** 2026-06-23 21:28 CT
+
+### Decision 12 — Swiss Chems affiliate link BLOCKED
+- **What:** Dre sent Swiss Chems affiliate link (`https://swisschems.is/doseofproof/ref/6855/`). Mavis flagged the conflict with the locked compliance posture (the 5 unbreakable rules, the Objective Intent Doctrine, Dre's own "no gray-market links" rule) and did NOT add it to the affiliate stack.
+- **Locked:** 2026-06-23 21:41 CT
+- **Reasoning:** Swiss Chems is a research-chem vendor labeled "not for human consumption." Adding it would: (1) directly contradict the 5 unbreakable rules which name Swiss Chems explicitly as a vendor to AVOID; (2) trigger the Objective Intent Doctrine (FDA enforcement exposure for the brand); (3) contradict the brand's "educational curator, never medical provider" posture; (4) contradict Dre's own directive in the same message ("No gray-market language or links").
+- **Implication:** Affiliate packages shipped with the 5 vetted partners (Marek Health, Lifeforce, Thorne, BiOptimizers, InsideTracker). Year 1 affiliate revenue projected at ~$19,770.
+- **If Swiss Chems was a deliberate exception:** Dre to confirm explicitly + Mavis adds to a clearly-labeled "Dre-approved exceptions" section for audit transparency.
+
 ---
 
-## 2026-06-23 (full session log)
+## 2026-06-23 (full session log — updated end of session)
 
 ### Completed
 
-**Phase 1 — Foundation & Text Assets:**
-- ✅ Dose of Proof project folder created (`03 Projects/Dose of Proof/`)
+**Foundation & Source (Phase 1):**
+- ✅ Dose of Proof project folder created
 - ✅ Source files mirrored: raw strategic idea + brand voice file + 5 Biomarkers PDF
 - ✅ Business model v1 spec (15 income streams, 5 core offers, 90-day PCAC-anchored launch)
-- ✅ Pricing v1 spec (locked prices + anchors, 1:1 bumped from $3,500 → $5,000)
-- ✅ Copywriting v2 spec (full copy package, Dre's voice + content integrated)
-- ✅ Architecture decision locked: health-tracker (free) + Dose Calc (paid) as two distinct tools
+- ✅ Pricing v1 spec (1:1 bumped $3,500 → $5,000)
+- ✅ Copywriting v2 spec (full copy package)
+- ✅ Architecture decision: health-tracker (free) + Dose Calc (paid) — distinct tools
 - ✅ PCAC brand framework documented
+- ✅ Proof section redesigned: Dre as first case study (no third-party stories)
 
-**Phase 2 — Sprint delivery (autonomous, full authority):**
-- ✅ 4 social posts finalized + marked FINAL (Threads 1-2, Carousel 1, LinkedIn Post 1)
-- ✅ Substack Welcome Email 1 finalized + marked FINAL
-- ✅ 5 NEW written assets shipped (3 X threads + 1 LinkedIn carousel + 1 dual-PCAC thread)
-- ✅ Pre-launch calendar LOCKED (30 days, June 24 → July 23)
-- ✅ Cross-channel traffic flow LOCKED (every piece drives to Substack OR Skool)
-- ✅ Dose Calc SaaS PRD locked (math engine + freemium tiers + UI flow + compliance guardrails)
-- ✅ July 2026 PCAC coverage sequence locked (3 phases, 6 live-tweet templates, "What This Means for You" structure)
-- ✅ Origin Story video SCRIPT + short clips storyboard (Dre records when ready, doesn't gate launch)
-- ✅ OPERATIONS-LOG updated with Decisions Made section
+**Text-First Deployment Sprint (Phase 2):**
+- ✅ 4 social posts finalized (Threads 1-2, Carousel 1, LinkedIn Post 1)
+- ✅ 6 NEW social posts shipped (Threads 3-7, Thread 8, Thread 9, Carousels 2-3, Carousel 4, Substack terrain-mapping post)
+- ✅ Substack Welcome Email 1 finalized
+- ✅ 5 consent email templates written (future-use)
+- ✅ Pre-launch calendar FINAL (30 days locked)
+- ✅ Cross-channel traffic flow (every CTA → Substack or Skool)
+- ✅ Dose Calc SaaS PRD v0.1 + v2 (advanced readiness, builder-handoff package)
+- ✅ July 2026 PCAC coverage sequence (3 phases, 6 live-tweet templates)
+- ✅ 5 peptide explainers (BPC-157, KPV, TB-500, MOTs-C, Semax)
+- ✅ 3-part Substack series outline (pre-PCAC, live reaction, post-decision)
+- ✅ Terrain Recon Worksheet spec (Lead Magnet #2)
+- ✅ Skool Community Architecture (3 tiers, 30-day onboarding, moderation)
+- ✅ Affiliate application packages (5 vetted partners, one-click ready)
+- ✅ Consent tracking system (templates + cadence + storage)
+- ✅ Visual + B-roll + audio origin story + repurposing rules
+- ✅ Origin Story video SCRIPT + short clips storyboard (Dre records when ready)
+- ✅ OPERATIONS-LOG updated (Decisions 1-12, full session log, KPIs, compliance posture)
 
-### Blocked / Needs Input (Dre's action only)
+### Blockers — Only Dre Can Remove
 
-| Item | Why blocked | When unblocked |
-|------|-------------|----------------|
-| 🎬 Record Origin Story video | Dre must record himself (no camera on Mavis) | Later this week — does NOT gate launch |
-| 🌐 Brand asset setup | Domain + Substack URL + Skool community + social handles | Dre's action — needs to happen before Day 1 publishing |
-| 📧 Affiliate applications | Marek, Lifeforce, Thorne, BiOptimizers, InsideTracker | Dre's action — 2-4 week approval timeline |
-| 👤 Dr. Jackson Chism consent | Doctor's role name can be used; need explicit confirmation | Dre's action — before publishing anything with clinician attribution |
+| # | Blocker | Status | Notes |
+|---|---------|--------|-------|
+| 1 | Brand asset setup | ✅ RESOLVED | doseofproof.com owned, doseofproof.substack.com owned |
+| 2 | Origin Story video recording | Pending | Dre records when ready. Audio-only bridge spec ready if video slips further. |
+| 3 | Affiliate applications | Pending | 5 packages ready (Marek, Lifeforce, Thorne, BiOptimizers, InsideTracker). Dre submits when bandwidth allows. 2-4 week approval timeline. |
+| 4 | Dr. Jackson Chism consent | Pending | Dre to confirm whether clinician name + role can be used in published content |
+| 5 | Real case studies + testimonials | Pending (zero real people yet) | Pipeline ready (consent tracking system). When community members step forward, templates + cadence ready to deploy. |
+| 6 | Social handle reservation (@doseofproof on X/IG/YouTube/TikTok) | Pending | Dre's action — does not gate publishing but cleans up brand consistency. |
+
+### Blocker Workarounds (What Mavis Advanced Independently)
+
+Per Dre's directive ("build velocity in the areas that compound regardless of external timelines"), Mavis advanced these workarounds:
+
+| Blocker | Workaround Built | Effect |
+|---------|------------------|--------|
+| Origin Story video slips | **Audio-only origin story spec** (`assets/visual/b-roll-audio-repurposing.md` Part 2) | Bridge asset that can ship in 1-2 hours of Dre's recording time vs 1-2 days of video setup |
+| No video = no B-roll | **4-tier visual asset list** (Dre's own data + Mavis-generated diagrams + stock imagery + commissioned) | 24 specific assets ready to source or build, no camera required |
+| No third-party case studies = empty Proof section | **Repurposing rules engine** (every long → 5-7 derivatives) | Compounds content volume 8x per long-form piece; 32 pieces/month from 4 long-form |
+| Affiliate applications pending | **One-click ready packages** (5 vetted partners) | 2-4 hours of Dre's time to submit all 5, then 2-4 week approval |
+| No real testimonials yet | **Consent tracking system** (`stores/consent/`) | Pipeline runs the moment a community member steps forward |
+| Terrain Recon Worksheet unknown | **Full spec written** (60 questions + scoring rubric + output report format) | Dre writes content (1 week) + Mavis builds (3 weeks) = ship in 4 weeks |
+| Skool launch details missing | **Complete 3-tier architecture** (Free / Inner Circle $67 / Mastermind $7,500) + 30-day onboarding + moderation rules | Ready to launch the moment first paid member arrives |
+| Video clip repurposing | **Short clips storyboard** + vertical format spec | 4 clips from one 10-min recording = 4 weeks of social content |
 
 ### Next 3 Priorities
 
-1. **Execute the 30-day pre-launch calendar starting Tuesday June 24.** All Day 1-17 assets are shippable. Dre reviews + publishes (or Mavis publishes with approved timing).
-2. **Brand asset setup** (domain + Substack URL + Skool community + social handles). Without these, Day 1 publishing is blocked.
-3. **Origin Story video recording** (Dre's first solo deliverable). Estimated 1-2 hours for recording + 30-60 min raw editing. Repurposes into 4 short clips per the storyboard.
+1. **Execute Day 1 of pre-launch calendar (Tuesday June 24).** All Day 1-17 assets shippable. Dre reviews + publishes.
+2. **Submit 5 affiliate applications** (Marek, Lifeforce, Thorne, BiOptimizers, InsideTracker). 2-4 hours total Dre time.
+3. **Record Origin Story (video OR audio-only).** Video is preferred; audio is the bridge. Both scripts ready.
 
 ### Video Token Status
-**Used 0/3 videos in current 5-hour window.** Mavis cannot generate video files (no camera on Dre). The origin story script is for Dre to record himself. Short clips are cuts from one recording session — under the 3-video / 5-hour limit because they're editing cuts, not separate AI generations.
-
-If matrix MCP `matrix_gen_videos` is used for OTHER purposes (animated PCAC explainer, biomarker visualizations, B-roll), up to 3 per 5-hour window can be generated. None requested yet. Quota preserved.
+**Used 0/3 videos in current 5-hour window.** Mavis cannot generate video files. Origin Story script + audio spec + repurposing rules staged for Dre.
 
 ### Compliance Check
 - [x] No banned phrases in any asset shipped today
-- [x] No sourcing language anywhere
+- [x] No sourcing language anywhere (Swiss Chems BLOCKED — see Decision 12)
 - [x] "My body, not yours" framing throughout
-- [x] No un-redacted testimonials (none exist; templates ready for future real subjects)
+- [x] No un-redacted testimonials (none exist; templates ready for future use)
 - [x] No fake urgency (founding-member 200 cap is the only real scarcity)
 - [x] No fake scarcity language
-- [x] No corporate sludge (synergy, leverage, value-add)
+- [x] No corporate sludge
 - [x] No "you should take" / no "I prescribe" / no "this cures"
 - [x] Every piece drives to Substack OR Skool (no dead ends)
+- [x] Compliance footer on all copy surfaces
+- [x] Objective Intent Doctrine respected at structural level
+- [x] Swiss Chems affiliate link explicitly blocked with reasoning logged
 
 ---
 
@@ -142,25 +158,37 @@ If matrix MCP `matrix_gen_videos` is used for OTHER purposes (animated PCAC expl
 ├── OPERATIONS-LOG.md                     ← THIS FILE
 ├── assets/
 │   ├── lead-magnet/
-│   │   └── 5-biomarkers.pdf              ← SHIPPED
-│   ├── social/                           ← 9 assets (4 finalized + 5 new)
+│   │   ├── 5-biomarkers.pdf              ← SHIPPED (lead magnet #1)
+│   │   └── terrain-recon-worksheet-spec.md ← Lead magnet #2 spec
+│   ├── social/                           ← 15 assets (10 finalized + 5 NEW this session)
 │   │   ├── x-thread-1-5-biomarkers.md        ✅ FINAL
 │   │   ├── x-thread-2-pcac-framework.md      ✅ FINAL
 │   │   ├── x-thread-3-7-months-broke-me.md   ✅ FINAL
 │   │   ├── x-thread-4-supply-chain.md        ✅ FINAL
 │   │   ├── x-thread-5-recon-math.md          ✅ FINAL
 │   │   ├── x-thread-6-pcac-dual.md           ✅ FINAL
+│   │   ├── x-thread-7-pcac-mechanics.md      ✅ FINAL (NEW)
+│   │   ├── x-thread-8-bpc-157-category-2.md  ✅ FINAL (NEW)
+│   │   ├── x-thread-9-micro-dose-dilemma.md  ✅ FINAL (NEW)
 │   │   ├── linkedin-carousel-5-biomarkers.md ✅ FINAL
 │   │   ├── linkedin-carousel-2-pcac-framework.md ✅ FINAL
-│   │   └── linkedin-post-origin-story.md     ✅ FINAL
+│   │   ├── linkedin-carousel-3-category-1-transition.md ✅ FINAL (NEW)
+│   │   ├── linkedin-carousel-4-recon-math.md  ✅ FINAL (NEW)
+│   │   ├── linkedin-post-origin-story.md     ✅ FINAL
+│   │   └── substack-post-terrain-mapping.md  ✅ FINAL (NEW)
 │   ├── emails/
 │   │   ├── substack-welcome-1.md              ✅ FINAL
 │   │   └── consent-requests.md               ← 5 templates (future-use)
 │   ├── video/
 │   │   ├── origin-story-script.md            ← For Dre to record
-│   │   └── short-clips-storyboard.md         ← 4 vertical clips from origin story
-│   └── saas/
-│       └── dose-calc-prd.md                  ✅ PRD LOCKED (no code yet)
+│   │   └── short-clips-storyboard.md         ← 4 vertical clips
+│   ├── visual/
+│   │   └── b-roll-audio-repurposing.md       ✅ LOCKED (NEW — audio bridge + repurposing engine)
+│   ├── saas/
+│   │   ├── dose-calc-prd.md                  v0.1 (LOCKED)
+│   │   └── dose-calc-prd-v2.md               v2 (advanced readiness, builder-handoff package)
+│   └── affiliate/
+│       └── application-packages.md           ✅ LOCKED (5 vetted partners)
 ├── source/
 │   ├── 2026-06-23-raw-idea.md
 │   └── 2026-06-23-brand-voice.md
@@ -173,10 +201,16 @@ If matrix MCP `matrix_gen_videos` is used for OTHER purposes (animated PCAC expl
 │   ├── prelaunch-calendar-FINAL.md         ✅ CURRENT
 │   ├── cross-channel-map.md                ← superseded by traffic-flow
 │   ├── traffic-flow.md                     ✅ CURRENT
-│   └── pcac-coverage-july-2026.md           ✅ LOCKED
+│   ├── pcac-coverage-july-2026.md           ✅ LOCKED
+│   ├── macro-longevity-peptide-explainers.md ✅ LOCKED (NEW — 5 peptide explainers)
+│   ├── substack-series-pcac.md              ✅ LOCKED (NEW — 3-part series outline)
+│   └── skool-community-architecture.md      ✅ LOCKED (NEW — 3 tiers + onboarding)
 └── stores/
     ├── proof/                              ← empty, awaits real testimonials
-    └── feedback/                           ← empty, awaits community feedback
+    ├── feedback/                           ← empty, awaits community feedback
+    └── consent/                            ✅ NEW (consent pipeline initialized)
+        ├── README.md                       ← pipeline spec
+        └── tracker.md                      ← active pipeline tracker
 ```
 
 ---
@@ -193,8 +227,9 @@ If matrix MCP `matrix_gen_videos` is used for OTHER purposes (animated PCAC expl
 | Skool paid (founding) | 50 (of 200 cap) | 0 |
 | Course sales (founding cohort) | 100 | 0 |
 | Course revenue (Q3) | $50K-80K | $0 |
+| Affiliate revenue (Q3, 5 partners) | $5K-10K | $0 |
+| Mastermind founding cohort | 15 | 0 |
 | 1:1 coaching bookings | 2-4 | 0 |
-| Mastermind waitlist | 30 | 0 |
 
 **Daily check-in:** End-of-day post counts + email subscriber delta + Skool member delta.
 
@@ -206,7 +241,7 @@ If matrix MCP `matrix_gen_videos` is used for OTHER purposes (animated PCAC expl
 
 1. **"My body, not yours"** — never recommend, always narrate
 2. **No un-redacted testimonials** — moderated, therapeutic-outcome language rejected
-3. **No gray-market sourcing** — no links to research-chem suppliers (Peptide Sciences, Onyx, Swiss Chems, Limitless Life)
+3. **No gray-market sourcing** — no links to research-chem suppliers (**Peptide Sciences, Onyx, Swiss Chems, Limitless Life** — explicitly named + blocked)
 4. **Ecosystem separation** — Substack/Skool stay educational, no storefront in the funnel
 5. **Substantiation standard** — every health claim cites peer-reviewed study, regulatory filing, named expert, or personal biomarker panel labeled as such
 
@@ -224,10 +259,24 @@ If matrix MCP `matrix_gen_videos` is used for OTHER purposes (animated PCAC expl
 
 When you read this on June 24:
 
-1. **Day 1 publishes tomorrow (Tuesday June 24).** All assets ready.
-2. **Review the 9 social posts** in `assets/social/` if you haven't already. Any one below 80% voice + compliance, flag for me. (My assessment: all 9 are at 85%+ fit. Ship them.)
-3. **Brand asset setup** — domain, Substack URL, Skool community, social handles. Without these, Day 1 cannot publish.
-4. **Record the Origin Story video** when you have 1-2 hours. Script in `assets/video/origin-story-script.md`. Doesn't gate Day 1 publishing.
-5. **Reply to this thread** with any blockers I can remove.
+1. **Day 1 publishes tomorrow (Tuesday June 24).** 11 social posts + Substack Welcome Email 1 + 6 NEW assets + 8 strategic docs all shippable.
+2. **Brand assets owned** — doseofproof.com ✓, https://doseofproof.substack.com/ ✓. Day 1 publishing unblocked.
+3. **Review the new deliverables if you haven't already:**
+   - `assets/saas/dose-calc-prd-v2.md` — advanced builder-handoff PRD
+   - `specs/skool-community-architecture.md` — 3-tier structure + 30-day onboarding
+   - `specs/macro-longevity-peptide-explainers.md` — 5 FDA PCAC explainers ready to activate
+   - `specs/substack-series-pcac.md` — 3-part series outline
+   - `assets/lead-magnet/terrain-recon-worksheet-spec.md` — Lead Magnet #2 spec
+   - `assets/affiliate/application-packages.md` — 5 one-click ready affiliate applications
+   - `assets/visual/b-roll-audio-repurposing.md` — audio bridge + repurposing engine
+   - `stores/consent/README.md` + `tracker.md` — consent pipeline initialized
+4. **Submit the 5 affiliate applications** when bandwidth allows (2-4 hours total).
+5. **Decide: video OR audio-only origin story?** Audio is faster (1-2 hours vs 1-2 days). Audio can be re-recorded or upgraded to video later.
+6. **Reply here** with any blockers I can remove.
 
 The PCAC window doesn't wait. The brand voice stays raw, stoic, and proof-centered. No fluff.
+
+---
+
+*Last updated: 2026-06-23 21:41 CT*
+*Decision 12 locked: Swiss Chems affiliate BLOCKED with reasoning logged.*
