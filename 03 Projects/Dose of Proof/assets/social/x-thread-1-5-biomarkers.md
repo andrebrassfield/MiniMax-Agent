@@ -1,8 +1,11 @@
 # X Thread 1 — The 5 Biomarkers That Actually Moved the Needle
 
+**Status:** ✅ FINAL (locked 2026-06-23, voice + compliance reviewed)
 **Goal:** Drive Substack opt-ins via the lead magnet PDF.
 **Format:** X thread (8 tweets). First tweet = hook. Each tweet = standalone insight.
 **CTA:** Final tweet = "Download the PDF — link in bio" → Substack.
+**Publication:** Day 1 (Tuesday June 24), 8:30am ET
+**Pillar:** Lived Protocol + Reconstitution Utility (hybrid)
 
 ---
 

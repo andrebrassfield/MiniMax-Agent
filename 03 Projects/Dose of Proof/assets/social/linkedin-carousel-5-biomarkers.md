@@ -147,6 +147,9 @@ Includes:
 
 ## Posting notes
 
+**Status:** ✅ FINAL (locked 2026-06-23)
+**Publication:** Day 8 (Tuesday July 1), 9:00am ET
+**Pillar:** Lived Protocol + Reconstitution Utility (hybrid)
 - Best time on LinkedIn: Tuesday-Thursday, 8-10am ET
 - Caption: 3-5 sentences introducing the carousel, link to Substack in first comment (not post — LinkedIn de-prioritizes outbound links)
 - Pin to profile for 2 weeks during lead magnet push

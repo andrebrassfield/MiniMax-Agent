@@ -58,6 +58,10 @@ Dre
 
 ## Notes for Dre
 
+**Status:** ✅ FINAL (locked 2026-06-23, voice + compliance reviewed)
+**Publication:** Immediate on Substack opt-in (delay = drop in engagement)
+**Pillar:** Lived Protocol (lead magnet delivery)
+
 - Send IMMEDIATELY on Substack opt-in (delay = drop in engagement)
 - The "[First Name]" merge tag is standard Substack
 - The download link goes to the PDF hosted on Substack (or a CDN URL)

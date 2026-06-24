@@ -1,8 +1,11 @@
 # X Thread 2 — The PCAC Framework Intro
 
+**Status:** ✅ FINAL (locked 2026-06-23, voice + compliance reviewed)
 **Goal:** Introduce the brand framework + drive Substack opt-ins for ongoing content.
 **Format:** X thread (7 tweets). First tweet = the Symptom Whack-a-Mole reframe.
 **CTA:** Final tweet = "Join me on Substack — the framework drops there first."
+**Publication:** Day 3 (Thursday June 26), 9:00am ET
+**Pillar:** Lived Protocol + Macro-Longevity Economy (hybrid)
 
 ---
 

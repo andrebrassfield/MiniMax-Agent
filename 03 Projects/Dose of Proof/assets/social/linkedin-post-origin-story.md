@@ -56,6 +56,10 @@ doseofproof.substack.com
 
 ## Posting notes
 
+**Status:** ✅ FINAL (locked 2026-06-23)
+**Publication:** Day 1 (Tuesday June 24), 10:00am ET
+**Pillar:** Lived Protocol
+
 - **Length:** ~450 words (within LinkedIn's optimal long-form range)
 - **Tone:** Personal, raw, professional-but-not-polished
 - **The "I'm still in this process" anchor** is the brand voice differentiator — most personal-brand operators position themselves as recovered/expert. Dre positions himself as mid-process + sharing the data.
