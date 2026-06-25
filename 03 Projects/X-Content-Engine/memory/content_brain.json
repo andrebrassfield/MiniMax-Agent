@@ -279,6 +279,41 @@
       "why_it_works": "arXiv academic framework (LTS-VoiceAgent, Jan 26 2026) is the freshest signal of the cycle + the 920ms → 640ms latency changelog pairs directly with persona's Example 9 anchor + the semantic-triggering insight is the new architectural pattern (Listen-Think-Speak with end-of-turn prediction). The 'don't trigger on chunk, trigger on semantic boundary' is the load-bearing conceptual move. Pillar 4 specific.",
       "date_added": "2026-06-24",
       "times_used": 0
+    },
+    {
+      "text": "Australian tradies lose 5,000 AUD on a missed kitchen reno call. Average job: 500 AUD. Real receptionist: 50K-65K AUD/yr. AI receptionist: 99-299 AUD/month. Pays back in 2 jobs. From signed to live: 48 hours. Your US HVAC shop is running the same math. Same fix.",
+      "emotion": "recognition",
+      "why_it_works": "AU/US cross-currency pairing: 5,000 AUD large-job + 500 AUD avg-job + 99-299 AUD/mo AI cost + 50K-65K AUD/yr human cost + 48-hour install + 2-job payback. The verbatim '一个月多接两单就回本' line is the load-bearing element. Pairs with persona Example 1 ($450 × 8 calls/day = $1M/yr) for a US/AU dual-market hook. Pillar 2 specific.",
+      "date_added": "2026-06-25",
+      "times_used": 0
+    },
+    {
+      "text": "TikTok Shop LDR tiers: 10-20% late = 50% order cap. 20-40% = 30% cap. 40-60% = 20% cap. 60%+ = 10% cap. 1月26日 enforcement is live. 2-workday ship-or-cap. Your daily order volume just became the cap, not the goal. The fix: 3PL + real-time inventory sync, not a new ERP.",
+      "emotion": "fear",
+      "why_it_works": "Four-tier order-cap ladder (10/20/40/60% → 50/30/20/10%) is the load-bearing regulatory math. The 1月26日 enforcement date + 2-workday ship window is the named-anchor operational change. Different from the 2026-06-18 $5 penalty math (penalty amount) and the 2026-06-24 OTDR June 8 reversal (penalty reduction). Pillar 1 specific.",
+      "date_added": "2026-06-25",
+      "times_used": 0
+    },
+    {
+      "text": "Glean Work AI Index 2026: 87% of digital workers use AI. 75% say it makes them more productive. They save 11 hours/week. That's 22% of a 50-hour week. You're in the 13%. The 30-min weekend play: list your 12 weekly tasks. Mark the 4 AI can do. Become undeniable on the other 8.",
+      "emotion": "urgency",
+      "why_it_works": "Glean vendor-credible three-stat adoption cascade (87% / 75% / 11hr). The 11hr/week = 22% of 50hr/week math is the load-bearing element. The 'you're in the 13%' minority framing flips the reader's identity from majority to excluded. Pairs with persona Example 4 (30-min weekend leverage play). Different from the 2026-06-24 95.11% / 47% / 63% 脉脉 hiring-market stats (Western adoption-productivity vs Chinese hiring-market). Pillar 5 specific.",
+      "date_added": "2026-06-25",
+      "times_used": 0
+    },
+    {
+      "text": "你的名字是否出现在答案里,直接决定了订单的归属. 38% of online search is now answered by generative AI directly. GEO isn't an SEO upgrade. It's 认知资产工程 — cognitive asset engineering. The signpost is dead. The tour guide says your name. Or doesn't. Build the semantic asset stack: schema, author entities, primary-source citation density.",
+      "emotion": "fear",
+      "why_it_works": "The '你的名字是否出现在答案里,直接决定了订单的归属' line (慕课手记 Source 1) is the strongest single Pillar 3 hook of the cycle — citation = order attribution is the load-bearing economic consequence. The '认知资产工程' (IT之家 Source 5) is the strategic reframe that distinguishes GEO from short-term SEO tactics. The 38% stat + 站牌/导游 metaphor sequence + 4-metaphor cognitive-asset frame combine for the deepest Pillar 3 hook. Pillar 3 specific.",
+      "date_added": "2026-06-25",
+      "times_used": 0
+    },
+    {
+      "text": "Sub-300ms is the new frontier. LiveKit SFU. WebRTC transport. 4-bit quantized Telecom LLM (TSLAM, NetoAI). 2000+ calls per day at production scale. Sub-500ms was the 2025 ceiling. Sub-300ms is the 2026 floor. The voice agent is an engineering problem, not a model problem. The math is the product.",
+      "emotion": "curiosity",
+      "why_it_works": "Sub-300ms frontier (Prodinit) + 4-bit quantization TSLAM (NetoAI / arXiv 2508.04721) + 2000+ calls/day production scale = the production-scale upgrade of persona's Example 9 sub-700ms ceiling. The 4-model cascade (TSLAM + T-VEC + TTE + T-Synth) is the named-anchor pattern for vertical-specific voice agents. Different from the 2026-06-24 LTS-VoiceAgent / arXiv 2601.19952 / semantic-triggering hook (4-bit + production scale vs semantic + Listen-Think-Speak). Pillar 4 specific.",
+      "date_added": "2026-06-25",
+      "times_used": 0
     }
   ],
   "formats": [
@@ -441,6 +476,26 @@
     {
       "structure": "Academic-Framework + Latency Changelog: '[arXiv paper ID]: [framework name] — [N-component architecture]. [Specific lever]. [Before/after latency]. [The frontier number].'",
       "why_it_works": "Academic arXiv citation provides intellectual credibility + the N-component architecture gives the reader a concrete model + the before/after latency changelog pairs with persona's Example 9 anchor + the frontier number (sub-500ms / sub-300ms) is the load-bearing element. Pillar 4 default for new academic frameworks."
+    },
+    {
+      "structure": "LDR-Tier Order-Cap Drop: 'LDR [tier 1] = [cap 1]. LDR [tier 2] = [cap 2]. LDR [tier 3] = [cap 3]. LDR [tier 4] = [cap 4]. [Enforcement date]. [Daily-volume impact]. [The fix in 1 line].'",
+      "why_it_works": "Four-tier ladder with the percentage-of-order-cap being the load-bearing element. The reader's eyes lock on the gap (50% → 10%). The enforcement date + the fix-in-1-line close is the operator-actionable payload. Pillar 1 default for tiered-regulatory stories (TikTok Shop LDR is the canonical case)."
+    },
+    {
+      "structure": "Cross-Currency Missed-Call Math: '[Currency A large-job cost] OR [Currency B large-job cost]. [Currency A avg-job cost] OR [Currency B avg-job cost]. [Currency A AI cost/month] vs [Currency A human cost/yr]. [Payback period in N jobs]. [Install window].'",
+      "why_it_works": "Pairs AU figures with US figures (or other dual-market pairs) for international SMB audience reach. The payback-in-N-jobs math is the load-bearing element. The 48-hour install window + 2-job payback are the named-anchor tactical payload. Pillar 2 default for cross-market hook construction."
+    },
+    {
+      "structure": "Three-Stat Productivity Cascade: '[N1]% [adoption]. [N2]% [outcome claim]. [N3 units saved]/[time period] = [N4]% of [N5-hour work week]. [The minority framing]. [The 30-min action].'",
+      "why_it_works": "Three specific adoption-productivity stats in sequence (87% use / 75% productive / 11hr saved) create compounding urgency. The 'N4% of N5-hour work week' math is the load-bearing element. The minority framing ('you're in the X%') flips the reader's identity. Pillar 5 default for vendor-credible adoption data (Glean Work AI Index is the canonical case)."
+    },
+    {
+      "structure": "Production-Scale Latency Floor: 'Sub-[N]ms is the new frontier. [Component 1: transport]. [Component 2: model]. [Component 3: stack]. [Volume: N calls/day]. [Old ceiling: N ms]. [New floor: N ms]. [The framing: engineering, not model].'",
+      "why_it_works": "The sub-Nms frontier number is the load-bearing element. The component stack (LiveKit SFU + WebRTC + 4-bit quantized LLM) + production volume (2000+ calls/day) gives the reader a concrete engineering model. The 'engineering problem, not model problem' reframe extends persona's Example 9. Pillar 4 default for new latency frontiers."
+    },
+    {
+      "structure": "Citation-Order Pivot: '[Quote about citation]. [The economic consequence: 订单的归属 / 客户 / revenue]. [The tactical payload: schema + author entities + primary-source citation density]. [The named reframe: 认知资产工程].'",
+      "why_it_works": "The '你的名字是否出现在答案里,直接决定了订单的归属' line is the load-bearing element — it pairs the abstract GEO concept (citation) with a concrete economic consequence (order attribution). The 认知资产工程 strategic reframe distinguishes GEO from short-term SEO tactics. Pillar 3 default for GEO/answer-engine framing."
     }
   ],
   "pain_points": [
@@ -602,6 +657,26 @@
     },
     {
       "exact_audience_language": "提示词可以影响推理,但提示词无法强制执行安全边界",
+      "frequency": 1
+    },
+    {
+      "exact_audience_language": "每通未接电话可能是 5,000 澳元 (大单) 或 500 澳元 (均价)",
+      "frequency": 1
+    },
+    {
+      "exact_audience_language": "LDR 10-20%, 订单量限至此前日均的 50%, 20-40% 限至 30%, 40-60% 限至 20%, 60% 以上直接砍至 10%",
+      "frequency": 1
+    },
+    {
+      "exact_audience_language": "87% of digital workers now use AI at work, 75% say it makes them more productive, saving them roughly 11 hours each per week through automation alone",
+      "frequency": 1
+    },
+    {
+      "exact_audience_language": "你的名字是否出现在答案里,直接决定了订单的归属",
+      "frequency": 1
+    },
+    {
+      "exact_audience_language": "sub-300ms is the new frontier, 2000+ calls per day at production scale, WebRTC + LiveKit SFU + 4-bit quantized LLM stack",
       "frequency": 1
     }
   ],
@@ -1043,6 +1118,76 @@
       "pillar": "Pillar 5 — Leverage Play / Job Defense",
       "status": "pending",
       "source_seed": "daily-research-2026-06-24.md Pillar 5 Sources 1 + 2 + 3 (Anthropic + BCG + Fudan)"
+    },
+    {
+      "hook": "TikTok Shop LDR tiers: 10-20% late = 50% order cap. 20-40% = 30% cap. 40-60% = 20% cap. 60%+ = 10% cap. 1月26日 enforcement is live. 2-workday ship-or-cap. Your daily order volume just became the cap, not the goal. The fix: 3PL + real-time inventory sync, not a new ERP.",
+      "format": "LDR-Tier Order-Cap Drop",
+      "pillar": "Pillar 1 — E-Commerce Logistics",
+      "status": "pending",
+      "source_seed": "daily-research-2026-06-25.md Pillar 1 Source 1 (LDR tier 10/20/40/60% → 50/30/20/10% order cap + 1月26日 enforcement + 8-15% margin)"
+    },
+    {
+      "hook": "Australian tradies lose 5,000 AUD on a missed kitchen reno call. Average job: 500 AUD. Real receptionist: 50K-65K AUD/yr. AI receptionist: 99-299 AUD/month. Pays back in 2 jobs. From signed to live: 48 hours. Your US HVAC shop is running the same math. Same fix.",
+      "format": "Cross-Currency Missed-Call Math",
+      "pillar": "Pillar 2 — Trades / Missed Call",
+      "status": "pending",
+      "source_seed": "daily-research-2026-06-25.md Pillar 2 Source 1 (网易 / 163.com 澳洲技工的隐形损失 5000 AUD)"
+    },
+    {
+      "hook": "ServiceTitan just launched Pro Voice Agent natively. Inside the trades-SaaS incumbent's dashboard. Side-by-side with your live CSRs. Booked jobs, revenue, call outcomes in one place. The 4-week install is the only moat. The 19-year-old competitor without trucks now has the funnel. Defend or lose.",
+      "format": "Vendor-Platform-Launch + Imperative Close",
+      "pillar": "Pillar 2 — Trades / Missed Call",
+      "status": "pending",
+      "source_seed": "daily-research-2026-06-25.md Pillar 2 Source 2 (ServiceTitan Pro Voice Agent vendor product page)"
+    },
+    {
+      "hook": "GEO isn't an SEO upgrade. It's 认知资产工程 — cognitive asset engineering. The 4-metaphor frame: SEO is 站牌, GEO is 导游. SEO is 关键词, GEO is 语义资产. SEO is 爬虫, GEO is 大模型逻辑. SEO is 排名, GEO is whether the AI cites your name. 你的名字是否出现在答案里,直接决定了订单的归属. Build the cognitive asset or lose the citation.",
+      "format": "4-Metaphor Pivot + Citation-Order Pivot",
+      "pillar": "Pillar 3 — Existential Macro Threat / GEO",
+      "status": "pending",
+      "source_seed": "daily-research-2026-06-25.md Pillar 3 Sources 1 + 5 (慕课手记 4-metaphor + 你的名字 citation-revenue + IT之家 认知资产工程)"
+    },
+    {
+      "hook": "Sub-300ms is the new frontier. LiveKit SFU. WebRTC transport. 4-bit quantized Telecom LLM (TSLAM, NetoAI). 2000+ calls per day at production scale. Sub-500ms was the 2025 ceiling. Sub-300ms is the 2026 floor. The voice agent is an engineering problem, not a model problem. The math is the product.",
+      "format": "Production-Scale Latency Floor",
+      "pillar": "Pillar 4 — Build Logs",
+      "status": "pending",
+      "source_seed": "daily-research-2026-06-25.md Pillar 4 Sources 2 + 4 (NetoAI 4-bit quantized TSLAM + Prodinit sub-300ms + 2000+ calls/day)"
+    },
+    {
+      "hook": "Glean Work AI Index 2026: 87% of digital workers use AI. 75% say it makes them more productive. They save 11 hours/week. That's 22% of a 50-hour week. You're in the 13%. The 30-min weekend play: list your 12 weekly tasks. Mark the 4 AI can do. Become undeniable on the other 8.",
+      "format": "Three-Stat Productivity Cascade + Leverage Pivot",
+      "pillar": "Pillar 5 — Leverage Play / Job Defense",
+      "status": "pending",
+      "source_seed": "daily-research-2026-06-25.md Pillar 5 Source 2 (Glean Work AI Institute 87% / 75% / 11hr)"
+    },
+    {
+      "hook": "AI isn't replacing your brain. It's replacing the 体力活 inside your brain. The manual work of knowledge work: 周报, 整理数据, 排会议. 李彦宏 at WAIC: the new economy needs 金手指 (gold fingers = prompt engineers) and 金头脑 (gold minds = decision-makers). 金头脑 is grown from 金手指. Spend 30 minutes this weekend writing the system prompt. Monday you walk in as the 金头脑.",
+      "format": "Bilingual X→Y Pivot + 金手指→金头脑 Career Ladder",
+      "pillar": "Pillar 5 — Leverage Play / Job Defense",
+      "status": "pending",
+      "source_seed": "daily-research-2026-06-25.md Pillar 5 Source 4 (李彦宏 WAIC 2024 脑力劳动的体力活 + 金手指/金头脑 career ladder)"
+    },
+    {
+      "hook": "工具越智能,对'人'的要求反而更刁钻. The 2026 leverage play isn't typing. It's judging. Excel-typer is a 22/hr job. AI-augmented decision-maker is 80K-120K. The gap: the coworker who spent 30 minutes Sunday wiring the system prompt for the weekly report. 11 hours/week saved (Glean). 你的工位没变,你的工作流已重构. The threat isn't the AI. It's the Excel-typer who learned to type into AI.",
+      "format": "Tool-Smarter-Human-Pickier Drop + Judgment-vs-Typing Framing",
+      "pillar": "Pillar 5 — Leverage Play / Job Defense",
+      "status": "pending",
+      "source_seed": "daily-research-2026-06-25.md Pillar 5 Source 3 (网易 2026年AI正在这样改变你的工作方式 + Glean 11hr)"
+    },
+    {
+      "hook": "AI工具的'黑科技'大多是针对英文场景优化的,放到咱们中文的工作生活里,处处是bug. Customer says 客单价 (AOV). Tool classifies it as 无关内容 (irrelevant). 复购率 (repurchase rate) goes in the same bucket. 5 hours of manual cleanup. Localization isn't a feature flag. It's a deployment gate. The boring practical fix: don't buy the demo. Buy the one with a Chinese sales-industry model. Stop paying for tools that don't speak your customer's language.",
+      "format": "Localization-Failure Drop + Value-Flip + Procurement Filter",
+      "pillar": "Pillar 6 — Hype Translator",
+      "status": "pending",
+      "source_seed": "daily-research-2026-06-25.md Pillar 6 Source 3 (搜狐 听脑AI本土化 + 客单价/复购率 无关内容)"
+    },
+    {
+      "hook": "Google Cloud 2026 AI Agent Trends report: AI is shifting from 'tools' to 'teammates.' Goal-driven systems that can plan, act, and execute. The HVAC shop that books 7 jobs/week from a $400/mo AI didn't buy a tool. They hired a teammate who never sleeps, never calls in sick, never takes a vacation. The plumber who ships a sub-500ms voice agent didn't deploy software. They onboarded a teammate. Stop calling it software. Start calling it staff. Boring. Profitable.",
+      "format": "Conceptual-Reframe Drop + Teammates Framing",
+      "pillar": "Pillar 6 — Hype Translator",
+      "status": "pending",
+      "source_seed": "daily-research-2026-06-25.md Pillar 6 Source 5 (Reddit summary of Google Cloud AI Agent Trends 2026 + tools → teammates)"
     }
   ],
   "performance_log": [

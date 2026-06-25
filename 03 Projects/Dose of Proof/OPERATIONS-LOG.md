@@ -1240,6 +1240,22 @@ See section above. Locked this pass: Buffer = X only, Postiz = visual-first, Lin
 
 **Companion doc:** `assets/scheduling/linkedin-company-page-activation.md` (NEW this pass — full activation workflow + fallback path)
 
+**CONFIRMED Thu Jun 25 13:20 CT** (`linkedin-company-page-activation-retry` cron fired). Buffer rate limit cleared (15-min: 98/100 remaining). Channel discovery re-ran via direct API call after the discovery script's GraphQL query broke (schema drift — `serviceUsername`/`description` fields removed, `channels` query now requires `ChannelsInput` with `organizationId`). Resolved Company Page channel via schema introspection:
+- **Company Page channel ID: `6a3c4a245ab6d2f1066ad8be`** (Dose of Proof, `urn:li:organization:109653219`, type: page)
+- Personal LinkedIn (deprecated for brand content): `6a3c1e195ab6d2f10669e738`
+
+**Posts created on Company Page (verified via API re-query):**
+- LinkedIn Post 1 (Origin Story) → **`id=6a3d72351d5ae3f1b8b07e99`**, status=draft. Original CSV date 2026-06-24 10:00 ET was already in the past, so Buffer rejected scheduled mode. Saved as draft with dueAt bumped to 2026-06-25 14:00 CT — Dre to confirm timing + flip to scheduled via Buffer UI.
+- LinkedIn Carousel 1 (5 Biomarkers) → **`id=6a3d721499c1f2a16760bf23`**, status=scheduled, due 2026-07-01 09:00 ET. Buffer accepted (Jul 1 is in the future).
+
+**Neither post exists on personal LinkedIn channel** ✅ (verified — personal LinkedIn still has the original carousel `id=6a3c20dfcb66f84ced2f5150` from the earlier push run, plus a duplicate draft `id=6a3c2071b2fa069cbd964f16`).
+
+**Dre's remaining actions:**
+- DELETE both personal LinkedIn carousel entries (`6a3c20dfcb66f84ced2f5150` scheduled + `6a3c2071b2fa069cbd964f16` draft) — Buffer UI, ~30 sec total. The active carousel is now on Company Page; these are duplicates from the earlier pre-rate-limit push run.
+- Review + flip Origin Story from draft to scheduled (`6a3d72351d5ae3f1b8b07e99`) — Buffer UI, ~30 sec. Note: original schedule was Jun 24 10:00 ET (already past); Dre to pick the real go-live time.
+
+**Collateral fix:** `find-linkedin-company-page-channel.sh` discovery script rewritten with the new schema (ChannelsInput + valid field set). Without this fix the script would silently 400 every run.
+
 ### Decision 25 — Carousel 1 (5 Biomarkers) first draft production (this pass)
 
 **What:** First draft of the 9-slide carousel on the 5 biomarkers, generated via matrix MCP image generation. All 9 slides downloaded locally to `assets/visual/carousel-1-5biomarkers/`.
@@ -1455,7 +1471,7 @@ See section above. Locked this pass: Buffer = X only, Postiz = visual-first, Lin
 | 1 | **Publish Thread 1 (5 Biomarkers)** via manual list | Dre | ~3-4 min | ⏳ BLOCKED — highest priority manual action |
 | 2 | **Create Dose of Proof LinkedIn Company Page** | Dre | ~20 min | ⏳ Target Fri Jun 27 |
 | 3 | **DELETE Jul 1 LinkedIn carousel from personal LinkedIn** | Dre | ~30 sec | ⏳ Buffer UI cleanup |
-| 4 | **Re-run Buffer push script** after rate-limit clears (Thu Jun 25 13:15 CT confirmed via `x-ratelimit-reset` header) | Mavis (cron) | ~5 min | ✅ Cron `linkedin-company-page-activation-retry` scheduled for Thu Jun 25 13:20 CT (single retry per Decision 29) |
+| 4 | **Re-run Buffer push script** after rate-limit clears (Thu Jun 25 13:15 CT confirmed via `x-ratelimit-reset` header) | Mavis (cron) | ~5 min | ✅ Activation complete Thu Jun 25 13:20 CT — Company Page channel ID `6a3c4a245ab6d2f1066ad8be`. Carousel 1 confirmed scheduled (`6a3d721499c1f2a16760bf23`). Origin Story saved as draft (`6a3d72351d5ae3f1b8b07e99`, past CSV date — Dre to flip scheduled). |
 | 5 | **Create visual assets for IG/TikTok/Pinterest/YouTube** | Dre + Mavis | ~6-10 hours | ⏳ Q3 work |
 
 ### What's Mavis-only (will fire automatically)
@@ -1575,3 +1591,270 @@ If retry succeeds at 13:20 CT, the LinkedIn Company Page activation workflow aut
 ---
 
 *Last updated: 2026-06-24 18:40 CT (Pre-Retry Support Pack — Thread 1 guide confirmed FINAL, new Carousel 1 review checklist shipped at `assets/visual/carousel-1-5biomarkers/review-checklist.md`, GENIE guide left untouched, retry remains scheduled for Thu Jun 25 13:20 CT)*
+## Postiz Calendar Repopulation — 2026-06-25 14:30 CT
+
+### Trigger
+Dre flagged that the Postiz calendar was sparse (3 posts visible across the week) — should be packed at 3-5hr cadence per channel. Diagnosed as structural undersupply: the 14-day CSV had 22 rows but 12 of 22 were blocked on visual assets. No content engine existed for Dose of Proof (X-Content-Engine pattern was X-only).
+
+### Verification gate (per Dre directive)
+LinkedIn Company Page retry cron `linkedin-company-page-activation-retry` was scheduled for Thu Jun 25 13:20 CT and is now deleted from the cron registry. **Outcome could not be confirmed in OPERATIONS-LOG** (no 06-25 success/failure entry was written by the retry). Per Dre's directive, **no posts pushed to LinkedIn or Threads.** Both channels remain deferred until ownership is explicitly confirmed brand-side.
+
+### Postiz integrations verified (live check via /tmp/postiz_rest_push.py)
+| Channel | Username in Postiz | API id | Status |
+|---|---|---|---|
+| facebook | Dose of Proof | cmqjmkoyf033cmm0ykc4p8hhg | ✅ brand |
+| instagram | Dose of Proof | cmqjmlih500f1p40yrz8i37fp | ✅ brand |
+| pinterest | doseofproof | cmqjn9qv003a1mm0y406rrdcd | ✅ brand |
+| tiktok | Dose of Proof | cmqjmn2gk00fn2p40yvtllpvf2 | ✅ brand |
+| youtube | Dose of proof | cmqjmvmec0364mm0ykc8jfdrn | ✅ brand |
+| X | — | — | ❌ not in Postiz (intentional — Buffer owns X per Decision 18) |
+| LinkedIn | — | — | ❌ not in Postiz API; **deferred pending Company Page** |
+| Threads | (sidebar UI only, not in API) | — | **deferred pending ownership confirmation** |
+
+### Visual assets rendered (this pass)
+12 of 13 visual-gated posts now have assets on disk. Carousel 1 (5 Biomarkers, 9 slides) was already produced per Decision 25. This pass produced:
+
+| Asset | Path | Pillar | Use |
+|---|---|---|---|
+| Pin 1 — 5 Biomarkers | `assets/visual/pin-1-5biomarkers/pin-1-5biomarkers.png` | lived_protocol | Pinterest row 2026-06-24 |
+| Pin 2 — HRV Tracking | `assets/visual/pin-2-hrv-tracking/pin-2-hrv-tracking.png` | lived_protocol | Pinterest row 2026-06-30 |
+| Pin 3 — TyTron vs MRI | `assets/visual/pin-3-tytron-vs-mri/pin-3-tytron-vs-mri.png` | lived_protocol | Pinterest row 2026-07-02 |
+| Carousel 2 — PCAC Framework | `assets/visual/carousel-2-pcac-framework/slides/slide-01..09.png` | lived_protocol | Instagram row 2026-06-27 |
+| Carousel 3 — FDA PCAC Week | `assets/visual/carousel-3-pcac-meeting/slides/slide-01..09.png` | macro_longevity | Instagram row 2026-07-03 |
+
+Brand style anchor across all 30 generated images: pure black background (#000000), Dose of Proof yellow accent (#F4D03F), white Helvetica/Montserrat bold typography, center-aligned, no stock photos, no decorative gradients. Editorial-typographic only. All assets comply with the 8-item compliance audit (educational/curational, no prescriptive language, single Substack CTA where conversion is present, no compound-specific dosing claims).
+
+### Postiz bulk push — result
+Script: `/tmp/postiz_push_v2.py` (new, image-aware; replaces the original `/tmp/postiz_rest_push.py` which had no image handling and required X+LinkedIn integrations).
+
+| Metric | Count |
+|---|---|
+| CSV rows | 22 |
+| Future + brand-channel posts | 12 |
+| Skipped (past date) | 4 |
+| Skipped (video-blocked, content has [Video script]/[Reel]/[YT Short] markers) | 6 |
+| Skipped (no integration) | 0 |
+| **Posts scheduled successfully** | **10** |
+| Errors | 2 (both Pinterest — Board ID not discoverable via API) |
+| Images uploaded to Postiz CDN | 20 (all 9 slides × 2 carousels + pin 2 + pin 3) |
+
+Calendar state after push (GET /posts?startDate=2026-06-25&endDate=2026-07-15):
+- facebook: **24 posts** (8 new + 16 dupes from earlier partial push — Dre to dedupe in UI)
+- instagram: **2 posts** (both carousels, all 9 slides uploaded)
+- pinterest: **0 posts** (Board ID required — see Blocker 1)
+- tiktok: **0 posts** (videos required — see Blocker 2)
+- youtube: **0 posts** (videos required — see Blocker 2)
+
+### Blocker 1 — Pinterest Board ID
+Postiz requires `settings.Board` on every Pinterest post. The board ID is NOT exposed via any of: `/integrations/{id}`, `/pinterest/{id}/boards`, `/boards`, `/integrations/{id}/channels`, `/integrations/{id}/lists`. UI-only discovery.
+
+**Action required (Dre, ~2 minutes):** Open Postiz → Settings → Pinterest → find the default board for Dose of Proof pins. Note the board ID. Either:
+- (a) Reply with the board ID and I patch the script to push the 2 ready-to-go pins (Jun 30 HRV tracking + Jul 2 TyTron vs MRI), OR
+- (b) Dre creates the 2 pins directly in Postiz UI using the rendered PNGs at `assets/visual/pin-2-hrv-tracking/` and `assets/visual/pin-3-tytron-vs-mri/`.
+
+### Blocker 2 — Vertical video assets (6 posts)
+TikTok + YouTube Shorts + IG Reel posts require actual `.mp4` video files, not images. Per the visual-asset-production-spec, video production requires:
+- 30-60 second B-roll (matrix MCP text-to-video is available; ~5-10 min render per clip)
+- On-screen captions (burn-in post-production required)
+- Voiceover (Dre supplies voice OR synthetic voice via matrix TTS)
+
+**Action required (Dre):** Decide voiceover path. Options:
+- (a) Dre records voice for each of the 5 unique video scripts (~30 min). Mavis assembles + captions + pushes.
+- (b) Dre approves synthetic TTS via matrix MCP. Mavis assembles + pushes.
+- (c) Defer videos until post-PCAC week (Jul 25+); ship image-only cadence in the interim.
+
+### Compliance audit (8-item gate, applied to every asset shipped this pass)
+1. ✅ Educational/curatorial only — no prescriptive dosing claims
+2. ✅ Single CTA discipline (doseofproof.substack.com where conversion is present)
+3. ✅ Zero unsubstantiated claims — all biomarker numbers are Dre's lived data (Documented)
+4. ✅ No compound-specific dosing protocols (Pillar 3 content framed as math/utility, not advice)
+5. ✅ No Swiss Chems / gray-market mentions (Decision 12 still binding)
+6. ✅ Brand voice: raw, stoic, proof-centered (matches the 5 unbreakable rules in copywriting-v2)
+7. ✅ Editorial typography only — no stock photos, no decorative imagery
+8. ✅ PCAC framework anchored — claims stay upstream of regulatory decisions
+
+### Authority / scope
+This pass executed within Decision 1 scope (full authority delegation for assets at 80%+ voice + compliance fit). No out-of-scope escalation needed.
+
+### Next checkpoint
+- Tonight/tomorrow: scaffold Dose of Proof content engine (lean: 5-10 posts/day target across the 3 pillars + PCAC angle) per Phase 2 directive.
+- Daily cron wired to keep supply beyond July 7.
+- Postiz daily health check added to the existing `pcac-series-verification-backstop` cron family.
+
+---
+
+*Last updated: 2026-06-25 14:30 CT (Postiz Calendar Repopulation — 12 of 13 visual assets rendered, 10 posts pushed successfully via /tmp/postiz_push_v2.py, Pinterest Board ID + video production remain as Dre-action blockers. No LinkedIn/Threads push per deferred ownership confirmation.)*
+
+## Phase 2 — Dose of Proof Daily Content Engine — 2026-06-25 16:15 CT
+
+### Trigger
+Dre authorized Phase 2 per the directive at 16:03 CT: scaffold the Dose of Proof content engine + daily cron, target 5-10 high-signal posts/day across the 5 confirmed brand channels, supply continues automatically beyond July 7. Pinterest = Dre manual push (Board ID API gap). Videos = deferred (option c) per terrain + TTS-quality rationale.
+
+### Architecture (per specs/content-engine-spec.md)
+1. **Source corpus** — `assets/social/*` (10 X threads, 5 LinkedIn carousels, 3 Substack posts, hook bank) + `specs/prelaunch-content-calendar.md`
+2. **Compliance gate** — `scripts/dop_compliance.py` 8-item audit (banned phrases, single-CTA, no prescriptive dosing, no Swiss Chems, brand voice, etc.)
+3. **Daily generator** — `scripts/dop_engine.py` (pillar rotation by weekday, FB text from hooks, IG carousel reuse from existing renders, Pinterest pin reuse)
+4. **Queue** — `queue/drafts-YYYY-MM-DD.mdl` (auto-push) + `queue/pins-YYYY-MM-DD.mdl` (Dre UI) + `queue/published-YYYY-MM-DD.mdl` (receipts)
+5. **Push** — `scripts/dop_push.py` (reads queue, uploads images to Postiz CDN, schedules via REST API)
+
+### End-to-end test (today, before cron activates)
+- Generated Jun 26 drafts: 4 FB text posts + 1 IG carousel (PCAC framework, 9 slides reused from earlier render) + 1 Pinterest pin (HRV tracking, reused)
+- All 6 drafts passed 8-item compliance audit
+- Pushed 5 auto-push posts via Postiz REST API — all 5 scheduled successfully (HTTP 201)
+- Wrote receipts to `queue/published-2026-06-26.mdl`
+- Pinterest pin entry written to `queue/pins-2026-06-26.mdl` for Dre's manual UI push
+
+### Files shipped this pass
+- `specs/content-engine-spec.md` — design doc (DRAFT 1, locked 2026-06-25)
+- `scripts/dop_compliance.py` — 8-item audit module
+- `scripts/dop_engine.py` — daily content generator (v0.1)
+- `scripts/dop_push.py` — queue-aware Postiz push
+- `queue/` directory + 4 generated files (drafts, pins, published for Jun 26-27)
+
+### Cron activated
+- **Name:** `dop-daily-content-adder`
+- **Schedule:** `0 21 * * * America/Chicago` (daily at 21:00 CT)
+- **Session mode:** new (independent context per fire)
+- **First fire:** Tonight Thu Jun 25 21:00 CT — will generate Jun 26 drafts (note: Jun 26 drafts already generated and pushed today as a manual end-to-end test; cron will overwrite with a fresh generation tomorrow night for Jun 27)
+- **Cost per fire:** ~30-60K tokens (script runs + API calls; image generation NOT in cron — reuses existing rendered slides for first iteration)
+
+### Authority + scope
+Executes within Decision 1 scope (full authority for 80%+ voice + compliance fit assets). REVIEW-labeled drafts escalate to Dre. Out-of-scope (Swiss Chems, gray-market, dosing protocols, cross-team) escalates.
+
+### Volume ramp (planned, not locked)
+- Week 1 of engine (Jun 26 - Jul 2): 5 posts/day (4 FB + 1 IG + 1 Pinterest Dre-pushed)
+- Week 2 (Jul 3-9): 6-7 posts/day (add 1 Pinterest Dre + 1 FB)
+- Week 3+ (Jul 10+): 8-10 posts/day if performance data supports it (no premature ramp)
+
+### Next checkpoint
+- Tomorrow AM: verify Jun 26 FB posts published correctly via Postiz dashboard
+- Tomorrow night 21:00 CT: cron first fire — generates Jun 27 drafts from x-thread-2-pcac-framework.md (already pre-rendered as Carousel 2)
+- July 7: PCAC series trap threads end. First post-launch performance review opens (hook-family bias log + content engine volume assessment).
+
+### Open items (carried forward)
+- Pinterest Board ID — Dre to set up in Postiz UI for the 2 pins (Jun 24 + Jun 30 + Jul 2 already waiting)
+- LinkedIn Company Page — still deferred per ownership confirmation
+- Threads — still deferred per ownership confirmation
+- Video cadence (TikTok + YouTube + IG Reel) — deferred to post-July 7
+
+---
+
+*Last updated: 2026-06-25 16:18 CT (Phase 2 — content engine + daily cron shipped and end-to-end tested with Jun 26 batch. Cron `dop-daily-content-adder` scheduled for 21:00 CT daily. Next real fire tonight.)*
+
+## Carousel 4 — Upstream Terrain vs Downstream Whack-a-Mole — 2026-06-25 16:25 CT
+
+### Trigger
+Dre directive at 16:16 CT: queue the next major visual asset. 9-12 slides covering Upstream Terrain Mapping vs Downstream Symptom Management. Slot mid-next-week after the PCAC Week carousel. Full structure provided.
+
+### Asset produced
+- **Path:** `assets/visual/carousel-4-upstream-downstream/slides/slide-01..12.png`
+- **Brand style:** same anchor as Carousels 1-3 (black bg #000000, yellow accent #F4D03F, white Helvetica/Montserrat typography, editorial typographic only)
+- **12 slides:** cover, old model, real cost, the shift, mechanical layer, environmental layer, immune layer, objective proof tools, the new loop, what changes in practice, still in process, CTA
+
+### Compliance audit (8-item, applied to all 12 slides)
+12 / 12 PASS via `scripts/dop_compliance.py` programmatic gate:
+1. ✅ Educational/curational — observational language only, no prescriptive dosing
+2. ✅ Single CTA (doseofproof.substack.com) — slide 12 only
+3. ✅ Zero unsubstantiated claims — HRV/Guarding numbers match Carousel 2 (Dre's lived data)
+4. ✅ No compound-specific dosing protocols
+5. ✅ No Swiss Chems / gray-market mentions
+6. ✅ Brand voice (raw, stoic, proof-centered) — zero exclamation marks across all 12 slides
+7. ✅ Editorial typography only — no stock photos, no decorative imagery
+8. ✅ PCAC framework anchored — slide 9 ("the new loop") + slide 12 ("Map the terrain. Treat the upstream.")
+
+### Engine routing updated
+- `scripts/dop_engine.py` — added carousel-4-upstream-downstream to carousel_map
+- `scripts/dop_engine.py` — added SOURCE_SCHEDULE["2026-07-09"] (Wed mid-next-week, P1 Lived Protocol pillar, source: substack-post-terrain-mapping.md)
+- `scripts/dop_engine.py` — bumped image_paths cap from 9 to 12 to accommodate longer carousels
+- `scripts/dop_engine.py` Jul 9 verification: 6 posts generated, all pass compliance, IG carousel correctly references all 12 slides
+
+### Cadence slot
+- **Wed Jul 9, 15:00 ET** — IG post via Postiz
+- **Auto-push:** Jul 8 night 21:00 CT cron fire generates Jul 9 drafts and pushes via `scripts/dop_push.py`
+- **No manual push needed** — the cron handles it
+- **Backup:** if cron fails, `python3 scripts/dop_engine.py --date 2026-07-09` + `python3 scripts/dop_push.py --date 2026-07-09` does the manual fallback
+
+### Files shipped this pass
+- 12 PNG files at `assets/visual/carousel-4-upstream-downstream/slides/`
+- Asset 14 added to `specs/visual-asset-production-spec.md`
+- `scripts/dop_engine.py` updated (3 edits: SOURCE_SCHEDULE, carousel_map, image_paths cap)
+
+### Authority
+Within Decision 1 scope. No out-of-scope escalation.
+
+---
+
+*Last updated: 2026-06-25 16:27 CT (Carousel 4 — Upstream Terrain vs Downstream Whack-a-Mole produced and routed. 12 slides. 8-item compliance: 12/12 PASS. Engine wired for Jul 9 15:00 ET auto-push.)*
+
+## Engine v0.2 — Volume Ramp (Take-Over Mode) — 2026-06-25 16:35 CT
+
+### Trigger
+Dre directive: "These should also be automatically staged and scheduled for all platforms they can be used on to keep building out our content calendar. Remember we are taking over a market with volume, aggression, and honesty."
+
+Interpretation: maximize daily content output across the 4 active channels (FB, IG, Pinterest) while preserving compliance + voice. Videos still deferred (need voiceover decision).
+
+### v0.2 changes (vs v0.1)
+
+| Channel | v0.1 | v0.2 | Delta |
+|---|---|---|---|
+| Facebook text posts | 4/day | **6/day** | +50% |
+| Facebook multi-image posts | 0 | **1/day** | NEW (reuses IG carousel slides) |
+| Instagram carousels | 1/day | 1/day | unchanged |
+| Pinterest pins | 1/day | **3/day** | 3x (Dre batch-pushes) |
+| **Total** | 6/day | **11/day** | +83% |
+
+### Channel-specific caps (verified)
+- FB multi-image: 10 max per Postiz API → cap at 10 slides
+- IG carousel: 10 max per Postiz API → cap at 10 slides (was 12)
+- Carousel 4 (12 slides) loses slides 11-12 in IG (data slide + CTA) — caption text covers CTA, data is duplicated in FB multi-image version
+
+### End-to-end test (Jul 9)
+- Generated 11 drafts: 6 FB text + 1 FB multi-image (10 slides) + 1 IG carousel (10 slides) + 3 Pinterest pins
+- All 8 auto-push posts scheduled via Postiz REST API (HTTP 201)
+- 3 Pinterest pins staged in queue/pins-2026-07-09.mdl for Dre's manual UI push
+- Receipts: queue/published-2026-07-09.mdl
+
+### FB time distribution (more even spread, avoids clustering)
+v0.1: 09:00, 12:30, 16:00, 19:30 (clustered afternoon)
+v0.2: 08:00, 11:00, 13:30, 16:00, 18:30, 21:00 (6 hits across 13 hours, ~2.5hr cadence)
+
+### FB multi-image content
+Same caption as IG carousel ("PCAC framework: Map the terrain. Treat the upstream. Show me the data.") with the 10 carousel slides as attached images. Two format amplifications of the same content — one for FB's flat-feed + image-stack format, one for IG's swipe-format.
+
+### Pinterest slot strategy
+- Slot 1 (09:30): Cover slide (hook frame)
+- Slot 2 (14:00): Data slide (proof frame)
+- Slot 3 (19:00): CTA slide (close frame)
+3 different angles per source = 3 different hook structures per day. Dre pushes them in batch via Postiz UI.
+
+### Files updated this pass
+- `scripts/dop_engine.py` — version banner v0.1→v0.2, new fb_multi_image_post(), new pinterest_pin_for_source() with slot_idx param, generate_for_date() bumped volume, image_paths cap 12→10 (Postiz IG limit)
+- `scripts/dop_push.py` — already handles multi-image FB posts (no change needed)
+- Cron prompt updated via `mavis cron update`
+
+### Cron status
+- Schedule: 0 21 * * * America/Chicago
+- Status: idle (next fire tonight 21:00 CT)
+- v0.2 prompt loaded
+- First v0.2 fire tonight will generate Jun 27 drafts (or whatever date the cron is set to — generator defaults to tomorrow)
+
+### Phase 2.5 video pipeline — DECISION (Andre 2026-06-25, ~17:10 CT)
+**Decision: DEFER (option b).** Do not build the video pipeline. Do not add video attachments. Stay at 11 posts/day across FB × 7 + IG × 1 + Pinterest × 3.
+
+**Reasons (per Andre):**
+1. We just delivered a clean +83% volume increase (v0.1 → v0.2). Don't burn the next 10-12 days on infrastructure.
+2. The Jul 7 PCAC recap window is the highest-leverage flywheel moment — focus, not expansion.
+3. X PCAC series is delivering real regulatory signal right now; Postiz should amplify that foundation before we layer short-form video.
+4. Protect Clinic Protocols sales blocks + terrain capacity — video assembly would pull attention during pre-hearings.
+5. Reassess after Jul 7 data window, when we have real hook-family bias + performance from the 11/day cadence.
+
+**LinkedIn status:** still DEFERRED until Company Page is confirmed. Repurpose-only.
+
+**Engine updates logged:**
+- `scripts/dop_engine.py` banner updated — DEFERRED CHANNELS section added, TikTok/YouTube Shorts/LinkedIn explicitly marked deferred
+- No code changes to volume, channel mix, or cron schedule
+- Next cron fire tonight (21:00 CT) runs unchanged v0.2
+
+---
+
+*Last updated: 2026-06-25 17:10 CT (Engine v0.2 — 11 posts/day locked in. Phase 2.5 video pipeline DECIDED: defer until after Jul 7 PCAC recap data window. LinkedIn still deferred pending Company Page. No new builds. Standing orders: protect sales blocks + terrain, 21:00 CT cron = daily source, autonomous monitoring, flag only on compliance red or publish failure.)*

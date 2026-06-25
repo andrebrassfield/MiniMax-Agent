@@ -2,10 +2,10 @@
 type: operational-guide
 asset: hybrid-scheduling-workflow-v2
 status: ✅ FINAL (locked 2026-06-24, Decision 18 revised)
-purpose: clear operating manual for the Buffer + Postiz dual-tool architecture — REVISED to reflect that LinkedIn brand posting is pending the Dose of Proof LinkedIn Company Page creation
+purpose: clear operating manual for the Buffer + Postiz dual-tool architecture — REVISED to reflect that LinkedIn brand posting is LIVE on Dose of Proof LinkedIn Company Page (created 2026-06-24)
 audience: Dre (operator) + Mavis (orchestrator)
 companion_to: assets/scheduling/postiz-bulk-upload-week-1-2.csv + assets/scheduling/manual-x-scheduling-list.md + /tmp/buffer_bulk_push.py + /tmp/postiz_rest_push.py + assets/scheduling/linkedin-company-page-action.md
-decision_locked: Decision 18 (REVISED) — Postiz primary for visual platforms, Buffer for X, manual fallback for X during rate limits, LinkedIn Company Page pending
+decision_locked: Decision 18 (REVISED) — Postiz primary for visual platforms, Buffer for X + LinkedIn (Dose of Proof Company Page, ACTIVE 2026-06-25), manual fallback for X during rate limits
 ---
 
 # Hybrid Scheduling Workflow — Dose of Proof (v2, REVISED)
@@ -19,7 +19,7 @@ decision_locked: Decision 18 (REVISED) — Postiz primary for visual platforms, 
 | Platform              | Tool       | Notes                                          | Status                |
 |-----------------------|------------|------------------------------------------------|-----------------------|
 | **X (Twitter)**       | **Buffer**  | Best thread support + proven API               | Rate limited 24h      |
-| LinkedIn (Brand)      | Postiz     | **Need to create Dose of Proof Company Page first** | 🔴 **NOT CONNECTED** |
+| LinkedIn (Brand)      | **Buffer**  | **Dose of Proof Company Page ACTIVE (channel ID `6a3c4a245ab6d2f1066ad8be`)** — Postiz deprioritized per Decision 18 REV (Buffer is the LinkedIn home now) | ✅ **CONNECTED** |
 | Instagram             | Postiz     | Already connected (visual-first)               | ✅ Ready              |
 | TikTok                | Postiz     | Already connected (native video)               | ✅ Ready              |
 | Facebook              | Postiz     | Already connected                              | ✅ Ready              |
@@ -43,7 +43,7 @@ decision_locked: Decision 18 (REVISED) — Postiz primary for visual platforms, 
 - Organization ID: `69de6c292b24d8cddc01c3cb`
 - X channel ID: `6a3c1df95ab6d2f10669e64e` (@doseofproof) — **PRIMARY CHANNEL**
 - LinkedIn channel ID (personal — DO NOT USE): `6a3c1e195ab6d2f10669e738`
-- LinkedIn Company Page ID: **PENDING** — Dre to create this week (see `linkedin-company-page-action.md`)
+- LinkedIn Company Page ID: `6a3c4a245ab6d2f1066ad8be` (Dose of Proof, handle: doseofproof, URN: `urn:li:organization:109653219`) — CREATED 2026-06-24, ACTIVE in Buffer 2026-06-25 13:20 CT
 - API key: in `/tmp/buffer_bulk_push.py`
 
 ### 2.2 Push script
@@ -69,10 +69,17 @@ decision_locked: Decision 18 (REVISED) — Postiz primary for visual platforms, 
 4. **LinkedIn carousels** → no API asset support; manual upload in Buffer UI required
 5. **First-comment** → supported via metadata but not implemented in our script yet
 
-### 2.5 When LinkedIn Company Page is created:
-1. Query Buffer for new company page channel ID
-2. Update `resolve_channel()` in `/tmp/buffer_bulk_push.py`
-3. Re-run bulk push — LinkedIn posts now target company page (not personal)
+### 2.5 LinkedIn Company Page — activation complete ✅
+- **Channel ID:** `6a3c4a245ab6d2f1066ad8be`
+- **Display name:** Dose of Proof
+- **Type:** page (LinkedIn Company Page, not profile)
+- **Service ID:** `urn:li:organization:109653219`
+- **Created:** 2026-06-24
+- **Activated in Buffer:** 2026-06-25 13:20 CT (cron `linkedin-company-page-activation-retry`)
+- **Posts currently scheduled on Company Page:**
+  - LinkedIn Post 1 (Origin Story) → `id=6a3d72351d5ae3f1b8b07e99` (DRAFT — original CSV date Jun 24 was past; Dre to flip to scheduled via Buffer UI)
+  - LinkedIn Carousel 1 (5 Biomarkers) → `id=6a3d721499c1f2a16760bf23` (SCHEDULED, due 2026-07-01 09:00 ET)
+- **Personal LinkedIn (`6a3c1e195ab6d2f10669e738`):** deprecated for brand content per Decision 18. Dre to clean up duplicate carousel entries from earlier push run.
 
 ---
 
@@ -324,7 +331,7 @@ Same data, different framing:
 |-------|----------|-----------|-------|
 | Buffer | X | `6a3c1df95ab6d2f10669e64e` | @doseofproof — ready |
 | Buffer | LinkedIn (personal) | `6a3c1e195ab6d2f10669e738` | ❌ DO NOT USE for brand content |
-| Buffer | LinkedIn (Company) | _PENDING_ | Create via `linkedin-company-page-action.md` |
+| Buffer | LinkedIn (Company) | `6a3c4a245ab6d2f1066ad8be` | Dose of Proof Company Page — ACTIVE 2026-06-25 13:20 CT |
 | Postiz | Facebook | `cmqjmkoyf033cmm0ykc4p8hhg` | ready |
 | Postiz | Instagram | `cmqjmlih500f1p40yrz8i37fp` | ready (visual assets pending) |
 | Postiz | Pinterest | `cmqjn9qv003a1mm0y406rrdcd` | ready (visual assets pending) |

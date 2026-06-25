@@ -463,3 +463,59 @@ Once Carousel 1 is done, 6+ other assets can be produced from the reusable eleme
 *Source for visual-gated rows: `assets/scheduling/postiz-bulk-upload-week-1-2.csv` (lines 3-22)*
 *Companion to: `assets/visual/pcac-supporting-visuals.md` (5 Mermaid diagrams, already exists)*
 *Production model: Mavis via matrix MCP image generation + Dre voiceover (optional)*
+---
+
+## Asset 14 — Instagram Carousel: Upstream Terrain vs Downstream Whack-a-Mole (12 slides)
+
+**Locked at:** 2026-06-25 16:22 CT (Dre directive)
+**Path:** `assets/visual/carousel-4-upstream-downstream/slides/slide-01..12.png`
+**Pillar:** Lived Protocol (with brand-defining framework anchor)
+**Cadence slot:** Wed Jul 9, 15:00 ET — mid-next-week per Andre's directive (after PCAC Week carousel on Jul 3)
+
+### Dimensions
+- 1080 × 1350 px (4:5 portrait)
+- 12 slides total (spec allows 9-12)
+
+### Style
+- Same brand colors as Carousel 2 + 3
+- Larger conceptual architecture — model + pattern layout, not just data
+
+### Key frames (12 slides)
+
+| # | Headline | Body | Visual element |
+|---|----------|------|----------------|
+| 1 | Upstream Terrain vs. Downstream Whack-a-Mole | The shift from fragmented specialists to layered root-cause mapping | Cover with bold split-style headline |
+| 2 | The old model | 15-minute visits, fragmented specialists, accumulating prescriptions, no root-cause conversation | 4-line list with yellow bullets |
+| 3 | The real cost | Gaslighting, no root progress, declining capacity, disappearing from own life | 4-line list with yellow markers |
+| 4 | The shift | 4 input layers: Mechanical, Environmental, Immune, Nervous system | 4 stacked rows with numbered circles |
+| 5 | Layer 1 — Mechanical | CCI, vagus nerve irritation, fascial guarding patterns, upper cervical alignment | 4-bullet list |
+| 6 | Layer 2 — Environmental | Mold terrain, redox status, mineral balance, air/water/light/sleep | 4-bullet list |
+| 7 | Layer 3 — Immune (downstream) | MCAS as downstream effect, tryptase + urine markers, histamine as signal not diagnosis, inflammation as feedback | 4-bullet list with "downstream" framing |
+| 8 | Objective proof tools | TyTron (autonomic infrared scan C1-C2), Morning HRV (pre-caffeine vagus gauge), Targeted tracking | 3-block layout |
+| 9 | The new loop | Stabilize neck → Calm vagus → Lower immune drive → Measure data | 4-node horizontal flow diagram |
+| 10 | What changes in practice | Stop chasing symptoms. Stop trusting specialists who refuse upstream. Stop supplements before mapping. Stop expecting finish lines. | 4-bullet list with X marks |
+| 11 | Still in this process | HRV 32 → 55+, Guarding 8-9 → 3-4. Numbers move. No finish line. | Data slide matching Carousel 2 style |
+| 12 | CTA | doseofproof.substack.com + "Map the terrain. Treat the upstream. Show me the data." | Single CTA |
+
+### Compliance audit (8-item, applied to all 12 slides)
+1. ✅ Educational/curational only — no prescriptive language
+2. ✅ Single CTA (Substack only) on final slide
+3. ✅ Zero unsubstantiated claims — HRV/Guarding numbers are Dre's lived data (consistent with Carousel 2)
+4. ✅ No compound-specific dosing protocols — Layer framing is observational
+5. ✅ No Swiss Chems / gray-market mentions
+6. ✅ Brand voice (raw, stoic, proof-centered) — no exclamation marks, no hype
+7. ✅ Editorial typography only — no stock photos, no decorative imagery
+8. ✅ PCAC framework anchored — slide 9 explicitly maps to PCAC framework, slide 12 CTA echoes "Map the terrain. Treat the upstream."
+
+### Engine routing (verified)
+- Source mapping: `substack-post-terrain-mapping.md` → `carousel-4-upstream-downstream`
+- Engine update: `scripts/dop_engine.py` SOURCE_SCHEDULE["2026-07-09"] + carousel_map dict entry
+- Push routing: `scripts/dop_push.py` will pick up 12-slide image array on Jul 8 night cron fire
+- Cron `dop-daily-content-adder` will auto-push at Jul 8 21:00 CT (target Jul 9)
+
+### Authority
+Within Decision 1 scope. No out-of-scope escalation.
+
+---
+
+*Last updated: 2026-06-25 16:25 CT — Asset 14 added.*

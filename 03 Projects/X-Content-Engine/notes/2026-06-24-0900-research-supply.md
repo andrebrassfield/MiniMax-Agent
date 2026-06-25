@@ -1,3 +1,10 @@
+---
+date: 2026-06-25
+type: xce-daily-research
+filed_by: inbox-filer
+source: daily-research-2026-06-24.md
+---
+
 # Daily Research — 2026-06-24 (America/Chicago, 09:00 CT)
 
 **Cron:** content-research-daily (0 9 * * * America/Chicago)

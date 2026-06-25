@@ -1,3 +1,10 @@
+---
+date: 2026-06-25
+type: xce-status
+filed_by: inbox-filer
+source: content-research-2026-06-24-status.md
+---
+
 # content-research-daily status — 2026-06-24 09:00 CT (cron tick)
 
 **Status:** HALT — Researcher dispatched async, brief pending
