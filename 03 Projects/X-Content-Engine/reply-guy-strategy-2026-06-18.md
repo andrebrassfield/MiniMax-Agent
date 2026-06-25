@@ -3,15 +3,17 @@ type: strategy
 created: 2026-06-18 10:50 CT
 owner: Mavis (chief)
 audience: Andre
-status: PROPOSED — needs Andre approval before scaling
+status: **DEPRECATED 2026-06-24 19:01 CT** — cron `reply-sweep-daily` deleted. Pipeline never achieved Week 1 cap (3 POCs total, 0 captured metrics). Underlying architecture shifted from Playwright MCP to mavis browser bridge; reply-guy pipeline was the only remaining Playwright-dependent path and was never ported. Revival requires either (a) porting x-reply-guy to mavis browser bridge, or (b) launching Playwright Chrome with the user's real profile (Option C from 2026-06-18 19:04 halt-postmortem). Do NOT re-enable this strategy as-is.
 depends_on:
   - 03 Projects/X-Content-Engine/agents/persona.md
   - 03 Projects/X-Content-Engine/agents/feedback-loop.md
   - 03 Projects/X-Content-Engine/memory/content_brain.json
-  - x-publish skill (Playwright MCP path)
+  - x-publish skill (Playwright MCP path) ← **STALE**: x-publish now uses mavis browser bridge
   - x-niche-scraper skill (target discovery)
   - x-engagement-hunter / x-value-bomb-dropper / x-empowerment-hunter (reply patterns)
-  - x-analytics-tracker skill (engagement feedback)
+  - x-analytics-tracker skill (engagement feedback) ← **ALSO BROKEN**: 3 consecutive H1 halts per 2026-06-24 audit
+deprecation_postmortem: 03 Projects/X-Content-Engine/postmortems/2026-06-18-19-09-reply-sweep-halt.md
+prior_halt_postmortem: 03 Projects/X-Content-Engine/queue/halt-postmortem-2026-06-18-evening.md
 ---
 
 # Reply-Guy Strategy — X-Content-Engine v2

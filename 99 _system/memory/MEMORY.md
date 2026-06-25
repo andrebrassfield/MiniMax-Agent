@@ -38,6 +38,12 @@ These are positions Mavis currently holds. The intelligence layer (morning brief
 - Spec blocks = design review. Wait for explicit "go" before executing.
 - Audit filesystem before writing — and before dispatch. The queue IS the state.
 
+## Cross-cutting disciplines (HOT)
+
+- **Cron `lastResult: success` ≠ skill-success.** Daemon tracks whether the bash script exited 0, not whether the work landed. Cron prompts that "HALT and surface to Andre" typically use `exit 0` after surfacing — which the daemon reads as success. Real health = post-mortem queue + skill halt logs + publish/reply ledgers. Source: `reply-sweep-daily` ran 6+ weeks reporting success while HALTing at step 0 every fire; deprecation 2026-06-24 (postmortem at `03 Projects/X-Content-Engine/postmortems/2026-06-24-reply-sweep-deprecation.md`).
+- **Architecture-shift cron audit.** When a pipeline substrate changes (Playwright → mavis browser, MCP rotation, cookie-jar source shift), audit every cron that touches the substrate. Reply-guy was the last Playwright-dependent cron in XCE and was never re-validated after the 2026-06-17 mavis browser bridge wiring. Pattern: keep a substrate→cron dependency map somewhere queryable, refresh on every substrate shift.
+- **HALT-then-skip ≠ HALT-then-delete.** A cron that HALTs but stays scheduled will fire every period forever, burning tokens + Telegram noise. The right move when a broken pipeline has no near-term fix: delete the cron + mark the strategy doc DEPRECATED + leave the skill files on disk for revival. Don't just disable.
+
 ## Pointers (long-term knowledge lives here)
 
 **Operating models (vault-side topic files):**
@@ -108,3 +114,53 @@ Type: harness
 - Squirrel.Mac, provider: `generic`, update feed URL above.
 - Installer replaces `/Applications/MiniMax Code.app` in-place and does NOT retain a backup of the previous version. Local version diffing requires the docs page; do not look for a `.MMXCodeUpdate*` zip or prior `.app` on disk.
 - macOS Squirrel update race was fixed in 3.0.46; daemon health-check timeout raised to 60s in same release.
+
+### Brand scheduling discipline: verify profile ownership before API push (2026-06-24)
+Type: agent
+
+Before pushing brand content to any social profile via a scheduling API (Buffer, Postiz, Hootsuite, etc.), verify the connected profile is brand-owned, not the operator's personal account. Default assumption: the operator's personal profile is the one connected first, because that's what OAuth shows by default.
+
+Concrete failure mode: Dose of Proof LinkedIn only had Dre's personal profile connected to Buffer. The push script was ready to schedule brand content (LinkedIn Post 1 origin story, 5 Biomarkers carousel) to Dre's personal LinkedIn — a brand/operator boundary violation.
+
+Three-question test:
+1. Only true in this repo/project? No — applies to ANY brand doing social scheduling
+2. Still true on a different project? Yes — every brand has an operator with personal accounts
+3. Would the conclusion change for a different user? No — this is universal brand discipline
+
+Process check before any social push:
+- Query the tool's channel/integration list BEFORE writing the push script
+- Confirm channel name + type (personal vs company page vs business account)
+- If only personal profile exists, gate the push: brand content blocked until company/brand profile is created and connected
+- Document the channel ID + ownership status in OPERATIONS-LOG
+
+Cost of getting this wrong: brand content on operator's personal profile = brand/operator boundary violation, regulatory exposure (Objective Intent Doctrine for health brands), and audience confusion (operator's network sees brand messaging).
+
+### Async-wait discipline: ONE retry at reset time, not 144 polls (2026-06-24)
+Type: agent
+
+When waiting on a known-future async event (rate limit reset, scheduled deploy, CI pipeline expected completion time, OAuth window expiry), the wrong shape is a tight polling cron (`*/5` or `*/10`) for the full wait window. The right shape is **ONE retry cron at the predicted event time**, with explicit failure-branch escalation.
+
+Anti-pattern (real case from 2026-06-24): set `linkedin-company-page-activation` cron to `*/10 * * * *` for 24 hours waiting on Buffer rate-limit reset. That's 144 cron ticks burning ~30-60K tokens of session context per tick just to print "still rate-limited." Andre called it: "there is no point in polling for 24 hours straight close the loop."
+
+Correct pattern:
+1. Hit the API once to confirm the failure mode and capture the reset timestamp (e.g., `x-ratelimit-reset` header).
+2. Convert reset timestamp to a specific cron schedule (e.g., `20 13 25 6 *` for Jun 25 at 13:20 CT, 5 min after predicted reset).
+3. Schedule ONE cron at that exact time with `--session-mode new` (independent context for the actual work).
+4. The cron's prompt MUST include:
+   - The exact workflow to execute
+   - An explicit FAILURE BRANCH: if the wait condition still holds, write a log entry, send ONE notification to the user, delete the cron, and **do NOT re-schedule**.
+   - A `[self-reminder TTL]` so the cron self-cleans if it somehow doesn't fire.
+5. Delete any prior polling cron immediately.
+
+Token math: 144 polls × ~30K tokens/tick = ~4M tokens wasted. ONE retry cron = one fresh session, ~30K tokens, fires once.
+
+Trigger phrases from Andre that mean "close the loop, don't poll":
+- "there is no point in polling for N hours"
+- "close the loop"
+- "stop polling"
+- "just fire it once"
+- "wait for X then try, don't keep checking"
+
+Cross-project justification: every async wait pattern (CI follow-up, deploy health check, rate limit recovery, OAuth window, scheduled job trigger) has the same shape — known future event, do not poll. Applies to all of Andre's projects where Mavis handles async work.
+
+When in doubt, ask: 'Is this the operator's personal profile or the brand's company page?'
