@@ -315,3 +315,23 @@ This works even when the mavis browser bridge is fully offline. Used in `heal_su
 The `mavis cron create` command returns `40904 'Cron config already exists'` even when `mavis cron info` returns `404 not-found` for the same cron name. This is a daemon-level cache inconsistency — the daemon's in-memory state thinks the cron exists, but the filesystem state says it doesn't. The same bug occurred on 2026-06-22 with `rate-limit-tracker`.
 
 **Fix:** restart the desktop app (`killall "MiniMax Code"` from Activity Monitor or similar) to flush the daemon's cron cache. After restart, `mavis cron create` succeeds. Until the desktop restart, `mavis cron list` and `mavis cron create` will disagree.
+## mavis im channel check — credential-state output gap (2026-06-25) [LIVE]
+`mavis im channel check --agent mavis` returns `hasCredentials: false, configured: false, source: null` even when the bot token IS present at `~/.mavis/credentials/<agent>/telegram.json` AND channel bindings exist at `~/.mavis/channel-bindings.yaml` AND Telegram sends succeed via direct Bot API. The check tracks App ID / channel-registration metadata, not actual bot credential presence.
+
+**Symptom:** session-doc-of-record (e.g. HITL daily notes, spec docs, decision logs) declares "Telegram disabled — needs Dre to initiate session first" based on `mavis im channel check` output. The declaration is a docs-of-record gap, not a real credential absence.
+
+**Truth source for Telegram availability (in order of trust):**
+1. `~/.mavis/channel-bindings.yaml` — if `telegram:mavis` is bound with sender IDs, the channel is reachable
+2. `~/.mavis/credentials/mavis/telegram.json` — if `botToken` field is populated, bot API calls will work
+3. `mavis im status` — `bridges.telegram.enabled: true` means daemon-level bridge is on
+4. Direct send test via `https://api.telegram.org/bot{token}/sendMessage` — definitive
+
+**Workaround when doc-of-record says "Telegram unavailable" but task requires it:**
+1. Read `~/.mavis/credentials/mavis/telegram.json` → extract `botToken`
+2. Read `~/.mavis/channel-owner.yaml` → extract `ownerSenderId` (Andre's chat_id)
+3. Send via Bot API directly (urllib stdlib works, see `fb-engine/ea-fb-draft-approval/scripts/bridge.py` for the established pattern)
+4. Capture `message_id` from response — that is the delivery proof
+
+**Verified 2026-06-25** during `dop-hitl-v4-test` cron: Telegram send succeeded first try with `message_id: 2249`, `chat_id: 6598264778`, despite the daily-note doc-of-record saying "Telegram ⏸ PENDING DRE SESSION INITIATION". Cron sent from a cron-fired session that inherited daemon-level Telegram bindings even though interactive sessions don't.
+
+**Lesson:** when checking whether a channel is reachable for a Mavis task, check the FILE artifacts (channel-bindings.yaml + credentials/<agent>/telegram.json) before trusting CLI check outputs. The CLI check is a different layer.

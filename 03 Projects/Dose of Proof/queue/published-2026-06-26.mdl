@@ -1,6 +1,13 @@
 # Dose of Proof — Push receipts for 2026-06-26
 # Pushed 2026-06-25T16:11:04.746255 via dop_push.py
-
+#
+# UPDATE 2026-06-25 21:16 CT: file RESTORED after surface cron session
+# (mvs_78b57810c4b54c07a86580814bda5f75) emptied at 21:10 CT when it
+# ran dop_push.py despite hard constraint. Original 5 OK receipts
+# (4 FB + 1 IG carousel) restored from performance_log.json audit trail
+# + blocked-records-2026-06-26.mdl. The Co-CEO retro-screen + KILL rulings
+# apply to the POSTS that were originally pushed (these receipts), NOT
+# to anything the surface cron re-pushed. See Delta 9.
 dop-fb-20260626-001 | facebook | 2026-06-26 09:00 | OK | postiz_id=?
 dop-fb-20260626-002 | facebook | 2026-06-26 12:30 | OK | postiz_id=?
 dop-fb-20260626-003 | facebook | 2026-06-26 16:00 | OK | postiz_id=?

@@ -308,3 +308,78 @@ created: 2026-06-16
 - Brain JSON valid (not re-checked this run; no write)
 - Dashboard append successful (253 → 253 + section)
 - mavis browser bridge: native host disconnected (logged above)
+
+---
+
+## Run: 2026-06-25 19:00 CT · window: last 30d (cron `x-analytics-tracker-daily`)
+
+**Source:** requested `https://x.com/i/account_analytics/content?type=posts&sort=date&dir=desc&days=30` (never reached — pre-flight H1 halt)
+**Generator:** Mavis (x-analytics-tracker), cron `x-analytics-tracker-daily`
+
+**Run status: HALTED — no usable data this run.**
+
+### Per-post metrics
+
+| Post | Published | Impressions | Engagements | Bookmarks | Profile clicks | Likes | Retweets | Replies | Notes |
+|------|-----------|-------------|-------------|-----------|----------------|-------|----------|---------|-------|
+| unclear | unclear | unclear | unclear | unclear | unclear | unclear | unclear | unclear | H1 halt before any X navigation |
+
+### Aggregate
+- Posts in window: unclear (browser bridge offline; no count could be observed)
+- Total impressions: unclear
+- Avg impressions/post: unclear
+- Total engagements: unclear
+- Avg engagement rate: unclear
+
+### Top 3 (by impressions)
+- unclear — no impressions observed this run.
+
+### Bottom 3 (by impressions)
+- unclear — no impressions observed this run.
+
+### Operator notes — HALT condition fired
+
+- **H1 — Browser bridge offline (HALT, recurring, day 7).** `mavis browser status` + `mavis browser tool open_tab` output at 19:00 CT:
+  ```
+  Browser Integration Status
+    Profile: default
+    Socket:  /Users/brassfieldventuresllc/.mavis/browser-broker.sock
+
+    Broker: running
+    Native host: not connected
+    Tab claims: none
+
+  {"error":"Chrome extension is not connected (native host offline)"}
+  ```
+  Same H1 condition as the 2026-06-19, 2026-06-23, 2026-06-24 halts, plus 3 prior (2026-06-20, 21, 22 each halts in their respective sessions, per sessions.json). The Chrome native messaging host (unpacked `Mavis Browser Bridge` extension, ID `ppnnfacnjgokfmbngkgbdba`) is still not connected. The skill cannot drive the user's real Chrome session — and per H1, falling back to a fresh Chromium instance for x.com is forbidden (it would defeat the OAuth-cookie-jar protection the bridge provides; verified by trying Playwright MCP this run — it redirected to the X login wall at `x.com/i/jf/onboarding/web?redirect_after_login=...`).
+
+- **Fallback paths exhausted this run:**
+  1. `mavis browser tool open_tab` → "Chrome extension is not connected" (H1).
+  2. `mavis browser tool get_active_tab` → same H1.
+  3. `mavis browser tool get_tabs` → same H1.
+  4. `playwright browser_navigate https://x.com/i/account_analytics/...` → redirected to `https://x.com/i/jf/onboarding/web?redirect_after_login=%2Fi%2Faccount_analytics%2Fcontent...` (login wall; no Andre session).
+  5. `cu` (Computer Use) MCP → `authStatus: pending_auth` (disabled).
+  No path produced usable data. HALT is the only honest outcome.
+
+- **Resolution path for Andre (unchanged from 2026-06-24 halt):**
+  1. Open Chrome → `chrome://extensions` → confirm "Mavis Browser Bridge" is loaded AND enabled, and the ID matches `ppnnfacnjgokfmbngkgbdba` (per `com.mavis.browser_default.json` allowed_origins).
+  2. Remove any stale "Mavis Browser Bridge" entries first (Chrome can keep a disabled-but-registered copy that wins the slot and never connects to the broker).
+  3. Click the extension icon once to wake the service worker; confirm `mavis browser status` shows `Native host: connected`.
+  4. If still failing, delete `~/Library/Application Support/Google/Chrome/NativeMessagingHosts/com.mavis.browser_default.json` and re-run `mavis browser install` to regenerate the manifest + unpacked-extension dir.
+  5. After the bridge reconnects, the next run will still likely re-hit **H4 (X Premium gate) + H6 (wrong account — @DoseofProof)** from the 2026-06-18 halt — see that section. Bridge fix is necessary but not sufficient.
+
+- **Cascade — this cron is now at 7 consecutive halts** (2026-06-18 H4+H6 → 2026-06-19 H1 → 2026-06-20 H1 → 2026-06-21 H1 → 2026-06-22 H1 → 2026-06-23 H1 → 2026-06-24 H1 → 2026-06-25 H1). The brain's `performance_log` is now **7 days stale** (last real metrics: 2026-06-17; last entry: 2026-06-18 placeholder). The Researcher / next XCE feedback loop is running on 7-day-old data. Worth surfacing as a hard-priority fix — recommend disabling the cron until the bridge is restored, so the daily "success" reports stop masking the real failure mode.
+
+- **Brain write was skipped (intentional, per T4 of data-honesty).** The 11 prior `performance_log` entries in `content_brain.json` (mtime 1782396641, untouched this run) are preserved verbatim. The brain still holds the last known real metrics from the 2026-06-16 and 2026-06-17 runs. Do not interpret "no new entry" as "0 metrics" — the data is missing, not zero.
+
+- **Dose of Proof log write was skipped (intentional, no fabrication).** The `03 Projects/Dose of Proof/memory/dose-of-proof-performance-log.json` file (mtime 1782431047, untouched this run) holds 13 legacy Facebook/Instagram entries (`dop-fb-*` / `dop-ig-*`) under the v0.1/v0.2 schema. The cron asks for a NEW X-only schema under §5 hook families (regulatory-reality / biomarker-education / terrain-mechanics / citizen-science / literature-map / reconstitution-math / telehealth-routing / community-proof), but with no X data extracted this run, no entries were written. **Structural note (not a fix request):** the existing top-level JSON array cannot cleanly hold both legacy FB/IG entries and new X entries with the schema `{post_id, hook_used, hook_family, topic_tag, views, likes, replies, reposts, profile_visits, bookmarks, date, day_in_series, performance_vs_median}` without breaking type homogeneity. When the bridge is restored, recommend either (a) splitting into two top-level arrays `x_posts` and `legacy_social`, or (b) nesting X entries under an `x_posts` key. Out of scope for this halt run.
+
+- **No X clicks executed, no credentials typed** (H1 + H2 contracts honored).
+- **The cron's "halt cleanly with no fabrication" rule fired.** Per the cron prompt's explicit fallback, no rows were invented to populate the table; every cell is "unclear" rather than a guessed number (T1 of data-honesty honored).
+
+### Verification
+- Brain `performance_log` count: 11 before → 11 after (write skipped, prior metrics preserved; mtime 1782396641)
+- Brain JSON valid (not re-checked this run; no write)
+- Dose of Proof log: 13 entries before → 13 after (write skipped; mtime 1782431047)
+- Dashboard append: 310 → 310 + section
+- mavis browser bridge: native host disconnected (logged above)

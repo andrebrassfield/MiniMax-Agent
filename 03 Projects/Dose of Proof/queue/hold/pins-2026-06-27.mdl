@@ -1,6 +1,13 @@
 # Dose of Proof — Pinterest pins for 2026-06-27
 # Generated 2026-06-25T16:10:36.590160 by dop_engine.py v0.1
 # POSTIZ BOARD ID REQUIRED for manual push via Postiz UI
+#
+# STATUS: HOLD (HALTED 2026-06-25 18:24 CT per Co-CEO directive)
+# HALT REASON: triage-gate-spec pre-sprint verification — gate not yet confirmed
+# HOLD BY: Mavis (EA execution)
+# RESUME CONDITION: Co-CEO confirms all V1-V12 at 18:00 CT June 26 re-confirm post to HITL channel
+# DO NOT PUSH: Dre MANUAL_UI_PUSH is also blocked under HOLD.
+# NOT DELETED: file moved here from queue/ on 2026-06-25 18:26 CT. Will re-enter queue/ after gate confirmation.
 ---
 
 ## Pin 6 — dop-pin-20260627-006

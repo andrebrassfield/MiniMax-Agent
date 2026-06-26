@@ -4,6 +4,20 @@
 # Compliance: dop_compliance.py 8-item gate
 #
 # Format: post_id | pillar | channel | date | time | compliance | content | image_paths
+#
+# STATUS: HOLD (HALTED 2026-06-25 18:24 CT per Co-CEO directive)
+# HALT REASON: triage-gate-spec pre-sprint verification — gate not yet confirmed (V1-V12 not confirmed)
+# HOLD BY: Mavis (EA execution)
+# RESUME CONDITION: Co-CEO confirms all V1-V12 at 18:00 CT June 26 re-confirm post to HITL channel
+# DO NOT PUSH: dop_push.py MUST NOT read from queue/hold/. Engineer on resume: verify HOLD header before push.
+# NOT DELETED: file moved here from queue/ on 2026-06-25 18:26 CT. Will re-enter queue/ after gate confirmation.
+#
+# Posts in this batch (5 total):
+#   dop-fb-20260627-001 | P3 | facebook | 09:00 | PASS | Symptom Whack-a-Mole hook
+#   dop-fb-20260627-002 | P3 | facebook | 12:30 | PASS | Whack-a-mole doctor fragmentation
+#   dop-fb-20260627-003 | P3 | facebook | 16:00 | PASS | Dre's CCI/hEDS/MCAS reveal
+#   dop-fb-20260627-004 | P3 | facebook | 19:30 | PASS | Neck-vagus-mast-cell loop
+#   dop-ig-20260627-005 | P3 | instagram | 15:00 | PASS | PCAC framework carousel (10 slides)
 ---
 
 dop-fb-20260627-001 | P3 | facebook | 2026-06-27 | 09:00 | PASS | Most people with chronic symptoms are stuck in what I call Symptom Whack-a-Mole. //  // → https://doseofproof.substack.com/?utm_source=facebook&utm_medium=social&utm_campaign=pre_launch&utm_content=engine_v0_1 //  // #ReconMath #Peptides #DataUtility | 

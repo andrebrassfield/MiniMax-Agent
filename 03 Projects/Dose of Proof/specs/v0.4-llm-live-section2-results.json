@@ -1,0 +1,372 @@
+[
+  {
+    "num": 1,
+    "text": "BPC-157 reduced my inflammation markers by 40%",
+    "expected_class": "SENSITIVE",
+    "expected_flags": [
+      "S2"
+    ],
+    "regex_class": "SENSITIVE",
+    "regex_flags": [
+      "S2"
+    ],
+    "llm_class": "SENSITIVE",
+    "llm_flags": [
+      "S1",
+      "S2",
+      "S3",
+      "S4"
+    ],
+    "llm_error": "LLM call failed (exit 1): Error 401: {\"code\":401,\"message\":\"token is required\"}",
+    "combined_class": "SENSITIVE",
+    "combined_flags": [
+      "S1",
+      "S2",
+      "S3",
+      "S4"
+    ],
+    "regex_pass": true,
+    "llm_pass": true,
+    "combined_pass": true,
+    "disagreement": true,
+    "elapsed_sec": 0.5
+  },
+  {
+    "num": 2,
+    "text": "I take 250mcg of X every morning \u2014 buy here",
+    "expected_class": "SENSITIVE",
+    "expected_flags": [
+      "S1",
+      "S3"
+    ],
+    "regex_class": "SENSITIVE",
+    "regex_flags": [
+      "S1",
+      "S3"
+    ],
+    "llm_class": "SENSITIVE",
+    "llm_flags": [
+      "S1",
+      "S2",
+      "S3",
+      "S4"
+    ],
+    "llm_error": "LLM call failed (exit 1): Error 401: {\"code\":401,\"message\":\"token is required\"}",
+    "combined_class": "SENSITIVE",
+    "combined_flags": [
+      "S1",
+      "S2",
+      "S3",
+      "S4"
+    ],
+    "regex_pass": true,
+    "llm_pass": true,
+    "combined_pass": true,
+    "disagreement": true,
+    "elapsed_sec": 0.4
+  },
+  {
+    "num": 3,
+    "text": "This peptide is only available at",
+    "expected_class": "SENSITIVE",
+    "expected_flags": [
+      "S3"
+    ],
+    "regex_class": "SENSITIVE",
+    "regex_flags": [
+      "S3"
+    ],
+    "llm_class": "SENSITIVE",
+    "llm_flags": [
+      "S1",
+      "S2",
+      "S3",
+      "S4"
+    ],
+    "llm_error": "LLM call failed (exit 1): Error 401: {\"code\":401,\"message\":\"token is required\"}",
+    "combined_class": "SENSITIVE",
+    "combined_flags": [
+      "S1",
+      "S2",
+      "S3",
+      "S4"
+    ],
+    "regex_pass": true,
+    "llm_pass": true,
+    "combined_pass": true,
+    "disagreement": true,
+    "elapsed_sec": 0.3
+  },
+  {
+    "num": 4,
+    "text": "Ask your doctor about GLP-1 protocols",
+    "expected_class": "SENSITIVE",
+    "expected_flags": [
+      "S1"
+    ],
+    "regex_class": "SENSITIVE",
+    "regex_flags": [
+      "S1"
+    ],
+    "llm_class": "SENSITIVE",
+    "llm_flags": [
+      "S1",
+      "S2",
+      "S3",
+      "S4"
+    ],
+    "llm_error": "LLM call failed (exit 1): Error 401: {\"code\":401,\"message\":\"token is required\"}",
+    "combined_class": "SENSITIVE",
+    "combined_flags": [
+      "S1",
+      "S2",
+      "S3",
+      "S4"
+    ],
+    "regex_pass": true,
+    "llm_pass": true,
+    "combined_pass": true,
+    "disagreement": true,
+    "elapsed_sec": 0.3
+  },
+  {
+    "num": 5,
+    "text": "My CRP dropped after changing my protocol",
+    "expected_class": "SENSITIVE",
+    "expected_flags": [
+      "S2"
+    ],
+    "regex_class": "SENSITIVE",
+    "regex_flags": [
+      "S2"
+    ],
+    "llm_class": "SENSITIVE",
+    "llm_flags": [
+      "S1",
+      "S2",
+      "S3",
+      "S4"
+    ],
+    "llm_error": "LLM call failed (exit 1): Error 401: {\"code\":401,\"message\":\"token is required\"}",
+    "combined_class": "SENSITIVE",
+    "combined_flags": [
+      "S1",
+      "S2",
+      "S3",
+      "S4"
+    ],
+    "regex_pass": true,
+    "llm_pass": true,
+    "combined_pass": true,
+    "disagreement": true,
+    "elapsed_sec": 0.5
+  },
+  {
+    "num": 6,
+    "text": "Here's the biomarker panel I track",
+    "expected_class": "CLEAR",
+    "expected_flags": [],
+    "regex_class": "CLEAR",
+    "regex_flags": [],
+    "llm_class": "SENSITIVE",
+    "llm_flags": [
+      "S1",
+      "S2",
+      "S3",
+      "S4"
+    ],
+    "llm_error": "LLM call failed (exit 1): Error 401: {\"code\":401,\"message\":\"token is required\"}",
+    "combined_class": "SENSITIVE",
+    "combined_flags": [
+      "S1",
+      "S2",
+      "S3",
+      "S4"
+    ],
+    "regex_pass": true,
+    "llm_pass": false,
+    "combined_pass": false,
+    "disagreement": true,
+    "elapsed_sec": 0.4
+  },
+  {
+    "num": 7,
+    "text": "FDA PCAC is reviewing peptide scheduling July 23-24",
+    "expected_class": "CLEAR",
+    "expected_flags": [],
+    "regex_class": "CLEAR",
+    "regex_flags": [],
+    "llm_class": "SENSITIVE",
+    "llm_flags": [
+      "S1",
+      "S2",
+      "S3",
+      "S4"
+    ],
+    "llm_error": "LLM call failed (exit 1): Error 401: {\"code\":401,\"message\":\"token is required\"}",
+    "combined_class": "SENSITIVE",
+    "combined_flags": [
+      "S1",
+      "S2",
+      "S3",
+      "S4"
+    ],
+    "regex_pass": true,
+    "llm_pass": false,
+    "combined_pass": false,
+    "disagreement": true,
+    "elapsed_sec": 0.3
+  },
+  {
+    "num": 8,
+    "text": "Reconstitution math: 5mg vial + 2mL BAC water = 2,500mcg/mL",
+    "expected_class": "SENSITIVE",
+    "expected_flags": [
+      "S1"
+    ],
+    "regex_class": "SENSITIVE",
+    "regex_flags": [
+      "S1"
+    ],
+    "llm_class": "SENSITIVE",
+    "llm_flags": [
+      "S1",
+      "S2",
+      "S3",
+      "S4"
+    ],
+    "llm_error": "LLM call failed (exit 1): Error 401: {\"code\":401,\"message\":\"token is required\"}",
+    "combined_class": "SENSITIVE",
+    "combined_flags": [
+      "S1",
+      "S2",
+      "S3",
+      "S4"
+    ],
+    "regex_pass": true,
+    "llm_pass": true,
+    "combined_pass": true,
+    "disagreement": true,
+    "elapsed_sec": 0.4
+  },
+  {
+    "num": 9,
+    "text": "What LL-37 research actually shows",
+    "expected_class": "CLEAR",
+    "expected_flags": [],
+    "regex_class": "CLEAR",
+    "regex_flags": [],
+    "llm_class": "SENSITIVE",
+    "llm_flags": [
+      "S1",
+      "S2",
+      "S3",
+      "S4"
+    ],
+    "llm_error": "LLM call failed (exit 1): Error 401: {\"code\":401,\"message\":\"token is required\"}",
+    "combined_class": "SENSITIVE",
+    "combined_flags": [
+      "S1",
+      "S2",
+      "S3",
+      "S4"
+    ],
+    "regex_pass": true,
+    "llm_pass": false,
+    "combined_pass": false,
+    "disagreement": true,
+    "elapsed_sec": 0.4
+  },
+  {
+    "num": 10,
+    "text": "My sleep improved after fixing the vagus-cervical loop",
+    "expected_class": "SENSITIVE",
+    "expected_flags": [
+      "S2"
+    ],
+    "regex_class": "SENSITIVE",
+    "regex_flags": [
+      "S2"
+    ],
+    "llm_class": "SENSITIVE",
+    "llm_flags": [
+      "S1",
+      "S2",
+      "S3",
+      "S4"
+    ],
+    "llm_error": "LLM call failed (exit 1): Error 401: {\"code\":401,\"message\":\"token is required\"}",
+    "combined_class": "SENSITIVE",
+    "combined_flags": [
+      "S1",
+      "S2",
+      "S3",
+      "S4"
+    ],
+    "regex_pass": true,
+    "llm_pass": true,
+    "combined_pass": true,
+    "disagreement": true,
+    "elapsed_sec": 0.4
+  },
+  {
+    "num": 11,
+    "text": "Telehealth can now prescribe",
+    "expected_class": "SENSITIVE",
+    "expected_flags": [
+      "S1"
+    ],
+    "regex_class": "SENSITIVE",
+    "regex_flags": [
+      "S1"
+    ],
+    "llm_class": "SENSITIVE",
+    "llm_flags": [
+      "S1",
+      "S2",
+      "S3",
+      "S4"
+    ],
+    "llm_error": "LLM call failed (exit 1): Error 401: {\"code\":401,\"message\":\"token is required\"}",
+    "combined_class": "SENSITIVE",
+    "combined_flags": [
+      "S1",
+      "S2",
+      "S3",
+      "S4"
+    ],
+    "regex_pass": true,
+    "llm_pass": true,
+    "combined_pass": true,
+    "disagreement": true,
+    "elapsed_sec": 0.4
+  },
+  {
+    "num": 12,
+    "text": "5 biomarkers worth tracking for MCAS",
+    "expected_class": "CLEAR",
+    "expected_flags": [],
+    "regex_class": "CLEAR",
+    "regex_flags": [],
+    "llm_class": "SENSITIVE",
+    "llm_flags": [
+      "S1",
+      "S2",
+      "S3",
+      "S4"
+    ],
+    "llm_error": "LLM call failed (exit 1): Error 401: {\"code\":401,\"message\":\"token is required\"}",
+    "combined_class": "SENSITIVE",
+    "combined_flags": [
+      "S1",
+      "S2",
+      "S3",
+      "S4"
+    ],
+    "regex_pass": true,
+    "llm_pass": false,
+    "combined_pass": false,
+    "disagreement": true,
+    "elapsed_sec": 0.4
+  }
+]

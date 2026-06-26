@@ -314,6 +314,41 @@
       "why_it_works": "Sub-300ms frontier (Prodinit) + 4-bit quantization TSLAM (NetoAI / arXiv 2508.04721) + 2000+ calls/day production scale = the production-scale upgrade of persona's Example 9 sub-700ms ceiling. The 4-model cascade (TSLAM + T-VEC + TTE + T-Synth) is the named-anchor pattern for vertical-specific voice agents. Different from the 2026-06-24 LTS-VoiceAgent / arXiv 2601.19952 / semantic-triggering hook (4-bit + production scale vs semantic + Listen-Think-Speak). Pillar 4 specific.",
       "date_added": "2026-06-25",
       "times_used": 0
+    },
+    {
+      "text": "Amazon has 150万 employees. TikTok has 几万. Google and Meta both tried '全漏斗' e-commerce and failed. TikTok Shop might be the next Google Express — locked to a platform that won't exist in 3 years. Build the multi-channel hedge now.",
+      "emotion": "fear",
+      "why_it_works": "Hard headcount asymmetry (150万 vs 几万 = ~18x) + the named historical failure pattern (Google Express, Meta commerce). The SMB owner realizes their single-platform dependency is a structural risk, not a growth bet. Pairs with persona Example 2 (defensive moat). Pillar 1 specific.",
+      "date_added": "2026-06-26",
+      "times_used": 0
+    },
+    {
+      "text": "One Tucson HVAC company reactivated 4000 contacts with 2 voice agents. Zero dispatcher time on qualification. The math isn't new leads. It's the leads you already paid for.",
+      "emotion": "recognition",
+      "why_it_works": "The 4000 contacts reactivated number flips the 'need new leads' assumption — the math is in your CRM, not your ad budget. The '2 voice agents / zero dispatcher time' two-line proof is concrete implementation. Different from the 'missed call = missed customer + 5 referrals' hook (2026-06-18 P2) — this is the reactivation-side mirror. Pillar 2 specific.",
+      "date_added": "2026-06-26",
+      "times_used": 0
+    },
+    {
+      "text": "ServiceTitan Pro Voice Agent installs in 20 minutes. The vendor you were going to hire needs 4 weeks. That's a 1,344x install-speed gap. The trades-SaaS incumbent just defined the category boundary.",
+      "emotion": "urgency",
+      "why_it_works": "The 20-minute vs 4-week (1,344x) install-speed math is the sharpest 2026 Pillar 2 category-definition signal. Pairs with the existing 2026-06-25 P2 'ServiceTitan Pro Voice Agent platform launch' (the launch itself) — this is the install-window competition reframe. The 1,344x multiplier is the load-bearing element. Pillar 2 specific.",
+      "date_added": "2026-06-26",
+      "times_used": 0
+    },
+    {
+      "text": "国内 GEO 市场 480 亿元. 68% 增速. 传统搜索流量同比下滑 25%. SEO 死了不是理论,是钱和用户在用脚投票.",
+      "emotion": "fear",
+      "why_it_works": "Three specific stats (480亿 + 68% + 25%) compound macro urgency. '钱和用户在用脚投票' is the punch that names the invisible force. Different from the 2026-06-18 '38% AI-search' hook (search-share) and the 2026-06-22 '25% Gartner drop' (forecast) — this is the macro-market / capital-flow angle. Pillar 3 specific.",
+      "date_added": "2026-06-26",
+      "times_used": 0
+    },
+    {
+      "text": "工程 KPI says sub-700ms 就够. A 300ms pause sounds like the AI froze. The 400ms gap between 'engineering pass' and 'user hangup' is the trap. Your AI passes the test but the caller hangs up.",
+      "emotion": "clarity",
+      "why_it_works": "The perception-vs-engineering-KPI distinction is the load-bearing insight. 300ms is a specific user-perception number the reader hasn't seen before. Pairs with the 2026-06-25 P4 'Sub-300ms frontier + 4-bit TSLAM + 2000+ calls/day' hook (engineering frontier) — this is the perception-layer reframe that adds the 'why sub-300ms matters even though your KPI says sub-700ms' diagnosis. Pillar 4 specific.",
+      "date_added": "2026-06-26",
+      "times_used": 0
     }
   ],
   "formats": [
@@ -496,6 +531,26 @@
     {
       "structure": "Citation-Order Pivot: '[Quote about citation]. [The economic consequence: 订单的归属 / 客户 / revenue]. [The tactical payload: schema + author entities + primary-source citation density]. [The named reframe: 认知资产工程].'",
       "why_it_works": "The '你的名字是否出现在答案里,直接决定了订单的归属' line is the load-bearing element — it pairs the abstract GEO concept (citation) with a concrete economic consequence (order attribution). The 认知资产工程 strategic reframe distinguishes GEO from short-term SEO tactics. Pillar 3 default for GEO/answer-engine framing."
+    },
+    {
+      "structure": "Scale-Asymmetry Drop: '[Large player] has [N] employees. [Small player] has [N]. [Both tried X]. [Implication for SMB owner].'",
+      "why_it_works": "Hard headcount + named historical failure pattern = structural threat named with verifiable numbers. The SMB owner immediately self-checks their platform dependency. Pillar 1 default for 'platform lock-in' stories (TikTok Shop / Amazon 150万 vs 几万)."
+    },
+    {
+      "structure": "Reactivation Math Drop: '[N] contacts reactivated. [N] voice agents. [Zero / <X> dispatcher / cost / time metric]. [Implication: leads you already paid for].'",
+      "why_it_works": "Flips the 'need new leads' assumption. The CRM-as-asset reveal reframes the marketing budget question from acquisition to reactivation. Pillar 2 default for the dormant-database angle (the mirror of missed-call math)."
+    },
+    {
+      "structure": "KPI-vs-Perception Gap Drop: 'Engineering KPI says [N]ms. User perception threshold is [M]ms. The [N-M]ms gap is [the trap / where AI passes the test but caller hangs up].'",
+      "why_it_works": "Structural diagnosis of why engineering-pass ≠ user-pass. The (N-M)ms gap math is the load-bearing element. Pairs with Latency Changelog (the numbers themselves) — adds the perception-layer diagnosis. Pillar 4 default when the engineering team ships a 'passing' system that the user still hangs up on."
+    },
+    {
+      "structure": "Academic-Framework + Sequential-Erosion Drop: '[Peer-reviewed paper + DOI/PMID]: automation is sequential task erosion, not job replacement. [N tasks × N occupations measured]. [Implication: occupational walls falling]. [Action: list your 12 tasks, mark the 4 AI eats first].'",
+      "why_it_works": "Peer-reviewed academic framework as the hook anchor. Pairs with Vendor-Empirical Drop (vendor data) — different (peer-reviewed academic) and adds the sequential erosion as the load-bearing mechanism. Pillar 5 default when academic literature supports a labor-market structural claim."
+    },
+    {
+      "structure": "Half-Life Pivot: '[Authority] says [capability] doubles every [time period]. That's not a [fear] signal. It's a half-life signal for [the skill you learned this weekend]. [The move: reframe from X to Y].'",
+      "why_it_works": "Time-decay reframe that converts a fear-of-AI claim into a skill-rotation insight. The 'half-life' framing is the rhetorical pivot. Pillar 6 default for hype-translation of AI-capability-doubling claims (Hinton 7-month half-life is the canonical case)."
     }
   ],
   "pain_points": [
@@ -677,6 +732,26 @@
     },
     {
       "exact_audience_language": "sub-300ms is the new frontier, 2000+ calls per day at production scale, WebRTC + LiveKit SFU + 4-bit quantized LLM stack",
+      "frequency": 1
+    },
+    {
+      "exact_audience_language": "4000 contacts reactivated, 2 voice agents, zero dispatcher time on qualification",
+      "frequency": 1
+    },
+    {
+      "exact_audience_language": "国内 GEO 市场 480 亿元, 同比涨幅 68%, 传统搜索渠道流量同比下滑超 25%",
+      "frequency": 1
+    },
+    {
+      "exact_audience_language": "MIT 研究: 估计已有 11.7% 的工作岗位可以使用 AI 实现自动化 (per 至顶网/编译 TechCrunch 2026-01-04 — NOT yet verified via PubMed; cite stat but NOT a fabricated PMID per Co-CEO rule)",
+      "frequency": 1
+    },
+    {
+      "exact_audience_language": "Pauses longer than 300ms feel like the agent is frozen (Inworld AI, 2026)",
+      "frequency": 1
+    },
+    {
+      "exact_audience_language": "TikTok Shop 卖家被结构性锁定到 TikTok 官方履约, 自发货 2月25日 完全关停",
       "frequency": 1
     }
   ],
@@ -1188,6 +1263,76 @@
       "pillar": "Pillar 6 — Hype Translator",
       "status": "pending",
       "source_seed": "daily-research-2026-06-25.md Pillar 6 Source 5 (Reddit summary of Google Cloud AI Agent Trends 2026 + tools → teammates)"
+    },
+    {
+      "hook": "Amazon has 150万 employees. TikTok has 几万. Google and Meta both tried '全漏斗' e-commerce and failed. TikTok Shop might be the next Google Express — locked to a platform that won't exist in 3 years. The hedge: Amazon MCF + Shopify native fulfillment + TikTok FBT — three channels, one source of truth. Build the multi-channel infrastructure now.",
+      "format": "Scale-Asymmetry Drop",
+      "pillar": "Pillar 1 — E-Commerce Logistics",
+      "status": "pending",
+      "source_seed": "daily-research-2026-06-26.md Pillar 1 Source 3 (TikTok可能再次加倍投入Shop业务 + Amazon 150万 vs 几万 + Google/Meta 历史前车之鉴)"
+    },
+    {
+      "hook": "One Tucson HVAC company reactivated 4000 contacts with 2 voice agents. Zero dispatcher time on qualification. The math isn't new leads. It's the leads you already paid for. Your CRM is your biggest unused asset. A $400/mo voice agent on the dormant list pays for itself in week one.",
+      "format": "Reactivation Math Drop",
+      "pillar": "Pillar 2 — Trades / Missed Call",
+      "status": "pending",
+      "source_seed": "daily-research-2026-06-26.md Pillar 2 Source 4 (Reddit r/AI_Agents Tucson HVAC 4000 contacts reactivated with 2 voice agents)"
+    },
+    {
+      "hook": "ServiceTitan Pro Voice Agent installs in 20 minutes. The vendor you were going to hire needs 4 weeks. That's a 1,344x install-speed gap. The trades-SaaS incumbent just defined the category boundary. Bill Joplin books 90% in production. The 4-week vendor you were going to hire is already obsolete. Pick the platform native or build the third-party integration.",
+      "format": "Vendor-Platform-Launch + Imperative Close + Install-Window Math",
+      "pillar": "Pillar 2 — Trades / Missed Call",
+      "status": "pending",
+      "source_seed": "daily-research-2026-06-26.md Pillar 2 Source 1 (ServiceTitan Pro Voice Agent 20-min install vs 4-week vendor default)"
+    },
+    {
+      "hook": "国内 GEO 市场 480 亿元. 同比涨幅 68%. 传统搜索渠道流量同比下滑超 25%. SEO 死了不是理论,是钱和用户在用脚投票. 38% of online search is now answered by generative AI directly. The volume war is over. The citation war is the next one. Build the GEO stack: schema, author entities, primary-source citation density.",
+      "format": "Three-Stat Macro-Market Compounding Drop + Citation-Order Pivot",
+      "pillar": "Pillar 3 — Existential Macro Threat / GEO",
+      "status": "pending",
+      "source_seed": "daily-research-2026-06-26.md Pillar 3 Source 3 (IT之家 2025 国内 GEO 480亿 + 68% 增速 + 25% 搜索下滑)"
+    },
+    {
+      "hook": "工程 KPI says sub-700ms 就够. A 300ms pause sounds like the AI froze. The 400ms gap between 'engineering pass' and 'user hangup' is the trap. Your voice agent passes the latency test but the caller still hangs up. The math isn't end-to-end ms. It's P50 user-perception ms. Tune for the perception threshold, not the KPI dashboard.",
+      "format": "KPI-vs-Perception Gap Drop",
+      "pillar": "Pillar 4 — Build Logs",
+      "status": "pending",
+      "source_seed": "daily-research-2026-06-26.md Pillar 4 Source 4 (Inworld AI: 'Pauses longer than 300ms feel like the agent is frozen')"
+    },
+    {
+      "hook": "MIT 研究: 11.7% 的工作岗位已可被 AI 自动化替代. Not predicted. Measured. 风投已经在为 2026 年的 AI 预算增量预期相应的人力削减 (per 至顶网/编译 TechCrunch 2026-01-04). The threat isn't 2028. It's this quarter. The leverage play: spend 30 minutes this weekend wiring the automation. Monday you walk in as the most dangerous person in the department.",
+      "format": "MIT-Credible Threat Drop + Leverage Pivot",
+      "pillar": "Pillar 5 — Leverage Play / Job Defense",
+      "status": "pending",
+      "source_seed": "daily-research-2026-06-26.md Pillar 5 Source 5 (至顶网 / TechCrunch MIT 11.7% — NOT yet verified via PubMed; cite stat only, no fabricated PMID per Co-CEO rule)"
+    },
+    {
+      "hook": "80% of employees already use AI. 2 years ago it was 53%. The average worker now uses 7 AI tools (up from 2). Workday grew 5% more productive but average focus dropped to 13 minutes 7 seconds. AI isn't replacing your brain. It's fragmenting your attention. The leverage play: pick the 2 tools that recover your 13 minutes. Spend 30 minutes Sunday wiring them.",
+      "format": "Adoption-Fragmentation Cascade + Leverage Pivot",
+      "pillar": "Pillar 5 — Leverage Play / Job Defense",
+      "status": "pending",
+      "source_seed": "daily-research-2026-06-26.md Pillar 5 Source 2 (199IT 2026全球职场报告: 80% adoption / 2→7 tools / 8h53m→8h44m / 13分07秒 focus)"
+    },
+    {
+      "hook": "Nature Humanities and Social Sciences Communications 2026 (Lee, Jeong, Lee, DOI 10.1057/s41599-026-07415-5): automation isn't AI replacing whole jobs. It's AI eating tasks one by one. 332 tasks across 736 occupations measured. The walls between occupations are falling. The leverage play: list the 12 tasks in your job. Mark the 4 AI eats first. Specialize in the 8 AI can't touch.",
+      "format": "Academic-Framework + Sequential-Erosion Drop",
+      "pillar": "Pillar 5 — Leverage Play / Job Defense",
+      "status": "pending",
+      "source_seed": "daily-research-2026-06-26.md Pillar 5 Source 3 (Nature HSS Communications 'Contrasting pathways of automation' — VERIFIED DOI 10.1057/s41599-026-07415-5)"
+    },
+    {
+      "hook": "Hinton: AI capabilities double every 7 months. That's not a fear signal. It's a half-life signal for the prompt techniques you learn this weekend. By 2027, your best prompt will be native in the next model. The move isn't prompt engineering. It's problem-framing. Spend 30 minutes Sunday learning to write the question, not the instruction.",
+      "format": "Half-Life Pivot + Leverage Pivot",
+      "pillar": "Pillar 6 — Hype Translator",
+      "status": "pending",
+      "source_seed": "daily-research-2026-06-26.md Pillar 6 Source 3 (Hinton 7个月能力翻倍 + 脑力/体力/真实 三层威胁)"
+    },
+    {
+      "hook": "MiniMax Speech 2.6: sub-250ms latency, native read of '+1 415 415 9921' and '$1,234.56'. Voice agent sellers no longer need preprocessing for phone numbers, dates, amounts. New tool translation: engineering debt cut 50%. The HVAC shop's voice agent just shipped in 48 hours instead of 4 weeks. Boring. Profitable.",
+      "format": "Native-Scene Tool Translation (Contrarian-Hype variant)",
+      "pillar": "Pillar 6 — Hype Translator",
+      "status": "pending",
+      "source_seed": "daily-research-2026-06-26.md Pillar 6 Source 1 (MiniMax Speech 2.6 sub-250ms + 电话号码 native 朗读)"
     }
   ],
   "performance_log": [

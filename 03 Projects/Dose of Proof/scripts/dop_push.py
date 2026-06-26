@@ -7,6 +7,7 @@ schedules posts via Postiz REST API. Skips Pinterest (Dre manual push).
 """
 import argparse
 import csv
+import json
 import os
 import re
 import requests
@@ -16,6 +17,37 @@ from pathlib import Path
 
 PROJECT_ROOT = Path("/Users/brassfieldventuresllc/MiniMax-Agent/03 Projects/Dose of Proof")
 QUEUE_DIR = PROJECT_ROOT / "queue"
+
+# =============================================================================
+# §3d HALT HARD INTERLOCK — Co-CEO rule 2026-06-25
+# Per [[triage-gate-spec]] §3d, the push script refuses to run if HALTED.
+# This is a code-level precondition, not a prompt instruction.
+# =============================================================================
+HALT_STATE_FILE = Path.home() / ".mavis" / "state" / "dop-engine-halt.state"
+
+def check_halt_precondition() -> int:
+    """
+    Returns 0 if push may run, non-zero if HALTED.
+    Called as the FIRST action in main() before any work.
+    """
+    if not HALT_STATE_FILE.exists():
+        return 0  # No halt state file → push may run
+    try:
+        state = json.loads(HALT_STATE_FILE.read_text())
+        if state.get("halted"):
+            print(f"⛔ PUSH HALTED — refusing to run.", file=sys.stderr)
+            print(f"   Halted at: {state.get('halted_at')}", file=sys.stderr)
+            print(f"   Halted by: {state.get('halted_by')}", file=sys.stderr)
+            print(f"   Reason: {state.get('reason')}", file=sys.stderr)
+            print(f"   To resume: edit {HALT_STATE_FILE} and set halted:false, OR delete the file.", file=sys.stderr)
+            print(f"   See [[triage-gate-spec]] §3d.", file=sys.stderr)
+            return 78  # EX_CONFIG — configuration error
+        else:
+            return 0  # Halt state file present but halted:false → push may run
+    except (json.JSONDecodeError, KeyError) as e:
+        print(f"⛔ PUSH HALTED — halt state file malformed: {e}", file=sys.stderr)
+        print(f"   Treating as halted (fail-closed). See [[triage-gate-spec]] §3d.", file=sys.stderr)
+        return 78  # Treat malformed as halted (fail-closed)
 
 API_KEY = "3d484ba6f21899ad28365acbf29a3ebe30a1694aba811b4f414259581dcb5ccf"
 BASE_URL = "https://api.postiz.com/public/v1"
@@ -105,6 +137,12 @@ def parse_drafts_queue(drafts_path: Path) -> list[dict]:
 
 
 def main():
+    # §3d HALT HARD INTERLOCK — Co-CEO rule 2026-06-25
+    # First action in main(): refuse to run if engine is HALTED.
+    halt_rc = check_halt_precondition()
+    if halt_rc != 0:
+        sys.exit(halt_rc)
+
     parser = argparse.ArgumentParser(description="Dose of Proof queue → Postiz push")
     parser.add_argument("--date", default=datetime.now().strftime("%Y-%m-%d"),
                         help="Target date (default: today)")

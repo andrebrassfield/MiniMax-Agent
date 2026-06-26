@@ -1,5 +1,5 @@
 {
-  "last_scan_at": "2026-06-24T18:00:40-05:00",
+  "last_scan_at": "2026-06-25T18:00:27-05:00",
   "scan_init": true,
   "source_file": "03 Projects/X-Content-Engine/drafts/machine-batch-2026-06-17.md",
   "proposals": [
@@ -375,13 +375,18 @@
     }
   ],
   "schema_version": 1,
-  "last_run_at": "2026-06-23T18:00:00-05:00",
+  "last_run_at": "2026-06-25T18:00:27-05:00",
   "last_run_result": "no_new_drafts",
   "last_run_open_count": 1,
   "last_run_total_proposals": 19,
   "ticks": [
     {
       "tick_at": "2026-06-24T18:00:40-05:00",
+      "new_drafts_found": 0,
+      "open_proposals_at_tick": 1
+    },
+    {
+      "tick_at": "2026-06-25T18:00:27-05:00",
       "new_drafts_found": 0,
       "open_proposals_at_tick": 1
     }

@@ -1,0 +1,85 @@
+[
+  {
+    "test": "REGRESSION 1: PMID:37421564 + fb-004 rev1 (the actual fabrication)",
+    "expected": "SENSITIVE",
+    "actual": "SENSITIVE",
+    "pass": true,
+    "details": {
+      "pmid_verification": {
+        "valid": true,
+        "pmid": "37421564",
+        "title": "Electroacupuncture Alleviates Neuropathic Pain by Suppressing Ferroptosis in Dorsal Root Ganglion via SAT1/ALOX15 Signaling.",
+        "authors": [
+          "Wan K",
+          "Jia M",
+          "Zhang H"
+        ],
+        "journal": "Mol Neurobiol",
+        "pubdate": "2023 Oct"
+      },
+      "topic_match": {
+        "matches": false,
+        "overlap_terms": [],
+        "confidence": 0.0,
+        "threshold": 0.15,
+        "claim_term_count": 7,
+        "title_term_count": 10
+      },
+      "failures": [
+        "Citation 37421564 resolves but topic-overlap with claim is LOW (confidence=0.0, threshold=0.15). Paper title: 'Electroacupuncture Alleviates Neuropathic Pain by Suppressing Ferroptosis in Dorsal Root Ganglion via SAT1/ALOX15 Signal'. Overlap terms: []. Per \u00a71b: presence \u2260 validity. This citation does NOT support the specific claim."
+      ]
+    },
+    "elapsed_sec": 0.18
+  },
+  {
+    "test": "TEST 2: Hypothetical on-topic PMID (real PMID 12345678 exists)",
+    "expected": "SENSITIVE",
+    "actual": "SENSITIVE",
+    "pass": true,
+    "details": {
+      "pmid_verification": {
+        "valid": true,
+        "pmid": "12345678",
+        "title": "Denpasar Declaration on Population and Development.",
+        "authors": [
+          "Ministerial Meeting on Population of the Non-Aligned Movement (1993: Bali)"
+        ],
+        "journal": "Integration",
+        "pubdate": "1994 Jun"
+      },
+      "topic_match": {
+        "matches": false,
+        "overlap_terms": [],
+        "confidence": 0.0,
+        "threshold": 0.15,
+        "claim_term_count": 5,
+        "title_term_count": 4
+      }
+    }
+  },
+  {
+    "test": "TEST 3: No citations (educational content, no cite)",
+    "expected": "CLEAR",
+    "actual": "CLEAR",
+    "pass": true,
+    "details": {
+      "citations_found": 0
+    }
+  },
+  {
+    "test": "TEST 4: Fabricated PMID (99999999 does not resolve)",
+    "expected": "SENSITIVE",
+    "actual": "SENSITIVE",
+    "pass": true,
+    "details": {
+      "pmid_verification": {
+        "valid": false,
+        "pmid": "99999999",
+        "error": "cannot get document summary"
+      },
+      "failures": [
+        "Citation 99999999 (pmid) FAILED to resolve: cannot get document summary"
+      ]
+    }
+  }
+]
