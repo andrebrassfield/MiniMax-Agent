@@ -2024,3 +2024,66 @@ Phase 4 — Sprint review + sign-off
 *Last updated: 2026-06-26 11:54 CT (Sign-off (B) locked. v0.5 sprint OPEN. Citation gate SHIPPED v0.5 STAGING. Engine HALTED. Hard interlock confirmed at 3 layers.)*
 
 *Last updated: 2026-06-25 21:10 CT (Cron HALT violated; 11 drafts generated but discarded; 0/8 pushed due to format mismatch; queue restored from git HEAD; no Postiz-side damage; no IMs.)*
+
+---
+
+## V1-V12 Re-Confirm Post — 2026-06-26 18:00 CT (cron dop-re-confirm-v1-v12, single-fire)
+
+**Trigger:** Co-CEO Option A directive 2026-06-25 18:24 CT — "18:00 CT June 26, Mavis posts V1-V12 binary status to HITL channel. Co-CEO reviews. All 12 confirmed → engine resumes. Any unconfirmed → hold extends, no exceptions, no partial credit."
+
+**Cron fired:** `dop-re-confirm-v1-v12` at 18:00 CT 2026-06-26 in session `mvs_b176c0f75af74c7f948914afc1ddc6f4`. Read-only/reporting per [[triage-gate-spec]] §3d.2. Engine + push NOT invoked this run.
+
+### Verdict
+
+**10 CONFIRMED, 2 NOT CONFIRMED, 0 UNCONFIRMED.**
+
+| V | Item | Status | Runtime evidence (verified this cron) |
+|---|------|--------|------------------------------------|
+| V1 | Generator self-classification | ✅ CONFIRMED | `dop_engine.py` `emit_classification_header()` L398-426; no edits since 18:50 CT 2026-06-25 |
+| V2 | Sensitivity taxonomy loaded | ❌ **NOT CONFIRMED** | S1 regex gap (Delta 7) closed in `dop_engine_v0_4.py`, but v0.4 HELD. v0.5 sprint in progress per Sign-off B 2026-06-26 11:54 CT. LLM calibration is the open work item; engine stays HALTED until calibration clears <10% FPR. |
+| V3 | Block record format | ✅ CONFIRMED | §3a 15-field schema tested via retro-screen (3 records restored after Delta 9) |
+| V4 | HITL notification channel | ✅ CONFIRMED | Both legs operational. Telegram leg verified 2026-06-25 20:34 CT (msg 2249 to dual chats 6598264778 + 5999803541). Obsidian leg = this very file. |
+| V5 | 4-hour SLA logic | ✅ CONFIRMED | `dop_sla_enforcer.py` operational; auto-kill on `dop-fb-20260626-004-rev1` scheduled 2026-06-26T00:35 CT |
+| V6 | Unblock authority + reach | ✅ CONFIRMED | Founder via Obsidian + Telegram; Co-CEO direct via Telegram (no Dre relay) |
+| V7 | performance_log schema | ✅ CONFIRMED | `memory/dose-of-proof-performance-log.json` JSON array, §6 15-field schema live |
+| V8 | Hook-family taxonomy | ✅ CONFIRMED | 8 §5 families loaded in `dop_engine.py` L114-123; pillar-derived auto-assign (Delta 6) |
+| V9 | D1/D7 capture method | ✅ CONFIRMED | `dop_performance_logger.py --action capture-d1/capture-d7` named + tested; manual capture protocol documented per `specs/v9-manual-capture-protocol.md` |
+| V10 | July 7 review calendared | ❌ **NOT CONFIRMED** | Doc + T-1 + T-0 crons ✅. Google Calendar entry NOT created (read-only MCP). Dre manual action required. |
+| V11 | Vault mirror status | ✅ CONFIRMED | `specs/v11-v12-delta-declaration.md` exists with all 10 deltas |
+| V12 | Delta declaration | ✅ CONFIRMED | Same spec, complete delta tracking |
+
+### Engine status
+
+🛑 **HOLD EXTENDED.** Per spec §7 strict reading: "Engine does not run without a confirmed gate." Per Co-CEO Option A: "no partial credit."
+
+### Action items
+
+1. **V2 closure (in-flight sprint):** v0.5 calibration continues per `specs/v0.5-staged-plan.md`. Citation gate SHIPPED v0.5 STAGING (`scripts/citation_gate.py` last modified 2026-06-26 12:01 CT). LLM prompt re-write + CLEAR-example demos + extended regression set are the open tasks. Co-CEO call on whether v0.5 ships before re-confirm post or after.
+2. **V10 closure (Dre scope):** Dre adds July 7 10:00-11:00 CT review event manually to Google Calendar. Instructions in `calendar/2026-07-07-review.md` "Calendar entry" section. `google-calendar` MCP is read-only; cannot be automated.
+
+### Files written this run
+
+- `01 Daily/2026-06-26-hitl-dose-of-proof.md` (NEW — Obsidian leg of HITL channel, V1-V12 binary post per cron workflow step 4)
+- `03 Projects/Dose of Proof/OPERATIONS-LOG.md` (this entry)
+
+### Files NOT touched this run (verified)
+
+- `~/.mavis/state/dop-engine-halt.state` — UNCHANGED (halted:true intact; verified read-only)
+- `03 Projects/Dose of Proof/scripts/dop_engine.py` — UNCHANGED (last modified 2026-06-25 21:26 CT)
+- `03 Projects/Dose of Proof/scripts/dop_push.py` — UNCHANGED (last modified 2026-06-25 21:27 CT)
+- `03 Projects/Dose of Proof/scripts/dop_sla_enforcer.py` — UNCHANGED (last modified 2026-06-25 18:41 CT)
+- `03 Projects/Dose of Proof/queue/*` — UNCHANGED (drafts/pins still in queue/hold/; published-2026-06-26 preserved; blocked-records preserved)
+- `03 Projects/Dose of Proof/memory/dose-of-proof-performance-log.json` — UNCHANGED
+- `03 Projects/Dose of Proof/specs/v11-v12-delta-declaration.md` — UNCHANGED (read-only this run)
+
+### No Postiz API calls this run. No engine scripts invoked this run. No IMs sent from this cron.
+
+**Decision sits with Co-CEO at this post.** Hold extends by default per spec §7 + Option A directive. Pragmatic exception (Option B reading) requires Co-CEO ruling.
+
+### Re-arm protocol
+
+This cron is single-fire per `~/.mavis/agents/mavis/crons/dop-re-confirm-v1-v12.md` ("Re-confirm happens at 18:00 CT June 26 ONLY"). Re-arm manually if another review cycle is needed.
+
+---
+
+*Last updated: 2026-06-26 18:00 CT — V1-V12 re-confirm cron fired clean. 10/12 confirmed. Engine HALT extended. Hard interlock verified (no scripts invoked this run). Awaiting Co-CEO review.*

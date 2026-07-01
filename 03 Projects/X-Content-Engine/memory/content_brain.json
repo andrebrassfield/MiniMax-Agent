@@ -349,6 +349,41 @@
       "why_it_works": "The perception-vs-engineering-KPI distinction is the load-bearing insight. 300ms is a specific user-perception number the reader hasn't seen before. Pairs with the 2026-06-25 P4 'Sub-300ms frontier + 4-bit TSLAM + 2000+ calls/day' hook (engineering frontier) — this is the perception-layer reframe that adds the 'why sub-300ms matters even though your KPI says sub-700ms' diagnosis. Pillar 4 specific.",
       "date_added": "2026-06-26",
       "times_used": 0
+    },
+    {
+      "text": "Gartner said 25% of search by 2028. Statista says 35% of search is now generative. Two years ahead of the forecast. ChatGPT. Perplexity. Copilot. 89% of AI answers come from EEAT ≥ 80 sites. The moat is the citation. The fix is schema.",
+      "emotion": "fear",
+      "why_it_works": "Forecast-beat hook (35% by 2025 vs Gartner's 25% by 2028) flips temporal anxiety from future to present. The 89% EEAT ≥ 80 stat is the named-anchor authority gate. Pairs with persona Example 7 (25% Gartner drop). Pillar 3 specific.",
+      "date_added": "2026-06-27",
+      "times_used": 0
+    },
+    {
+      "text": "HVAC shops miss 27% of inbound calls during peak season. 100 calls/week × 27% = 27 missed × $300 × 26 peak weeks = $210K/year burned. ServiceTitan now ships a 90% booking voice agent. The math is the product.",
+      "emotion": "fear",
+      "why_it_works": "Peak-season-specific missed-call rate (27%) + 4-number multiplication chain ($210K/yr) is the named-anchor revenue hole. Pairs with persona Example 1 ($450 × 8 calls/day) — different angle (rate-driven vs per-call absolute). Pillar 2 specific.",
+      "date_added": "2026-06-27",
+      "times_used": 0
+    },
+    {
+      "text": "Agora's Conversational AI Engine hits 650ms median in production. The persona's ceiling is 700ms. The frontier just moved below it. Sub-700ms was 2025. Sub-650ms is 2026. TEN is the open-source alternative that plugs into Dify + Coze. Build or buy. The math is the product.",
+      "emotion": "clarity",
+      "why_it_works": "Production-median stat (650ms) BELOW the persona's 700ms ceiling inverts the engineering-KPI narrative. The TEN + Dify/Coze open-source pairing is the freshest Pillar 4 angle in the cycle. Pairs with persona Example 9 (920ms → 640ms changelog). Pillar 4 specific.",
+      "date_added": "2026-06-27",
+      "times_used": 0
+    },
+    {
+      "text": "Fudan / Shanghai Forum 2026: AI isn't job displacement. It's structural transformation. 博客园: 你的价值被压缩到原来的 30%. AI 从'助手'变成'执行者'. The amplifier class keeps the other 70%. The abstainer class falls to 30%. The 30-minute weekend is the move.",
+      "emotion": "defiance",
+      "why_it_works": "Fudan academic authority (Shanghai Forum 2026 + ZHANG Jun) + 30% 价值压缩 stat from 博客园 malixiao = academic + mainstream dual-anchor Pillar 5. The amplifier/compressed reframe pairs with persona Example 4 (30-min weekend leverage play). Pillar 5 specific.",
+      "date_added": "2026-06-27",
+      "times_used": 0
+    },
+    {
+      "text": "SMB SaaS had 23 tools in 2023. Now they have 7. The 3-4 tool sweet spot. 67% of high-growth SMBs run end-to-end automation. The laggards run 11%. Weekly report: 4.2 hours → 23 minutes. The math is the discipline. Stop adding tools. Start purging.",
+      "emotion": "recognition",
+      "why_it_works": "Four-stat stack-purge cascade (23→7 / 3-4 sweet spot / 67% vs 11% / 4.2hr→23min) is the named-anchor SMB stack discipline. The 67% vs 11% growth differential is the named-anchor ROI math. Pairs with persona's tactical cadence. Pillar 6 specific.",
+      "date_added": "2026-06-27",
+      "times_used": 0
     }
   ],
   "formats": [
@@ -551,6 +586,26 @@
     {
       "structure": "Half-Life Pivot: '[Authority] says [capability] doubles every [time period]. That's not a [fear] signal. It's a half-life signal for [the skill you learned this weekend]. [The move: reframe from X to Y].'",
       "why_it_works": "Time-decay reframe that converts a fear-of-AI claim into a skill-rotation insight. The 'half-life' framing is the rhetorical pivot. Pillar 6 default for hype-translation of AI-capability-doubling claims (Hinton 7-month half-life is the canonical case)."
+    },
+    {
+      "structure": "Three-Enforcement-Layer Drop: '[Layer 1 enforcement] + [Layer 2 enforcement] + [Layer 3 added this date]. [Threshold]. [Punishment stack]. [The fix in 1 line].'",
+      "why_it_works": "Three-layer regulatory compounding creates compounding urgency. The reader's eye locks on the 'this just added another layer' framing. The punishment stack (扣分 + 限单 + 延长结算) is the load-bearing element. Pillar 1 default for compound regulatory regimes (TikTok Shop LDR + OTDR + AHR is the canonical case)."
+    },
+    {
+      "structure": "Peak-Season Missed-Call Math: '[N]% × [Volume/week] × [Period weeks] = $[Loss/season]. [Average ticket]. [Total annual loss]. [The fix].'",
+      "why_it_works": "Peak-season-specific framing (vs annual absolute) makes the math seasonal-urgent. The 4-number multiplication chain (rate × volume × period × ticket) is the load-bearing element. Pillar 2 default for HVAC seasonal-window math (27% missed × 26 peak weeks is the canonical case)."
+    },
+    {
+      "structure": "Forecast-Beat Drop: '[Authority A] said [X by Year Y]. [Reality] is [X by Year Z]. [Time gap]. [Implication: the threat arrived faster than projected]. [The fix].'",
+      "why_it_works": "Time-gap framing (arrived Z-Y years ahead of forecast) flips temporal anxiety from future to present. The authority-vs-reality contrast is the load-bearing element. Pillar 3 default for 'arrived faster than Gartner said' claims (35% by 2025 vs 25% by 2028 is the canonical case)."
+    },
+    {
+      "structure": "Production-Median Latency Drop: '[Vendor] hits [N]ms median in [M] calls/day production. The persona's ceiling is [K]ms. The frontier just moved below it. [Year-N-1 ceiling]. [Year-N reality]. [Vendor or open-source alternative].'",
+      "why_it_works": "Production-median stat inverts the engineering-KPI narrative (production reality beats the persona's anchor). The vendor + open-source alternative pairing gives the reader both paths. Pillar 4 default for vendor-side real-world latency stats (Agora 650ms vs persona 700ms is the canonical case)."
+    },
+    {
+      "structure": "Stack-Purge Stat Cascade: '[Old tool count] → [New tool count]. [Sweet spot number]. [N1]% [high-growth cohort] vs [N2]% [laggard cohort]. [Time savings stat: N3 hr → N4 min]. [The math is the discipline].'",
+      "why_it_works": "Four-stat cascade (count purge + sweet spot + growth differential + time savings) compounds the SMB stack-discipline narrative. The growth differential is the named-anchor ROI math. Pillar 6 default for SMB tool-discipline stories (23→7 tools, 67% vs 11%, 4.2hr→23min is the canonical case)."
     }
   ],
   "pain_points": [
@@ -752,6 +807,26 @@
     },
     {
       "exact_audience_language": "TikTok Shop 卖家被结构性锁定到 TikTok 官方履约, 自发货 2月25日 完全关停",
+      "frequency": 1
+    },
+    {
+      "exact_audience_language": "TikTok Shop OTDR 80% threshold, TikTok Shipping纳入考核 June 2026, AHR 扣分 + 限单 + 延长结算 = 三连击",
+      "frequency": 1
+    },
+    {
+      "exact_audience_language": "HVAC shops miss 27% of inbound calls during peak season (ServiceTitan Facebook, 2026)",
+      "frequency": 1
+    },
+    {
+      "exact_audience_language": "35% of search is now generative (Statista 2025 forecast, arrived 2 years ahead of Gartner's 25% by 2028)",
+      "frequency": 1
+    },
+    {
+      "exact_audience_language": "声网 Conversational AI Engine 650ms 中位数 in production, 95% 纯净对话, 误打断率较 ChatGPT -50%",
+      "frequency": 1
+    },
+    {
+      "exact_audience_language": "SMB SaaS had 23 tools in 2023, now 7. 3-4 tool sweet spot. 67% 高增长 SMB (>30% YoY) vs 11% laggard median growth. Weekly report: 4.2 hr → 23 min",
       "frequency": 1
     }
   ],
@@ -1333,6 +1408,76 @@
       "pillar": "Pillar 6 — Hype Translator",
       "status": "pending",
       "source_seed": "daily-research-2026-06-26.md Pillar 6 Source 1 (MiniMax Speech 2.6 sub-250ms + 电话号码 native 朗读)"
+    },
+    {
+      "hook": "TikTok Shop just added a third enforcement layer. 80% OTDR threshold. TikTok Shipping纳入考核 June 2026. AHR扣分 + 限单 + 延长结算 三连击. Two weeks ago, LDR tier enforcement. Today, OTDR scope expansion. Yesterday, the OTDR June 8 reversal. The math isn't a single penalty. It's three layers stacking. Your 4% LDR was last month's problem. Your 80% OTDR is today's. The fix: real-time inventory sync + the $15-20/mo cross-channel SaaS that prevents the $5/单 fine. Three layers, one hedge.",
+      "format": "Three-Enforcement-Layer Drop",
+      "pillar": "Pillar 1 — E-Commerce Logistics",
+      "status": "pending",
+      "source_seed": "daily-research-2026-06-27.md Pillar 1 Sources 1+2+3 (TikTok Shop LDR US 1月26日 + Malaysia 4% healthy threshold + 2026-06 OTDR expansion 80% threshold)"
+    },
+    {
+      "hook": "HVAC shops miss 27% of inbound calls during peak season. The math: 100 calls/week × 27% = 27 missed × $300 average ticket × 26 peak weeks = $210K/year burned. ServiceTitan now ships a native voice agent that books 90%. Sub-2-rings answer. The HVAC shop with 2 voice agents and zero dispatcher time is the new floor. Bill Joplin's Air Conditioning and Heating has the proof. Your HVAC shop has the gap.",
+      "format": "Peak-Season Missed-Call Math",
+      "pillar": "Pillar 2 — Trades / Missed Call",
+      "status": "pending",
+      "source_seed": "daily-research-2026-06-27.md Pillar 2 Sources 1+2 (ServiceTitan 90% booking + 27% missed-call rate peak season)"
+    },
+    {
+      "hook": "Three numbers to memorize: 27% peak-season missed. Under-2-rings answer. 90% ServiceTitan booking. The math is the install. The HVAC shop running this stack catches the 27% missed, answers under 2 rings, books at 90%. The math stack: 27% missed → under-2-rings answer → 90% booking. Voice agent or hire a dispatcher. The dispatcher is $46K/yr. The voice agent is $400/mo. Build the stack this quarter.",
+      "format": "Three-Number Math Stack",
+      "pillar": "Pillar 2 — Trades / Missed Call",
+      "status": "pending",
+      "source_seed": "daily-research-2026-06-27.md Pillar 2 Sources 1+2+4 (27% missed + 90% booking + under-2-rings SLA)"
+    },
+    {
+      "hook": "Gartner said 25% of search by 2028. Statista says 35% of search is now generative. Two years ahead of the forecast. ChatGPT. Perplexity. Copilot. 89% of AI answers come from EEAT ≥ 80 sites. The moat is the citation. The fix is schema. Author entities. Primary-source citation density. The volume war is over. The citation war is the next one. Build the cognitive asset stack or lose the answer.",
+      "format": "Forecast-Beat Drop + Citation-Order Pivot",
+      "pillar": "Pillar 3 — Existential Macro Threat / GEO",
+      "status": "pending",
+      "source_seed": "daily-research-2026-06-27.md Pillar 3 Source 1 (CSDN/feibai110 Statista 35% + Semrush 89% EEAT ≥ 80)"
+    },
+    {
+      "hook": "Agora's Conversational AI Engine hits 650ms median in production. The persona's ceiling is 700ms. The frontier just moved below itself. 95% voice lock. 50% lower false-interruption rate than ChatGPT. Sub-700ms was 2025. Sub-650ms is 2026. TEN is the open-source alternative — plugs into Dify, Coze, your stack. Build or buy. The math is the product. The persona's voice-anchor just moved.",
+      "format": "Production-Median Latency Drop + Vendor/Open-Source Pairing",
+      "pillar": "Pillar 4 — Build Logs",
+      "status": "pending",
+      "source_seed": "daily-research-2026-06-27.md Pillar 4 Sources 2+3 (声网 Agora 650ms + 95% voice lock + TEN framework + Dify/Coze)"
+    },
+    {
+      "hook": "Fudan University / Shanghai Forum 2026 (ZHANG Jun, Dean of Economics): AI isn't job displacement. It's structural transformation. The 9-to-5 fault line isn't AI vs human. It's AI-user vs AI-abstainer. AI coordinator is a real job title. The salary: $80K-$120K. The barrier: knowing which AI does what. The leverage play: 30 minutes this weekend. Walk in Monday as the most dangerous person in the room.",
+      "format": "Academic-Authority + Leverage Pivot",
+      "pillar": "Pillar 5 — Leverage Play / Job Defense",
+      "status": "pending",
+      "source_seed": "daily-research-2026-06-27.md Pillar 5 Source 1 (复旦大学 Shanghai Forum 2026 ZHANG Jun structural transformation framing)"
+    },
+    {
+      "hook": "博客园 malixiao: 你的价值被压缩到原来的 30%. Not fired. Compressed. AI 从'助手'变成'执行者'. 以前 3 个人干的活,现在 1 个人 + AI. The amplifier class keeps the other 70%. The abstainer class falls to 30%. The 30-minute weekend play: list your 12 weekly tasks. Mark the 4 AI eats first. Become undeniable on the other 8. 效率兑现年 is here. 成本逻辑启动,变化会非常快.",
+      "format": "Compression-Math Drop + 放大器 Reframe",
+      "pillar": "Pillar 5 — Leverage Play / Job Defense",
+      "status": "pending",
+      "source_seed": "daily-research-2026-06-27.md Pillar 5 Source 3 (博客园 / malixiao 30% 价值压缩 + 放大器 + 效率兑现年)"
+    },
+    {
+      "hook": "Fudan 2026 academic: structural transformation, not displacement. 博客园: 30% 价值压缩 + 放大器. 李彦宏 WAIC: AI 替换的是脑力劳动的体力活. Three sources. One conclusion: AI replaces the 体力活 inside your brain. The 30-minute weekend: automate your 周报, 整理数据, 排会议. The 金头脑 is grown from 金手指. Monday you walk in as the decision-maker. Tuesday the AI does the grunt.",
+      "format": "Tri-Source Consensus + Leverage Pivot",
+      "pillar": "Pillar 5 — Leverage Play / Job Defense",
+      "status": "pending",
+      "source_seed": "daily-research-2026-06-27.md Pillar 5 Sources 1+3+5 (Fudan + 博客园 malixiao + 李彦宏 WAIC 体力活)"
+    },
+    {
+      "hook": "SMB SaaS had 23 tools in 2023. Now they have 7. The 3-4 tool sweet spot. 67% of high-growth SMBs (>30% YoY growth) run end-to-end automation across at least 2 core business flows. Laggards: 11% median growth. Weekly report: 4.2 hours → 23 minutes. The math is the discipline. Stop adding tools. Start purging. Your CRM, your AI second brain, your automation layer — pick three. The other four are noise.",
+      "format": "Stack-Purge Stat Cascade",
+      "pillar": "Pillar 6 — Hype Translator",
+      "status": "pending",
+      "source_seed": "daily-research-2026-06-27.md Pillar 6 Source 3 (网易 23→7 工具 purge + 3-4 sweet spot + 67% vs 11% + 4.2hr→23min)"
+    },
+    {
+      "hook": "IDC: SMB 2026 strategic adoption, not experimentation. 人人都是产品经理: vertical 小模型 > 通用大模型. 医疗 +20% 准确率. 工业 -30% 设备停机时间. 电商客服 80% 自动化. BAAI: 协作式 AI + 边缘 AI 爆发年. Three sources. One conclusion: stop adding horizontal tools. Start deploying vertical AI that closes a loop. Stop paying for cloud-everything. Start running edge for latency. Boring. Profitable. The math is the discipline.",
+      "format": "Tri-Source Macro-Shift Drop + Stack-Discipline Close",
+      "pillar": "Pillar 6 — Hype Translator",
+      "status": "pending",
+      "source_seed": "daily-research-2026-06-27.md Pillar 6 Sources 1+2+5 (IDC SMB 2026 + 人人都是产品经理 vertical 小模型 + BAAI 中华网 协作式 AI + 边缘 AI)"
     }
   ],
   "performance_log": [
